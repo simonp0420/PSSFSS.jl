@@ -98,7 +98,7 @@ function meshsub(;points::Matrix{<:Real}, seglist::Matrix{<:Integer},
             found = false
             for i in 1:length(sh.e1)
                 if (sh.e1[i] == m1 && sh.e2[i] == m2) || (sh.e1[i] == m2 && sh.e2[i] == m1)
-                    sh.fe[side] = i
+                    sh.fe[side,tri] = i
                     found = true
                     break
                 end

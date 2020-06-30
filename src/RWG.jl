@@ -13,11 +13,13 @@ Symposium Digest* (Cat. No.02CH37278), Seattle, WA, USA, 2002, pp. 2029-2032
 vol. 3, doi: 10.1109/MWSYM.2002.1012266.
 """
 module RWG
-export RWGData, setup_rwg, edge_current_unit_vector
+export RWGData, setup_rwg, edge_current_unit_vector, setup_rwg2
 
 
 using ..Sheets: RWGSheet, MV2, SV2
-using LinearAlgebra: ⋅, norm  
+using StaticArrays: SVector
+using LinearAlgebra: ⋅, norm
+using NearestNeighbors: KDTree, inrange
 
 struct RWGData
     #  Basis function edge indices.  The value in bfe[1,i] is index of the
@@ -76,7 +78,19 @@ and thus the default action, when `sheet.fufp` is .false.,
 is to skip the search.  The tradeoff is the greater time needed to fill the 
 interaction matrix when all face pairs are considered unique.
 """
-function setup_rwg(sheet::RWGSheet)::RWGData
+
+"""
+    setup_rwg(sheet::RWGSheet)::RWGdata
+
+This function accepts the sheet geometry data structure as created
+by the function `get_sheet_data` and creates a instance of `RWGdata` as the
+function return value.  When `sheet.fufp` is `true`, it directs this 
+function to search for unique face pairs.  This search can be time consuming 
+and thus the default action, when `sheet.fufp` is .false., 
+is to skip the search.  The tradeoff is the greater time needed to fill the 
+interaction matrix when all face pairs are considered unique.
+"""
+function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     tol = 1.e-5 # Comparison tolerance
     ieη0 = Int[] # List edges at η=0
     ieη1 = Int[] # List edges at η=1
@@ -245,9 +259,9 @@ function setup_rwg(sheet::RWGSheet)::RWGData
     i == nbf || error("Inconsistent number of basis functions")
 
     
+    nufp =  nface*nface 
+    ufpm = reshape(Vector(1:nufp), (nface,nface))
     if !sheet.fufp  # Don't search for unique face pairs. Assume all are unique.
-        nufp =  nface*nface 
-        ufpm = reshape(Vector(1:nufp), (nface,nface))
         ufp2fp = [ [i] for i in 1:nufp]
         return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, nufp)
     end
@@ -266,135 +280,51 @@ function setup_rwg(sheet::RWGSheet)::RWGData
     #  array of face/pair indices.  Row i contains a list of the face/pairs 
     #  that are members of equivalence class i.  Two face pairs belong to 
     #  the same equivalence class if the source triangles can be overlaid
-    #  using a rigid translation and if the observation point (centroid 
+    #  using a rigid translation, the source triangle nodes are listed
+    #  in the same order, and if the observation point (centroid 
     #  of the match triangle) is in the same relative position wrt the 
-    #  source triangle.
+    #  source triangle.  This version uses the NearestNeighbors package:
 
       #  Allocate the unique face pairs matrix and some scratch arrays.
-    nhash_max = min(20000,nface^2) # Max. number of distinct hash values
-    ahash = zeros(6)
-    ahash[1] = 1.0e10 / sqrt(2) / nhash_max
-    ahash[2] = 1.0e10 / sqrt(3) / nhash_max
-    ahash[3] = 1.0e10 / sqrt(5) / nhash_max
-    ahash[4] = 1.0e10 / sqrt(7) / nhash_max
-    ahash[5] = 1.0e10 / sqrt(11) / nhash_max
-    ahash[6] = 1.0e10 / sqrt(13) / nhash_max
     ufpm = zeros(Int, (nface,nface))
-    pqlocator = zeros(Int, nface*nface)
-    hash = zeros(Int, nface*nface)
-    nhash = zeros(Int, nhash_max)
-    nufpec = zeros(Int, nface*nface) # Number of members of each E.C.
     
     r1 = @view sheet.ρ[sheet.fv[1,:]]
     r2 = @view sheet.ρ[sheet.fv[2,:]]
     r3 = @view sheet.ρ[sheet.fv[3,:]]
     centroid = [(r1[n] + r2[n] + r3[n]) / 3 for n in eachindex(r1)]
-    xmin, xmax = extrema(x->x[1], sheet.ρ)
-    ymin, ymax = extrema(x->x[2], sheet.ρ)
-    xrange = 2*(xmax - xmin) + 2.0e-10
-    xmax = xrange
-    xmin = -xrange
-    yrange = 2*(ymax - ymin) + 2.0e-10
-    ymax = yrange
-    ymin = -yrange
-    ahash[1] = ahash[1] / xrange
-    ahash[2] = ahash[2] / xrange
-    ahash[3] = ahash[3] / xrange
-    ahash[4] = ahash[4] / yrange
-    ahash[5] = ahash[5] / yrange
-    ahash[6] = ahash[6] / yrange
-    
-    # Compute hash code for each face pair:
-    #  Test each face pair to see which equivalence class it belongs to:
+    data = Array{SVector{6,Float64}}(undef, nface^2)
+    #  Characterize each face pair:
     mn = 0
-    xhash = zeros(6)
     for n in 1:nface, m in 1:nface
         mn += 1 # Bump single face/face index.
         # Calculate test vectors for face pair (m,n):
         rmn1 = centroid[m] - r1[n]
         rmn2 = centroid[m] - r2[n]
         rmn3 = centroid[m] - r3[n]
-        # Compute the base (nbin) digits of the hash code:
-        xhash[1] = rmn1[1] - xmin
-        xhash[2] = rmn2[1] - xmin
-        xhash[3] = rmn3[1] - xmin
-        xhash[4] = rmn1[2] - ymin
-        xhash[5] = rmn2[2] - ymin
-        xhash[6] = rmn3[2] - ymin
-        hr = 0.0 # Initialize hash value
-        for i in 1:6 # Evaluate the hash value
-            hr += xhash[i] * ahash[i]
-        end
-        hr = mod(hr, 1)
-        h = round(Int, nhash_max * hr)
-        h < 1 && (h = 1)
-        hash[mn] = h
-        nhash[h] += 1
+        data[mn] = SVector{6,Float64}(rmn1[1], rmn1[2], rmn2[1], rmn2[2], rmn3[1], rmn3[2])
     end
-      
-    ufpm[1] = 1  # Initial unique face pair.
-    pqlocator[1] = 1 # Initialize list of pq indices for each ufp number.
-    nufp = 1       # Initialize count of unique face pairs.
-    nufpec[1] = 1  # First equivalence class has a single member.
-    mn = 0     # Initialize equivalent single-index.
-    facetol = 1.e-5 * norm(r2[1]-r1[1])  # Testing tolerance for faces.
-    #  Test each face pair to see which equivalence class it belongs to:
-    for n in 1:nface
-        for m = 1:nface
-            mn += 1 # Bump single face/face index.
-            # Check that face pair (m,n) is already assigned to an equivalence class:
-            ufpm[mn] == 0 || continue
-            # Calculate test vectors for face pair (m,n):
-            rmn1 = centroid[m] - r1[n]
-            rmn2 = centroid[m] - r2[n]
-            rmn3 = centroid[m] - r3[n]
-            hashmn = hash[mn]
-            # Search previously defined ufp's for a match:
-            old_ufp_found = false
-            for old_ufp = 1:nufp
-                # Locate a face pair that is assigned old_ufp
-                pq = pqlocator[old_ufp]
-                hash[pq] != hashmn && continue
-                q = 1 + div(pq-1, nface)  # Equivalent column index
-                p = pq - nface*(q-1)    # Equivalent row index
-                # Check if face pairs are equivalent:
-                abs(rmn1[1]-(centroid[p][1]-r1[q][1])) > facetol && continue
-                abs(rmn1[2]-(centroid[p][2]-r1[q][2])) > facetol && continue
-                abs(rmn2[1]-(centroid[p][1]-r2[q][1])) > facetol && continue
-                abs(rmn2[2]-(centroid[p][2]-r2[q][2])) > facetol && continue
-                abs(rmn3[1]-(centroid[p][1]-r3[q][1])) > facetol && continue
-                abs(rmn3[2]-(centroid[p][2]-r3[q][2])) > facetol && continue
-                # We found a match:
-                ufpm[mn] = old_ufp  # Record it.
-                nufpec[old_ufp] += 1  # Bump # of members of equiv. class.
-                old_ufp_found = true
-                break  # Go check next face pair.
-            end
-            if !old_ufp_found
-                nufp += 1   # Bump count of unique face pairs.
-                ufpm[mn] = nufp   # Record it.
-                pqlocator[nufp] = mn
-                nufpec[nufp] += 1  # Bump # of members of equiv. class
-            end
-        end
-    end
-      
 
-    ufp2fp = [zeros(Int, k) for k in nufpec if k>0] # Allocation
-    
-    nufpec .= 0  # Reuse as member counter for each equivalence class.
+    kdtree = KDTree(data, leafsize=leafsize)
+    ufp2fp = Vector{Int}[]
     mn = 0  # Initialize face/pair index.
+    nufp = 0
+    found = fill(false, nface^2)
+    r = 1e-6 * norm(centroid[1] - centroid[2])
     for n in 1:nface, m in 1:nface
         mn += 1  # Bump global face/pair counter.
-        iufp = ufpm[mn]  # Get face/pair equivalence class index.
-        nufpec[iufp] += 1  # Bump # of entries in this E.C.
-        ufp2fp[iufp][nufpec[iufp]] = mn
+        found[mn] && continue
+        nufp += 1
+        idxs = inrange(kdtree, data[mn], r, true)
+        found[idxs] .= true
+        push!(ufp2fp, idxs)
+        ufpm[idxs] .= nufp
     end
-
+    nufp == length(ufp2fp) || error("Miscount of nufp")
+    
     return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, nufp)    
 
 end # function setup_rwg
-  
+
 
 
 zhatcross(t) = SV2([-t[2], t[1]])
