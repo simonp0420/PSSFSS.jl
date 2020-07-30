@@ -78,18 +78,6 @@ and thus the default action, when `sheet.fufp` is .false.,
 is to skip the search.  The tradeoff is the greater time needed to fill the 
 interaction matrix when all face pairs are considered unique.
 """
-
-"""
-    setup_rwg(sheet::RWGSheet)::RWGdata
-
-This function accepts the sheet geometry data structure as created
-by the function `get_sheet_data` and creates a instance of `RWGdata` as the
-function return value.  When `sheet.fufp` is `true`, it directs this 
-function to search for unique face pairs.  This search can be time consuming 
-and thus the default action, when `sheet.fufp` is .false., 
-is to skip the search.  The tradeoff is the greater time needed to fill the 
-interaction matrix when all face pairs are considered unique.
-"""
 function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     tol = 1.e-5 # Comparison tolerance
     ieη0 = Int[] # List edges at η=0

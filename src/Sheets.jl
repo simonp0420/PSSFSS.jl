@@ -89,7 +89,7 @@ RWGSheet() = RWGSheet("", u"mm",            # style, units
 """
     read_sheet_data(filename::AbstractString)
 
-Read the sheet geometry data from a BSON file named in `filename`.
+Read the sheet geometry data from a file named in `filename`.
 The return value of the function is a variable of type `RWGSheet` 
 which has the components `style`, `units`, `s₁`, `s₂`, `β₁`, `β₂`, `ρ`,
 `e1`, `e2` `fv`, `fe`, `fr`, `class`, `info`, `ξη_check`, and `fufp` 
@@ -102,7 +102,7 @@ end # function
 """
     write_sheet_data(filename::AbstractString, sheet::RWGSheet)
 
- Write the sheet geometry data to a BSON file named in `filename`.
+ Write the sheet geometry data to a file named in `filename`.
  `sheet` is assumed to have at least the components `style`, `units`, 
  `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, `fr`, `class`, 
  `info`, `ξη_check`, and `fufp` properly initialized.

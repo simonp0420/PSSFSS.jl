@@ -2,6 +2,7 @@
 *.jl.cov
 *.jl.mem
 /docs/build/
+/docs/TheoryDocs/
 /sandbox/
 
 src/junk.jl
