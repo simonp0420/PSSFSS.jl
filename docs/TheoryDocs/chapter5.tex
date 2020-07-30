@@ -1,0 +1,715 @@
+\chapter{Green's Functions for Multiply Stratified Medium}
+\label{chap:gfstratified}
+In the previous chapter, a method was derived to efficiently evaluate the
+potential Green's functions for a geometry consisting of the abutment
+of two half-spaces under quasi-periodic boundary conditions.  This
+chapter extends the results to handle an arbitrary
+number of dielectric slabs. 
+
+ The structure for which the potential Green's
+functions are desired consists of $N$ layers, as shown in
+Figure~\ref{fig:geom3}.
+\begin{figure}[htbp]
+  \begin{center} \footnotesize
+    \leavevmode
+    \pspicture(1,4.2)(12.9,10)
+    \psset{nodesep=2.5pt}
+                                % Begin Input Medium:
+    \rput(1.5,7){\cstack{Layer \\1 \\ $(\mu_1,\epsilon_1)$}}
+    \psline[linewidth=1pt](2.3,4.5)(2.3,8.5)  \uput[d](2.3,4.5){$z_1$}
+    \pnode(2.3,8.5){Junction1}
+    \rput[b](1.8,9.5){\rnode{Junction1label}{Junction~1}}
+    \ncline[linewidth=0.5pt]{->}{Junction1label}{Junction1}
+                                % Begin Layer 2:
+    \rput(3.15,7){\cstack{Layer \\ 2 \\ $(\mu_2,\epsilon_2)$}}
+    \psline[linewidth=1pt](4,4.5)(4,8.5)    \uput[d](4,4.5){$z_2$}
+    \pnode(4,8.5){Junction2}
+    \rput[b](4,9.5){\rnode{Junction2label}{Junction 2}}
+    \ncline[linewidth=0.5pt]{->}{Junction2label}{Junction2}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(2.3,5.5)(4,5.5) \lput*{:U}{$h^{(2)}$}
+                                % Begin Layer 3:
+    \rput(5,7){\cstack{Layer \\ 3 \\ $(\mu_3,\epsilon_3)$}}
+    \psline[linewidth=1pt](6,4.5)(6,8.5)    \uput[d](6,4.5){$z_3$}
+    \pnode(6,8.5){Junction3}
+    \rput[b](5.5,9){\rnode{Junction3label}{Junction 3}}
+    \ncline[linewidth=0.5pt]{->}{Junction3label}{Junction3}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(4,5.5)(6,5.5) \lput*{:U}{$h^{(3)}$}
+                                % Ellipses:
+    \rput(6.5,6.5){\large$\boldsymbol{\cdots}$}
+                                % Begin junction N-3:
+    \psline[linewidth=1pt](7,4.5)(7,8.5)    \uput[d](7,4.5){$z_{N-3}$}
+    \pnode(7,8.5){JunctionNsm2}
+    \rput[b](6.5,9.5){\rnode{JunctionNsm2label}{Junction $N-3$}}
+    \ncline[linewidth=0.5pt]{->}{JunctionNsm2label}{JunctionNsm2}
+                                % Begin Layer N-2:
+    \rput(8.125,7){\cstack{Layer \\ $N-2$ \\ $(\mu_{N-2},\epsilon_{N-2})$}}
+    \psline[linewidth=1pt](9.25,4.5)(9.25,8.5)    \uput[d](9.25,4.5){$z_{N-2}$}  
+    \pnode(9.25,8.5){JunctionNsm1}
+    \rput[b](9.25,9){\rnode{JunctionNsm1label}{Junction $N-2$}}
+    \ncline[linewidth=0.5pt]{->}{JunctionNsm1label}{JunctionNsm1}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(7,5.5)(9.25,5.5) \lput*{:U}{$h^{(N-2)}$}
+                                % Begin Layer N-1:
+    \rput(10.375,7){\cstack{Layer \\ $N-1$ \\ $(\mu_{N-1},\epsilon_{N-1})$}}
+    \psline[linewidth=1pt](11.5,4.5)(11.5,8.5)    \uput[d](11.5,4.5){$z_{N-1}$}    
+    \pnode(11.5,8.5){JunctionNs}
+    \rput[b](11.5,9.5){\rnode{JunctionNslabel}{Junction $N-1$}}
+    \ncline[linewidth=0.5pt]{->}{JunctionNslabel}{JunctionNs}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(9.25,5.5)(11.5,5.5) \lput*{:U}{$h^{(N-1)}$}
+                                % Begin Output Medium:
+    \rput(12.4,7){\cstack{Layer \\ $N$ \\ $(\mu_{N},\epsilon_{N})$}}
+                                % Incident wave vector
+%     \pcline[linewidth=1pt,nodesep=1pt]{->}(0.5679,6.0000)(2.3,5) \aput{:U}(0.3){$\khatinc$}
+%     \psarc[linewidth=0.5pt]{<-}(2.3,5){1}{150}{180}
+%     \uput{30pt}[170](2.3,5){$\thetainc$}
+%     \pcline[linewidth=0.8pt,nodesep=0pt]{->}(2.3,5)(0.3,5) \aput[4pt]{0}(1){$-\z$}
+    \endpspicture
+  \end{center}
+  \caption{The structure under consideration is a stack of $N \geq 2$
+    dielectric layers.  Layers~1 and $N$ are semi-infinite in extent.
+    For $2 \leq i \leq N-1$, layer~$i$ lies in the region $z_{i-1} < z
+    < z_i$, is of thickness $h\eye = z_i - z_{i-1}$, and is characterized by
+    permeability $\mu_i$ and permittivity $\epsilon_i$.}
+  \label{fig:geom3}
+\end{figure}
+%
+The structure is laterally invariant, with each dielectric layer being
+homogeneous and isotropic.
+Each layer $i=1,2, \ldots, N$ is characterized by a complex
+permittivity $\epsilon_i$ and permeability $\mu_i$, each of which lies
+either in the fourth quadrant of the complex plane, or on the real axis.  The
+medium intrinsic wavenumbers are $k_i = \omega\sqrt{\mu_i\epsilon_i}$.
+
+
+We will conntinue the use of the shorthand notation $\displaystyle \summn$ to denote
+the double sum $\displaystyle \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty}.$
+
+
+As in the Chapter~\ref{chap:mpgf} we are interested in determining the
+potential Green's functions
+$G^A_{xx}(\vecrho-\vecrho',z,z'),$ 
+$G^F_{xx}(\vecrho-\vecrho',z,z'),$ 
+$G^\Phi(\vecrho-\vecrho',z,z'),$ and $G^\Psi(\vecrho-\vecrho',z,z')$
+ evaluated for both observation point
+$z$ and source point $z'$ located at one of the interface
+planes: $z=z'=z_s$, $s=1,2,\ldots,N-1.$  To accomplish this task we
+will make use of the
+transmission line Green's function (TLGF) formalism of \cite{mimo:97}.
+Therefore, we must first determine the relationship between the
+quasi-periodic Green's functions and those discussed in
+\cite{mimo:97}. We investigate this relationship in the next section.
+
+\section{The Discrete Spectrum of Quasi-Periodic Functions}
+Let us suppose that we are given the complex-valued function $f:
+\Realnum^2 \rightarrow \Complexnum$ and its two-dimensional Fourier
+transform $\tilde{f}: \Realnum^2 \rightarrow \Complexnum.$ They are
+obtained from each other by the transform relations
+\begin{equation}
+  \tilde{f}(\k) = \iint_{\Realnum^2} \!\! f(\vecrho) e^{j\k \bdot
+  \vecrho} \,
+  \d x \, \d y, \quad
+  f(\vecrho) = \frac{1}{4\pi^2}\iint_{\Realnum^2} \!\! \tilde{f}(\k) e^{-j\k \bdot
+  \vecrho} \,
+  \d k_x \, \d k_y,
+\end{equation}
+where $\vecrho = \x x + \y y$ and $\k = \x k_x + \y k_y.$
+We now define a quasi-periodic%
+%
+\footnote{``Quasi-periodic'' because of the 
+  incremental phase shifts $\psi_1$ and $\psi_2$
+  applied to the otherwise periodic function.}%
+%
+function $f_p$ as
+\begin{equation}
+  f_p(\vecrho) = \summn f(\vecrho - m\s_1 - n\s_2) e^{-j(m\psi_1+n\psi_2)}
+\end{equation}
+with Fourier transform $\tilde{f}_p$.
+We are interested in determining the relationship between
+$\tilde{f}_p$ and $\tilde{f}.$
+
+Applying the transform integral to $f_p$ and interchanging the order
+of summation and integration we obtain
+\begin{align}
+  \tilde{f}_p(\k) &= 
+  \summn \iint_{\Realnum^2} f(\vecrho-m\s_1-n\s_2)
+  e^{-j(m\psi_1+n\psi_2)} e^{j\k\bdot\vecrho}
+  \, \d x \, \d y  \nonumber \\
+  %
+  &= \summn e^{-j(m\psi_1+n\psi_2)} \iint_{\Realnum^2} f(\vecrho)
+  e^{j\k\bdot(\vecrho+m\s_1+n\s_2)}
+  \, \d x \, \d y  \nonumber \\
+  %
+  &= \summn e^{-j(m\psi_1+n\psi_2)} 
+  e^{j\k\bdot(m\s_1+n\s_2)}
+  \iint_{\Realnum^2} f(\vecrho)
+  e^{j\k\bdot\vecrho}
+  \, \d x \, \d y  \nonumber \\
+  %
+  &= \tilde{f}(\k) \summn e^{-j(m\psi_1+n\psi_2)} 
+  e^{j\k\bdot(m\s_1+n\s_2)}.  \label{eq:step1}
+\end{align}
+We now recall the reciprocal lattice vectors 
+\begin{equation}
+  \vecbeta_1 = \frac{2\pi}{A} \s_2\cross\z, \quad
+  \vecbeta_2 = \frac{2\pi}{A} \z \cross \s_1,
+\end{equation}
+where $A = \norm{\s_1 \cross \s_2}$  is the unit cell area, and make
+use of the property $\vecbeta_p \bdot \s_q = 2\pi \delta_{pq}, \; p,q
+\in \{1,2\}.$  We also introduce the change of variables $\k = \xi
+\vecbeta_1 + \eta \vecbeta_2 + \vecbeta_{00},$ where
+\begin{equation}
+  \vecbeta_{00} = \vecbeta_1\frac{\psi_1}{2\pi}  + \vecbeta_2\frac{\psi_2}{2\pi} 
+\end{equation}
+ so that \eqref{eq:step1} becomes
+\begin{align}
+  \tilde{f}_p(\xi\vecbeta_1 + \eta\vecbeta_2 + \vecbeta_{00}) 
+  %
+  &= \tilde{f}(\xi\vecbeta_1 + \eta\vecbeta_2 + \vecbeta_{00})  
+  \summn e^{-j(m\psi_1+n\psi_2)} 
+  e^{j(\xi\vecbeta_1 + \eta\vecbeta_2 + \vecbeta_{00})\bdot(m\s_1+n\s_2)}
+  \nonumber \\
+  %
+  &= \tilde{f}(\xi\vecbeta_1 + \eta\vecbeta_2 + \vecbeta_{00})  
+  \summn e^{-j(m\psi_1+n\psi_2)} 
+  e^{j[m(2\pi\xi+\psi_1) + n(2\pi\eta+\psi_2)]}
+   \nonumber \\
+  %
+  &= \tilde{f}(\xi\vecbeta_1 + \eta\vecbeta_2+\vecbeta_{00})  
+  \summn 
+  e^{j2\pi(m\xi + n\eta)} \nonumber \\
+                                %
+  &= \tilde{f}(\xi\vecbeta_1 + \eta\vecbeta_2 + \vecbeta_{00})  
+  \summn 
+  \delta(\xi - m) \, \delta(\eta-n) \nonumber \\
+                                %
+  &=   \summn 
+  \tilde{f}(m\vecbeta_1 + n\vecbeta_2 + \vecbeta_{00})  
+  \delta(\xi - m) \, \delta(\eta-n) \nonumber \\
+  &=   \summn 
+  \tilde{f}(\vecbeta_{mn})  
+  \delta(\xi - m) \, \delta(\eta-n)
+  \label{eq:step3}
+\end{align}
+where we have used the well-known Fourier series representation of a
+train of delta functions and defined $\vecbeta_{mn} = m\vecbeta_1 +
+n\vecbeta_2 + \vecbeta_{00}.$
+
+The area element in the spectral domain is 
+\begin{equation}
+  \d k_x \, \d k_y = \d \xi \, \d \eta \norm{\vecbeta_1 \cross
+  \vecbeta_2} = \frac{4\pi^2}{A} \, \d \xi \, \d \eta
+\end{equation}
+and the inversion integral applied to \eqref{eq:step3} becomes
+\begin{align}
+  f_p(\vecrho) 
+                                %
+  &= \frac{1}{4\pi^2} \iint_{\Realnum^2} \! \tilde{f}_p(\k) e^{-j\k \bdot
+    \vecrho} \,  \d k_x \, \d k_y \nonumber \\
+                                %
+  &= \frac{1}{A} \iint_{\Realnum^2}
+  \summn 
+  \tilde{f}(\vecbeta_{mn})  
+  \delta(\xi - m) \, \delta(\eta-n)
+  e^{-j(\xi\vecbeta_1 + \eta\vecbeta_2 + \vecbeta_{00}) 
+    \bdot \vecrho} \, \d \xi \, \d \eta \nonumber \\
+                                %
+  &= \frac{1}{A}   \summn 
+  \tilde{f}(\vecbeta_{mn})  e^{-j\vecbeta_{mn} \bdot \vecrho}.
+  \label{eq:spectrum}
+\end{align}
+Equation~\eqref{eq:spectrum} is the important, well-known result that the
+quasi-periodic function $f_p$ can be recovered by sampling the spectrum of
+the corresponding ``isolated'' function $f$ at locations determined by
+the reciprocal lattice and impressed phasing. It allows us to
+find the potential Green's functions for the quasi-periodic array of
+point sources in the multilayered structure
+from the spectral representations of the isolated-source Green's functions
+presented in \cite{mimo:97}. 
+
+\section{Potential Green's Functions (Electric Sources)}
+
+\subsection{Magnetic Vector Potential}
+According to \cite{mimo:97} the Fourier transform of the magnetic
+vector potential Green's function (for an isolated source at $\vecrho'
+= \0$) is
+\begin{equation}
+  \label{GA}
+  \GtAxx(\k,z,z') = \frac{1}{j\omega}\Vi\TE(\k,z,z')
+\end{equation}
+where we have multiplied their result by $\mu_0$ to be consistent with
+our definition of the potential Green's function, and $\Vi\TE(\k,z,z')$ is the
+TE transmission line Green's function (TLGF) for the voltage observed at
+$z$ due to a unit current source at $z'$, using an equivalent circuit
+appropriate for a plane wave whose dependence on the transverse spatial
+variables $x$ and $y$ is of the form $e^{-j\k \bdot \vecrho}$.
+From Equation~\eqref{eq:spectrum} we then find that
+\begin{equation}
+  \label{eq:GA}
+  \GAxx(\vecrho-\vecrho',z_s,z_s) = \frac{1}{j\omega A} \summn
+  \Vi\TE(\vecbeta_{mn},z_s,z_s)   e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}.
+\end{equation}
+
+
+\subsection{Scalar Electric Potential}
+According to \cite{mimo:97} the Fourier transform of the so-called
+``scalar potential kernel'' (for an isolated point charge associated
+with a horizontal current source at $\vecrho'
+= \0$) is
+\begin{equation}
+  \tilde{K}^{\Phi}(\k,z,z') = \frac{-j\omega\epsilon_0}{\k \bdot \k} 
+  \left[\Vi\TE(\k,z,z') - \Vi\TM(\k,z,z')\right]
+\end{equation}
+where $\Vi\TM(\k,z,z')$ is the
+TM transmission line Green's function (TLGF) for the voltage observed at
+$z$ due to a unit current source at $z'$.  Dividing by $\epsilon_0$
+to be consistent with our definition of the potential Green's function
+and using Equation~\eqref{eq:spectrum} we obtain
+\begin{equation}
+  \label{eq:GPhi}
+  \GPhi(\vecrho-\vecrho',z_s,z_s) = \frac{-j\omega}{A} \summn
+  \frac{\Vi\TE(\vecbeta_{mn},z_s,z_s)-\Vi\TM(\vecbeta_{mn},z_s,z_s)}{\beta_{mn}^2}
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}.
+\end{equation}
+
+\subsection{Evaluation of Transmission Line Green's Functions}
+Referring to Equations~\eqref{eq:GA} and \eqref{eq:GPhi} we see that the
+problem is reduced to evaluating the TLGFs $\Vi\TE$ and $\Vi\TM$.  The
+equivalent transmission line circuit needed to accomplish this task is
+shown in Figure~\ref{fig:tl}.  The equivalent circuit consists of a
+series of cascaded transmission lines, each characterized by its
+modal characteristic impedance $Z_{pmn}\eye$ and complex attenuation constant
+$\gamma_{mn}\eye$. The termination impedances at the ends of the structure
+are equal to the characteristic impedances of the respective
+semi-infinite lines, and the entire structure is excited by a unit
+current generator located at $z=z_s$.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \pspicture(-0.3,-1.9)(12,1.6)
+    \psset{nodesep=0pt}
+    \shuntload{0}{$Z_{pmn}^{(1)}$} 
+    \zlabel{0}{$z_1$}
+    \tlsection{0}{1.8}{2}
+    \zlabel{1.8}{$z_2$}
+    \tlsection{1.8}{3.5}{3}
+    \tlsection{4.3}{6.4}{\ensuremath{s}}
+    \zlabel{6.4}{$z_s$}
+    \isource{6.4} \rput[l](6.45,0.35){$1\,\text{A}$}
+    \tlsection{6.4}{8.7}{\ensuremath{s+1}}
+    \tlsection{9.5}{11.6}{\ensuremath{N-1}}
+    \shuntload{11.6}{$Z_{pmn}^{(N)}$}
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(3.9,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(3.9,-0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuit used to find
+    transmission line Green's functions.
+    We set $p=1$ when evaluating $\Vi\TE$ and $p=2$ for
+    $\Vi\TM$. Superscripted quantities in parentheses are region
+    designators. $m$ and $n$ are modal indices associated with the
+    transverse variation of the modal fields.}
+    \label{fig:tl}
+  \end{center}
+\end{figure}
+To calculate $\Vi\TE$, the modal impedances of the TE Floquet modes
+are used in the equivalent circuit; for $\Vi\TM$ we employ the TM modal
+impedances. The desired quantity is the voltage across the structure
+at $z=z_s$.  Since we have a unit current generator at $z=z_s$ the
+voltage there is equal to the total impedance at that point:
+\begin{equation}
+  \Vi^p(\vecbeta_{mn},z_s,z_s) = 
+  Z_{pmn}^{\text{tot}}(z_s) = 
+  \frac{1}{\frac{1}{\Zleft_{pmn}(z_s)} + \frac{1}{\Zright_{pmn}(z_s)}}
+  =
+  \frac{\Zleft_{pmn}(z_s) \, \Zright_{pmn}(z_s)}{\Zleft_{pmn}(z_s) + \Zright_{pmn}(z_s)},
+\end{equation}
+where $p$ takes on the value $1$ (TE) or $2$ (TM), 
+and $\Zleft_{pmn}(z_s)$ and $\Zright_{pmn}(z_s)$ are the impedances seen looking
+to the left and right, respectively, at $z=z_s$.  These latter
+quantities are easily determined using the following recursive
+formulas derived from elementary transmission line theory:
+\begin{subequations}
+  \begin{align}
+    &\Zleft_{pmn}(z_1) = Z_{pmn}^{(1)} \\
+    &\Zleft_{pmn}(z_i) = Z_{pmn}^{(i)} 
+    \frac%
+    {\Zleft_{pmn}(z_{i-1}) + Z_{pmn}\eye\tanh(\gamma_{mn}\eye h^{(i)})}%
+    {Z_{pmn}\eye + \Zleft_{pmn}(z_{i-1})\tanh(\gamma_{mn}\eye h^{(i)})}, \quad i =
+    2,3,\ldots,s \\
+    &\Zright_{pmn}(z_{N-1}) = Z_{pmn}^{(N)} \\
+    &\Zright_{pmn}(z_i) = Z_{pmn}^{(i+1)} 
+    \frac%
+    {\Zright_{pmn}(z_{i+1}) + Z_{pmn}^{(i+1)}\tanh(\gamma_{mn}^{(i+1)} h^{(i+1)})}%
+    {Z_{pmn}^{(i+1)} + \Zright_{pmn}(z_{i+1})\tanh(\gamma_{mn}^{(i+1)} h^{(i+1)})}, \notag \\
+    & \mkern300mu i = N-2,N-3,\ldots,s.
+  \end{align}
+\end{subequations}
+
+\subsection{Series Acceleration}
+At this point, we have expressed the Green's functions for the
+magnetic vector potential and electric scalar potential as a pair of
+modal series, as given in Equations~\eqref{eq:GA} and
+\eqref{eq:GPhi}.  In order to accelerate the convergence of these
+series we need to examine their asymptotic behavior.  Note that the
+summands for both $\Vi\TE$ and $\Vi\TM$ involve $\Zleft_{pmn}(z_s)$
+and $\Zright_{pmn}(z_s)$, both of which are of a similar form:
+\begin{equation}
+    \Zleft_{pmn}(z_s) = Z_{pmn}^{(s)} 
+    \frac%
+    {\Zleft_{pmn}(z_{s-1}) + Z_{pmn}\eye\tanh(\gamma_{mn}\eye h^{(s)})}%
+    {Z_{pmn}^{(s)} + \Zleft_{pmn}(z_{s-1})\tanh(\gamma_{mn}^{(s)} h^{(s)})}
+\end{equation}
+The behavior of this quantity for large values of the spectral
+variables $m$ and $n$ is determined by examining the following
+asymptotic representation of the hyperbolic tangent function:
+\begin{align}
+  \tanh x &= \frac{1-e^{-2x}}{1+e^{-2x}}
+  \sim (1-e^{-2x}) \times (1 - e^{-2x} + e^{-4x} - e^{-6x} +
+  \cdots) \notag \\
+  &= 1 - 2e^{-2x} + 2e^{-4x} - 2e^{-6x} + \cdots  
+\end{align}
+from which we see that the hyperbolic tangent function rapidly
+approaches unity for large arguments.  In fact, one can approximate
+$\tanh x \approx 1$ for $ x > 7$ with an error less than $2\times
+10^{-6}.$ Therefore, the large argument approximation to the
+transmission line Green's function  (assuming that the layers on each
+side of the source plane are of nonvanishing thickness) is
+\begin{equation}
+  \Vi^p(\vecbeta_{mn},z_s,z_s) \sim
+  \frac{Z_{pmn}^{(s)} \, Z_{pmn}^{(s+1)}}{Z_{pmn}^{(s)} + Z_{pmn}^{(s+1)}}
+\end{equation}
+which, when substituted into Equations~\eqref{eq:GA} and \eqref{eq:GPhi}
+results in exactly the same formulas as presented for the two-layer
+Green's functions of Chapter~\ref{chap:mpgf}.  We conclude that the
+asymptotic behavior for the Green's functions is exactly the same as
+for a two-layer structure consisting of the regions on either side of
+the source plane, infinitely extended.  The acceleration technique is
+thus the same as that presented in Chapter~\ref{chap:mpgf}.
+
+The source-plane potential Green's functions can now be written in
+their final, accelerated form as
+\begin{subequations}
+  \label{eq:finalEGF}
+  \begin{align}
+    G^A_{xx}(\vecrho-\vecrho',z_s,z_s) &=  
+    \tilde{\mu}
+    \biggl\{
+    \Sigma_{m1} + 
+    \frac{u}{4\pi}
+    \left[
+      \Sigma_{S1} + \frac{c_3({\scriptstyle
+          \mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1}})}{u^2} \Sigma_{S2}
+    \right]
+    \biggr\} \\
+    G^\Phi(\vecrho-\vecrho',z_s,z_s) &=
+    \frac{1}{\bar{\epsilon}}
+    \biggl\{
+    \Sigma_{m2} +
+    \frac{u}{4\pi}
+    \left[
+      \Sigma_{S1} + \frac{d_3({\scriptstyle
+          \mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1}})}{u^2} \Sigma_{S2}
+    \right]
+    \biggr\} 
+  \end{align}
+\end{subequations}
+where
+\begin{subequations}
+  \begin{align}
+    \Sigma_{m1} &= 
+    \frac{1}{2A} \summn
+    \left[
+      \frac{2\Vi\TE({\vecbeta_{mn},z_s,z_s})}{j\omega\tilde{\mu}} 
+      - \frac{1}{\kappa_{mn}} -
+      \frac{c_3({\scriptstyle\mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1}})}{\kappa_{mn}^3}
+    \right]  e^{-j\vecbeta_{mn}\bdot(\vecrho-\vecrho')} \\
+                                %
+    \Sigma_{m2} &= 
+    \frac{1}{2A} \summn
+    \Biggl(
+    2j\omega\bar{\epsilon}
+    \frac{\Vi\TM({\vecbeta_{mn},z_s,z_s})-\Vi\TE({\vecbeta_{mn},z_s,z_s})}%
+    {\beta_{mn}^2}  \nonumber \\
+    & \mbox{} \mkern 200mu - \frac{1}{\kappa_{mn}} -
+    \frac{d_3({\scriptstyle\mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1}})}{\kappa_{mn}^3}
+    \Biggr)  e^{-j\vecbeta_{mn}\bdot(\vecrho-\vecrho')} 
+  \end{align}
+  \label{eq:finalmodalelectric}
+\end{subequations}
+and
+\begin{equation}
+  \tilde{\mu} =
+  \frac{2\mu_s\mu_{s+1}}{\mu_s+\mu_{s+1}},
+  \quad
+  \bar{\epsilon} = \frac{\epsilon_s + \epsilon_{s+1}}{2}.
+\end{equation}
+The symbols $c_3$ and $d_3$ used above are defined in Chapter~\ref{chap:mpgf}.
+
+
+
+
+
+
+\section{Potential Green's Functions (Magnetic Sources)}
+
+\subsection{Electric Vector Potential}
+Using the definitions from Chapter~\ref{chap:fund}, we can obtain the
+expression for the electric vector potential via duality from that of
+the magnetic vector potential:
+\begin{equation}
+  \label{eq:GF}
+  \GFxx(\vecrho-\vecrho',z,z') = \frac{-1}{j\omega A} \summn
+  \Iv\TM(\vecbeta_{mn},z,z')   e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}.
+\end{equation}
+where $\Iv\TM(\vecbeta_{mn},z,z')$ is the transmission line current at
+$z'$ due to a unit series voltage source located at $z'$ for the TM
+equivalent circuit.
+
+\subsection{Scalar Magnetic Potential}
+Using duality to transform the scalar electric potential we obtain
+\begin{equation}
+  \label{eq:GPsi}
+  \GPsi(\vecrho-\vecrho',z,z') = \frac{-j\omega}{A} \summn
+  \frac{\Iv\TM(\vecbeta_{mn},z,z')-\Iv\TE(\vecbeta_{mn},z,z')}{\beta_{mn}^2}
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}.
+\end{equation}
+
+
+\subsection{Evaluation of Transmission Line Green's Functions}
+The equivalent circuit for the magnetic source Green's function
+differs from that of the electric sources.  In the integral equation
+formulation, it is assumed that a perfectly conducting wall is
+inserted at $z=z_s,$ with the sources impressed at both $z_s^-$ and
+$z_s^+.$  Therefore, we will require two pairs of potential Green's
+functions, denoted as $\GlFxx,$ $\GlPsi,$ $\GrFxx,$ and $\GrPsi.$  The
+former two are due to sources impressed at $z_s^-$ (to the left of the ground
+plane) and the latter two are for sources at $z_s^+$ (to the right of
+the ground plane.)  The equivalent circuits for the left- and
+right-looking sources are shown in Figure~\ref{fig:Mequivckt}.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \pspicture(-0.3,-1.7)(12,1.6)
+    \psset{nodesep=0pt}
+    \shuntload{0}{$Y_{q}^{(1)}$} 
+    \zlabel{0}{$z_1$}
+    \Ytlsection{0}{1.8}{2}
+    \Ytlsection{2.6}{4.7}{\ensuremath{s}}
+    \invertedvsource{4.7} \rput[l](4.75,0.35){$1\,\text{V}$}
+    \zlabel{4.7}{$z_s$}
+    \zlabel{6.4}{$z_s$}
+    \vsource{6.4} \rput[l](6.45,0.35){$1\,\text{V}$}
+    \Ytlsection{6.4}{8.7}{\ensuremath{s+1}}
+    \Ytlsection{9.5}{11.6}{\ensuremath{N-1}}
+    \shuntload{11.6}{$Y_{q}^{(N)}$}
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(2.2,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(2.2,-0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuits used to find
+    magnetic source transmission line Green's functions.
+    We set $p=1$ when evaluating $\Iv\TE$ and $p=2$ for
+    $\Iv\TM$.}
+    \label{fig:Mequivckt}
+  \end{center}
+\end{figure}
+Since we have unit voltage sources driving each equivalent circuit, it
+is apparent that the source currents are just admittances, so that 
+\begin{equation}
+  \Ilv^{\mkern 4mu p}(\vecbeta_{mn},z_s,z_s) = \Yleft_{pmn}(z_s), \quad
+  \Irv^{\mkern 4mu p}(\vecbeta_{mn},z_s,z_s) = \Yright_{pmn}(z_s).
+\end{equation}
+These admittances are easily found using the following recursive
+formulas derived from elementary transmission line theory:
+\begin{subequations}
+  \begin{align}
+    &\Yright_{pmn}(z_{N-1}) = Y_{pmn}^{(N)} \\
+    &\Yright_{pmn}(z_i) = Y_{pmn}^{(i+1)} 
+    \frac%
+    {\Yright_{pmn}(z_{i+1}) + 
+      Y_{pmn}^{(i+1)}\tanh(\gamma_{mn}^{(i+1)} h^{(i+1)})}%
+    {Y_{pmn}^{(i+1)} + \Yright_{pmn}(z_{i+1})\tanh(\gamma_{mn}^{(i+1)}
+      h^{(i+1)})}, 
+    \notag \\
+    & \mkern300mu i = N-2,N-3,\ldots,s.
+  \end{align}
+  \begin{align}
+    &\Yleft_{pmn}(z_{1}) = Y_{pmn}\one, \\
+    &\Yleft_{pmn}(z_i) = Y_{pmn}\eye 
+    \frac%
+    {\Yleft_{pmn}(z_{i-1}) + Y_{pmn}\eye \tanh(\gamma_{mn}\eye h\eye)}%
+    {Y_{pmn}\eye + \Yleft_{pmn}(z_{i-1})\tanh(\gamma_{mn}\eye h\eye)}, \notag \\
+    & \mkern300mu i = 2,3,\ldots,s.
+  \end{align}
+\end{subequations}
+
+\subsection{Series Acceleration}
+The asymptotic form of the magnetic source Green's functions  summands
+are equal to twice the summand for a similar source radiating in a
+homogeneous medium, with permittivity and permeability equal to either
+Region~$s$ (for left-looking sources) or Region~$s+1$ (for
+right-looking sources.)  Applying the acceleration techniques of
+Chapter~\ref{chap:mpgf} then results in the final formulas
+\begin{subequations}
+  \begin{align}
+    \GFxx(\vecrho-\vecrho',z_s,z_s)  &\equiv
+    \GlFxx(\vecrho-\vecrho',z_s,z_s) +  \GrFxx(\vecrho-\vecrho',z_s,z_s) 
+    \nonumber \\
+                                %
+    &=
+    -\epsilon_0 
+    \left[
+      \Sigma'_{m1} + \frac{u\bar{\epsilon}}{\pi\epsilon_0} \Sigma_{s1}
+      + \frac{c_3\ess \epsilon_s + c_3\spw\epsilon_{s+1}}%
+      {2\pi u\epsilon_0} \Sigma_{s2} 
+    \right]  \\
+                                %
+    \GPsi(\vecrho-\vecrho',z_s,z_s) &= 
+    \GlPsi(\vecrho-\vecrho',z_s,z_s) +  \GrPsi(\vecrho-\vecrho',z_s,z_s)  
+    \nonumber \\
+    &= \frac{1}{\mu_0}
+    \left[
+      \Sigma'_{m2} + \frac{u\mu_0}{\pi\tilde{\mu}} \Sigma_{s1}
+      + \frac{\mu_0}{2\pi u} 
+      \Biggl(
+      \frac{d_3\ess}{\mu_s}+\frac{d_3\spw}{\mu_{s+1}}
+      \Biggr)
+      \Sigma_{s2}
+    \right]
+  \end{align}
+\end{subequations}
+where
+\begin{subequations}
+  \begin{align}
+    & \Sigma'_{m1} = \nonumber \\
+    & \frac{1}{A} \summn
+    \left[
+      \frac{\Yleft_{2mn}(z_s) + \Yright_{2mn}(z_s)}{j\omega\epsilon_0} 
+      - \frac{2\bar{\epsilon}}{\epsilon_0} \kappa_{mn}^{-1}
+      - \frac{\epsilon_s c_3\ess + \epsilon_{s+1}c_3\spw}{\epsilon_0} 
+      \kappa_{mn}^{-3}
+    \right]
+    e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}  \\ 
+                                %
+    & \Sigma'_{m2} = \nonumber \\
+    & \frac{1}{A} \summn
+    \Biggl\{
+    \left(
+      \frac{\textstyle\Yleft_{2mn}(z_s) + \Yright_{2mn}(z_s)}
+      {j\omega\epsilon_0} k_0^2
+      + j\omega\mu_0\left[\Yleft_{1mn}(z_s) + \Yright_{1mn}(z_s)\right] 
+    \right) 
+    \bigg/ {\beta_{mn}^2} \nonumber \\
+                                %
+    & \mkern 150mu \mbox{} - \frac{2\mu_0}{\tilde{\mu}} \kappa_{mn}^{-1}
+    - \mu_0\biggl(\frac{d_3\ess}{\mu_s}+\frac{d_3\spw}{\mu_{s+1}}\biggr)
+    \kappa_{mn}^{-3}
+    \Biggr\}
+    e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+  \end{align}
+  \label{eq:finalmodalmagnetic}
+\end{subequations}
+and
+\begin{equation}
+    c_3\eye = c_3(\mu_i,\epsilon_i,\mu_i,\epsilon_i), \quad
+    d_3\eye = d_3(\mu_i,\epsilon_i,\mu_i,\epsilon_i).
+\end{equation}
+
+\section{FFT Evaluation of the Modal Difference Series}
+\label{sec:modalFFT}
+The modal series in  \eqref{eq:sigmam1}, \eqref{eq:sigmam2},
+\eqref{eq:finalEGF}, \eqref{eq:finalmodalelectric}, and
+\eqref{eq:finalmodalmagnetic} 
+represent extremely
+smooth functions of $\vecrho-\vecrho'$, since their singularities have
+been subtracted out.  Therefore, an efficient and accurate method of
+evaluating them is to tabulate and then interpolate using a low-order
+bivariate polynomial interpolation scheme, 
+such as \cite[Eq.~25.2.7]{abst:72}.  Here we consider a method of
+rapidly tabulating the functions over the unit cell using the Fast
+Fourier Transform (FFT).
+
+The modal series are all of the form
+\begin{equation}
+  f(\vecrho-\vecrho') = 
+  \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty} 
+  f_{(m,n)} e^{-j(\vecbeta_{00} + m\vecbeta_1 + n\vecbeta_2) \bdot (\vecrho-\vecrho')}.
+  \label{eq:fsum}
+\end{equation}
+We introduce the change of variables
+\begin{equation}
+  \vecrho-\vecrho' = \xi_1 \s_1 + \xi_2 \s_2.
+  \label{eq:xi1xi2}
+\end{equation}
+It is clear that for any points $\vecrho$ and $\vecrho'$ in the unit
+cell, the difference vector $\vecrho-\vecrho'$ can be represented by 
+Equation~\eqref{eq:xi1xi2} with $-1 \leq \xi_1, \xi_2 < 1$.  We can
+further restrict evaluation of the series to the range 
+$0 \leq \xi_1, \xi_2 < 1$ by making use of the translational formula
+\begin{equation}
+  f((\xi_1+m)\s_1 + (\xi_2+n)\s_2) = e^{-j(m\psi_1+n\psi_2)}
+f(\xi_1\s_1 + \xi_2\s_2)
+\end{equation}
+which holds for any integers $m$ and $n$.
+Given $\vecrho-\vecrho'$ one can easily determine $\xi_1$ and $\xi_2$
+using 
+\begin{equation}
+  \xi_i = \frac{1}{2\pi} \vecbeta_i \bdot (\vecrho-\vecrho'), 
+  \quad i=1,2.  
+\end{equation}
+With \eqref{eq:xi1xi2}, the series in \eqref{eq:fsum}
+  becomes
+\begin{align}
+  f(\xi_1\s_1+\xi_2\s_2) 
+  &= 
+  e^{-j(\xi_1\psi_1 + \xi_2\psi_2)}
+  \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty} 
+  f_{(m,n)} e^{-j2\pi(m\xi_1 + n\xi_2)}.
+  %
+\end{align}
+We now assume that the summand is nonzero only for $-\frac{M}{2} \leq m \leq
+\frac{M}{2}-1$ and $-\frac{N}{2} \leq n \leq
+\frac{N}{2}-1$, where $M$ and $N$ are some convenient integer powers of $2$.
+Then
+\begin{align}
+  f(\xi_1\s_1+\xi_2\s_2) 
+  &= 
+  e^{-j(\xi_1\psi_1 + \xi_2\psi_2)}
+  \sum_{m=-\frac{M}{2}}^{\frac{M}{2}-1} \; \sum_{n=-\frac{N}{2}}^{\frac{N}{2}-1} 
+  f_{(m,n)} e^{-j2\pi(m\xi_1 + n\xi_2)} \nonumber \\
+  %
+  &= 
+  e^{-j(\xi_1\psi_1 + \xi_2\psi_2)}
+  \sum_{m=0}^{M-1} \sum_{n=0}^{N-1} 
+  f_{(m-\frac{M}{2},n-\frac{N}{2})} 
+  e^{-j2\pi[(m-\frac{M}{2})\xi_1 + (n-\frac{N}{2})\xi_2]} \nonumber \\
+  %
+  &= 
+  e^{-j[\xi_1(\psi_1-M\pi) + \xi_2(\psi_2-N\pi)]}
+  \sum_{m=0}^{M-1} \sum_{n=0}^{N-1} 
+  f_{(m-\frac{M}{2},n-\frac{N}{2})} e^{-j2\pi(m\xi_1 + n\xi_2)}.
+  %
+\end{align}
+Finally, we restrict evaluation to the set of points
+\begin{align*}
+\xi_1 &= p / M, \; p = 0,1,2,\ldots, M-1, &
+\xi_2 &= q / N, \; q = 0,1,2,\ldots, N-1
+\end{align*}
+so that the expression for the sum becomes
+\begin{multline}
+  f\left(\frac{p}{M} \s_1 + \frac{q}{N} \s_2\right) 
+  = \\
+  e^{j[p(\pi-\psi_1/M) + q(\pi-\psi_2/N)]}
+  \sum_{m=0}^{M-1} \sum_{n=0}^{N-1} 
+  f_{(m-\frac{M}{2},n-\frac{N}{2})} e^{-j2\pi(m p/M + n q/N)}, \\
+  p = 0,1,2,\ldots, M-1, \quad q = 0,1,2,\ldots, N-1.
+\label{eq:dft}
+\end{multline}
+The double sum in \eqref{eq:dft} constitutes a two-dimensional
+discrete Fourier transform (DFT).  It can be evaluated efficiently
+for all desired $p$ and $q$ values via a single application of the
+two-dimensional fast Fourier transform (FFT) using the facilities
+built into Julia.    

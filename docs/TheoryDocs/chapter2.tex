@@ -1,0 +1,464 @@
+
+\chapter{Periodicity, Reciprocal Lattice, Floquet Modes}
+\label{chap:periodicity}
+
+This chapter discusses the direct and reciprocal lattice vectors, and
+defines the Floquet modes that can exist in the dielectric regions.
+
+\section{The Direct Lattice}
+We consider a structure with discrete translational invariance in two space
+dimensions.  The periodicity is characterized by the {\em direct lattice
+  vectors} $\s_1$ and $\s_2$, a pair of real vectors satisfying
+\begin{equation}
+  \s_1 \bdot \z = \s_2 \bdot \z = 0, \quad A \equiv \z \bdot \s_1 \cross \s_2 > 0.
+\end{equation}
+The structure is invariant to a translation consisting of any integer number of
+shifts in the $\s_1$ or $\s_2$ directions.  Such periodicity
+is exhibited by idealized models of frequency selective surfaces
+(FSSs) and phased arrays, for example.
+This periodicity gives rise to the concept of the {direct lattice},
+the set of points $\vecrho_{mn} = \x x_{mn} + \y y_{mn}$ satisfying
+\begin{equation}
+  \vecrho_{mn} = m \s_1 + n \s_2, \quad \text{for $m$ and $n$ any integers.}
+\end{equation}
+A periodic structure and its direct lattice is shown in
+Figure~\ref{fig:direct}.
+\begin{figure}[htbp]
+  \begin{center}
+        \fbox{%
+      \psset{unit=0.005in}
+      \pspicture*(-1,-10)(660,410)
+                                % Paint it on a white, opaque background:
+      \psframe*[linecolor=white,fillcolor=white,fillstyle=solid](-1,-10)(660,410)
+      \multips(-60.62,-105.0)(60.62,105.0){5}%
+      {%
+        \multips(-242.48,0)(121.24,0){8}%
+        {%
+          \pspolygon(73.68,18.0)(108.18,18)(130.77,52.5)%
+          (108.18,87.0)(73.68,87.0)(51.096,52.5)%
+          %
+          \psline[linestyle=dashed,linewidth=0.5pt](0,0)(121.24,0)
+          \psline[linestyle=dashed,linewidth=0.5pt](0,0)(60.62,105.0)
+          \qdisk(0,0){1.5pt}
+        }%
+      }
+    \rput(181.86,105){%
+      \psline[linewidth=1pt]{->}(0,0)(121.24,0)
+      \psline[linewidth=1pt]{->}(0,0)(60.62,105.0)
+      \rput(90,-13){$\s_1$}
+      \rput[l](10,90){$\s_2$}
+      }
+    \endpspicture
+      }
+    \caption{A frequency selective surface consisting of a thin metal plate
+        with hexagonal perforations, and the associated direct
+        lattice. The location selected for the lattice origin is arbitrary.}
+    \label{fig:direct}
+  \end{center}
+\end{figure}
+
+\section{Periodic Boundary Conditions and the Unit Cell}
+\label{sec:pbcuc}
+We now assume that an electromagnetic excitation of some type is
+applied to the structure.  In the case of a FSS, the excitation takes
+the form of an incident plane wave.  In the case of a phased array,
+the excitation may be an incident plane wave, or perhaps a set of
+incoming waveguide modes in each of the excitation ports of the
+radiating elements.  Denote the spatial variation of the excitation by
+the function $V(\r)$.  We insist that the function $V$ satisfy the
+following quasi-periodicity condition:
+\begin{equation}
+  \label{eq:floquetbc}
+  V(\r + m\s_1 + n\s_2) = V(\r) e^{-j(m\psi_1 + n\psi_2)}, \quad
+  \text{for any integers $m$ and $n$}
+\end{equation}
+where $\psi_1$ and $\psi_2$ are given real numbers, which we will
+refer to as the ``unit cell incremental phase shifts''.  By the
+translational invariance of Maxwell's equations and given the discrete
+translational invariance of the structure, it is clear that all
+electromagnetic fields, charges, etc., resulting from the given
+excitation must also satisfy \eqref{eq:floquetbc}, which we refer to
+as the ``Floquet boundary condition.''
+
+Since the fields throughout the structure satisfy
+Equation~\eqref{eq:floquetbc}, it suffices to restrict consideration
+to a single unit cell $U$, defined\footnote{The definition of a unit
+  cell is not unique.  The present definition is most useful for our
+  purposes.}
+as the set of points $\r$
+satisfying
+\begin{equation}
+  \label{eq:unitcell}
+  U = \{\r: \; \r = \xi_1 \s_1 + \xi_2 \s_2 + \z z, \quad 0 \leq \xi_1 , \xi_2
+  \leq 1\},
+\end{equation}
+where $\xi_1$ and $\xi_2$ are the so-called ``normalized area
+coordinates,'' each constrained to the interval $[0,1]$.
+We seek a set of modes that can propagate in the unit cell, subject to
+an appropriate set of boundary conditions to be stated below.  Let
+$E(\r)$ be some rectangular component of electric or magnetic field
+evaluated at a point $\r = \x x + \y y + \z z = \xi_1 \s_1 + \xi_2
+\s_2 + \z z$ within the unit cell.  
+%Let $f(\xi_1,\xi_2) = 
+%E(\xi_1\s_1+\xi_2\s_2+\z z) =E(\r)$.
+Then the quasi-periodic boundary condition can be expressed as
+\begin{subequations}
+  \label{eq:cellfloquetbc}
+  \begin{align}
+    E(\s_1 + \xi_2 \s_2 + \z z) &= E(\xi_2 \s_2 + \z z) e^{-j\psi_1} \\
+    E(\xi_1 \s_1 + \s_2 + \z z) &= E(\xi_1 \s_1 + \z z) e^{-j\psi_2} 
+  \end{align}
+\end{subequations}
+  which must hold for all $z$ and for all $\xi_1$ and $\xi_2$ in the
+  interval $[0,1]$.  
+\subsection{Mode Potentials}
+
+Following the formalism of Section~5.1 of \cite{coll:91}, for both TE
+and TM modes we seek mode potentials $\Psi(\vecrho) = \Psi(x,y)$ that satisfy the
+two-dimensional Helmholtz equation
+\begin{equation}
+  \label{eq:laplace2d}
+  \laplace_t \Psi + k_c^2 \Psi = 0
+\end{equation}
+within the unit cell in addition to the boundary 
+conditions \eqref{eq:cellfloquetbc}.
+To simplify the following derivation, let $f(\xi_1,\xi_2) =
+\Psi(\xi_1\s_1 + \xi_2\s_2) = \Psi(x,y)$.
+Then the boundary condition \eqref{eq:cellfloquetbc} satisfied by $\Psi$
+can be expressed more simply in terms of $f$ as
+\begin{subequations}
+  \label{eq:cellfloquetbcf}
+  \begin{align}
+    f(1, \xi_2) &= f(0,\xi_2) e^{-j\psi_1} \\
+    f(\xi_1, 1) &= f(\xi_1, 0) e^{-j\psi_2} 
+  \end{align}
+\end{subequations}
+Note that $f$ is periodic in $\xi_1$ and $\xi_2$ with unit period 
+except for the
+progressive phase shifts $\psi_1$ and $\psi_2$.  This motivates us to
+consider the function $f(\xi_1,\xi_2) e^{j(\xi_1\psi_1 +
+  \xi_2\psi_2)}$ which is indeed periodic and can therefore be
+expanded in a double Fourier series:
+\begin{equation*}
+  f(\xi_1,\xi_2) e^{j(\xi_1\psi_1 + \xi_2\psi_2)} = 
+  \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty} \!\!\!
+  f_{mn} \, e^{-j(m2\pi\xi_1 + n2\pi\xi_2)}
+\end{equation*}
+or equivalently
+\begin{equation}
+  \label{eq:fourier}
+  f(\xi_1,\xi_2) =
+  \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty} \!\!\!
+  f_{mn} \, e^{-j[\xi_1(\psi_1+m2\pi) + \xi_2(\psi_2+n2\pi)]}.
+\end{equation}
+We wish to write Equation~\eqref{eq:fourier} explicitly in terms of
+$\vecrho = \x x + \y y$.  Recalling that $\vecrho = \xi_1\s_1 +
+\xi_2\s_2$ and writing the relation in matrix form yields
+\begin{equation}
+  \colvec{x\\y} = 
+  \begin{bmatrix}
+    s_{1x} & s_{2x} \\
+    s_{1y} & s_{2y} 
+  \end{bmatrix}
+    \colvec{\xi_1 \\ \xi_2}.
+\end{equation}
+Inverting, we obtain
+\begin{align}
+\colvec{\xi_1 \\ \xi_2} &=
+  \frac{1}{A}
+  \begin{bmatrix}
+    s_{2y} & -s_{2x} \\
+    -s_{1y} & s_{1x} 
+  \end{bmatrix}
+      \colvec{x\\y} \nonumber \\
+      &=
+      \frac{1}{A}
+      \colvec{s_{2y}x -s_{2x}y \\
+        -s_{1y}x + s_{1x}y}  \nonumber \\
+      &=
+      \frac{1}{A}
+      \colvec{\s_2 \cross \z \bdot \vecrho \\
+        \z \cross \s_1 \bdot \vecrho}  \nonumber \\
+      &=
+      \frac{1}{2\pi}
+      \colvec{
+        \vecbeta_1 \bdot \vecrho \\
+        \vecbeta_2 \bdot \vecrho
+        }
+\end{align}
+where 
+\begin{equation}
+  \label{eq:betadef}
+  \vecbeta_1 = \frac{2\pi}{A} \s_2\cross\z, \quad
+  \vecbeta_2 = \frac{2\pi}{A} \z \cross \s_1,
+\end{equation}
+are the {\em reciprocal lattice vectors} \cite{dufo:67,kitt:66}
+and $A = \z \bdot \s_1 \cross \s_2$ is the area of the unit cell.
+Substituting \eqref{eq:betadef} into \eqref{eq:fourier}, we obtain the
+desired representation of the mode potential:
+\begin{equation}
+    f(\xi_1,\xi_2) = \Psi(x,y) = 
+  \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty}
+  f_{mn} e^{-j\vecbeta_{mn} \bdot \vecrho}
+\end{equation}
+where 
+\begin{subequations}
+  \begin{align}
+    \vecbeta_{mn} &= \vecbeta_{00} + m\vecbeta_1 + n\vecbeta_2, \\
+    \vecbeta_{00} &= \frac{\psi_1}{2\pi}\vecbeta_1 +  \frac{\psi_2}{2\pi}\vecbeta_2. 
+  \end{align}
+\end{subequations}
+We see that the mode potentials assume the form of a discrete set of plane waves for
+both TE and TM modes.  The cutoff wavenumber $k_c$ of a plane wave
+with transverse propagation vector $\vecbeta_{mn}$ is given by 
+\begin{equation}
+  k_c = \beta_{mn} \equiv \sqrt{\vecbeta_{mn} \bdot \vecbeta_{mn}}.
+\end{equation}
+For a lossless medium a finite number of modes may satisfy $k >
+\beta_{mn}$; these are the propagating modes.  The remaining modes,
+comprising a denumerably infinite set, are cut-off (or evanescent).
+The situation is depicted in Figure~\ref{fig:reciprocal} for the
+structure of Figure~\ref{fig:direct}.
+\begin{figure}[tbp]
+  \begin{center}
+        \fbox{%
+      \psset{unit=0.006in}
+      \pspicture*(20,10)(660,400)
+                                % Paint it on a white, opaque background:
+      \psframe*[linecolor=white,fillcolor=white,fillstyle=solid](20,10)(660,400)
+      \multips(-105,303.1)(105.0,-60.62){8}%
+      {%
+        \multips(0,-242.48)(0,121.24){8}%
+        {%
+          \psline[linestyle=dashed,linewidth=0.5pt](0,0)(0,121.24)
+          \psline[linestyle=dashed,linewidth=0.5pt](0,0)(105.0,-60.62)
+          \psline[linewidth=1pt]{->}(0,0)(35,25)
+          \qdisk(0,0){1.5pt}
+        }%
+      }
+    \rput(315,181.86){%
+      \psline[linewidth=1pt]{->}(0,0)(105.0,-60.62)
+      \psline[linewidth=1pt]{->}(0,0)(0,121.24)
+      \rput(75,-65){$\vecbeta_1$}
+      \rput(-20,95){$\vecbeta_2$}
+      \pscircle[linewidth=0.75pt,linestyle=dashed](0,0){70}
+      \rput*(62,25){$\vecbeta_{0,0}$}
+      }
+    \endpspicture
+      }
+    \caption[Reciprocal lattice.]{The reciprocal lattice for the
+      structure of Figure~\ref{fig:direct}.  Note that this lattice is
+        a scaled and rotated (by $90^\circ$) version of the direct
+        lattice. 
+        Modes are located at the tips of the small, offset vectors.
+        Propagating modes lie within the dashed circle of radius $k$
+        centered on the origin.  The offset vector $\vecbeta_{00}$
+        accounts for the effects of the impressed phase shift.
+        }
+    \label{fig:reciprocal}
+  \end{center}
+\end{figure}
+
+
+Following the prescription given in \cite{coll:91}, we may now write
+down the explicit forms of the modal fields:
+
+\subsection{TE modes}
+\label{sec:temodes}
+
+\subsubsection{Oblique Incidence}
+We first assume that $\beta_{mn} \neq 0$, in which case 
+the modal fields are
+\begin{subequations}
+  \label{eq:TEmodes}
+  \begin{align}
+    \Psi_{mn}\TE(\vecrho) &= \frac{c_{mn}\TE}{k\eta\beta_{mn}}
+    e^{-j\vecbeta_{mn} \bdot \vecrho} \\
+    \gamma_{mn} &= \sqrt{\beta_{mn}^2 - k^2} \qquad \text{(1st quadrant)} \\
+    Z_{mn}\TE &= \frac{1}{Y_{mn}\TE} = \frac{jk\eta}{\gamma_{mn}} \\
+    (\x\x+\y\y) \bdot \H_{mn}\TE(\r) &= \pm \gamma_{mn} e^{\pm\gamma_{mn}z}
+    \,\gradient_t \Psi_{mn}\TE \nonumber \label{eq:htransTE} \\
+    &= \mp j \gamma_{mn} \Psi_{mn}\TE e^{\pm\gamma_{mn}z}  \vecbeta_{mn}
+    \nonumber \\
+    &= \pm c_{mn}\TE Y_{mn}\TE e^{-j\vecbeta_{mn}\bdot\vecrho \pm
+      \gamma_{mn} z} \betahat_{mn}
+    \\
+    \z \bdot \H_{mn}\TE(\r) &= \beta_{mn}^2 \Psi_{mn}\TE
+    e^{\pm\gamma_{mn} z} \nonumber  \\
+    &= c_{mn}\TE \frac{\beta_{mn}}{k\eta} e^{-j\vecbeta_{mn}\bdot\vecrho \pm
+      \gamma_{mn} z} \\
+    \E_{mn}\TE(\r) &= \pm Z_{mn}\TE \z \cross \H_{mn}(\r) \nonumber \\
+     &= c_{mn}\TE  e^{-j\vecbeta_{mn}\bdot\vecrho \pm \gamma_{mn} z}
+     \z\cross\betahat_{mn} \label{eq:etransTE}
+  \end{align}
+\end{subequations}
+where we have used  $  \betahat_{mn} = \vecbeta_{mn} / \beta_{mn}$.
+
+
+
+
+\subsubsection{Normal Incidence}
+In the case where $\beta_{mn} = 0$, we use the following convention:
+\begin{equation}
+  \betahat_{mn} = \x, \label{eq:betahatnormal}
+\end{equation}
+so that the final formulas in \eqref{eq:TEmodes} remain valid.
+
+\subsection{TM modes}
+\label{sec:tmmodes}
+
+\subsubsection{Oblique Incidence}
+We first assume that $\beta_{mn} \neq 0$, in which case 
+\begin{subequations}
+  \label{eq:TMmodes}
+  \begin{align}
+    \Psi_{mn}\TM(\vecrho) &= \frac{\pm j c_{mn}\TM}{\gamma_{mn}\beta_{mn}}
+    e^{-j\vecbeta_{mn} \bdot \vecrho} \\
+    \gamma_{mn} &= \sqrt{\beta_{mn}^2 - k^2} \qquad \text{(1st quadrant)} \\
+    Y_{mn}\TM &= \frac{1}{Z_{mn}\TM} = \frac{jk}{\eta\gamma_{mn}} \\
+    (\x\x+\y\y) \bdot \E_{mn}\TM(\r) &= \pm \gamma_{mn} e^{\pm\gamma_{mn}z}
+    \,\gradient_t \Psi_{mn}\TM \nonumber \\
+    &= 
+    \mp j \gamma_{mn} \Psi_{mn}\TM e^{\pm\gamma_{mn}z}  \vecbeta_{mn}
+    \nonumber \\
+    &= c_{mn}\TM e^{-j\vecbeta_{mn}\bdot\vecrho \pm \gamma_{mn} z}
+    \betahat_{mn} \\
+    %
+    \z \bdot \E_{mn}\TM(\r) &= 
+    \beta_{mn}^2 \Psi_{mn}\TM e^{\pm\gamma_{mn} z} \nonumber \\
+    &= \pm j c_{mn}\TM \frac{\beta_{mn}}{\gamma_{mn}} 
+    e^{-j\vecbeta_{mn}\bdot\vecrho \pm \gamma_{mn} z} \\
+    %
+    \H_{mn}\TM(\r) &= \mp Y_{mn}\TM \z \cross \E_{mn}\TM(\r) \nonumber \\
+     &= \mp c_{mn}\TM Y_{mn}\TM
+     e^{-j\vecbeta_{mn}\bdot\vecrho \pm \gamma_{mn} z}
+     \z\cross\betahat_{mn} 
+  \end{align}
+\end{subequations}
+
+\subsubsection{Normal Incidence}
+In the case where $\beta_{mn} = 0$, we again employ the convention
+\eqref{eq:betahatnormal}, so that the final formulas in
+\eqref{eq:TMmodes}
+remain valid.
+
+\subsection{Mode Normalization}
+So far we have not specified values for 
+the set of mode normalization constants $\{c_{mn}\TE\}$ and
+$\{c_{mn}\TM\}$.  These can be specified in any convenient manner.  We
+will choose a normalization that allows us to easily interpret the
+incident and reflected traveling wave variables in terms of power
+transported by the modes.  Consider a source-free slab of the unit cell bounded by
+$z = \text{constant}$ planes, filled with homogeneous dielectric
+material.  Taking account of the results of Sections~\ref{sec:temodes}
+and~\ref{sec:tmmodes}, we see that the transverse components of the
+most general electromagnetic field that can exist in
+this region can be written as
+\begin{subequations}
+  \label{eq:modalexpansions}
+  \begin{align}
+    (\x\x+\y\y) \bdot \E(\r) &= 
+    \mkern -15mu \sum_{(p,m,n) \in S} \mkern -15mu
+    \e_{pmn}(x,y) 
+    \left(
+      a_{pmn} e^{-\gamma_{mn} z} + b_{pmn} e^{\gamma_{mn} z}
+    \right), \\
+    %
+    (\x\x+\y\y) \bdot \H(\r) &= 
+    \mkern -15mu \sum_{(p,m,n) \in S} \mkern -15mu
+    \h_{pmn}(x,y) 
+    \left(
+      a_{pmn} e^{-\gamma_{mn} z} - b_{pmn} e^{\gamma_{mn} z}
+    \right),
+  \end{align}
+\end{subequations}
+where the summations are taken over the set of integer triples 
+$S = \{(p,m,n) \in \{1,2\}
+\cross \Integers \cross \Integers\}$, $\Integers$ is the set of
+all integers, $p=1$ corresponds to TE modes, and $p=2$ corresponds to
+TM modes.  The modal fields $\e_{pmn}$ and $\h_{pmn}$ are given
+explicitly by
+\begin{subequations}
+  \label{eq:modaldefs}
+  \begin{align}
+    \e_{1mn} &= 
+      c_{1mn}  \z \cross \betahat_{mn} e^{-j\vecbeta_{mn} \bdot \vecrho}
+       \\
+    %
+    \e_{2mn} &= 
+      c_{2mn}  \betahat_{mn} e^{-j\vecbeta_{mn} \bdot \vecrho}
+      \hphantom{\z \cross \mbox{}}
+      \\
+    %
+    \h_{pmn} &= Y_{pmn} \z \cross \e_{pmn} 
+  \end{align}
+\end{subequations}
+where 
+\begin{subequations}
+  \begin{align}
+    Y_{1mn} &= Y_{mn}\TE, \quad  c_{1mn} = c_{mn}\TE \\
+    Y_{2mn} &= Y_{mn}\TM, \quad  c_{2mn} = c_{mn}\TM.
+  \end{align}
+\end{subequations}
+
+
+By virtue of the orthogonality of the Floquet modes (see
+Appendix~\ref{app:orthogonal}), the 
+complex power P traveling down the unit cell in the $z$ direction can
+be expressed as a sum of the individual complex powers transported by each mode:
+\begin{align}
+  P &= \iint_{U'} \E \cross \H^* \bdot \z \; \d A
+  \nonumber \\
+  &= \sum_{(p,m,n) \in S}
+  (a_{pmn} + b_{pmn})(a_{pmn}^* - b_{pmn}^*) \iint_{U'}
+  \e_{pmn} \cross \h_{pmn}^* \bdot \z \; \d A \nonumber \\
+  %
+  &= \sum_{(p,m,n) \in S} \mkern -16 mu
+  \left[
+    \abs{a_{pmn}}^2 - \abs{b_{pmn}}^2 - 2j\Imag{a_{pmn}b_{pmn}^*}
+  \right]
+  P_{pmn}
+\end{align}
+where $U'$ is the restriction of the unit cell to the plane $z=0$,
+and
+\begin{equation}
+  P_{pmn} = \iint_{U'} \mkern -8 mu
+  \e_{pmn} \cross \h_{pmn}^* \bdot \z \; \d A  
+  = \abs{c_{pmn}}^2
+  Y_{pmn}^* A
+\label{eq:Ppmn}
+\end{equation}
+is the complex power associated with each unit-strength positive-going
+mode.  Its value depends on the choice of mode normalization constant
+$c_{pmn}$, which has not yet been specified.  Note that if $P_{pmn}$
+is equal to $1$, then the time-average (real) power carried down the
+guide in the $+z$ direction is just $\abs{a_{pmn}}^2 -
+\abs{b_{pmn}}^2$, consistent
+with the usual definition of traveling wave variables \cite{bbse:69}.
+Such a normalization is not possible, since in many cases
+of practical interest, $P_{\mkern -4mu pmn}$ has zero real part.
+Consider the case of a lossless medium
+with $\beta_{mn} > k$.  Then $\gamma_{mn}$ is pure real, so that
+$Y_{pmn}$ is pure imaginary.  It follows from Equation~\eqref{eq:Ppmn}
+that $P_{\mkern -4mu pmn}$ is pure imaginary, since $A$ and $\abs{c_{pmn}}$ are
+both pure real.  Therefore, we content ourselves with setting the
+magnitude of $P_{\mkern -4mu pmn}$ equal to $P_0 \equiv \text{one watt}$:
+\begin{equation}
+  P_{pmn} = \frac{Y_{pmn}^*}{\abs{Y_{pmn}}} P_0.
+  \label{eq:Pset}
+\end{equation}
+Substituting \eqref{eq:Pset} into \eqref{eq:Ppmn} determines the value
+of the mode normalization constant (up to an arbitrary phase):
+\begin{equation}
+  \abs{c_{pmn}} = \sqrt{\frac{P_0}{A \abs{Y_{pmn}}}}.
+\end{equation}
+This choice results in a unitary scattering matrix for propagating
+modes in lossless media.  It will be convenient for later work to
+choose the phase of $c_{pmn}$ as follows:
+\begin{equation}
+  c_{pmn} = \sqrt{\frac{P_0}{A Y_{pmn}}}.
+  \label{eq:modenormalization}
+\end{equation}
+where we agree to take that square root of $Y_{pmn}$ having positive
+real part.
+

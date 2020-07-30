@@ -3,6 +3,10 @@
 *.jl.mem
 /docs/build/
 /sandbox/
-/TheoryDocs/*.aux
-/TheoryDocs/*.log
+/docs/TheoryDocs/*.aux
+/docs/TheoryDocs/*.log
+/docs/TheoryDocs/*.bbl
+/docs/TheoryDocs/*.blg
+/docs/TheoryDocs/*.toc
+/docs/TheoryDocs/*.out
 src/junk.jl

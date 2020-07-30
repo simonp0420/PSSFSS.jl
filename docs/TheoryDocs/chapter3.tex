@@ -1,0 +1,729 @@
+
+\chapter{Generalized Scattering Matrix}
+\label{chap:gsm}
+
+\section{Introduction}
+This chapter documents the form of the GSM (generalized scattering
+matrix) used in the \pssfss\ program and provides
+formulas for the
+scattering parameters of several
+canonical structures needed in the analysis of an FSS
+(Frequency Selective Surface).  These
+include a dielectric interface, a dielectric slab, and the
+cascade interconnection of two FSS structures.
+
+
+\section{Definition of the GSM}
+We consider a structure with two-dimensional periodicity as described
+in Chapter~\ref{chap:periodicity}.  The structure occupies the region $z_1 \leq z
+\leq z_2$, as shown in Figure~\ref{fig:geom}.
+%
+\begin{figure}[tbp]
+  \begin{center}
+    \setlength{\unitlength}{0.2in}
+      \small
+    \begin{picture}(18,7.5)(-9,-4)
+      \put(-3,-3){\line(0,1){6}}  % z1 boundary
+      \put(3,-3){\line(0,1){6}}   % z2 boundary
+      \put(-3,-3.5){\makebox(0,0){$z_1$}}
+      \put(3,-3.5){\makebox(0,0){$z_2$}}
+      \put(0,0){\makebox(0,0){%
+          \begin{tabular}{@{}c@{}} 
+            FSS/Radome \\
+            Structure
+          \end{tabular}
+          }}
+      \put(-3.75,2.1){\makebox(0,0){$\mat{a}^{(1)}$}}
+      \put(-4,1.5){\makebox(0,0){$\longrightarrow$}}
+      %
+      \put(-3.75,-1.5){\makebox(0,0){$\mat{b}^{(1)}$}}
+      \put(-4,-2.1){\makebox(0,0){$\longleftarrow$}}
+      %
+      \put(4.25,2.1){\makebox(0,0){$\mat{a}^{(2)}$}}
+      \put(4,1.5){\makebox(0,0){$\longleftarrow$}}
+      %
+      \put(4.25,-1.5){\makebox(0,0){$\mat{b}^{(2)}$}}
+      \put(4,-2.1){\makebox(0,0){$\longrightarrow$}}
+      %
+      \put(-7,0){\makebox(0,0){%
+        \begin{tabular}{@{}c@{}}
+          Region 1: \\
+          $\epsilon_1$, $\mu_1$, $k_1$, $\eta_1$
+        \end{tabular}}}
+      %
+      \put(7,0){\makebox(0,0){%
+        \begin{tabular}{@{}c@{}}
+          Region 2: \\
+          $\epsilon_2$, $\mu_2$, $k_2$, $\eta_2$
+        \end{tabular}}}
+      %
+    \end{picture}
+    \caption[A structure to be characterized by its GSM]
+    {A structure to be characterized by its GSM occupies the region
+    $z_1 \leq z \leq z_2$.  It is bounded on each side by (possibly
+    dissimilar) homogeneous, dielectric  half-spaces.}
+    \label{fig:geom}
+  \end{center}
+\end{figure}
+%
+It is bounded by the two half-spaces denoted as Region~1 and Region~2.
+Each is characterized by its electrical parameters $\mu_i$, 
+$\epsilon_i$, $k_i$, and $\eta_i$, $i = 1,2$, which are the
+permittivity, permeability, intrinsic wavenumber, and intrinsic
+impedance, respectively.  Given the lattice vectors $\s_1$ and $\s_2$
+and impressed phasings $\psi_1$ and $\psi_2$, as defined in
+Chapter~\ref{chap:periodicity}, we may expand the transverse fields in
+each of Regions~1 and~2 in terms of 
+incident and reflected Floquet modes:
+\begin{subequations}
+  \begin{align}
+    (\x\x+\y\y) \bdot \E\one(\r) &= 
+    \sum_{q=1}^{N_1}
+    \e\one_{q}(x,y) 
+    \left(
+      a\one_{q} e^{-\gamma\one_{q} (z-z_1)} + b\one_{q} e^{\gamma\one_{q} (z-z_1)}
+    \right), \\
+                                %
+    (\x\x+\y\y) \bdot \H\one(\r) &= 
+    \sum_{q=1}^{N_1}
+    \h\one_{q}(x,y) 
+    \left(
+      a\one_{q} e^{-\gamma\one_{q} (z-z_1)} - b\one_{q} e^{\gamma\one_{q} (z-z_1)}
+    \right), \\
+    %
+    (\x\x+\y\y) \bdot \E\two(\r) &= 
+    \sum_{q=1}^{N_2}
+    \e\two_{q}(x,y) 
+    \left(
+      a\two_{q} e^{\gamma\two_{q} (z-z_2)} + b\two_{q} e^{-\gamma\two_{q} (z-z_2)}
+    \right), \\
+                                %
+    (\x\x+\y\y) \bdot \H\two(\r) &= 
+    \sum_{q=1}^{N_2}
+    \h\two_{q}(x,y) 
+    \left(
+      -a\two_{q} e^{\gamma\two_{q} (z-z_2)} + b\two_{q} e^{-\gamma\two_{q} (z-z_2)}
+    \right).
+  \end{align}
+  \label{eq:fieldexp}
+\end{subequations}
+
+\noindent
+Superscripted numbers in parentheses are used in Equations~\eqref{eq:fieldexp} 
+as region designators. The sums are taken over the set of modes in each region, which
+for convenience are enumerated with a single index $q$, rather than
+the triple index $(p,m,n)$ as was used in Section~\ref{sec:pbcuc}.  We will
+make use of both subscripting schemes,  employing whichever is most
+convenient in a particular formula.  Although
+the limits on the sums should be infinite in principle, the numbers of
+modes in each region are truncated to a finite value ($N_1$ modes in
+Region~1 and $N_2$ in Region~2) so that a numerical evaluation can be
+accomplished.
+In general the modes are sorted prior to enumeration so that those
+with the smallest values of $\beta_{mn}$ are retained in the finite sums.
+
+
+The generalized scattering matrix
+ $\mat{S}$ expresses the linear relationship between the incident and
+scattered Floquet modal coefficients evaluated at each terminal plane of the FSS
+structure.  This relationship is written in partitioned form as
+\begin{equation}
+  \label{eq:gsm}
+  \colvec{\mat{b}\one \\ \mat{b}\two} = 
+  \begin{bmatrix}
+    \mat{S}^{11} & \mat{S}^{12} \\
+    \mat{S}^{21} & \mat{S}^{22} 
+  \end{bmatrix}
+  \colvec{\mat{a}\one \\ \mat{a}\two}
+\end{equation}
+where
+\begin{equation}
+    \mat{a}\one = 
+    \colvec{a\one_1\\ a\one_2\\ a\one_3\\ \vdots \\ a\one_{N_1}},
+    \quad
+    \mat{b}\one = 
+    \colvec{b\one_1 \\ b\one_2 \\ b\one_3 \\ \vdots \\ b\one_{N_1}},
+    \quad
+    \mat{a}\two = 
+    \colvec{a\two_1 \\ a\two_2 \\ a\two_3 \\ \vdots \\ a\two_{N_2}},
+    \quad
+    \mat{b}\two = 
+    \colvec{b\two_1 \\ b\two_2 \\ b\two_3 \\ \vdots \\ b\two_{N_2}},
+\end{equation}
+and $\mat{S}^{11} \in \Complexnum^{N_1\times N_1}$,
+$\mat{S}^{12} \in \Complexnum^{N_1\times N_2}$,
+$\mat{S}^{21} \in \Complexnum^{N_2\times N_1}$,
+$\mat{S}^{22} \in \Complexnum^{N_2\times N_2}$.
+We see that the entries of the $\mat{S}^{11}$ and $\mat{S}^{22}$
+matrices are
+reflection coefficients while those of $\mat{S}^{12}$ and 
+$\mat{S}^{21}$ are transmission coefficients.
+
+\section{GSM of a Dielectric Interface}
+Consider the case where $z_1 = z_2 = 0$ and there is no FSS present at
+the junction plane.  The resulting structure is then just the
+interface between two homogeneous half-spaces.
+
+\subsection{Wave Incident from Region~1}
+\label{sec:1inc}
+\subsubsection{TE Mode Incident}
+\label{sec:1incTE}
+The transverse components of the incident field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\inc &= c\one_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\one_{mn} z} 
+    \z\cross\betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\inc &= -c\one_{1mn} Y\one_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\one_{mn} z} 
+    \betahat_{mn}
+  \end{align}
+\end{subequations}
+The transverse components of the reflected field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\refl &= R\one_{1mn} c\one_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\one_{mn} z} 
+    \z\cross\betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\refl &= R\one_{1mn} c\one_{1mn} Y\one_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\one_{mn} z} 
+    \betahat_{mn}
+  \end{align}
+\end{subequations}
+The transverse components of the transmitted field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\trans &= T\two_{1mn} c\two_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\two_{mn} z} 
+    \z\cross\betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\trans &= -T\two_{1mn} c\two_{1mn} Y\two_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\two_{mn} z} 
+    \betahat_{mn}
+  \end{align}
+\end{subequations}
+The unknown reflection and transmission coefficients $R\one_{1mn}$ and
+$T\two_{1mn}$ are determined by equating the total transverse electric
+and magnetic fields at each side of the interface:
+\begin{subequations}
+  \begin{align}
+    (\x\x+\y\y) \bdot \left[\E\inc(0,0,0) + \E\refl(0,0,0)\right] &= 
+    (\x\x+\y\y) \bdot \E\trans(0,0,0), \\
+    (\x\x+\y\y) \bdot \left[\H\inc(0,0,0) + \H\refl(0,0,0)\right] &= 
+    (\x\x+\y\y) \bdot \H\trans(0,0,0).
+  \end{align}
+\end{subequations}
+This procedure results in the following system of equations for the transmission
+and reflection coefficient:
+\begin{subequations}
+  \label{eq:RTsystem1}
+  \begin{align}
+    1 + R\one_{1mn} &= \frac{c\two_{1mn}}{c\one_{1mn}} T\two_{1mn} = 
+    \frac{\sqrt{Y\one_{1mn}}}{\sqrt{Y\two_{1mn}}} T\two_{1mn} 
+    \label{eq:1plusR}\\
+    1 - R\one_{1mn} &= \frac{c\two_{1mn} Y\two_{1mn}}{c\one_{1mn} Y\one_{1mn}}
+    T\two_{1mn} = 
+    \frac{\sqrt{Y\two_{1mn}}}{\sqrt{Y\one_{1mn}}} T\two_{1mn} \label{eq:1minusR}
+  \end{align}
+\end{subequations}
+where we have made use of Equation~\eqref{eq:modenormalization}.
+One can easily solve for $R\one_{1mn}$ by dividing the equations and
+recalling that 
+\begin{equation}
+  y = \frac{1-x}{1+x}  \iff x = \frac{1-y}{1+y}.
+\end{equation}
+The result is 
+\begin{align}
+  R\one_{1mn} &= 
+  \frac{Y\one_{1mn} - Y\two_{1mn}}{Y\one_{1mn} + Y\two_{1mn}} 
+  = \frac{Z\two_{1mn} - Z\one_{1mn}}{Z\two_{1mn} + Z\one_{1mn}}, \\
+   T\two_{1mn} &= 
+   \frac{2\sqrt{Y\one_{1mn}}\sqrt{Y\two_{1mn}}}{Y\one_{1mn}+Y\two_{1mn}}
+  = \frac{2\sqrt{Z\one_{1mn}}\sqrt{Z\two_{1mn}}}{Z\one_{1mn}+Z\two_{1mn}}.
+\end{align}
+
+
+\subsubsection{TM Mode Incident}
+The transverse components of the incident field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\inc &= c\one_{2mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\one_{mn} z} 
+    \betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\inc &= c\one_{2mn} Y\one_{2mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\one_{mn} z} 
+    \z\cross\betahat_{mn}
+  \end{align}
+\end{subequations}
+The transverse components of the reflected field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\refl &= R\one_{2mn} c\one_{2mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\one_{mn} z} 
+    \betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\refl &= -R\one_{2mn} c\one_{2mn} Y\one_{2mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\one_{mn} z} 
+    \z\cross\betahat_{mn}
+  \end{align}
+\end{subequations}
+The transverse components of the transmitted field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\trans &= T\two_{2mn} c\two_{2mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\two_{mn} z} 
+    \betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\trans &= -T\two_{2mn} c\two_{2mn} Y\two_{2mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\two_{mn} z} 
+    \z\cross\betahat_{mn}
+  \end{align}
+\end{subequations}
+
+When the total transverse fields are equated at the plane $z=0$, we
+again arrive at the set of equations \eqref{eq:RTsystem1}
+for the unknowns $R\one_{2mn}$ and $T\two_{2mn}$.  Therefore, the TM
+reflection and transmission coefficients for a wave incident from
+Region~1 are identical to the TE coefficients:
+\begin{align}
+  R\one_{2mn} &= 
+  \frac{Y\one_{2mn} - Y\two_{2mn}}{Y\one_{2mn} + Y\two_{2mn}} 
+  = \frac{Z\two_{2mn} - Z\one_{2mn}}{Z\two_{2mn} + Z\one_{2mn}}, \\
+   T\two_{2mn} &= 
+   \frac{2\sqrt{Y\one_{2mn}}\sqrt{Y\two_{2mn}}}{Y\one_{2mn}+Y\two_{2mn}}
+  = \frac{2\sqrt{Z\one_{2mn}}\sqrt{Z\two_{2mn}}}{Z\one_{2mn}+Z\two_{2mn}}.
+\end{align}
+
+\subsection{Wave Incident from Region~2}
+\label{sec:2inc}
+\subsubsection{TE Mode Incident}
+The transverse components of the incident field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\inc &= c\two_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\two_{mn} z} 
+    \z\cross\betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\inc &= c\two_{1mn} Y\two_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\two_{mn} z} 
+    \betahat_{mn}
+  \end{align}
+\end{subequations}
+The transverse components of the reflected field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\refl &= R\two_{1mn} c\two_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\two_{mn} z} 
+    \z\cross\betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\refl &= -R\two_{1mn} c\two_{1mn} Y\two_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho - \gamma\two_{mn} z} 
+    \betahat_{mn}
+  \end{align}
+\end{subequations}
+The transverse components of the transmitted field are
+\begin{subequations}
+  \begin{align}
+    (\x\x + \y\y) \bdot \E\trans &= T\one_{1mn} c\one_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\one_{mn} z} 
+    \z\cross\betahat_{mn} \\
+    (\x\x + \y\y) \bdot \H\trans &= T\one_{1mn} c\one_{1mn} Y\one_{1mn}
+    e^{-j\vecbeta_{mn}\bdot\vecrho + \gamma\one_{mn} z} 
+    \betahat_{mn}
+  \end{align}
+\end{subequations}
+Equating the total transverse electric and magnetic field across the
+$z=0$ plane results in the following system of equations for the transmission
+and reflection coefficient:
+\begin{subequations}
+  \label{eq:RTsystem2}
+  \begin{align}
+    1 + R\two_{1mn} &= \frac{c\one_{1mn}}{c\two_{1mn}} T\one_{1mn} = 
+    \frac{\sqrt{Y\two_{1mn}}}{\sqrt{Y\one_{1mn}}} T\one_{1mn} 
+    \\
+    1 - R\two_{1mn} &= \frac{c\one_{1mn} Y\one_{1mn}}{c\two_{1mn} Y\two_{1mn}}
+    T\one_{1mn} = 
+    \frac{\sqrt{Y\one_{1mn}}}{\sqrt{Y\two_{1mn}}} T\one_{1mn}.
+  \end{align}
+\end{subequations}
+We note that these are identical to Equations~\eqref{eq:RTsystem1}
+with the roles of Regions~1 and~2 reversed.  Therefore, the solution is
+\begin{align}
+  R\two_{1mn} &= 
+  -R\one_{1mn} = 
+  \frac{Y\two_{1mn} - Y\one_{1mn}}{Y\two_{1mn} + Y\one_{1mn}} 
+  = \frac{Z\one_{1mn} - Z\two_{1mn}}{Z\one_{1mn} + Z\two_{1mn}}, \\
+   T\one_{1mn} &= 
+   T\two_{1mn} = 
+   \frac{2\sqrt{Y\two_{1mn}}\sqrt{Y\one_{1mn}}}{Y\two_{1mn}+Y\one_{1mn}}
+  = \frac{2\sqrt{Z\two_{1mn}}\sqrt{Z\one_{1mn}}}{Z\two_{1mn}+Z\one_{1mn}}.
+\end{align}
+
+\subsubsection{TM Mode Incident}
+\label{sec:2incTM}
+The results for TM incidence are identical to the TE case, as they
+were for a wave incident from Region~1.
+
+\subsection{Summary}  Considering the results of
+Sections~\ref{sec:1inc} and \ref{sec:2inc}, we can write the
+GSM of the dielectric interface in the following form:
+\begin{equation}
+  \mat{S} = 
+  \begin{bmatrix}
+    \mat{R}\one & \mat{T}\transpose \\
+    \mat{T} & \mat{R}\two
+  \end{bmatrix}
+\end{equation}
+where
+\begin{subequations}
+  \begin{align}
+    R\one_{qq'} &= -R\two_{q'q} =
+      \frac{Y\one_{p_q m_q n_q} - Y\two_{p_q m_q n_q}}%
+        {Y\one_{p_q m_q n_q} + Y\two_{p_q m_q n_q}} \;
+        \delta_{p_q p_{q'}} \delta_{m_q m_{q'}} \delta_{n_q n_{q'}}, \\
+   T_{qq'} &= 
+   \frac{2\sqrt{Y\one_{p_{q}m_{q}n_{q}}}\sqrt{Y\two_{p_{q}m_{q}n_{q}}}}
+      {Y\one_{p_{q}m_{q}n_{q}}+Y\two_{p_{q}m_{q}n_{q}}} \;
+      \delta_{p_q p_{q'}} \delta_{m_q m_{q'}} \delta_{n_q n_{q'}}.
+             \label{eq:Tsummary}
+  \end{align}
+\end{subequations}
+Note that even though the matrices $\mat{T}$,
+$\mat{R}\one$, and $\mat{R}\two$ are diagonal, $\mat{T}$ is not
+square, 
+unless $N_1 = N_2$; i.e., the number of modes used
+in Regions~1 and 2 is the same.  Only in this case
+is it true that $\mat{R}\two = -\mat{R}\one$.
+
+It is also important to realize that the two radicands in
+Eq.~\eqref{eq:Tsummary} must not be combined under a single radical,
+since, for general complex numbers $a$ and $b$, $\sqrt{ab} \neq
+\sqrt{a}\sqrt{b}$. 
+
+\section{GSM of a Dielectric Slab}
+We consider the case where Regions~1 and~2 are identical, there is no
+FSS present, and $z_2 - z_1 = L$.  In this case we will always insist
+that $N_2 = N_1 = N$ (same number of modes in each region). It is simple
+to see that all reflection
+coefficients are identically zero, and the transmission coefficients
+are just the propagation factors of each mode:
+\begin{equation}
+  \mat{S} = 
+  \begin{bmatrix}
+    \0 & \mat{P} \\
+    \mat{P} & \0
+  \end{bmatrix}
+\end{equation}
+where $\mat{P}$ is the {propagator matrix} \cite{micc:88}
+\begin{equation}
+  \label{eq:Pdef}
+  \mat{P} = \diag{e^{-\gamma_{m_1 n_1}L},
+    e^{-\gamma_{m_2 n_2}L},\ldots,
+    e^{-\gamma_{m_N n_N}L}}
+\end{equation}
+\section{GSM of a Cascade}
+In this section we consider the cascade connection of a pair of FSS 
+structures as shown in Figure~\ref{fig:cascade}.
+%
+\begin{figure}[tbp]
+  \begin{center}
+    \setlength{\unitlength}{0.2in}
+      \small
+    \begin{picture}(18,7.5)(-9,-4)
+      \put(-7,-3){\line(0,1){6}}  % z1 boundary
+      \put(-4,-3){\line(0,1){6}}   % z2 boundary
+      \put(-5.5,0){\makebox(0,0){$A$}}
+      \put(-7.75,2.1){\makebox(0,0){$\mat{a}^{(1)}$}}
+      \put(-8,1.5){\makebox(0,0){$\longrightarrow$}}
+      %
+      \put(-7.75,-1.5){\makebox(0,0){$\mat{b}^{(1)}$}}
+      \put(-8,-2.1){\makebox(0,0){$\longleftarrow$}}
+      %
+      \put(-2.75,2.1){\makebox(0,0){$\mat{a}^{(3)}$}}
+      \put(-3,1.5){\makebox(0,0){$\longleftarrow$}}
+      %
+      \put(-2.75,-1.5){\makebox(0,0){$\mat{b}^{(3)}$}}
+      \put(-3,-2.1){\makebox(0,0){$\longrightarrow$}}
+      %
+      %
+      \put(7,-3){\line(0,1){6}}  % z1 boundary
+      \put(4,-3){\line(0,1){6}}   % z2 boundary
+      \put(5.5,0){\makebox(0,0){$B$}}
+      \put(8.25,2.1){\makebox(0,0){$\mat{a}^{(2)}$}}
+      \put(8,1.5){\makebox(0,0){$\longleftarrow$}}
+      %
+      \put(8.25,-1.5){\makebox(0,0){$\mat{b}^{(2)}$}}
+      \put(8,-2.1){\makebox(0,0){$\longrightarrow$}}
+      %
+      \put(3.25,2.1){\makebox(0,0){$\mat{a}^{(4)}$}}
+      \put(3,1.5){\makebox(0,0){$\longrightarrow$}}
+      %
+      \put(3.25,-1.5){\makebox(0,0){$\mat{b}^{(4)}$}}
+      \put(3,-2.1){\makebox(0,0){$\longleftarrow$}}
+      %
+      %
+      %
+    \end{picture}
+    \caption[A cascade structure.]
+    {A structure consisting of a pair of FSS structures connected in cascade.}
+    \label{fig:cascade}
+  \end{center}
+\end{figure}
+%
+We have two FSS structures $A$ and $B$, with the Region~2 terminal
+plane of $A$ coinciding with the Region~1 terminal plane of $B$.  The
+scattering matrix for $A$ is $\mat{A}$ and the scattering matrix for
+$B$ is $\mat{B}$.
+Note that the number of modes used in Region~2 of device $A$ must
+equal the number of modes used in Region~1 of device $B$. In fact,
+these two regions are really the same region, and the Floquet modes
+defined for each device for this common region are in fact identical.
+
+The goal of this section is to find the scattering matrix $\mat{S}$
+that relates $\mat{a}\one$ and $\mat{a}\two$ to 
+$\mat{b}\one$ and $\mat{b}\two$ under the interconnection condition:
+\begin{equation}
+  \colvec{\mat{b}\three \\ \mat{b}\four} 
+  =
+  \begin{bmatrix}
+    \0 & \mat{I} \\
+    \mat{I} & \0
+  \end{bmatrix}
+  \colvec{\mat{a}\three \\ \mat{a}\four},
+  \label{eq:interconnect}
+\end{equation}
+where $\mat{I}$ is the identity matrix.
+Each device satisfies its own scattering relation:
+\begin{subequations}
+  \label{eq:Sindividual}
+  \begin{align}
+  \colvec{\mat{b}\one \\ \mat{b}\three} 
+  &=
+  \begin{bmatrix}
+    \mat{A}^{11} & \mat{A}^{12} \\
+    \mat{A}^{21} & \mat{A}^{22} 
+  \end{bmatrix}
+  \colvec{\mat{a}\one \\ \mat{a}\three} \\
+  %
+  \colvec{\mat{b}\four \\ \mat{b}\two} 
+  &=
+  \begin{bmatrix}
+    \mat{B}^{11} & \mat{B}^{12} \\
+    \mat{B}^{21} & \mat{B}^{22} 
+  \end{bmatrix}
+  \colvec{\mat{a}\four \\ \mat{a}\two}.
+  \end{align}
+\end{subequations}
+In light of \eqref{eq:interconnect}, it is useful to partition the
+scattering relations \eqref{eq:Sindividual} in the following manner:
+\begin{subequations}
+  \begin{align}
+    \colvec{\mat{b}\one \\ \mat{b}\two}
+    &=
+    \begin{bmatrix}
+      \mat{A}^{11} & \0 \\
+      \0 & \mat{B}^{22}
+    \end{bmatrix}
+    \colvec{\mat{a}\one \\ \mat{a}\two}
+    +
+    \begin{bmatrix}
+      \mat{A}^{12} & \0 \\
+      \0 & \mat{B}^{21}
+    \end{bmatrix}
+    \colvec{\mat{a}\three \\ \mat{a}\four}
+    \label{eq:b12full}
+    \\
+    \colvec{\mat{b}\three \\ \mat{b}\four}
+    &=
+    \begin{bmatrix}
+      \mat{A}^{21} & \0 \\
+      \0 & \mat{B}^{12}
+    \end{bmatrix}
+    \colvec{\mat{a}\one \\ \mat{a}\two}
+    +
+    \begin{bmatrix}
+      \mat{A}^{22} & \0 \\
+      \0 & \mat{B}^{11}
+    \end{bmatrix}
+    \colvec{\mat{a}\three \\ \mat{a}\four}.
+    \label{eq:b34full}
+  \end{align}
+\end{subequations}
+Equating \eqref{eq:interconnect} and \eqref{eq:b34full}, one can solve
+for $\mat{a}\three$ and $\mat{a}\four$ in terms of $\mat{a}\one$ and
+$\mat{a}\two$:
+\begin{align}
+  \colvec{\mat{a}\three \\ \mat{a}\four} 
+  &=
+  \begin{bmatrix}
+    -\mat{A}^{22} & \mat{I} \\
+    \mat{I} & -\mat{B}^{11}
+  \end{bmatrix}^{-1}
+  \begin{bmatrix}
+    \mat{A}^{21} & \0 \\
+    \0 & \mat{B}^{12}
+  \end{bmatrix} 
+  \colvec{\mat{a}\one \\ \mat{a}\two} 
+  \nonumber \\
+  &=
+  \begin{bmatrix}
+    \mat{C}^{11} & \mat{C}^{12} \\
+    \mat{C}^{21} & \mat{C}^{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    \mat{A}^{21} & \0 \\
+    \0 & \mat{B}^{12}
+  \end{bmatrix} 
+  \colvec{\mat{a}\one \\ \mat{a}\two} 
+  \nonumber \\
+  &=
+  \begin{bmatrix}
+    \mat{C}^{11} \mat{A}^{21} & \mat{C}^{12} \mat{B}^{12} \\
+    \mat{C}^{21} \mat{A}^{21} & \mat{C}^{22} \mat{B}^{12}
+  \end{bmatrix}
+  \colvec{\mat{a}\one \\ \mat{a}\two} 
+  \label{eq:b3b4temp}
+\end{align}
+where
+\begin{align}
+  \begin{bmatrix}
+    \mat{C}^{11} & \mat{C}^{12} \\
+    \mat{C}^{21} & \mat{C}^{22}
+  \end{bmatrix}
+  &\equiv
+  \begin{bmatrix}
+    -\mat{A}^{22} & \mat{I} \\
+    \mat{I} & -\mat{B}^{11}
+  \end{bmatrix}^{-1}
+  \nonumber \\
+  &=
+  \begin{bmatrix}
+    \mat{B}^{11} (\mat{I} - \mat{A}^{22} \mat{B}^{11})^{-1} & 
+    (\mat{I} - \mat{B}^{11} \mat{A}^{22})^{-1} \\
+     (\mat{I} - \mat{A}^{22} \mat{B}^{11})^{-1} & 
+    \mat{A}^{22} (\mat{I} - \mat{B}^{11} \mat{A}^{22})^{-1}
+  \end{bmatrix}, 
+\end{align}
+a result obtainable using  
+\cite[Exercise~1.3.12]{orte:87}.  For conciseness, we make the
+following definitions.
+\begin{equation}
+  \mat{G}^{AB} \equiv (\mat{I} - \mat{A}^{22} \mat{B}^{11})^{-1}, \qquad
+  \mat{G}^{BA} \equiv (\mat{I} - \mat{B}^{11} \mat{A}^{22})^{-1} 
+\end{equation}
+so that 
+\begin{equation}
+  \begin{bmatrix}
+    \mat{C}^{11} & \mat{C}^{12} \\
+    \mat{C}^{21} & \mat{C}^{22}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \mat{B}^{11} \mat{G}^{AB} & \mat{G}^{BA} \\
+     \mat{G}^{AB} &  \mat{A}^{22} \mat{G}^{BA} 
+  \end{bmatrix}
+\end{equation}
+and \eqref{eq:b3b4temp} can be written as
+\begin{equation}
+  \colvec{\mat{a}\three \\ \mat{a}\four} 
+  =
+  \begin{bmatrix}
+    \mat{B}^{11} \mat{G}^{AB} \mat{A}^{21} & \mat{G}^{BA} \mat{B}^{12} \\
+    \mat{G}^{AB} \mat{A}^{21} & \mat{A}^{22} \mat{G}^{BA} \mat{B}^{12}
+  \end{bmatrix}
+  \colvec{\mat{a}\one \\ \mat{a}\two}.
+  \label{eq:b3b4}
+\end{equation}
+
+We can now substitute \eqref{eq:b3b4} into \eqref{eq:b12full}
+to obtain
+\begin{align}
+  \colvec{\mat{b}\one \\ \mat{b}\two}
+  &=
+  \left\{
+    \begin{bmatrix}
+      \mat{A}^{11} & \0 \\
+      \0 & \mat{B}^{22}
+    \end{bmatrix}
+    +
+    \begin{bmatrix}
+      \mat{A}^{12} & \0 \\
+      \0 & \mat{B}^{21}
+    \end{bmatrix}
+    \begin{bmatrix}
+      \mat{B}^{11} \mat{G}^{AB} \mat{A}^{21} & \mat{G}^{BA} \mat{B}^{12} \\
+      \mat{G}^{AB} \mat{A}^{21} & \mat{A}^{22} \mat{G}^{BA} \mat{B}^{12}
+    \end{bmatrix}
+  \right\}
+  \colvec{\mat{a}\one \\ \mat{a}\two} \nonumber \\
+  &=
+  \begin{bmatrix}
+    \mat{A}^{11} + \mat{A}^{12}\mat{B}^{11}\mat{G}^{AB}\mat{A}^{21} &
+    \mat{A}^{12}\mat{G}^{BA}\mat{B}^{12} \\
+    \mat{B}^{21}\mat{G}^{AB}\mat{A}^{21} & 
+    \mat{B}^{22} + \mat{B}^{21}\mat{A}^{22} \mat{G}^{BA} \mat{B}^{12}
+  \end{bmatrix}
+  \colvec{\mat{a}\one \\ \mat{a}\two} \nonumber 
+\end{align}
+so that the composite scattering matrix is
+\begin{equation}
+  \label{eq:Scomposite}
+  \mat{S} = 
+  \begin{bmatrix}
+    \mat{S}^{11} &   \mat{S}^{12} \\
+    \mat{S}^{21} &   \mat{S}^{22} 
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \mat{A}^{11} + \mat{A}^{12}\mat{B}^{11}\mat{G}^{AB}\mat{A}^{21} &
+    \mat{A}^{12}\mat{G}^{BA}\mat{B}^{12} \\
+    \mat{B}^{21}\mat{G}^{AB}\mat{A}^{21} & 
+    \mat{B}^{22} + \mat{B}^{21}\mat{A}^{22} \mat{G}^{BA} \mat{B}^{12}
+  \end{bmatrix}.
+\end{equation}
+
+\subsection{Device~A is a Dielectric Slab}
+In the case where device~$A$ is just a dielectric slab, we have
+\begin{equation}
+  \mat{A} = 
+  \begin{bmatrix}
+    \0 & \mat{P} \\
+    \mat{P} & \0
+  \end{bmatrix}
+\end{equation}
+where $\mat{P}$ is defined in Equation~\eqref{eq:Pdef}.
+$\mat{G}^{AB}$ and $\mat{G}^{BA}$ both reduce to the unit matrix, and
+the formula given in~\eqref{eq:Scomposite}
+ for the composite scattering matrix simplifies to 
+\begin{equation}
+  \begin{bmatrix}
+    \mat{S}^{11} & \mat{S}^{12} \\
+    \mat{S}^{21} & \mat{S}^{22}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \mat{P} \mat{B}^{11} \mat{P} & \mat{P} \mat{B}^{12} \\
+    \mat{B}^{21} \mat{P} & \mat{B}^{22} 
+  \end{bmatrix}.
+\end{equation}
+
+\subsection{Device~B is a Dielectric Slab}
+In the case where device~$B$ is just a dielectric slab, we have
+\begin{equation}
+  \mat{B} = 
+  \begin{bmatrix}
+    \0 & \mat{P} \\
+    \mat{P} & \0
+  \end{bmatrix}
+\end{equation}
+where $\mat{P}$ is defined in Equation~\eqref{eq:Pdef}.
+$\mat{G}^{AB}$ and $\mat{G}^{BA}$ both reduce to the unit matrix, and
+the formula given in~\eqref{eq:Scomposite}
+for the composite scattering matrix simplifies to 
+\begin{equation}
+  \begin{bmatrix}
+    \mat{S}^{11} & \mat{S}^{12} \\
+    \mat{S}^{21} & \mat{S}^{22}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \mat{A}^{11}  & \mat{A}^{12} \mat{P} \\
+     \mat{P} \mat{A}^{21} &  \mat{P} \mat{A}^{22} \mat{P} 
+  \end{bmatrix}.
+\end{equation}
+

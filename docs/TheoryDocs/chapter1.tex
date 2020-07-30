@@ -1,0 +1,416 @@
+\chapter{Fundamentals}
+\label{chap:fund}
+This chapter documents the definitions for fields, potentials, and 
+Fourier transforms that are employed in remainder of this document.
+
+
+We restrict consideration to time-harmonic sources in simple, linear media,
+assuming and suppressing
+a time dependence of $e^{j\omega t}$.  RMS phasers are used throughout, employing
+rationalized MKS units. Thus,
+if $V$ is a (complex) phaser voltage, then the corresponding function of time
+is $v(t) = \sqrt{2} \Real{V e^{j\omega t}}$.
+
+A right-handed Cartesian  coordinate system is adopted, with $x$, $y$, and 
+$z$ axes, and unit vectors $\x$, $\y$, and $\z$.  A point $P = (x,y,z)$ is 
+typically identified by the vector $\r = x\x + y\y + z\z$ which measures 
+the displacement of $P$ from the origin.
+
+The medium under consideration is characterized by its scalar, complex permittivity
+$\epsilon$ [F/m] and its scalar, complex permeability $\mu$ [H/m], 
+both of which may be functions 
+of position, $\epsilon = \epsilon(\r)$, $\mu = \mu(\r)$. Although these parameters are
+both positive for lossless media, in the presence of electric and/or magnetic
+losses the imaginary part of $\epsilon$ and/or $\mu$, respectively, is negative.
+Thus, $\epsilon$ and $\mu$ both lie in the fourth quadrant (or positive real
+axis) of the complex plane.
+
+For convenience we define the medium's intrinsic wavenumber
+\begin{equation}
+  k = \omega \sqrt{\mu\epsilon} \qquad \text{(fourth quadrant)}
+\end{equation}
+and intrinsic impedance
+\begin{equation}
+  \eta = \sqrt{\mu/\epsilon} \qquad \left(\abs{\arg\eta} < \frac{\pi}{4} \right),
+\end{equation}
+which, of course, vary with position if $\epsilon$ or $\mu$ do.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Maxwell's Equations and Potentials for Electric Sources}
+Under the assumptions listed above, and postulating the existence of only
+electric sources, Maxwell's curl equations 
+(Ampere's Law and Faraday's Law) take the form
+\begin{subequations}
+  \begin{align}
+    \curl \H &= j\omega\epsilon \E + \J \label{eq:AmpereE} \\
+    \curl \E &= -j\omega\mu \H  \label{eq:FaradayE}
+  \end{align}
+\end{subequations}
+where $\E$ is the electric field vector [V/m], $\H$ is the magnetic field
+vector [A/m], and $\J$ is the electric current density [A/m$^2$].
+When combined with the equation of continuity
+\begin{equation}
+  \divergence \J + j\omega\qe = 0
+\end{equation}
+we obtain the divergence relations
+\begin{subequations}
+  \begin{align}
+    \divergence \epsilon\E &= \qe  \label{eq:divE}\\
+    \divergence \mu\H       &= 0,
+  \end{align}
+\end{subequations}
+where $\qe$ is the electric charge density,
+with units of [C/m$^3$].
+The fact that $\mu\H$ is divergenceless leads to 
+the introduction of the magnetic vector potential $\A$
+having units of [Vs/m]:
+\begin{equation}
+  \boxed{
+  \mu\H = \curl \A.  
+  } \label{eq:curlA}
+\end{equation}
+Substituting \eqref{eq:curlA} into \eqref{eq:FaradayE} we find that
+$-\E - j\omega\A$ is curl-free, and so can be written as the gradient
+of the so-called electric scalar potential $\Phi$ [V]:
+\begin{equation}
+  \label{eq:PhiE}
+  \boxed{
+  \E = -j\omega\A-\gradient\Phi.
+  }
+\end{equation}
+To derive the differential equations for $\A$ and $\Phi$ we
+begin with the identity
+\begin{equation}
+  \curl \curl \A = \curl \mu\H = \mu \curl \H + \gradient\mu \cross \H
+\end{equation}
+and use Equations \eqref{eq:AmpereE} and \eqref{eq:curlA} to eliminate
+$\H$:
+\begin{equation}
+  \gradient\divergence\A - \vlaplace\A =
+  j\omega\epsilon\mu\E + \mu\J + \gradient\mu \cross 
+  \left(
+    \frac{1}{\mu} \curl\A
+  \right).
+\end{equation}
+Note that we also employed the identity $\curl\curl\A = 
+  \gradient\divergence\A - \vlaplace\A$.
+Now eliminating $\E$ using \eqref{eq:PhiE} we obtain
+\begin{equation}
+  \vlaplace\A + k^2 \A + \gradient\mu \cross
+  \left(
+    \frac{1}{\mu} \curl\A
+  \right)
+  - \gradient 
+  \left[
+    \divergence\A + j\omega\mu\epsilon\Phi
+  \right]
+  = -\mu\J.
+\end{equation}
+Since the divergence of the magnetic vector potential is as yet unspecified,
+we may apply the Lorentz gauge, $\divergence\A = -j\omega\epsilon\mu\Phi$,
+and set the quantity in square brackets above to zero:
+\begin{equation}
+  \boxed{%
+  \vlaplace\A + k^2 \A + \frac{\gradient\mu}{\mu} \cross \curl\A
+  = -\mu\J.  \label{eq:WaveAinhom}
+  }
+\end{equation}
+Equation~\eqref{eq:WaveAinhom} is the fundamental wave equation for 
+the magnetic vector potential under the Lorentz gauge in an inhomogeneous
+medium.  
+
+An equation for $\Phi$ is now obtained by employing the
+identity $\divergence \epsilon\E = \E\bdot\gradient \epsilon
++ \epsilon \divergence\E$ in \eqref{eq:divE} and then
+eliminating $\E$ using \eqref{eq:PhiE}:
+\begin{align}
+  \qe
+  &= \E \bdot \gradient \epsilon + \epsilon \divergence\E \notag \\
+  &= -(j\omega\A + \gradient\Phi) \bdot \gradient\epsilon
+  - \epsilon \divergence (j\omega\A + \gradient\Phi).
+\end{align}
+After invoking the Lorentz gauge this can be written as
+\begin{equation}
+  \boxed{%
+  \laplace\Phi + k^2\Phi + \frac{\gradient\Phi \bdot \gradient\epsilon}{\epsilon}
+  = 
+  -\frac{\qe}{\epsilon} - \frac{j\omega\A \bdot \gradient\epsilon}{\epsilon}.
+  } \label{eq:WavePhiinhom}
+\end{equation}
+Equation~\eqref{eq:WavePhiinhom} is the wave equation for 
+the electric scalar potential under the Lorentz gauge in an inhomogeneous
+medium.  
+
+\subsection{Piecewise Homogeneous Medium}
+Suppose that the spatial domain $U$ of the boundary value problem
+for which Maxwell's Equations are to be
+solved consists of a disjoint union of a finite number $N$ of
+homogeneous regions $U_i$, as in the case of a stratified medium:
+\begin{equation}
+  U = \union_{i=1}^{N} U_i,
+\end{equation}
+and suppose that the permittivity and permeability of the $i$th region
+are the constants $\epsilon_i$ and $\mu_i$, respectively, with corresponding
+wavenumber $k_i$.  Then, for
+points within the $i$th medium, the terms involving the gradient of
+the permittivity and permeability are zero, and the 
+potentials within the $i$th region are solutions to 
+\begin{subequations}
+  \begin{gather}
+    \vlaplace\A^{(i)} + k_i^2 \A^{(i)}  = -\mu_i\J, \\
+    \laplace\Phi^{(i)} + k_i^2 \Phi^{(i)}  = -\qe/\epsilon_i.
+  \end{gather}
+\end{subequations}
+If the $i$th region contains no sources, then the potentials
+in that region are solutions to the Helmholtz equation:
+\begin{subequations}
+  \begin{gather}
+    \vlaplace\A^{(i)} + k_i^2 \A^{(i)}  = \0, \\
+    \laplace\Phi^{(i)} + k_i^2 \Phi^{(i)}  = 0.
+  \end{gather}
+\end{subequations}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Maxwell's Equations for Magnetic Sources}
+Under the assumptions listed in the introduction, and postulating the existence of only
+magnetic sources, Maxwell's curl equations 
+(Ampere's Law and Faraday's Law) take the form
+\begin{subequations}
+  \begin{align}
+    \curl \H &= j\omega\epsilon \E \label{eq:AmpereM} \\
+    \curl \E &= -j\omega\mu \H - \M \label{eq:FaradayM}
+  \end{align}
+\end{subequations}
+where $\E$ is the electric field vector [V/m], $\H$ is the magnetic field
+vector [A/m], and $\M$ is the magnetic current density [V/m$^2$].
+When combined with the equation of continuity
+\begin{equation}
+  \divergence \M + j\omega\qm = 0
+\end{equation}
+we obtain the divergence relations
+\begin{subequations}
+  \begin{align}
+    \divergence \epsilon\E &= 0  \label{eq:divEm}\\
+    \divergence \mu\H &= \qm,    \label{eq:divHm}
+  \end{align}
+\end{subequations}
+where $\qm$ is the magnetic charge density,
+with units of [Wb/m$^3$].
+The fact that $\epsilon\E$ is divergenceless leads to 
+the introduction of the electric vector potential $\F$
+having units of [As/m]:
+\begin{equation}
+  \boxed{
+  \epsilon\E = \curl \F.  
+  } \label{eq:curlF}
+\end{equation}
+Substituting \eqref{eq:curlF} into \eqref{eq:AmpereM} we find that
+$j\omega\F - \H$ is curl-free, and so can be written as the gradient
+of the so-called magnetic scalar potential $\Psi$ [A]:
+\begin{equation}
+  \label{eq:PsiM}
+  \boxed{
+  \H =  j\omega\F - \gradient\Psi.
+  }
+\end{equation}
+To derive the differential equations for $\F$ and $\Psi$ we
+begin with the identity
+\begin{equation}
+  \curl \curl \F = \curl \epsilon\E = \epsilon \curl \E + \gradient\epsilon \cross \E
+\end{equation}
+and use Equations \eqref{eq:FaradayM} and \eqref{eq:curlF} to eliminate
+$\E$:
+\begin{equation}
+  \gradient\divergence\F - \vlaplace\F =
+  -j\omega\epsilon\mu\H - \epsilon\M + \gradient\epsilon \cross 
+  \left(
+    \frac{1}{\epsilon} \curl\F
+  \right).
+\end{equation}
+Note that we also employed the identity $\curl\curl\F = 
+  \gradient\divergence\F - \vlaplace\F$.
+Now eliminating $\H$ using \eqref{eq:PsiM} we obtain
+\begin{equation}
+  \vlaplace\F + k^2 \F + \gradient\epsilon \cross
+  \left(
+    \frac{1}{\epsilon} \curl\F
+  \right)
+  - \gradient 
+  \left[
+    \divergence\F - j\omega\mu\epsilon\Psi
+  \right]
+  = \epsilon\M.
+\end{equation}
+Since the divergence of the electric vector potential is as yet unspecified,
+we may apply the Lorentz gauge, $\divergence\F = j\omega\epsilon\mu\Psi$,
+and set the quantity in square brackets above to zero:
+\begin{equation}
+  \boxed{%
+  \vlaplace\F + k^2 \F + \frac{\gradient\epsilon}{\epsilon} \cross
+  \curl\F
+  = \epsilon\M.
+  \label{eq:WaveFinhom}
+  }
+\end{equation}
+Equation~\eqref{eq:WaveFinhom} is the fundamental wave equation for 
+the electric vector potential under the Lorentz gauge in an inhomogeneous
+medium.  
+
+An equation for $\Psi$ is now obtained by employing the
+identity $\divergence \mu\H = \H\bdot\gradient \mu
++ \mu \divergence\H$ in \eqref{eq:divHm} and then
+eliminating $\H$ using \eqref{eq:PsiM}:
+\begin{align}
+  \qm
+  &= \H \bdot \gradient \mu + \mu \divergence\H \notag \\
+  &= (j\omega\F - \gradient\Psi) \bdot \gradient\mu
+  + \mu \divergence (j\omega\F - \gradient\Psi).
+\end{align}
+After invoking the Lorentz gauge this can be written as
+\begin{equation}
+  \boxed{%
+  \laplace\Psi + k^2\Psi + \frac{\gradient\Psi \bdot \gradient\mu}{\mu}
+  = 
+  -\frac{\qm}{\mu} + \frac{j\omega\F \bdot \gradient\mu}{\mu}.
+  } \label{eq:WavePsiinhom}
+\end{equation}
+Equation~\eqref{eq:WavePsiinhom} is the wave equation for 
+the electric scalar potential under the Lorentz gauge in an inhomogeneous
+medium.  
+
+\subsection{Piecewise Homogeneous Medium}
+Suppose that the spatial domain $U$ of the boundary value problem
+for which Maxwell's Equations are to be
+solved consists of a disjoint union of a finite number $N$ of
+homogeneous regions $U_i$, as in the case of a stratified medium:
+\begin{equation}
+  U = \union_{i=1}^{N} U_i,
+\end{equation}
+and suppose that the permittivity and permeability of the $i$th region
+are the constants $\epsilon_i$ and $\mu_i$, respectively, with corresponding
+wavenumber $k_i$.  Then, for
+points within the $i$th medium, the terms involving the gradient of
+the permittivity and permeability are zero, and the 
+potentials within the $i$th region are solutions to 
+\begin{subequations}
+  \begin{gather}
+    \vlaplace\F^{(i)} + k_i^2 \F^{(i)}  = \epsilon_i\M, \\
+    \laplace\Psi^{(i)} + k_i^2 \Psi^{(i)}  = -\qm/\mu_i.
+  \end{gather}
+\end{subequations}
+If the $i$th region contains no sources, then the potentials
+in that region are solutions to the Helmholtz equation:
+\begin{subequations}
+  \begin{gather}
+    \vlaplace\F^{(i)} + k_i^2 \F^{(i)}  = \0, \\
+    \laplace\Psi^{(i)} + k_i^2 \Psi^{(i)}  = 0.
+  \end{gather}
+\end{subequations}
+
+\section{Duality}
+We note that the cases of electric-only and magnetic-only sources are duals.
+Any valid equation involving electromagnetic quantities has a dual equation
+which can be obtained by applying the following rules:
+\begin{enumerate}
+\item Interchange $\mu$ and $\epsilon$.
+\item Electric quantities are replaced by their corresponding magnetic quantity.
+\item Magnetic quantities are replaced by the negative of their corresponding electric quantity.
+\end{enumerate}
+The mappings between original and dual quantities are given in 
+Table~\ref{tab:duals}.
+\begin{table}[htbp]
+  \begin{center}
+    \leavevmode
+    \begin{tabular}{|c|} \hline
+      \bfseries Original $\boldsymbol{\rightarrow}$ Dual \\ \hline \hline
+      $\mu \rightarrow \epsilon$ \\ \hline
+      $\epsilon \rightarrow \mu$ \\ \hline
+      $k \rightarrow k$ \\ \hline
+      $\eta \rightarrow 1/\eta$ \\ \hline
+      $\E \rightarrow \H$ \\ \hline
+      $\J \rightarrow \M$ \\ \hline
+      $\F \rightarrow \A$ \\ \hline
+      $\Phi \rightarrow \Psi$ \\ \hline
+      $\qe \rightarrow \qm$ \\ \hline
+      $\H \rightarrow -\E$ \\ \hline
+      $\M \rightarrow -\J$ \\ \hline
+      $\A \rightarrow -\F$ \\ \hline
+      $\Psi \rightarrow -\Phi$ \\ \hline
+      $\qm \rightarrow -\qe$ \\ \hline
+    \end{tabular}
+    \caption{Electromagnetic dual quantities.}
+    \label{tab:duals}
+  \end{center}
+\end{table}
+
+\section{Fourier Transform Definitions}
+\subsection{One-dimensional Transform}
+The Fourier transform of a function $f: \Realnum \rightarrow \Complexnum$
+is $\tilde{f} = \Fourier \{f\}$, where
+\begin{equation}
+  \tilde{f}(k) = \int_{-\infty}^{\infty} f(x) e^{jkx} \d x,
+\end{equation}
+so that 
+\begin{equation}
+  f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} \tilde{f}(k) e^{-jkx} \d k.
+\end{equation}
+
+The completeness statement is
+\begin{equation}
+  \delta(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{\pm jkx} \d k
+\end{equation}
+and Parseval's relation is
+\begin{equation}
+\int_{-\infty}^{\infty} f(x) g^*(x) \, \d x =   
+\frac{1}{2\pi} \int_{-\infty}^{\infty} \tilde{f}(k) \tilde{g}^*(k) \, \d k.
+\end{equation}
+Finally, if 
+\begin{equation}
+  h(x) = \int_{-\infty}^{\infty} f(x') g(x-x') \, \d x'
+\end{equation}
+then the convolution theorem states that
+\begin{equation}
+  \tilde{h}(k) = \tilde{f}(k) \tilde{g}(k).
+\end{equation}
+
+
+\subsection{Two-dimensional Transform}
+The Fourier transform of a function $f: \Realnum \times \Realnum
+\rightarrow \Complexnum$
+is $\tilde{f} = \Fourier \{f\}$, where
+\begin{equation}
+  \tilde{f}(k_x,k_y) = 
+  \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} 
+  f(x,y) e^{j(k_x x + k_y y)} \d x  \d y,
+\end{equation}
+so that 
+\begin{equation}
+  f(x,y) = \frac{1}{4\pi^2} 
+  \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+ \tilde{f}(k_x,k_y) e^{-j(k_x x + k_y y)} \d k_x  \d k_y.
+\end{equation}
+
+The completeness statement is
+\begin{equation}
+  \delta(x) \delta(y) = \frac{1}{4\pi^2} 
+  \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+  e^{\pm j(k_x x + k_y y)} \d k_x  \d k_y
+\end{equation}
+and Parseval's relation is
+\begin{equation}
+\int_{-\infty}^{\infty} \int_{-\infty}^{\infty}
+ f(x,y) g^*(x,y) \, \d x  \d y =   
+\frac{1}{4\pi^2} \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} 
+\tilde{f}(k_x,k_y) \tilde{g}^*(k_x,k_y) \, \d k_x  \d k_y.
+\end{equation}
+Finally, if 
+\begin{equation}
+  h(x,y) = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+ f(x',y') g(x-x',y-y') \, \d x'  \d y'
+\end{equation}
+then the convolution theorem states that
+\begin{equation}
+  \tilde{h}(k_x,k_y) = \tilde{f}(k_x,k_y) \tilde{g}(k_x,k_y).
+\end{equation}
+
+

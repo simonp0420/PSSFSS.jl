@@ -1,0 +1,781 @@
+\chapter{Mixed Potential Green's Functions for Abutted Half-Spaces}
+\label{chap:mpgf}
+In this chapter, we derive an efficient method of evaluating the
+potential Green's functions needed for the \pssfss\ program.
+ The structure for which the potential Green's
+functions are desired consists of two layers, as shown in
+Figure~\ref{fig:geom2}.
+%
+\begin{figure}[bp]
+  \begin{center}
+    \setlength{\unitlength}{0.2in}
+      \small
+    \begin{picture}(18,8.5)(-9,-4)
+      \put(0,-3){\line(0,1){1.7}}  % z boundary
+      \put(0,-1){\line(0,1){1.7}}   % z boundary
+      \put(0,1){\line(0,1){1.7}}   % z boundary
+      \put(0,3){\line(0,1){1.7}}   % z boundary
+      \put(0,-3.5){\makebox(0,0){$z = 0$}}
+      %
+      %
+      \put(-4,0){\makebox(0,0){%
+        \begin{tabular}{@{}c@{}}
+          Region 1: $z<0$ \\
+          $\epsilon_1$, $\mu_1$, $k_1$, $\eta_1$
+        \end{tabular}}}
+      %
+      \put(4,0){\makebox(0,0){%
+        \begin{tabular}{@{}c@{}}
+          Region 2: $z>0$ \\
+          $\epsilon_2$, $\mu_2$, $k_2$, $\eta_2$
+        \end{tabular}}}
+      %
+    \end{picture}
+    \caption{The two-layer structure for which the Green's functions
+          are desired.}
+    \label{fig:geom2}
+  \end{center}
+\end{figure}
+The coordinate system origin is located in the interface between
+layers~1 and~2 and the $z$ axis points into layer~2. Both layers 
+are semi-infinite in the $z$ direction and translationally invariant in the $x$ and $y$
+directions.  Each layer $i=1,2$ is characterized by a complex
+permittivity $\epsilon_i$ and permeability $\mu_i$, each of which lies
+either in
+the fourth quadrant of the complex plane, or on the real axis.  The
+medium intrinsic wavenumbers are $k_i = \omega\sqrt{\mu_i\epsilon_i}$.
+
+
+We will use the shorthand notation $\displaystyle \summn$ to denote
+the double sum $\displaystyle \sum_{m=-\infty}^{\infty} \sum_{n=-\infty}^{\infty}.$
+
+
+
+\section{Derivation of Modal Series}
+\subsection{Magnetic Vector Potential}
+
+The assumed source is the electric current density
+\begin{equation}
+  \label{eq:J}
+  \J(\r) = \x  \summn 
+  \delta(\r-\vecrho'-m\s_1 -n\s_2) e^{-j(m\psi_1 + n\psi_2)}
+\end{equation}
+where, as usual
+\begin{subequations}
+  \begin{align}
+    \r &= \x x + \y y + \z z \\
+    \vecrho &= \x x + \y y \\
+    \r' &= \x x' + \y y' + \z z' \\
+    \vecrho' &= \x x' + \y y'. 
+  \end{align}
+\end{subequations}
+The electric current density $\J$
+can also be expanded into a series of Floquet modes as follows:
+\begin{equation}
+  \label{eq:Jfloquet}
+  \J(\r) = 
+  \x \frac{\delta(z)}{A} \summn e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+\end{equation}
+The surface current density is 
+\begin{equation}
+  \Js(\vecrho) = \int_{-\infty}^{\infty} \J(\r) \, \d z 
+  = \x \frac{1}{A} \summn  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+\end{equation}
+
+
+The region~$i$ magnetic vector potential 
+ $\A^{(i)}$ satisfies the Helmholtz equation
+ \begin{equation}
+   \label{eq:Ahelmholtz}
+   (\laplace + k_i^2) \A\eye = 0,
+ \end{equation}
+the radiation condition as $\abs{z} \rightarrow \infty,$
+and the following interface conditions at $z=0$ obtained from the fundamental
+boundary conditions on $\E$ and $\H$:
+\begin{subequations}
+  \begin{gather}
+    A\one_x = A\two_x, \label{eq:Abc:a} \\
+    %
+    \frac{1}{\mu_1} A\one_z = \frac{1}{\mu_2} A\two_z, \label{eq:Abc:b} \\
+    %
+    \frac{1}{\mu_1}  \pdz{A\one_x} - \frac{1}{\mu_2} \pdz{A\two_x} 
+    = \x \bdot \Js, \label{eq:Abc:c} \\
+    %
+    \frac{1}{k_1^2} 
+    \left(
+      \pdx{A\one_x} + \pdz{A\one_z}
+    \right)
+    =
+    \frac{1}{k_2^2} 
+    \left(
+      \pdx{A\two_x} + \pdz{A\two_z}
+    \right). \label{eq:Abc:d}
+  \end{gather}
+\end{subequations}
+
+It is well known that the interface conditions require two components
+of $\A$.  We follow the standard procedure and choose $\A\eye = \x
+A\eye_x + \z A\eye_z.$  Writing $\A$ as a series of Floquet modes we
+have 
+\begin{equation}
+  \label{eq:Afloquet1}
+  \A\eye = \summn 
+  \left(
+    \x A\eye_{mn} + \z B\eye_{mn}
+  \right)
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho') - \gamma\eye_{mn} \abs{z}},
+\end{equation}
+where
+\begin{equation}
+  \label{eq:gamma}
+  \gamma\eye_{mn} = \sqrt{\vecbeta_{mn} \bdot \vecbeta_{mn} - k_i^2}.
+\end{equation}
+
+Because the modal expansions consist of a series of orthogonal
+functions, each term
+(mode) must independently obey the stated boundary conditions.
+To satisfy \eqref{eq:Abc:a}, let $A\one_{mn} = A\two_{mn} \equiv
+a_{mn}.$  To satisfy \eqref{eq:Abc:b}, let $B\eye_{mn} = \mu_i
+b_{mn}.$  The series for $\A$ can then be written as 
+\begin{equation}
+  \label{eq:Afloquet2}
+  \A\eye = \summn 
+  \left(
+    \x a_{mn} + \z \mu_i b_{mn}
+  \right)
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho') - \gamma\eye_{mn} \abs{z}}.
+\end{equation}
+
+From \eqref{eq:Abc:c} we obtain
+\begin{equation*}
+  \frac{1}{\mu_1} \gamma\one_{mn} a_{mn} + \frac{1}{\mu_2} \gamma\two_{mn}
+  a_{mn} = \frac{1}{A}
+\end{equation*}
+so that
+\begin{equation}
+  \label{eq:amn}
+  a_{mn} = \frac{\tilde{\mu}}{2A} \; \frac{\mu_1+\mu_2}{\mu_1
+  \gamma\two_{mn} + \mu_2 \gamma\one_{mn}}
+\end{equation}
+where
+\begin{equation}
+  \tilde{\mu} = \frac{2\mu_1 \mu_2}{\mu_1 + \mu_2}.
+\end{equation}
+
+From \eqref{eq:Abc:d} we obtain
+\begin{equation*}
+  \frac{1}{\mu_1\epsilon_1} 
+  \left( -j\beta_{mnx} a_{mn} + \gamma\one_{mn} \, \mu_1 b_{mn} \right)
+  =
+  \frac{1}{\mu_2\epsilon_2} 
+  \left( -j\beta_{mnx} a_{mn} - \gamma\two_{mn} \, \mu_2 b_{mn} \right)
+\end{equation*}
+where $\beta_{mnx} = \x \bdot \vecbeta_{mn}.$
+After some algebraic manipulations the expression for $b_{mn}$ is obtained.
+\begin{equation}
+  \label{eq:bmn}
+  b_{mn} = \frac{\mu_1\epsilon_1 - \mu_2\epsilon_2}{A} \,
+  \frac{-j\beta_{mnx}}{(\epsilon_1\gamma\two_{mn} + \epsilon_2\gamma\one_{mn})
+     (\mu_1\gamma\two_{mn} + \mu_2\gamma\one_{mn})}
+\end{equation}
+
+\subsection{Scalar Electric Potential}
+Using the Lorentz gauge the electric scalar potential $\Phi$ is
+\begin{align}
+  \Phi\eye(\r) &= \frac{j}{\omega \mu_i \epsilon_i} \divergence \A\eye
+  \nonumber \\
+  %
+  &= \frac{j}{\omega\mu_i\epsilon_i} \summn
+  \left(
+    -j\beta_{mnx} a_{mn} - \gamma\eye_{mn} \sgn(z) \mu_i b_{mn}
+  \right)
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho') - \gamma\eye_{mn} \abs{z}}
+\end{align}
+To aid in simplifying this summand, let us define $F\eye = 
+-j\beta_{x} a - \gamma\eye \sgn(z) \mu_i b$, where for simplicity we
+have temporarily omitted the subscript $mn$. Proceeding with the
+algebra:
+\begin{align}
+  F\eye &=
+  \frac{-j\beta_x}{A\mu_i\epsilon_i} 
+  \left[
+  \frac{\mu_1\mu_2}{\mu_1\gamma\two+\mu_2\gamma\one}
+  - 
+  \frac{\gamma\eye \sgn(z) \mu_i(\mu_1\epsilon_1 - \mu_2\epsilon_2)}%
+  {\left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) }
+  \right]  \nonumber \\
+  %
+  &= -j\beta_x
+  \frac{\mu_1\mu_2\epsilon_1\gamma\two+\mu_1\mu_2\epsilon_2\gamma\one
+        -\gamma\eye \sgn(z) \mu_i(\mu_1\epsilon_1 - \mu_2\epsilon_2)}%
+  {A\mu_i\epsilon_i
+    \left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) }
+  %
+\end{align}
+Evaluated in Region~2 ($z>0$) this expression becomes
+\begin{align}
+  F\two &=-j\beta_x
+  \frac{\mu_1\mu_2\epsilon_1\gamma\two+\mu_1\mu_2\epsilon_2\gamma\one
+        -\gamma\two \mu_2(\mu_1\epsilon_1 - \mu_2\epsilon_2)}%
+  {A\mu_2\epsilon_2
+    \left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) } \nonumber \\
+  %
+  &=-j\beta_x
+  \frac{\mu_1\epsilon_1\gamma\two+\mu_1\epsilon_2\gamma\one
+        -\gamma\two (\mu_1\epsilon_1 - \mu_2\epsilon_2)}%
+  {A\epsilon_2
+    \left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) } \nonumber \\
+  %
+  &=-j\beta_x
+  \frac{\mu_1\gamma\one
+         + \mu_2\gamma\two}%
+  {A
+    \left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) } 
+\end{align}
+A similar derivation for Region~1 yields
+\begin{align}
+  F\one 
+  %
+  &= -j\beta_x
+  \frac{\mu_2\epsilon_1\gamma\two+\mu_2\epsilon_2\gamma\one
+        + \gamma\one (\mu_1\epsilon_1 - \mu_2\epsilon_2)}%
+  {A\epsilon_1
+    \left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) }  \nonumber \\
+  %
+  &= -j\beta_x
+  \frac{\mu_1\gamma\one + \mu_2\gamma\two}%
+  {A
+    \left(\epsilon_1\gamma\two+\epsilon_2\gamma\one\right)
+    \left(\mu_1\gamma\two+\mu_2\gamma\one\right) }  \nonumber \\
+  %
+  &= F\two.
+\end{align}
+The expression for $\Phi$ is therefore
+\begin{align}
+  \label{eq:Phi}
+  \Phi\eye(\r) 
+  &= 
+  \frac{j}{\omega A} \summn
+    -j\beta_{mnx} 
+  \frac{(\mu_1\gamma\one_{mn} + \mu_2\gamma\two_{mn})
+     e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho') - \gamma\eye_{mn} \abs{z}} }%
+  {    (\epsilon_1\gamma\two_{mn}+\epsilon_2\gamma\one_{mn})
+    (\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn}) }
+\end{align}
+
+From the equation of continuity we find that the electric charge
+density $q_e$ that gives rise to $\Phi$ is
+\begin{equation}
+  q_e = \frac{j}{\omega} \divergence \J =
+  \frac{j}{\omega} \divergence [\x
+  \delta(x-x')\delta(y-y')\delta(z)] 
+  = \frac{j}{\omega} \delta'(x-x') \delta(y-y') \delta(z)
+\end{equation}
+To determine an expression for the Green's function $G^\Phi$ for the
+electric scalar potential, note that 
+\begin{equation}
+  \Phi(\r) = \iiint G^\Phi(\r-\r_0) \, q_e(\r_0) \, \d V_0
+  = \frac{-j}{\omega} \frac{\partial G^\Phi(\r-\vecrho')}{\partial x'}
+  = \frac{j}{\omega}  \pdx{G^\Phi(\r-\vecrho')}
+\end{equation}
+so that 
+\begin{equation}
+  \label{eq:pdxGphi}
+  \pdx{G^\Phi} = \frac{\omega}{j} \Phi.
+\end{equation}
+Comparing \eqref{eq:Phi} and \eqref{eq:pdxGphi} we conclude that the
+expression for the Green's function is
+\begin{equation}
+  G^\Phi(\r-\vecrho') = 
+  \frac{1}{2\bar{\epsilon}A} \summn
+  \frac{(\epsilon_1+\epsilon_2)(\mu_1\gamma\one_{mn} + \mu_2\gamma\two_{mn})}%
+  {(\epsilon_1\gamma\two_{mn}+\epsilon_2\gamma\one_{mn})
+    (\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn}) }
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho') - \gamma\eye_{mn} \abs{z}}
+\end{equation}
+where
+$\displaystyle  \bar{\epsilon}= \frac{\epsilon_1+\epsilon_2}{2}$.
+
+
+\subsection{Summary of Source Plane Potentials}
+For convenience we list here the four potential Green's functions that will
+be required for the moment method analysis.  Those for the
+ electric vector 
+potential $\F$ and magnetic scalar potential $\Psi$ are obtained from
+those of $\A$ and $\Phi$, respectively, via duality.
+\begin{subequations}
+  \label{eq:allpots}
+\begin{align}
+  G^A_{xx}(\vecrho-\vecrho') & =
+  \frac{\tilde{\mu}}{2A} \summn
+  \frac{\mu_1 + \mu_2}%
+  {\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn}} \,
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}  \label{eq:allpots:A}\\
+                                %
+  G^\Phi(\vecrho-\vecrho') &= 
+  \frac{1}{2\bar{\epsilon}A} \summn
+  \frac{(\epsilon_1+\epsilon_2)(\mu_1\gamma\one_{mn} + \mu_2\gamma\two_{mn})}%
+  {(\epsilon_1\gamma\two_{mn}+\epsilon_2\gamma\one_{mn})
+    (\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn}) }
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')} \label{eq:allpots:Phi} \\
+  %
+  G^F_{xx}(\vecrho-\vecrho') & = -
+  \frac{\tilde{\epsilon}}{2A} \summn
+  \frac{\epsilon_1 + \epsilon_2}%
+  {\epsilon_1\gamma\two_{mn}+\epsilon_2\gamma\one_{mn}} \,
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')} \\
+                                %
+  G^\Psi(\vecrho-\vecrho') &= 
+  \frac{1}{2\bar{\mu}A} \summn
+  \frac{(\mu_1+\mu_2)(\epsilon_1\gamma\one_{mn} + \epsilon_2\gamma\two_{mn})}%
+  {(\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn})
+    (\epsilon_1\gamma\two_{mn}+\epsilon_2\gamma\one_{mn}) }
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+  \end{align}
+\end{subequations}
+where
+\begin{equation}
+  \tilde{\mu} =
+  \frac{2\mu_1\mu_2}{\mu_1+\mu_2},
+  \quad
+  \bar{\epsilon} = \frac{\epsilon_1 + \epsilon_2}{2},
+  \quad
+  \tilde{\epsilon} =
+  \frac{2\epsilon_1\epsilon_2}{\epsilon_1+\epsilon_2},
+  \quad
+  \bar{\mu} = \frac{\mu_1 + \mu_2}{2}.
+\end{equation}
+It should be noted that these series represent only a formal solution
+of Maxwell's equations.  They are at best only conditionally
+convergent and are completely unsuitable for direct numerical
+evaluation.  In fact, it is easy to see that these series can not be
+absolutely convergent, for as $\vecrho\rightarrow\vecrho'$ the
+Green's functions increase in magnitude without bound, a singularity
+that is proportional to $1/\norm{\vecrho-\vecrho'}$.  It is desirable
+to extract this singularity as an explicit term, so that it can be
+integrated in closed form, as in \cite{wrgs:84}.
+ The next section describes the technique used to perform this
+ extraction and
+accelerate the series for efficient evaluation.
+
+\section{Series Acceleration}
+  We now manipulate the series in Equations~\eqref{eq:allpots} to
+  arrive at an efficient, 
+wide-band formulation.  In the process, the Green's functions will be
+expressed as the sum of several absolutely, uniformly convergent
+series.  Our strategy is to find the first few terms of an asymptotic
+expansion of the summands in a suitably chosen variable.  Applying a Kummer's
+transformation, these terms are
+subtracted from the original summand, leaving a spectral sum with greatly
+accelerated convergence.  The sum of the asymptotic terms is then
+accelerated by means of the Poisson transformation (which converts it to a
+spatial sum) after which it is recombined
+with the spectral sum.  A careful choice of the expansion variable ensures
+that all sums are rapidly convergent and  provides
+the wide-band capability described below.
+
+\subsection{Kummer's Transformation}
+Let $u$ 
+be an appropriately chosen positive {\em smoothing factor}; define
+\begin{equation}
+  \kappa_{mn}  =  \sqrt{\vecbeta_{mn} \bdot \vecbeta_{mn} +u^2}
+         \label{eq:kappa}
+\end{equation}
+and
+\begin{equation}
+  w_i  \equiv w(\mu_i,\epsilon_i) =  
+  \sqrt{\omega^2\mu_i\epsilon_i + u^2} =
+  \sqrt{k_i^2+u^2}, \quad i=1,2 \label{eq:w}
+\end{equation}
+so that 
+\begin{equation}
+  \gamma\eye_{mn} 
+  \equiv \gamma_{mn} (\mu_i,\epsilon_i)
+  = \sqrt{\kappa_{mn}^2 - u^2 - \omega^2\mu_i\epsilon_i}
+  = \kappa_{mn} \sqrt{1 - \left(\frac{w_i}{\kappa_{mn}}\right)^2}
+\end{equation}
+The original summands in \eqref{eq:allpots} will be expanded in series of reciprocal 
+powers
+of $\kappa_{mn}$.  The smoothing factor $u$ should be chosen large enough to ensure that the 
+spatial series of asymptotic terms converges rapidly, yet small
+enough so that after only a few terms, the differences between the original summands
+of \eqref{eq:allpots} and their asymptotic expansions are negligible. 
+
+Consider first the summand for  magnetic vector potential given in
+\eqref{eq:allpots:A}:
+\begin{align}
+  A_{mn}(\mu_1,\epsilon_1,\mu_2,\epsilon_2) &\equiv   
+  \frac{\mu_1 + \mu_2}%
+  {\mu_1\gamma_{mn}(\mu_2,\epsilon_2) +
+    \mu_2\gamma_{mn}(\mu_1,\epsilon_1)} 
+  =
+  \frac{\mu_1 + \mu_2}%
+  {\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn}} \nonumber \\
+  %
+  &= \frac{1}{\kappa_{mn}} \,
+  \frac{\mu_1 + \mu_2}%
+  {\mu_1 \sqrt{1-w_2^2/\kappa_{mn}^2} +
+    \mu_2 \sqrt{1-w_1^2/\kappa_{mn}^2}} \nonumber \\
+    %
+\end{align}
+An asymptotic expansion of the summand $A_{mn}$ for large
+$\kappa_{mn}$ can be found by determining the first few coefficients
+in the MacLaurin series of the function
+\begin{equation}
+  \label{eq:AMac}
+  f(x) = x \,
+  \frac{\mu_1 + \mu_2}%
+  {\mu_1 \sqrt{1-w_2^2 x^2} +
+    \mu_2 \sqrt{1-w_1^2 x^2}}.
+\end{equation}
+This task was accomplished with the aid of a computer algebra
+system with the result
+\begin{equation}
+  \label{eq:Aasymp}
+  A_{mn} = \frac{c_1}{\kappa_{mn}} + 
+  \frac{c_3}{\kappa_{mn}^{3}} + O(\kappa_{mn}^{-5}),
+\end{equation}
+where
+\begin{equation}
+  c_1 = 1, \quad c_3(\mu_1,\epsilon_1,\mu_2,\epsilon_2) 
+  = \frac{\mu_1 w^2(\mu_2,\epsilon_2) + \mu_2 w^2(\mu_1,\epsilon_1)}{2(\mu_1 + \mu_2)}
+  =\frac{\mu_1 w_2^2 + \mu_2 w_1^2}{2(\mu_1 + \mu_2)}.
+\end{equation}
+
+Now consider the summand for the electric scalar potential Green's
+function, Equation~\eqref{eq:allpots:Phi}.
+  \newcommand{\fac}[1]{\sqrt{1-\frac{w_{#1}^2}{\kappa_{mn}^2}}}
+\begin{align}
+  \Phi_{mn} &\equiv 
+  \frac{(\epsilon_1+\epsilon_2)
+    (\mu_1\gamma\one_{mn} + \mu_2\gamma\two_{mn})}%
+  {(\epsilon_1\gamma\two_{mn}+\epsilon_2\gamma\one_{mn})
+    (\mu_1\gamma\two_{mn}+\mu_2\gamma\one_{mn}) }  \nonumber \\
+  %
+  &= 
+  \frac{1}{\kappa_{mn}} \,
+  \frac{(\epsilon_1+\epsilon_2)\left(\mu_1\fac1 + \mu_2\fac2\right)}%
+  {\left(\epsilon_1\fac2 + \epsilon_2\fac1\right) \left(\mu_1\fac2+\mu_2\fac1\right) }
+\end{align}
+A MacLaurin expansion of this summand in the variable $1/\kappa_{mn}$
+yields the result
+\begin{equation}
+  \label{eq:Phiasymp}
+  \Phi_{mn} = \frac{d_1}{\kappa_{mn}} + 
+  \frac{d_3}{\kappa_{mn}^{3}} + O(\kappa_{mn}^{-5}),
+\end{equation}
+where
+\begin{subequations}
+  \begin{align}
+    &d_1 = 1, \\
+    &d_3(\mu_1,\epsilon_1,\mu_2,\epsilon_2) = 
+    \frac{\mu_1[w_2^2(2\epsilon_1+\epsilon_2)-w_1^2\epsilon_1] 
+      + \mu_2[w_1^2(\epsilon_1+2\epsilon_2)-w_2^2\epsilon_2]}%
+    {2(\mu_1+\mu_2)(\epsilon_1+\epsilon_2)}.
+  \end{align}
+\end{subequations}
+
+The potential Green's functions can now be written as (note that we
+are showing the explicit dependence of the Green's functions on the
+material parameters of Regions~1 and~2):
+\begin{subequations}
+  \label{eq:gf}
+  \begin{align}
+    G^A_{xx}(\vecrho-\vecrho';{\scriptstyle \mu_1,\epsilon_1,\mu_2,\epsilon_2}) & =
+    \tilde{\mu}
+    \left\{
+      \Sigma_{M1}({\scriptstyle \mu_1,\epsilon_1,\mu_2,\epsilon_2}) + 
+      \frac{u}{4\pi}
+      \left[
+        \Sigma_{S1} + \frac{c_3({\scriptstyle
+            \mu_1,\epsilon_1,\mu_2,\epsilon_2})}{u^2} \Sigma_{S2}
+        \right]
+    \right\} 
+  \\
+  G^\Phi(\vecrho-\vecrho';{\scriptstyle \mu_1,\epsilon_1,\mu_2,\epsilon_2}) &= 
+  \frac{1}{\bar{\epsilon}}
+  \left\{
+    \Sigma_{M2}({\scriptstyle \mu_1,\epsilon_1,\mu_2,\epsilon_2}) + 
+    \frac{u}{4\pi}
+    \left[
+        \Sigma_{S1} + \frac{d_3({\scriptstyle
+            \mu_1,\epsilon_1,\mu_2,\epsilon_2})}{u^2} \Sigma_{S2}
+        \right]
+    \right\} 
+  \\
+  G^F_{xx}(\vecrho-\vecrho';{\scriptstyle \mu_1,\epsilon_1,\mu_2,\epsilon_2}) & = 
+  -\tilde{\epsilon} 
+  \left\{
+    \Sigma_{M1}({\scriptstyle \epsilon_1,\mu_1,\epsilon_2,\mu_2}) + 
+      \frac{u}{4\pi}
+      \left[
+        \Sigma_{S1} + \frac{c_3({\scriptstyle
+            \epsilon_1,\mu_1,\epsilon_2,\mu_2})}{u^2} \Sigma_{S2}
+        \right]
+    \right\} 
+  \\
+  G^\Psi(\vecrho-\vecrho';{\scriptstyle \mu_1,\epsilon_1,\mu_2,\epsilon_2}) &= 
+  \frac{1}{\bar{\mu}}
+  \left\{
+    \Sigma_{M2}({\scriptstyle \epsilon_1,\mu_1,\epsilon_2,\mu_2}) + 
+    \frac{u}{4\pi}
+    \left[
+        \Sigma_{S1} + \frac{d_3({\scriptstyle
+            \epsilon_1,\mu_1,\epsilon_2,\mu_2})}{u^2} \Sigma_{S2}
+        \right]
+    \right\} 
+  \end{align}
+\end{subequations}
+where
+\begin{multline}
+  \Sigma_{M1}(x_1,y_1,x_2,y_2)  = 
+  \frac{1}{2A} 
+  \summn \\
+  \left[
+    \frac{x_1+x_2}{x_1\gamma_{mn}(x_2,y_2) + x_2\gamma_{mn}(x_1,y_1)}
+    -\frac{1}{\kappa_{mn}} - \frac{c_3(x_1,y_1,x_2,y_2)}{\kappa_{mn}^3}
+  \right]
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+  \label{eq:sigmam1}
+\end{multline}
+\begin{multline}
+  \Sigma_{M2}(x_1,y_1,x_2,y_2)  =
+  \frac{1}{2A} 
+  \summn \\
+  \biggl[
+    \frac{(y_1+y_2)
+      (x_1\gamma_{mn}(x_1,y_1) + x_2\gamma_{mn}(x_2,y_2))}%
+    {(y_1\gamma_{mn}(x_2,y_2)+y_2\gamma_{mn}(x_1,y_1))
+      (x_1\gamma_{mn}(x_2,y_2)+x_2\gamma_{mn}(x_1,y_1)) } \\
+    -\frac{1}{\kappa_{mn}} - \frac{d_3(x_1,x_2,y_1,y_2)}{\kappa_{mn}^3}
+  \biggr]
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+  \label{eq:sigmam2}
+\end{multline}
+\begin{align}
+  \Sigma_{S1}(x_1,y_1,x_2,y_2)  &= 
+  \frac{2\pi}{uA}
+  \summn 
+    \frac{1}{\kappa_{mn}}
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}
+  \\
+  \Sigma_{S2}(x_1,y_1,x_2,y_2)  &= 
+  \frac{2\pi u}{A}
+  \summn
+  \frac{1}{\kappa_{mn}^3}
+  e^{-j\vecbeta_{mn} \bdot (\vecrho-\vecrho')}.
+\end{align}
+The modal series $\Sigma_{M1}$ and $\Sigma_{M2}$ are in a form
+suitable for direct numerical evaluation.  They are absolutely
+convergent since their summands decay as
+$(\gamma\eye_{mn})^{-5}$.  Considered as a function of
+$\vecrho-\vecrho'$, they are uniformly convergent and
+extremely smooth, since all of their
+singularities have been subtracted off.  This suggests that an
+efficient method of evaluation is to tabulate the series on a grid of
+points in the unit cell using the fast Fourier transform (FFT).  Then,
+a low-order bivariate interpolation scheme can be used to evaluate the
+functions at arbitrary points in the unit cell.  More will said on
+this topic later, in Section~\ref{sec:modalFFT}.
+
+The (soon to be) spatial sums $\Sigma_{S1}$ and $\Sigma_{S2}$ are still slowly
+convergent, especially $\Sigma_{S1}$ which is at best only
+conditionally convergent.  However, they are in a form suitable for
+application of the Poisson summation formula, as discussed in the next section.
+
+
+\subsection{Application of the Poisson Transformation}
+We now wish to accelerate the convergence of the double sums 
+\begin{equation}
+S_l =  \frac{1}{2A}
+  \summn
+  \frac{e^{-j\left[\left(\frac{\psi_1}
+          {2\pi}+m\right)\vecbeta_1+\left(\frac{\psi_2}{2\pi}+n\right)
+        \vecbeta_2\right]\bdot(\vecrho-\vecrho')}}
+  {\kappa_{mn}^{l}}
+\end{equation}
+for $l=1$ and $3$.
+For $m$ and $n$ defined as {\em real\/} variables, let
+\begin{equation}
+f_l(m,n)  =  \frac{\displaystyle 
+  e^{-j\left[\left(\frac{\psi_1}{2\pi}+m\right)\vecbeta_1+\left(\frac{\psi_2}
+        {2\pi}+n\right)\vecbeta_2\right]\bdot(\vecrho-\vecrho')}} 
+{2A\left[\norm{\left(\frac{\psi_1}{2\pi}+m\right)\vecbeta_1
+      +\left(\frac{\psi_2}{2\pi}+n\right)\vecbeta_2}^2+u^2\right]^{l/2}}
+.
+\end{equation}
+Then by the Poisson summation formula \cite[p.~139]{stak:79}, \cite{papo:62}
+\begin{equation}
+S_l =   \summn f_l(m,n) = \summn F_l(2\pi m,2\pi n)
+\end{equation}
+where
+\begin{equation}
+  F_l(\zeta,\eta)  =  \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+    f_l(m,n)e^{j(\zeta m+\eta n)} \d m\, \d n.
+\end{equation}
+Let
+\begin{equation}
+  \mu=\frac{\psi_1}{2\pi}+m \quad \text{and} \quad \nu=\frac{\psi_2}{2\pi}+n,
+\end{equation}
+so
+ \begin{equation}
+   F_l(\zeta,\eta)  =  
+   \frac{e^{-j\left(\frac{\psi_1}{2\pi}\zeta+\frac{\psi_2}
+         {2\pi}\eta\right)}}{2A}
+   \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+   \frac{e^{-j(\mu\vecbeta_1
+       +\nu\vecbeta_2)\bdot(\vecrho-\vecrho')}e^{j(\mu\zeta+\nu\eta)}}
+   {(\norm{\mu\vecbeta_1+\nu\vecbeta_2}^2+u^2)^{l/2}} 
+   \d\mu\,\d\nu 
+   \label{eq:Fdef}
+ \end{equation}
+ In order to proceed
+ we now introduce the change of variables 
+ \begin{equation}
+   \mu\vecbeta_1 + \nu\vecbeta_2 = \x k_x  + \y k_y = \k .
+ \end{equation}
+ The differential elements of area in the $k_x$-$k_y$ and 
+ $\mu$-$\nu$ planes are related as follows:
+ \begin{equation}
+   \d k_x \, \d k_y = 
+   \d \mu \, \d \nu \norm{\vecbeta_1 \cross \vecbeta_2} = 
+   \d \mu \, \d \nu \frac{4\pi^2}{\norm{\s_1 \cross \s_2}} = 
+   \d \mu \, \d \nu \frac{4\pi^2}{A}.
+ \end{equation}
+ Recalling the properties of the direct and reciprocal lattice vectors
+ \begin{subequations}
+   \begin{align}
+     \vecbeta_1\bdot\s_1 &= 2\pi, \quad \vecbeta_1\bdot\s_2 = 0 \\
+     \vecbeta_2\bdot\s_2 &= 2\pi, \quad \vecbeta_2\bdot\s_1 = 0
+   \end{align}
+ \end{subequations}
+ we see that 
+ \begin{equation}
+   \mu = \k \bdot \s_1 /(2\pi), \quad \nu = \k \bdot \s_2/(2\pi),
+   \nonumber
+ \end{equation}
+so that Equation~\eqref{eq:Fdef} can be written as
+ \begin{equation}
+   F_l(\zeta,\eta)  =  
+   \frac{
+     e^{-j\left(\frac{\psi_1}{2\pi}\zeta+\frac{\psi_2}{2\pi}\eta\right)}}
+   {4\pi}
+   B_l\left(\vecrho-\vecrho'-\frac{\zeta\s_1 + \eta\s_2}{2\pi}\right)
+   \end{equation}
+where
+ \begin{equation}
+   B_l(\vecrho)  \equiv  \frac{1}{2\pi}
+   \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+   \frac{e^{-j\k \bdot \vecrho}}{(\norm{\k}^2 +u^2)^{l/2}} 
+     \, \d k_x\,\d k_y 
+     \label{eq:Bl1}
+   \end{equation}
+The form of the integrand in \eqref{eq:Bl1}
+immediately suggests a transformation to polar coordinates:
+\begin{align*}
+  k_x &= k_{\rho} \cos\theta,  \quad k_y =  k_{\rho} \sin\theta \\
+  x &= \rho \cos\phi,  \quad y = \rho \sin\phi
+\end{align*}
+yielding
+\begin{align}
+  B_l(\vecrho) 
+  & = 
+  \frac{1}{2\pi} \int_0^\infty \int_0^{2\pi}
+  \frac{e^{-j k_{\rho} {\rho} \cos(\theta-{\phi})}}
+  {(k_{\rho}^2 + u^2)^{l/2}}
+  \, k_{\rho} \, \d \theta \, \d k_{\rho}  \nonumber \\
+  &=
+  \int_0^{\infty} \!\!\!
+  \frac{J_0(k_{\rho} {\rho})}
+  {(k_{\rho}^2 + u^2)^{l/2}}
+  \, k_{\rho} \, \d k_{\rho},
+\end{align}
+which is recognized as a Hankel (Fourier-Bessel) transform that
+depends only on $\rho = \norm{\vecrho}$.
+The case $l=1$ is given in \cite[Eqn.~(5.15.5)]{lebe:72}:
+\begin{equation}
+  B_1(\vecrho) 
+  =  
+   \int_0^{\infty} \!\!\!
+  \frac{J_0(k_{\rho} {\rho})}
+  {(k_{\rho}^2 + u^2)^{1/2}}
+  \, k_{\rho} \, \d k_{\rho} 
+  = \frac{e^{-u{\rho}}}{{\rho}}.
+\end{equation}
+$B_3$ is easily evaluated by noting that 
+\begin{align}
+  \pdu{B_1(\vecrho)} 
+  &=
+  - e^{-u{\rho}} \nonumber \\
+  &= 
+   \pdu{} \int_0^{\infty} 
+  \frac{J_0(k_{\rho} {\rho})} 
+  {(k_{\rho}^2 + u^2)^{1/2}} \, k_{\rho} \, \d k_{\rho} 
+  \nonumber \\
+  &= 
+  -u \int_0^{\infty} 
+  \frac{J_0(k_{\rho} {\rho})} 
+  {(k_{\rho}^2 + u^2)^{3/2}} \, k_{\rho} \, \d k_{\rho} 
+  \nonumber \\
+  &= 
+  -u B_3(\vecrho)
+\end{align}
+so that 
+\begin{equation}
+  B_3(\vecrho) = \frac{1}{u} e^{-u {\rho}}.
+\end{equation}
+We then have
+\begin{equation}
+  F_l(2\pi m, 2\pi n) = \frac{1}{4\pi} e^{-j(m\psi_1 + n\psi_2)}
+  B_l(\vecrho_{mn})
+\end{equation}
+where
+\begin{equation}
+  \vecrho_{mn} = \vecrho - \vecrho' - m\s_1 - n\s_2
+\end{equation}
+is the vector from the $(m,n)$th
+translational image of the source point to the observation point.  
+The spatial series are thus
+given explicitly by the formulas:
+\begin{subequations}
+  \begin{align}
+    \Sigma_{S1}
+    &= 
+    \summn 
+    \frac{e^{-u\rho_{mn}}}{u\rho_{mn}} e^{-j(m\psi_1 + n\psi_2)}
+    \\
+                                %
+    \Sigma_{S2}
+    &= 
+    \summn 
+    e^{-u\rho_{mn}} e^{-j(m\psi_1 + n\psi_2)}.
+  \end{align}
+\end{subequations}
+Let us take note of the following facts regarding these series:
+\begin{itemize}
+\item The free-space singularity is explicitly recovered in the $m=n=0$
+term of the first series in $\Sigma_{S1}$ and $\Sigma_{S2}$.
+\item The summands exhibit exponential decay with $\rho_{mn}$.  An
+  astute choice of $u$ will assure convergence using only a few rings
+  in the summation lattice.
+\item These series consist of frequency-independent terms, which are
+  then multiplied by the frequency-dependent constants $c_3$ and $d_3$
+  before being combined.  Therefore, it is possible to compute the
+  contribution of the frequency-independent sums to the interaction
+  matrix that occurs in the moment method procedure once, prior to
+  sweeping the analysis frequency.  These contributions can be
+  weighted appropriately and combined at each desired analysis
+  frequency, avoiding redundant calculations and saving large amounts
+  of execution time.  In this sense the formulation of the periodic
+  Green's functions can be said to be ``wide-band.''  If this approach
+  is pursued, it makes sense to choose $u$ relatively small, so that
+  the convergence of the modal series is enhanced, since these will
+  have to be evaluated at each frequency while the spatial series will
+  be evaluated only once.
+\end{itemize}
