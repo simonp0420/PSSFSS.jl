@@ -31,7 +31,7 @@ openany, % A chapter may start on either a recto or verso page.
 %\usepackage[dvips]{graphicx} % Include figures
 \usepackage{siunitx}
 \usepackage{enumitem}
-
+\usepackage{graphicx}
 %%% PAGE LAYOUT 
 %%%------------------------------------------------------------------------------
 
@@ -174,15 +174,27 @@ pdfauthor={Peter S. Simon} % author
 \input{macro.tex}
 
 \includeonly{chapter1,chapter2,chapter3,chapter4,chapter5,chapter6,chapter7}
-%\includeonly{chapter5}
+%\includeonly{}
 
 \begin{document}
 \renewcommand{\bibname}{References}
 \renewcommand{\k}{\boldsymbol{k}}
 
+\aliaspagestyle{title}{empty}
 \frontmatter
-
 \maketitle
+\vspace{1.2in}
+{\centering
+\includegraphics[scale=0.5,trim=150 50 100 20,clip=true]{meanderlines.png} \qquad \quad
+\includegraphics[scale=0.5,trim=150 50 100 20,clip=true]{jcrossarray.png}
+}
+
+\vspace{1.5in}
+
+This document is licensed under the Creative Commons Attribution 4.0 International License.
+To view a copy of this license, visit \url{http://creativecommons.org/licenses/by/4.0/}
+or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. 
+
 
 % \begin{abstract}
 % \lipsum[1-2]
