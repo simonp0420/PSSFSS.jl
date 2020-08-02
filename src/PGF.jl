@@ -155,7 +155,7 @@ end
   
   
 """
-    electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀, convtest=5e-11) --> (Σm1_func, Σm2_func)
+    electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀, convtest=5e-12) --> (Σm1_func, Σm2_func)
    
 Return a pair of functions that efficiently compute the modal series for the magnetic vector 
 potential and electric scalar potential as defined in Eqs. (5.19) of the theory documentation.
@@ -185,7 +185,7 @@ containing the difference of the observation and source point position vectors.
 
 """
 function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
-                                             s, β₁, β₂, β₀₀, convtest=5e-11)
+                                             s, β₁, β₂, β₀₀, convtest=5e-12)
     t1 = time_ns()
     nl = length(layers) # Number of layers.
     nl < 2 && error("Too few layers")
@@ -200,12 +200,15 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     d3 = d3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
 
     m = mmax_list[2] ÷ 2
-    table1 = OffsetArray(zeros(ComplexF64, 2m, 2m), -m:m-1, -m:m-1) 
-    table2 = OffsetArray(zeros(ComplexF64, 2m, 2m), -m:m-1, -m:m-1)
+    table1 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m) 
+    table2 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m)
 
-    converged = false 
+    converged = false
+    convrepeat = 20 # number of consecutive rings for which convergence must occur
+    convlist = [false for i in 1:convrepeat]
+    pindex = [2:convrepeat...,1]
     mmax = mmax_list[1] ÷ 2
-    mmax_old = 0
+    mmax_old = -2
     test1 = test2 = 0.0 # Establish scope
     while mmax < mmax_list[end] # Convergence loop
         mmax = nextprod([2,3], 1 + mmax)
@@ -215,8 +218,10 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
         mmaxo2 = mmax÷2
         mmax_oldo2 = mmax_old÷2
         # Fill the tables:
-        for n in -mmaxo2:mmaxo2-1, m in -mmaxo2:mmaxo2-1
-            if m < -mmax_oldo2 || m > mmax_oldo2-1 || n < -mmax_oldo2 || n > mmax_oldo2-1
+        for r in (mmax_oldo2+1):mmaxo2
+            ringsum1 = zero(eltype(table1))
+            ringsum2 = zero(eltype(table1))
+            for (m,n) in ring(r)
                 βmn = β₀₀ + m*β₁ + n*β₂   # Modal transverse wave vector
                 β² = βmn ⋅ βmn # magnitude squared
                 β² = max(β², β²min)  # Avoid singularity
@@ -257,22 +262,20 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
                 # Compute summands (apart from phase factor and 1/(2A) factor):
                 ViTE = 2 * ViTE / μ̃ # 1st quantity in square brackets in (5.19a)
                 table1[m,n] = ViTE - (1 + c3/κmn²) / κmn  # Eq. (2.19a)
+                ringsum1 += table1[m,n]
                 ViTM = 2 * ϵ̄ * ViTM # 1st quantity in square brackets in (5.19b)
                 table2[m,n] = (ViTM + k0sq*ϵ̄*μ̃*ViTE) / β² - (1 + d3/κmn²) / κmn  # Eq. (5.19b)
+                ringsum2 += table2[m,n]
             end
+            # Check for convergence of this ring
+            test1 = abs(ringsum1/table1[0,0])
+            test2 = abs(ringsum2/table2[0,0])
+            permute!(convlist, pindex)
+            convlist[end] = test1 < convtest && test2 < convtest
         end
         
-        #  Check that outer ring is sufficiently small:
-        mmaxo2 = mmax÷2
-        outer1 = sum(abs.(@view table1[-mmaxo2,:])) + sum(abs.(@view table1[mmaxo2-1,:])) +
-                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,-mmaxo2])) +
-                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,mmaxo2-1]))
-        test1 = abs(outer1/table1[0,0])
-        outer2 = sum(abs.(@view table2[-mmaxo2,:])) + sum(abs.(@view table2[mmaxo2-1,:])) +
-                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,-mmaxo2])) +
-                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,mmaxo2-1])) 
-        test2 = abs(outer2/table2[0,0])
-        if test1 < convtest && test2 < convtest
+        #  Check for convergence
+        if all(convlist)
             converged = true
             break
         else
@@ -322,7 +325,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     Σm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
     tsec = round((t2-t1)/1e9; digits=3)
-    @info "$tsec seconds to compute $mmax × $mmax modal tables"
+    @info "$tsec seconds to compute $mmax × $mmax electric modal tables"
     return (Σm1_func, Σm2_func)
 end    
 
@@ -398,7 +401,7 @@ end
 
 
 """
-    magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀,convtest=5e-11) --> (Σpm1_func, Σpm2_func)
+    magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀,convtest=5e-12) --> (Σpm1_func, Σpm2_func)
    
 Return a pair of functions that efficiently compute the modal series for the electric vector 
 potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory documentation.
@@ -428,7 +431,7 @@ containing the difference of the observation and source point position vectors.
 
 """
 function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
-                                            s, β₁, β₂, β₀₀, convtest=5e-11)
+                                            s, β₁, β₂, β₀₀, convtest=5e-12)
     t1 = time_ns()
     nl = length(layers) # Number of layers.
     nl < 2 && error("Too few layers")
@@ -451,12 +454,15 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     p3 = d3s / layers[s].μᵣ + d3sp1 / layers[s+1].μᵣ
 
     m = mmax_list[2] ÷ 2
-    table1 = OffsetArray(zeros(ComplexF64, 2m, 2m), -m:m-1, -m:m-1) 
-    table2 = OffsetArray(zeros(ComplexF64, 2m, 2m), -m:m-1, -m:m-1)
+    table1 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m) 
+    table2 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m)
 
     converged = false
+    convrepeat = 20 # number of consecutive rings for which convergence must occur
+    convlist = [false for i in 1:convrepeat]
+    pindex = [2:convrepeat...,1]
     mmax = mmax_list[1] ÷ 2
-    mmax_old = 0
+    mmax_old = -2
     test1 = test2 = 0.0
     while mmax < mmax_list[end] # Convergence loop
         mmax = nextprod([2,3], 1 + mmax)
@@ -466,8 +472,10 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
         mmaxo2 = mmax÷2
         mmax_oldo2 = mmax_old÷2
         # Fill the tables:
-        for n in -mmaxo2:mmaxo2-1, m in -mmaxo2:mmaxo2-1
-            if m < -mmax_oldo2 || m > mmax_oldo2-1 || n < -mmax_oldo2 || n > mmax_oldo2-1
+        for r in (mmax_oldo2+1):mmaxo2
+            ringsum1 = zero(eltype(table1))
+            ringsum2 = zero(eltype(table1))
+            for (m,n) in ring(r)
                 βmn = β₀₀ + m*β₁ + n*β₂   # Modal transverse wave vector
                 β² = βmn ⋅ βmn # magnitude squared
                 β² = max(β², β²min)  # Avoid singularity
@@ -503,22 +511,20 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
                 end
                 # Compute summands (apart from phase factor and 1/A factor):
                 table1[m,n] = YleftTM + YrightTM  - (f1 + f3/κmn²) / κmn  # Eq. (5.26a)
+                ringsum1 += table1[m,n]
                 table2[m,n] = ((YleftTM+YrightTM)*k0sq + YleftTE + YrightTE) / β² - 
                               (p1 + p3/κmn²) / κmn  # Eq. (5.26b)
+                ringsum2 += table2[m,n]
             end
+            # Check for convergence of this ring
+            test1 = abs(ringsum1/table1[0,0])
+            test2 = abs(ringsum2/table2[0,0])
+            permute!(convlist, pindex)
+            convlist[end] = test1 < convtest && test2 < convtest
         end
 
-        #  Check that outer ring is sufficiently small:
-        mmaxo2 = mmax÷2
-        outer1 = sum(abs.(@view table1[-mmaxo2,:])) + sum(abs.(@view table1[mmaxo2-1,:])) + 
-                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,-mmaxo2])) +  
-                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,mmaxo2-1])) 
-        test1 = abs(outer1/table1[0,0])
-        outer2 = sum(abs.(@view table2[-mmaxo2,:])) + sum(abs.(@view table2[mmaxo2-1,:])) +
-                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,-mmaxo2])) +
-                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,mmaxo2-1]))
-        test2 = abs(outer2/table2[0,0])
-        if test1 < convtest && test2 < convtest
+        #  Check for convergence
+        if all(convlist)
             converged = true
             break
         else
@@ -569,7 +575,7 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     Σpm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
     tsec = round((t2-t1)/1e9; digits=3)
-    @info "$tsec seconds to compute $mmax × $mmax modal tables"
+    @info "$tsec seconds to compute $mmax × $mmax magnetic modal tables"
     return (Σpm1_func, Σpm2_func)
 end
 
