@@ -155,7 +155,7 @@ end
   
   
 """
-    electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀, convtest=1e-7) --> (Σm1_func, Σm2_func)
+    electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀, convtest=5e-11) --> (Σm1_func, Σm2_func)
    
 Return a pair of functions that efficiently compute the modal series for the magnetic vector 
 potential and electric scalar potential as defined in Eqs. (5.19) of the theory documentation.
@@ -185,7 +185,7 @@ containing the difference of the observation and source point position vectors.
 
 """
 function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
-                                             s, β₁, β₂, β₀₀, convtest=1e-7)
+                                             s, β₁, β₂, β₀₀, convtest=5e-11)
     t1 = time_ns()
     nl = length(layers) # Number of layers.
     nl < 2 && error("Too few layers")
@@ -264,13 +264,13 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
         
         #  Check that outer ring is sufficiently small:
         mmaxo2 = mmax÷2
-        outer1 = sum(@view table1[-mmaxo2,:]) + sum(@view table1[mmaxo2-1,:]) + 
-                 sum(@view table1[1-mmaxo2:mmaxo2-2,-mmaxo2]) +  
-                 sum(@view table1[1-mmaxo2:mmaxo2-2,mmaxo2-1]) 
+        outer1 = sum(abs.(@view table1[-mmaxo2,:])) + sum(abs.(@view table1[mmaxo2-1,:])) +
+                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,-mmaxo2])) +
+                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,mmaxo2-1]))
         test1 = abs(outer1/table1[0,0])
-        outer2 = sum(@view table2[-mmaxo2,:]) + sum(@view table2[mmaxo2-1,:]) + 
-                 sum(@view table2[1-mmaxo2:mmaxo2-2,-mmaxo2]) +  
-                 sum(@view table2[1-mmaxo2:mmaxo2-2,mmaxo2-1]) 
+        outer2 = sum(abs.(@view table2[-mmaxo2,:])) + sum(abs.(@view table2[mmaxo2-1,:])) +
+                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,-mmaxo2])) +
+                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,mmaxo2-1])) 
         test2 = abs(outer2/table2[0,0])
         if test1 < convtest && test2 < convtest
             converged = true
@@ -398,7 +398,7 @@ end
 
 
 """
-    magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀,convtest=1e-7) --> (Σpm1_func, Σpm2_func)
+    magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀,convtest=5e-11) --> (Σpm1_func, Σpm2_func)
    
 Return a pair of functions that efficiently compute the modal series for the electric vector 
 potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory documentation.
@@ -428,7 +428,7 @@ containing the difference of the observation and source point position vectors.
 
 """
 function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
-                                            s, β₁, β₂, β₀₀, convtest=1e-7)
+                                            s, β₁, β₂, β₀₀, convtest=5e-11)
     t1 = time_ns()
     nl = length(layers) # Number of layers.
     nl < 2 && error("Too few layers")
@@ -439,10 +439,10 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     ϵ̄ = (layers[s].ϵᵣ + layers[s+1].ϵᵣ) / 2 # Normalized to ϵ0.
     area = 4π^2 / norm(β₁ × β₂) # unit cell area (m^2):
     # Obtain the appropriate Green's function expansion coefficient:
-    c3s = c3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ)
-    c3sp1 = c3_calc(k0, u, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
-    d3s = d3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ)
-    d3sp1 = d3_calc(k0, u, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
+    c3s = c3_calc(k0, u, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ)
+    c3sp1 = c3_calc(k0, u, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ)
+    d3s = d3_calc(k0, u, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ)
+    d3sp1 = d3_calc(k0, u, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ)
     
     # Factors used in summands:
     f1 = 2 * ϵ̄
@@ -510,13 +510,13 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
 
         #  Check that outer ring is sufficiently small:
         mmaxo2 = mmax÷2
-        outer1 = sum(@view table1[-mmaxo2,:]) + sum(@view table1[mmaxo2-1,:]) + 
-                 sum(@view table1[1-mmaxo2:mmaxo2-2,-mmaxo2]) +  
-                 sum(@view table1[1-mmaxo2:mmaxo2-2,mmaxo2-1]) 
+        outer1 = sum(abs.(@view table1[-mmaxo2,:])) + sum(abs.(@view table1[mmaxo2-1,:])) + 
+                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,-mmaxo2])) +  
+                 sum(abs.(@view table1[1-mmaxo2:mmaxo2-2,mmaxo2-1])) 
         test1 = abs(outer1/table1[0,0])
-        outer2 = sum(@view table2[-mmaxo2,:]) + sum(@view table2[mmaxo2-1,:]) + 
-                 sum(@view table2[1-mmaxo2:mmaxo2-2,-mmaxo2]) +  
-                 sum(@view table2[1-mmaxo2:mmaxo2-2,mmaxo2-1]) 
+        outer2 = sum(abs.(@view table2[-mmaxo2,:])) + sum(abs.(@view table2[mmaxo2-1,:])) +
+                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,-mmaxo2])) +
+                 sum(abs.(@view table2[1-mmaxo2:mmaxo2-2,mmaxo2-1]))
         test2 = abs(outer2/table2[0,0])
         if test1 < convtest && test2 < convtest
             converged = true
@@ -604,7 +604,7 @@ It is only used for comparison and testing purposes.
     
 `Σm1`, `Σm2`:  Offset arrays of with indices 0:max_ring containing the direct 
                modal series defined in Eq. (5.19) of the theory documentation.  
-               `Σm1[i]` contains the partial sum through ring `i`, and similarly 
+               `Σm1[i]` contains the partial sum of ring `i`, and similarly 
                for `Σm2`.
 """
 function direct_electric_modal_series(k0, u, ψ₁, ψ₂,
@@ -693,10 +693,10 @@ function direct_electric_modal_series(k0, u, ψ₁, ψ₂,
             sumring2 += Σ2 * cfact
         end
         # Done with ring r.  Add ring contributions to sums.
-        Σm1[r] = Σm1[r-1] + sumring1 
-        Σm2[r] = Σm2[r-1] + sumring2 
-        #Σm1[r] = sumring1 
-        #Σm2[r] = sumring2 
+        #Σm1[r] = Σm1[r-1] + sumring1 
+        #Σm2[r] = Σm2[r-1] + sumring2 
+        Σm1[r] = sumring1 
+        Σm2[r] = sumring2 
     end
 #    cumsum!(Σm1, Σm1)
 #    cumsum!(Σm2, Σm2)
@@ -735,7 +735,7 @@ numerically efficient. It is only used for comparison and testing purposes.
     
 `Σm1`, `Σm2`:  Offset arrays of with indices 0:max_rings containing the direct 
                  modal series defined  in Eq. (5.26) of the theory documentation.  
-                `Σm1[i]` contains the partial sum through ring `i`, and similarly 
+                `Σm1[i]` contains the partial sum of ring `i`, and similarly 
                  for `Σm2`.
 """
 function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
@@ -752,10 +752,10 @@ function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
     area = 4π^2 / norm(β₁ × β₂) # unit cell area (m^2):
 
     # Obtain the appropriate Green's function expansion coefficients:
-    c3s = c3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ)
-    c3sp1 = c3_calc(k0, u, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
-    d3s = d3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ)
-    d3sp1 = d3_calc(k0, u, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
+    c3s = c3_calc(k0, u, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ)
+    c3sp1 = c3_calc(k0, u, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ)
+    d3s = d3_calc(k0, u, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ)
+    d3sp1 = d3_calc(k0, u, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ)
     
     # Factors used in summands:
     f1 = 2 * ϵ̄
@@ -815,7 +815,6 @@ function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
     Σ1, Σ2 = summands(0,0)
     Σm1[0] = Σ1 * cis(-(β₀₀ ⋅ ρdif))
     Σm2[0] = Σ2 * cis(-(β₀₀ ⋅ ρdif))
-    
     # Begin loop over summation lattice rings.
     for r in 1:max_rings
         sumring1 = zero(ComplexF64)
@@ -827,8 +826,10 @@ function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
             sumring2 += Σ2 * cfact
         end
         # Done with ring r.  Add ring contributions to sums.
-        Σm1[r] = Σm1[r-1] + sumring1 
-        Σm2[r] = Σm2[r-1] + sumring2 
+        #Σm1[r] = Σm1[r-1] + sumring1 
+        #Σm2[r] = Σm2[r-1] + sumring2 
+        Σm1[r] = sumring1 
+        Σm2[r] = sumring2 
     end
     Σm1 /= area
     Σm2 /= area

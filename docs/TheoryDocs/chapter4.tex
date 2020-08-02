@@ -1,7 +1,11 @@
 \chapter{Mixed Potential Green's Functions for Abutted Half-Spaces}
 \label{chap:mpgf}
 In this chapter, we derive an efficient method of evaluating the
-potential Green's functions needed for the \pssfss\ program.
+potential Green's functions for a geometry consisting of the abutment
+of two dissimilar half-spaces. 
+The formulas derived herein will be used as the asymptotic forms for those of
+Chapter~\ref{chap:gfstratified}, which deals with multiply stratified media.
+
  The structure for which the potential Green's
 functions are desired consists of two layers, as shown in
 Figure~\ref{fig:geom2}.
@@ -381,7 +385,7 @@ that all sums are rapidly convergent and  provides
 the wide-band capability described below.
 
 \subsection{Kummer's Transformation}
-Let $u$ 
+Let $u>0$ 
 be an appropriately chosen positive {\em smoothing factor}; define
 \begin{equation}
   \kappa_{mn}  =  \sqrt{\vecbeta_{mn} \bdot \vecbeta_{mn} +u^2}
@@ -443,6 +447,7 @@ system with the result
 \end{equation}
 where
 \begin{equation}
+  \label{eq:cdef}
   c_1 = 1, \quad c_3(\mu_1,\epsilon_1,\mu_2,\epsilon_2) 
   = \frac{\mu_1 w^2(\mu_2,\epsilon_2) + \mu_2 w^2(\mu_1,\epsilon_1)}{2(\mu_1 + \mu_2)}
   =\frac{\mu_1 w_2^2 + \mu_2 w_1^2}{2(\mu_1 + \mu_2)}.
@@ -472,6 +477,7 @@ yields the result
 \end{equation}
 where
 \begin{subequations}
+  \label{eq:ddef}
   \begin{align}
     &d_1 = 1, \\
     &d_3(\mu_1,\epsilon_1,\mu_2,\epsilon_2) = 
