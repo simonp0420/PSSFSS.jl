@@ -9,8 +9,9 @@ module Substrate
 using ..PSSFSSLen  # For length units and ustrip only
 using StaticArrays: MVector
 
-export Layer, Gblock
+export Layer, Gblock, TEorTM
 
+@enum TEorTM TE=1 TM=2
 
 """
     Layer <: Any
@@ -45,39 +46,45 @@ supplied in any order.
 
 """
 mutable struct Layer
+    name::String
     ϵᵣ::ComplexF64  # Relative permittivity
     μᵣ::ComplexF64  # Relative permeability
     user_width::Unitful.Length # Layer thickness in Unitful units
     width::Float64  # (thickness in meters without attached units)
     #  Mode indices, sorted in order of increasing real part, or decreasing 
     #  imaginary part, of γ, the mode attenuation constant.  M is the x 
-    #  index, N is the y index, and P=1 for TE, P=2 for TM:
-    P::Vector{Int}
+    #  index, N is the y index, and P = TE or TM:
+    P::Vector{TEorTM}
     M::Vector{Int}
     N::Vector{Int}
     β₁::MVector{2,Float64}  # Reciprocal lattice vector (1/m)
     β₂::MVector{2,Float64}  # Reciprocal lattice vector (1/m)
     # Transverse portion of modal propagation vectors (radians/meter):
-    beta::Vector{MVector{2,Float64}}
+    β::Vector{MVector{2,Float64}}
     γ::Vector{ComplexF64} # Modal attenuation constants (nepers/meter)
     Y::Vector{ComplexF64} # Modal admittances (Siemens)
     c::Vector{ComplexF64} # Modal normalization constants (volts/meter)
     tvec::Vector{MVector{2,Float64}} # Modal unit electric field vectors (unitless)
     
     # Interior constructor:
-    function Layer(;width::Unitful.Length=0u"mm", ϵᵣ::Real=1.0, tanδ::Real=0.0, 
-                                                        μᵣ::Real=1.0, mtanδ::Real=0.0)
+    function Layer(;name="Layer", width::Unitful.Length=0u"mm", ϵᵣ::Real=1.0,
+                   tanδ::Real=0.0, μᵣ::Real=1.0, mtanδ::Real=0.0)
                     cϵᵣ = ϵᵣ * complex(1.0, -tanδ)
                     cμᵣ = μᵣ * complex(1.0, -mtanδ) 
-                    new(cϵᵣ, cμᵣ, width, float(ustrip(u"m", width)),
-                        Int[], Int[], Int[], MVector{2}([0.,0.]), MVector{2}([0.,0.]), 
+                    new(name, cϵᵣ, cμᵣ, width, float(ustrip(u"m", width)),
+                        TEorTM[], Int[], Int[], MVector{2}([0.,0.]), MVector{2}([0.,0.]), 
                         MVector{2,Float64}[], ComplexF64[], ComplexF64[], ComplexF64[], 
                         MVector{2,Float64}[])
     end # function
- end # struct
+end # struct
 
- Base.:(==)(l1::Layer, l2::Layer) = 
+Base.:(==)(l1::Layer, l2::Layer) = 
              all(f -> getfield(l1, f) == getfield(l2, f), 1:nfields(l1))
+
+Base.show(::IO, ::MIME"text/plain", l::Layer) =
+    println(l.name, ": width=", l.user_width, ", ϵᵣ=", real(l.ϵᵣ), ", tanδ=", -imag(l.ϵᵣ)/real(l.ϵᵣ),
+            ", μᵣ=", real(l.μᵣ), ", mtanδ=", -imag(l.μᵣ)/real(l.μᵣ), )
+
 
 """
     Gblock <: Any

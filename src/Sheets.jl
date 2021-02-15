@@ -4,7 +4,7 @@ export RWGSheet, read_sheet_data, write_sheet_data, find_unique_periods,
        rotate!, combine, recttri, MV2, SV2
 
 using ..PSSFSSLen
-using Serialization
+using JLD2
 using LinearAlgebra: norm
 using RecipesBase
 
@@ -39,7 +39,7 @@ mutable struct RWGSheet <: Sheet
   K::Vector{ComplexF64}
   K_ξ::Vector{ComplexF64}
   K_η::Vector{ComplexF64}
-  ρ_r::Vector{Float64}
+  ρ_r::Vector{SV2}
   rinv::Vector{Float64}
   # Parameters that the face/face integrals depend on:
   ψ₁::Float64  # Incremental phase shift (radians)
@@ -78,7 +78,7 @@ RWGSheet() = RWGSheet("", u"mm",            # style, units
                       ComplexF64[],         # K
                       ComplexF64[],         # K_ξ
                       ComplexF64[],         # K_η
-                      Float64[],            # ρ
+                      Array{SV2}(undef,0),  # ρ_r
                       Float64[],            # rinv
                       0.0, 0.0, 0.0,        # ψ₁, ψ₂, u
                       ' ', "",              # class, info
@@ -88,31 +88,33 @@ RWGSheet() = RWGSheet("", u"mm",            # style, units
   
 """
     read_sheet_data(filename::AbstractString)
-
-Read the sheet geometry data from a file named in `filename`.
-The return value of the function is a variable of type `RWGSheet` 
-which has the components `style`, `units`, `s₁`, `s₂`, `β₁`, `β₂`, `ρ`,
-`e1`, `e2` `fv`, `fe`, `fr`, `class`, `info`, `ξη_check`, and `fufp` 
-properly initialized.
+    
+Read the sheet geometry data from a `JLD2` file named in `filename`.
 """
 function read_sheet_data(filename::AbstractString)
-    deserialize(filename)
+    jldopen(filename, "r") do file
+        try
+            return file["sheet"]
+        catch
+            @error "$(filename) does not contain sheet data"
+        end
+    end
 end # function
 
 """
     write_sheet_data(filename::AbstractString, sheet::RWGSheet)
 
- Write the sheet geometry data to a file named in `filename`.
- `sheet` is assumed to have at least the components `style`, `units`, 
- `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, `fr`, `class`, 
- `info`, `ξη_check`, and `fufp` properly initialized.
- """   
+Write the sheet geometry data to a `JLD2` file named in `filename`.
+"""   
 function write_sheet_data(filename::AbstractString, sheet::RWGSheet)
-    serialize(filename, sheet)
-end 
+    jldopen(filename, "w") do file
+        file["sheet"] = sheet
+    end
+end
+
 
 """
-    find_unique_periods(junction::Vector{Int}, sheets::Vector{Sheet}) 
+    find_unique_periods(junction::Vector{Int}, sheets::AbstractVector{Sheet}) 
 
 Find the unique unit cells for the sheets used in the FSS analysis.
 
@@ -130,7 +132,7 @@ Find the unique unit cells for the sheets used in the FSS analysis.
                    to the equivalence class of the sheet at that location.
                    Two sheets are equivalent if they have the same unit cell.
 """
-function find_unique_periods(junction::Vector{Int}, sheets::Vector{Sheet}) 
+function find_unique_periods(junction::Vector{Int}, sheets::AbstractVector{Sheet}) 
     one_meter = map(x -> ustrip(x.units, 1.0u"m"), sheets)    
     s1s2 = map(x -> hcat(x.s1..., x.s2...), sheets) # Each row is s1x s1y s2x s2y
     s1s2 = s1s2 ./ one_meter # All rows now are comparable (in meters)

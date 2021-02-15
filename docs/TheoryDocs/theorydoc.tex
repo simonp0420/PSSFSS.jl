@@ -20,11 +20,11 @@ openany, % A chapter may start on either a recto or verso page.
 
 %\usepackage{amsmath,amssymb,mathtools} % Math
 
-\usepackage{newtxtext}
-\usepackage{newtxmath}
+\usepackage[libertine]{newtxtext}
+\usepackage[libertine]{newtxmath}
 %\usepackage{dutchcal} % For lower-case calligraphic
 \usepackage{boondox-calo} % For lower-case calligraphic
-\usepackage{pstricks,pst-node}
+\usepackage{pstricks,pst-node,pstricks-add}
 \usepackage{multido}
 \usepackage{url}
 \usepackage[small,bf]{caption}
@@ -312,6 +312,7 @@ This document is organized as follows:
 
 
 \appendix
+\renewcommand{\theequation}{\Alph{chapter}.\arabic{equation}}
 
 \chapter{Orthogonality of Floquet Modes}
 
@@ -475,7 +476,7 @@ is zero.  The additional variables needed to evaluate \eqref{eq:cfint} are
 \end{subequations}
 
 
-\section{Basis Function Inner Products\label{ap:ip}}
+\chapter{Basis Function Inner Products\label{ap:ip}}
 This appendix is concerned with computing the inner product of two basis
 functions $\innerprod{\f_n, \f_m}$.  Clearly, the inner product is nonzero 
 only when the support of basis functions $m$ and $n$ are common to at 
@@ -653,7 +654,6 @@ which is the desired formula.
 %%% -------------------------------------------------------------
 
 \bibliographystyle{ieeetr}
-%\bibliography{d:/peter/Documents/texmf.local/bibtex/bib/simon.bib}
-\bibliography{simon.bib}
+\bibliography{pssfss.bib}
 
 \end{document}

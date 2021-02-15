@@ -2,7 +2,9 @@
 *.jl.cov
 *.jl.mem
 /docs/build/
-/sandbox/
+/sandbox/**
+!/sandbox/jupyterlab_fss_elements.pdf
+!/sandbox/PlottingRWGSheets.ipynb
 /docs/TheoryDocs/*.aux
 /docs/TheoryDocs/*.log
 /docs/TheoryDocs/*.bbl

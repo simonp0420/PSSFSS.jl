@@ -58,11 +58,13 @@ struct RWGData
     #  are numbered in the same order. Since the periodic Green's functions are 
     #  translationally invariant, the integrals involving equivalent face pairs
     #  will have identical values and thus need be computed only a single time.
+    ufpm::Array{Int,2}
+    
     #  ufp2fp[i] contains the vector of face pair indices for equivalence class i. The 
     #  face pair index uses column major ordering to enumerate the elements 
     #  of a matrix of order Nface × Nface.
-    ufpm::Array{Int,2}
     ufp2fp::Array{Array{Int,1},1}
+
     nufp::Int  # Number of unique face pairs.
 end # mutable struct
   
@@ -248,7 +250,7 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
 
     
     nufp =  nface*nface 
-    ufpm = reshape(Vector(1:nufp), (nface,nface))
+    ufpm = reshape(collect(1:nufp), (nface,nface))
     if !sheet.fufp  # Don't search for unique face pairs. Assume all are unique.
         ufp2fp = [ [i] for i in 1:nufp]
         return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, nufp)

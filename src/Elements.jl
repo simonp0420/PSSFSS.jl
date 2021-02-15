@@ -71,7 +71,7 @@ end
 const optional_kwargs = 
 """
 ## Optional arguments:
-- `class::String='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface 
+- `class::Char='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface 
            currents, as used to model a wire or metallic patch-type FSS.  If `'M'`,  the unknowns are
            magnetic surface currents, as used to model a slot or aperture in a perfectly conducting plane.
 - `dx::Real=0.0`, `dy::Real=0.0`:  These specify the offsets in the x and y directions applied to the entire 
@@ -79,7 +79,7 @@ const optional_kwargs =
 - `rot::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the entire unit cell and its contents. 
            This rotation is applied prior to any offsets specified in `dx` and `dy`.
 - `Rsheet::Real=0.0`:  The surface resistance of the FSS conductor in units of Ohm per square.  
-            This is only meaningful for a sheet of class `"J"`.
+            This is only meaningful for a sheet of class `'J'`.
 - `fufp::Bool`:  This keyword is not usually required. 
                 `fufp` is mnemonic for "Find Unique Face Pairs".  If true, the code will search the 
                 triangulation for classes of triangle
