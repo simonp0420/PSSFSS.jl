@@ -717,7 +717,9 @@ geometry being analyzed.
 
 - `gbl`:  A vector of `Gblock` elements defining the GBLOCKS used to analyze the complete FSS structure.
 """
-function choose_gblocks(strata::Vector{Union{Layer,Sheet}}, k0min)::Vector{Gblock}
+function choose_gblocks(strata, k0min)::Vector{Gblock}
+    T = Union{Layer,Sheet}
+    all(t isa T for t in strata) || error("strata elements must be of type Sheet or Layer")
     islayer = map(t -> t isa Layer, strata)
     layers = @view strata[islayer]
     nl = length(layers)
@@ -817,14 +819,14 @@ function choose_gblocks(strata::Vector{Union{Layer,Sheet}}, k0min)::Vector{Gbloc
         owner[j] ≠ owner[j-1] && (ngbl += 1)
     end
     # and assign them:
-    gbl = [Gblock(1:1, 0) for j in 1:nglb]
+    gbl = [Gblock(1:1, 0) for j in 1:ngbl]
     jg = 1 # Initialize Gblock counter
     for j in 1:nj  # Loop over each interface
         if owner[j] == owner[first(gbl[jg].rng)]
             gbl[jg].rng = first(gbl[jg].rng):j # Increment the end pointer.
         else
             jg += 1
-            gbl[jg].range = j:j
+            gbl[jg].rng = j:j
             gbl[jg].j = 0
         end
         junc[j] ≠ 0 && (gbl[jg].j = j)

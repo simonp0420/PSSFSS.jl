@@ -114,7 +114,7 @@ end
 
 
 """
-    find_unique_periods(junction::Vector{Int}, sheets::AbstractVector{Sheet}) 
+    find_unique_periods(junction::Vector{Int}, sheets) 
 
 Find the unique unit cells for the sheets used in the FSS analysis.
 
@@ -123,7 +123,7 @@ Find the unique unit cells for the sheets used in the FSS analysis.
                in location `i` the index of the FSS sheet located 
                at the interface of layers `i` and `i+1`. If
                no sheet is present there, the value is 0.
-- `sheets`:     Contains the FSS sheets.
+- `sheets`:     An iterable that contains the FSS sheets.
 # Return Value
 - `upa`            (Unique Periodicity Array) An integer array of the
                    same length of junction, containing zeros in the same
@@ -132,9 +132,10 @@ Find the unique unit cells for the sheets used in the FSS analysis.
                    to the equivalence class of the sheet at that location.
                    Two sheets are equivalent if they have the same unit cell.
 """
-function find_unique_periods(junction::Vector{Int}, sheets::AbstractVector{Sheet}) 
+function find_unique_periods(junction::Vector{Int}, sheets) 
+    all(t isa Sheet for t in sheets) || error("Elements of sheets must be of type Sheet")
     one_meter = map(x -> ustrip(x.units, 1.0u"m"), sheets)    
-    s1s2 = map(x -> hcat(x.s1..., x.s2...), sheets) # Each row is s1x s1y s2x s2y
+    s1s2 = vcat(map(x -> hcat(x.s₁..., x.s₂...), sheets)...) # Each row is s1x s1y s2x s2y
     s1s2 = s1s2 ./ one_meter # All rows now are comparable (in meters)
     s1s2 = round.(s1s2, sigdigits=8)
     
@@ -146,7 +147,7 @@ function find_unique_periods(junction::Vector{Int}, sheets::AbstractVector{Sheet
         # Compare s1 and s2 of current (isht) sheet with previous sheets.
         for n in 1:Nup  # compare to one member of each equivalence class.
             # Find a sheet that is in equivalence class n:
-            nsht = junction[findfirst(n, upa)]  # Index of sheet to be compared.
+            nsht = junction[findfirst(isequal(n), upa)]  # Index of sheet to be compared.
             # Compare unit cell of sheet nsht with that of sheet isht:
             if view(s1s2, isht, :) == view(s1s2, nsht, :) 
                 # Sheets are in the same equivalence class

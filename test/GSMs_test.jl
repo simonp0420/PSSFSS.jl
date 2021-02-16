@@ -1,9 +1,12 @@
 using PSSFSS
 using LinearAlgebra: norm, diagind
 using PSSFSS.GSMs: GSM, cascade, cascade!, initialize_gsm_file, 
-                  append_gsm_data, read_gsm_file
+                  append_gsm_data, read_gsm_file, choose_gblocks
 using PSSFSS.Substrate: Layer, TEorTM, TE, TM
 using PSSFSS.PSSFSSLen
+using PSSFSS.Substrate: Layer
+using PSSFSS.Elements: rectstrip
+using PSSFSS.Constants: c₀, twopi
 using Test
 
 
@@ -131,4 +134,24 @@ end
     @test dat["1/case"] == case
     @test dat["unitsin"] == mm
     @test dat["unitsout"] == mm
+end
+
+@testset "choose_gblocks" begin
+    strata = 
+        [Layer()
+         rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
+         Layer(width=20mm)
+         Layer(width=1mil)
+         Layer(width=10mm)
+         Layer(width=1mil, ϵᵣ=2.2)
+         rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
+         Layer()
+        ]
+    FGHz = 2.0; λ = c₀ / (FGHz*1e9); k0 = twopi / λ
+    gbl = choose_gblocks(strata, k0)
+    @test length(gbl) == 4
+    @test gbl[1] == Gblock(1:1,1)
+    @test gbl[2] == Gblock(2:2,0)
+    @test gbl[3] == Gblock(3:3,0)
+    @test gbl[4] == Gblock(4:5,5)
 end

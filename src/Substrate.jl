@@ -129,4 +129,9 @@ mutable struct Gblock
 
 end # struct
 
+import Base.==
+==(g1::Gblock, g2::Gblock) = all((getfield(g1,f)==getfield(g2,f) for 
+                                                    f in fieldnames(Gblock)))
+
+
 end # module
