@@ -1,15 +1,14 @@
 """ 
-    Substrate
+    Layers
 
- Defines the derived type Layer for a substrate layer and
- Gblock for a generalized scattering matrix block entity.
+ Defines the `Layer` type for a substrate layer.
 """
-module Substrate
+module Layers
 
 using ..PSSFSSLen  # For length units and ustrip only
 using StaticArrays: MVector
 
-export Layer, Gblock, TEorTM
+export Layer, Gblock, TEorTM, TE, TM
 
 @enum TEorTM TE=1 TM=2
 
@@ -84,54 +83,6 @@ Base.:(==)(l1::Layer, l2::Layer) =
 Base.show(::IO, ::MIME"text/plain", l::Layer) =
     println(l.name, ": width=", l.user_width, ", ϵᵣ=", real(l.ϵᵣ), ", tanδ=", -imag(l.ϵᵣ)/real(l.ϵᵣ),
             ", μᵣ=", real(l.μᵣ), ", mtanδ=", -imag(l.μᵣ)/real(l.μᵣ), )
-
-
-"""
-    Gblock <: Any
-
- 
-     Gblock(rng::UnitRange{Int}, j::Int)
-
-`Gblock` constructor.
-The `Gblock` type is used to represent GSMblocks. A GSMblock is a contiguous portion
-of the composite FSS structure for which a single GSM (generalized scattering
-matrix) is defined and computed. A GSMblock may consist of a single dielectric 
-interface plane (with or without FSS sheet present), or it may consist
-of multiple, adjacent interface planes and the intervening dielectric 
-layers.  In the latter case, there must be an FSS sheet present at exactly
-one of the interface planes within the GSMblock. Note
-that interface plane k is located between layers k and k+1, so that
-there are N-1 interface planes in a FSS structure consisting of N
-dielectric layers.
-   
-# Arguments
-- `rng`: Specifies the interface planes contained in the `Gblock`. `rng` must
-         not be empty, and its initial and final values must be between `1`
-         and `N-1` inclusive, where `N` is the number of dielectric layers.
-- `j`:  Interface plane number containing the FSS sheet.  If the Gblock does
-        not contain a sheet then `j` should be set to `0`.
-"""
-mutable struct Gblock
-    rng::UnitRange{Int}  # Indices of the interface planes in this Gblock.
-    j::Int   # Index of interface plane containing FSS sheet or 0 IF no sheet.
-
-    function Gblock(rng::UnitRange{Int}, j::Int)
-        length(rng) > 0 || error("rng=$rng must have positive length")
-        if j < 0
-            error("negative integer j = $j")
-        elseif j == 0 
-            length(rng) ≠ 1 && error("length(rng) must be 1 when j==0")
-        else 
-            j ∈ rng || error("j=$j is not a member of rng=$rng")
-        end
-        new(rng, j)
-    end # function
-
-end # struct
-
-import Base.==
-==(g1::Gblock, g2::Gblock) = all((getfield(g1,f)==getfield(g2,f) for 
-                                                    f in fieldnames(Gblock)))
 
 
 end # module

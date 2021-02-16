@@ -6,7 +6,7 @@ using LinearAlgebra: norm, ⋅, ×
 using OffsetArrays
 using ..Rings: Ring
 using ..Sheets: MV2
-using ..Substrate: Layer
+using ..Layers: Layer
 using FFTW: fft!
 
 # Variables used by the spatial routines:

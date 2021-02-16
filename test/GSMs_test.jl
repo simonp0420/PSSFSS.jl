@@ -1,10 +1,10 @@
 using PSSFSS
 using LinearAlgebra: norm, diagind
 using PSSFSS.GSMs: GSM, cascade, cascade!, initialize_gsm_file, 
-                  append_gsm_data, read_gsm_file, choose_gblocks
-using PSSFSS.Substrate: Layer, TEorTM, TE, TM
+                  append_gsm_data, read_gsm_file, choose_gblocks,
+                  Gblock
+using PSSFSS.Layers: Layer, TEorTM, TE, TM
 using PSSFSS.PSSFSSLen
-using PSSFSS.Substrate: Layer
 using PSSFSS.Elements: rectstrip
 using PSSFSS.Constants: c₀, twopi
 using Test

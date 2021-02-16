@@ -7,7 +7,7 @@ end
 include("Constants.jl")
 include("PSSFSSLen.jl")
 include("Rings.jl")
-include("Substrate.jl")
+include("Layers.jl")
 include("Sheets.jl")
 include("Meshsub.jl")
 include("Elements.jl")
@@ -20,7 +20,7 @@ include("GSMs.jl")
 using Reexport
 using .Rings
 @reexport using .PSSFSSLen
-@reexport using .Substrate
+@reexport using .Layers
 @reexport using .Sheets: RWGSheet
 @reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross
 @reexport using .RWG: RWGData, setup_rwg, edge_current_unit_vector

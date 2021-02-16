@@ -13,7 +13,7 @@ Symposium Digest* (Cat. No.02CH37278), Seattle, WA, USA, 2002, pp. 2029-2032
 vol. 3, doi: 10.1109/MWSYM.2002.1012266.
 """
 module RWG
-export RWGData, setup_rwg, edge_current_unit_vector, setup_rwg2
+export RWGData, setup_rwg, edge_current_unit_vector
 
 
 using ..Sheets: RWGSheet, MV2, SV2

@@ -7,7 +7,7 @@ using OffsetArrays
 using Unitful # for ustrip and u"m"
 using LinearAlgebra: norm, ⋅
 using ..Constants: μ₀, ϵ₀, c₀, twopi, fourpi, tol
-using ..Substrate: Layer
+using ..Layers: Layer
 using ..Sheets: RWGSheet #, MV2, SV2
 using ..RWG: RWGData
 using ..PGF: c3_calc, d3_calc

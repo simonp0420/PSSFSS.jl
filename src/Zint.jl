@@ -2,7 +2,7 @@ module Zint
 
 using StaticArrays: SVector, MVector
 using ..Sheets: SV2, MV2, RWGSheet
-using ..Substrate: Layer
+using ..Layers: Layer
 using ..RWG: RWGData
 using ..PGF: jksums
 using LinearAlgebra: ⋅, norm
