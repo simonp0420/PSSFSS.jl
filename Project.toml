@@ -4,7 +4,6 @@ authors = ["Peter Simon <psimon0420@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
 Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
