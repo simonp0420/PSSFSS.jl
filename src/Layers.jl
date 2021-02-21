@@ -82,7 +82,9 @@ Base.:(==)(l1::Layer, l2::Layer) =
 
 Base.show(::IO, ::MIME"text/plain", l::Layer) =
     println(l.name, ": width=", l.user_width, ", ϵᵣ=", real(l.ϵᵣ), ", tanδ=", -imag(l.ϵᵣ)/real(l.ϵᵣ),
-            ", μᵣ=", real(l.μᵣ), ", mtanδ=", -imag(l.μᵣ)/real(l.μᵣ), )
+            ", μᵣ=", real(l.μᵣ), ", mtanδ=", -imag(l.μᵣ)/real(l.μᵣ), ", ", length(l.P), " modes" )
+
+
 
 
 end # module
