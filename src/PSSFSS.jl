@@ -16,6 +16,7 @@ include("PGF.jl")
 include("Zint.jl")
 include("FillZY.jl")
 include("GSMs.jl")
+include("Modes.jl")
 
 using Reexport
 using .Rings
