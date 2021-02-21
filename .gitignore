@@ -12,3 +12,9 @@
 /docs/TheoryDocs/*.toc
 /docs/TheoryDocs/*.out
 src/junk.jl
+
+Manifest.toml
+
+sandbox/PlottingRWGSheets.ipynb
+
+Untitled.ipynb
