@@ -121,7 +121,7 @@ Find the unique unit cells for the sheets used in the FSS analysis.
 # Arguments
 - `junction`:  An integer array of length `(Nlayer-1)` containing 
                in location `i` the index of the FSS sheet located 
-               at the interface of layers `i` and `i+1`. If
+               at the interface of dielectric layers `i` and `i+1`. If
                no sheet is present there, the value is 0.
 - `sheets`:     An iterable that contains the FSS sheets.
 # Return Value
