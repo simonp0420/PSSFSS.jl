@@ -1,6 +1,6 @@
 module GSMs
 export GSM, cascade, cascade!, initialize_gsm_file, append_gsm_data, read_gsm_file,
-        Gblock
+        Gblock, choose_gblocks
 
 using LinearAlgebra
 using StaticArrays: SA
@@ -499,33 +499,6 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
 end
 
 
-
-"""
-    find_mode_index(p::TEorTM, m::Int, n::Int, layer::Layer)
-    
-Find the index of the mode (p,m,n).
-
-## Arguments
-
-- `p`, `m`, `n`: Mode indices. 
-- `layer`: An instance of Layer with modes initialized.
-
-## Return Value
-
-The positive integer index, if found.  Otherwise, zero.
-"""
-function find_mode_index(p::TEorTM, m::Int, n::Int, layer::Layer)
-    for i in 1:length(layer.P)
-        if layer.P[i] == p  && layer.M[i] == m && layer.N[i] == n
-            return i
-        end
-    end
-    return 0
-end
-
-
-
-
 """
     gsm_slab_interface(L1::Layer, L2::Layer, k0) -> gsm::GSM
 
@@ -752,7 +725,7 @@ end
 
 
 """
-    choose_gblocks(strata::Vector{Union{Layer,Sheet}}, k0min) -> gbl::Vector{Gblock}
+    choose_gblocks(strata, k0min) -> gbl::Vector{Gblock}
 
 Set up gbl, the array of GBLOCKs the defines the basic GSM building 
 blocks for the FSS structure.
