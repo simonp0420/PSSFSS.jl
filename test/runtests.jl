@@ -8,3 +8,4 @@ using SafeTestsets
 @safetestset "PGF Tests" begin include("PGF_test.jl") end
 @safetestset "Zint Tests" begin include("Zint_test.jl") end
 @safetestset "GSMs Tests" begin include("GSMs_test.jl") end
+@safetestset "Modes Tests" begin include("Modes_test.jl") end

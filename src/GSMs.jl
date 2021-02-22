@@ -805,12 +805,7 @@ function choose_gblocks(strata, k0min)::Vector{Gblock}
                 (elength[j] > min_elength || sheets[junc[j1]].style == "NULL") && break
                 owner[j] = j1
             end
-        else # here Nwide==0, so none of the layers are really wide enough
-            @warn """
-                    Layers are too thin between sheets $(junc[j1]) and $(junc[j2]) at interfaces $(j1) and $(j2).
-                             GSM calculation may not be accurate.
-                             Continuing with execution anyway."""
-            
+        else 
             # Assign neighboring junctions for thin layers adjacent to j1 and j2 to j1 and j2
             #
             if sheets[junc[j1]].style == "NULL" && sheets[junc[j2]].style ≠ "NULL"
@@ -826,13 +821,26 @@ function choose_gblocks(strata, k0min)::Vector{Gblock}
             # At this point, we've determined that both sheets are non-null, and closely separated
             #
             jmid = (j1 + j2 + 1) ÷ 2
-            if 2jmid > j1+j2 && upa[j1] ≠ upa[j2] # odd number of thin layers between sheets of different periodicities
-                error("Inconsistent periodicities for sheets $(junc[j1]) and $(junc[j2]). Try splitting layer $(jmid)")
+            if upa[j1] ≠ upa[j2] 
+                # Need 4 layers between: One associated with each sheet and 2 more for matching
+                # up the periodicities with Layers of principal modes.
+                if j2 - j1 < 4  
+                    error("""
+                    Unequal unit cells for sheets $(junc[j1]) and $(junc[j2]).
+                    Try splitting layer $(jmid)""")
+                end                
+                owner[j1:jmid-1] .= j1
+                owner[jmid+1:j2] .= j2
+            else
+                # Need 3 layers between: One associated with each sheet, and one for defining modes.
+                if j2 - j1 < 3
+                    error("""
+                    Too few layers between sheets $(junc[j1]) and $(junc[j2]).
+                           Try splitting layer $(jmid)""")
+                end
+                owner[j1:jmid-1] .= j1
+                owner[jmid:j2] .= j2
             end
-            # We have an even number of thin layers between.  We will not include the center two layers in the gblocks
-            # so that we can match up to the modes in the gblocks on either side.
-            owner[j1:jmid-1] .= j1
-            owner[jmid+1:j2] .= j2
         end
     end
       

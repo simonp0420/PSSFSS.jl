@@ -2,7 +2,16 @@ using PSSFSS
 using LinearAlgebra: ×, norm
 using PSSFSS.Elements: s₁s₂2β₁β₂
 using PSSFSS.PGF: direct_electric_modal_series, direct_magnetic_modal_series, jksums, c3_calc, d3_calc
+using Logging: Error, ConsoleLogger, default_metafmt, global_logger
 using Test
+
+
+
+testlogger = ConsoleLogger(stderr, Error,
+                       meta_formatter=default_metafmt, show_limited=true,
+                       right_justify=0)
+oldlogger = global_logger(testlogger)
+
 
 compute_exact_from_scratch = false
 
@@ -115,3 +124,5 @@ end
     @test 2*abs(GΨ[2]-GΨ[1])/abs(GΨ[2]+GΨ[1]) < conv
 end
 
+oldlogger = global_logger(testlogger)
+nothing
