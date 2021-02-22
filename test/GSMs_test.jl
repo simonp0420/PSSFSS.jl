@@ -136,7 +136,7 @@ end
     @test dat["unitsout"] == mm
 end
 
-@testset "choose_gblocks" begin
+@testset "choose_gblocks1" begin
     strata = 
         [Layer()
          rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
@@ -147,7 +147,7 @@ end
          rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
          Layer()
         ]
-    FGHz = 2.0; λ = c₀ / (FGHz*1e9); k0 = twopi / λ
+    FGHz = 2.0; k0 = twopi * FGHz*1e9 / c₀
     gbl = choose_gblocks(strata, k0)
     @test length(gbl) == 4
     @test gbl[1] == Gblock(1:1,1)
@@ -155,3 +155,86 @@ end
     @test gbl[3] == Gblock(3:3,0)
     @test gbl[4] == Gblock(4:5,5)
 end
+
+@testset "choose_gblocks2" begin
+    duroid = Layer(name="Duroid 6035", ϵᵣ=3.6, tanδ=0.0013, width=20mil)
+    strata = 
+    [   
+        Layer(name="Vacuum")
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        Layer(name="Vacuum", width=0.05inch)
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        Layer(name="Vacuum")
+    ]
+
+    fmin = 2.0 * 1e9  # minimum frequency [Hz]
+    k0min = twopi * fmin / c₀
+    gbl = choose_gblocks(strata, k0min)
+    @test gbl[1] == Gblock(1:3,2)
+    @test gbl[2] == Gblock(4:6,5)
+end
+
+@testset "choose_gblocks3" begin
+    duroid = Layer(name="Duroid 6035", ϵᵣ=3.6, tanδ=0.0013, width=20mil)
+    strata = 
+    [   
+        Layer(name="Vacuum")
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        Layer(name="Vacuum")
+    ]
+
+    fmin = 2.0 * 1e9  # minimum frequency [Hz]
+    k0min = twopi * fmin / c₀
+    failed = false
+    try
+        choose_gblocks(strata, k0min) 
+    catch ex
+        failed = true
+        @test ex isa ErrorException
+        @test contains(ex.msg, "Too few layers")
+    end 
+    @test failed 
+end
+
+@testset "choose_gblocks4" begin
+    duroid = Layer(name="Duroid 6035", ϵᵣ=3.6, tanδ=0.0013, width=20mil)
+    strata = 
+    [   
+        Layer(name="Vacuum")
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        Layer(name="Vacuum", width=5mil)
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        Layer(name="Vacuum", width=5mil)
+        duroid
+        polyring(sides=4, orient=45, a=[0.1902], b=[0.2169], units=inch, 
+                    s1=[0.5117, 0], s2=[0, 0.5117], ntri=100)
+        duroid
+        Layer(name="Vacuum")
+    ]
+
+    fmin = 2.0 * 1e9  # minimum frequency [Hz]
+    k0min = twopi * fmin / c₀
+
+    @test choose_gblocks(strata, k0min) == [Gblock(1:3,2), Gblock(4:6,5),Gblock(7:9,8)]
+
+end
+
