@@ -245,14 +245,16 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin)
 
 
     # Now we allocate the other layer vectors and print out the values of the modal indices:
+    maxmodes = 2*(2*MNmax_default+1)^2
     for i in notinablock
         layer = layers[i]
         nmodes = length(layer.P)
         for field in (:β, :γ, :Y, :c, :tvec)
             setfield!(layer, field, zeros(eltype(getfield(layer,field)), nmodes))
         end
-            
-        @info "Initializing layer $(i) with $(nmodes) modes."
+        nmodes == maxmodes && @warn """
+        Maximum number of modes reached. GSM results may not be accurate.
+                 Consider increasing MNmax_default from its current value $(MNmax_default)"""
     end
 
     return nothing
