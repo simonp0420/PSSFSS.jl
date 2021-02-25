@@ -28,5 +28,6 @@ using .Rings
 @reexport using .PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
 @reexport using .GSMs: GSM, cascade, cascade!, gsm_electric_gblock,
                       gsm_slab_interface, initialize_gsm_file, translate_gsm!
+@reexport using .FillZY: fillz, filly
 
 end

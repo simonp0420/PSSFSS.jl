@@ -9,3 +9,4 @@ using SafeTestsets
 @safetestset "Zint Tests" begin include("Zint_test.jl") end
 @safetestset "GSMs Tests" begin include("GSMs_test.jl") end
 @safetestset "Modes Tests" begin include("Modes_test.jl") end
+@safetestset "FillZY Tests" begin include("FillZY_test.jl") end

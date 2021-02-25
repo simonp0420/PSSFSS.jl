@@ -1,7 +1,8 @@
 module FillZY
-export fillz
+export fillz, filly
 
 
+using Statistics: mean
 using StaticArrays: SMatrix
 using OffsetArrays
 using Unitful # for ustrip and u"m"
@@ -11,7 +12,8 @@ using ..Layers: Layer
 using ..Sheets: RWGSheet #, MV2, SV2
 using ..RWG: RWGData
 using ..PGF: c3_calc, d3_calc
-using ..Zint: filljk!, vtxcrd
+using ..Zint: zint, filljk!, vtxcrd
+using ..PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
 
 const next = (2,3,1)
 const prev = (3,1,2)
@@ -57,7 +59,8 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
 
     # Calculate beta00, the fundamental transverse wave vector (1/meter)
     units_per_meter = ustrip(Float64, metal.units, 1u"m")
-    β₀₀ = (ψ₁ * metal.β₁ + ψ₂ * metal.β₂) / twopi * units_per_meter
+    β₁, β₂ = metal.β₁ * units_per_meter, metal.β₂ * units_per_meter
+    β₀₀ = (ψ₁ * β₁ + ψ₂ * β₂) / twopi
 
     # Initialize functions for modal series:
     (Σm1_func, Σm2_func) = electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀)
@@ -82,7 +85,7 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
     ϵᵣ₁ = layers[s].ϵᵣ
     μᵣ₁ = layers[s].μᵣ
     ϵᵣ₂ = layers[s+1].ϵᵣ
-    μᵣ₂ = layers[s+1].μ
+    μᵣ₂ = layers[s+1].μᵣ
     μ̃ = 2 * μᵣ₁ * μᵣ₂ / (μᵣ₁ + μᵣ₂) # Equation (4-11) (normalized to μ₀)
     ϵ̄ = (ϵᵣ₁ + ϵᵣ₂)/2              # Equation (4-23) (normalized to ϵ₀)
     ω = k0 * c₀                  # Radian frequency (Radians/second)
@@ -122,8 +125,8 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
       
         clsflg = self_tri || closed  # Extract if self or if always.
       
-        im = @view metal.fe[:,ifm]   # Obtain the three edges of the match triangle.
-        rm = vtxcrd[ifm, metal] ./ units_per_meter # Coordinates (m) of the match tri. vertices.
+        i_m = @view metal.fe[:,ifm]   # Obtain the three edges of the match triangle.
+        rm = vtxcrd(ifm, metal) ./ units_per_meter # Coordinates (m) of the match tri. vertices.
         rmc = mean(rm)        # Match face centroid (meters).
 
         # Perform frequency-dependent integrals over source triangle 
@@ -150,7 +153,7 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
             rowcol = i2s[ifmifs]
             ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
             is = @view metal.fe[:,ifs]      # Obtain the three edges of source tri.
-            im = @view metal.fe[:,ifm]      # Obtain the three edges of the match tri.
+            i_m = @view metal.fe[:,ifm]      # Obtain the three edges of the match tri.
             # Loop over each edge of the source triangle.
             for isl in 1:3   # isl is local edge index, is[isl] is global edge index.
                 sbf = ebf[is[isl]]  # Source basis function for this source edge.
@@ -180,14 +183,14 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
                 Φ_i = Φ_source_flag * (fourpi * I2 + u * (rinv + J) + d3 / u * K)
           
                 # Now loop over each edge of the match triangle:
-                for iml in 1:3 # iml is local edge index, im[iml] is global index.
-                    self_edge = im[iml] == is[isl] # Match edge = Source edge?
-                    mbf = ebf[im[iml]]  # Match basis function for this match edge.
+                for iml in 1:3 # iml is local edge index, i_m[iml] is global index.
+                    self_edge = i_m[iml] == is[isl] # Match edge = Source edge?
+                    mbf = ebf[i_m[iml]]  # Match basis function for this match edge.
                     mbf == 0 && continue  # no basis function defined for this match tri edge
                     if bff[1,mbf] == ifm   # "Plus" match triangle.
-                        match_flag = conj(floquet_factor[eci[im[iml]]])
+                        match_flag = conj(floquet_factor[eci[i_m[iml]]])
                     elseif bff[2,mbf] == ifm  # "Minus" match tri.
-                        match_flag = -conj(floquet_factor[eci[im[iml]]])
+                        match_flag = -conj(floquet_factor[eci[i_m[iml]]])
                     else
                         error("Impossible situation in match edge loop")
                     end
@@ -196,12 +199,11 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
                     dotprod = A_i ⋅ ρc2[iml]
                     # Add contribution to the impedance matrix
                     zmat[mbf,sbf] += match_flag * (im*ω*dotprod - Φ_i)
-
                     # Add surface loading, if applicable:
                     if self_tri && metal.fr[ifm] ≠ 0
                         if self_edge
                             Zload = metal.fr[ifs] / area48 * 
-                                (3*(ls[next[isl]]^2 + ls[prev[isl]]^2) - ls[isl]^2)  # Eq. (7-34)
+                                (3*(ls[next[isl]]^2 + ls[prev[isl]]^2) - ls[isl]^2) * one(ComplexF64)  # Eq. (7-34)
                         else
                             Zload = metal.fr[ifs] / area48 * source_flag * match_flag * 
                                 (ls[isl]^2  +  ls[iml]^2  - 3 * ls[third[isl,iml]]^2) # Eq. (7-35)
@@ -213,14 +215,14 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
         end # face pairs in this equivalence class
     end # facepair loop
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=3)
-    @info "$tsec seconds to fill matrix entries"
+    tsec = round((t2-t1)/1e9; digits=5)
+    @info "$tsec seconds to fill $(size(zmat,1)) × $(size(zmat,2)) matrix entries"
     return zmat
 end
 
 
 """
-    fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,apert::RWGSheet,rwgdat::RWGData) -> ymat
+    filly(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,apert::RWGSheet,rwgdat::RWGData) -> ymat
 
 Fill the generalized impedance matrix for an FSS of electric current type.
 
@@ -259,7 +261,8 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
 
     # Calculate beta00, the fundamental transverse wave vector (1/meter)
     units_per_meter = ustrip(Float64, apert.units, 1u"m")
-    beta00 = (ψ₁ * apert.β₁ + ψ₂ * apert.β₂) / twopi * units_per_meter
+    β₁, β₂ = apert.β₁ * units_per_meter, apert.β₂ * units_per_meter
+    β₀₀ = (ψ₁ * β₁ + ψ₂ * β₂) / twopi
 
     # Initialize functions for modal series:
     (Σm1_func, Σm2_func) = magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀)
@@ -278,15 +281,15 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
     ebf = rwgdat.ebf
     eci = rwgdat.eci
     
-    nface = size(metal.fv,2)
+    nface = size(apert.fv,2)
     i2s = CartesianIndices((nface,nface))
     nbf = size(rwgdat.bfe,2)
     ϵᵣ₁ = layers[s].ϵᵣ
     μᵣ₁ = layers[s].μᵣ
     ϵᵣ₂ = layers[s+1].ϵᵣ
     μᵣ₂ = layers[s+1].μᵣ
-    μ̃ = 2.0_WP * μᵣ₁ * μᵣ₂ / (μᵣ₁ + μᵣ₂) # Eq (4-11) (normalized to μ₀)
-    ϵ̄ = 0.5_WP * (ϵᵣ₁ + ϵᵣ₂) # Equation (1-23) (normalized to ϵ₀)
+    μ̃ = 2.0 * μᵣ₁ * μᵣ₂ / (μᵣ₁ + μᵣ₂) # Eq (4-11) (normalized to μ₀)
+    ϵ̄ = 0.5 * (ϵᵣ₁ + ϵᵣ₂) # Equation (1-23) (normalized to ϵ₀)
     ω = k0 * c₀              # Radian frequency (Radians/second)
     I1fact = π / ϵ̄
     KFfact = (c3s*ϵᵣ₁ + c3sp1*ϵᵣ₂) / (2 * ϵ̄ * u)
@@ -301,7 +304,7 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
         apert.ψ₂ = ψ₂
         apert.u = u / units_per_meter # Units are 1/(local length units)
         # Fill the frequency-independent face/face integrals:
-        filljk!(metal, rwgdat, closed)
+        filljk!(apert, rwgdat, closed)
     end
 
     t1 = time_ns()
@@ -321,7 +324,7 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
         self_tri = (ifm == ifs) # Source and match tri are the same?
         clsflg = self_tri || closed  # Extract if self or if always.
       
-        im = @view apert.fe[:,ifm]   # Obtain the three edges of the match triangle.
+        i_m = @view apert.fe[:,ifm]   # Obtain the three edges of the match triangle.
         rm = vtxcrd(ifm, apert) ./ units_per_meter  # Coords (m) of the match tri. vertices.
         rmc = mean(rm)        # Match face centroid (meters).
       
@@ -349,7 +352,7 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
             rowcol = i2s[ifmifs]
             ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
             is = @view apert.fe[:,ifs]      # Obtain the three edges of source tri.
-            im = @view apert.fe[:,ifm]      # Obtain the three edges of the match tri.
+            i_m = @view apert.fe[:,ifm]      # Obtain the three edges of the match tri.
             # Loop over each edge of the source triangle.
             for isl in 1:3 # isl is local edge index, is[isl] is global edge index.
                 sbf = ebf[is[isl]]  # Source basis function for this edge.
@@ -381,13 +384,13 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
           
                 # Now loop over each edge of the match triangle:
                 for iml in 1:3 # iml is local edge index, im[iml] is global index.
-                    self_edge = im[iml] == is[isl] # Match edge = Source edge?
-                    mbf = ebf[im[iml]]  # Match basis function for this edge.
+                    self_edge = i_m[iml] == is[isl] # Match edge = Source edge?
+                    mbf = ebf[i_m[iml]]  # Match basis function for this edge.
                     mbf == 0 && continue # no basis function defined for this edge
                     if bff[1,mbf] == ifm  # "Plus" match triangle.
-                        match_flag = conj(floquet_factor[eci[im[iml]]])
+                        match_flag = conj(floquet_factor[eci[i_m[iml]]])
                     elseif bff[2,mbf] == ifm # "Minus" match tri.
-                        match_flag = -conj(floquet_factor[eci[im[iml]]])
+                        match_flag = -conj(floquet_factor[eci[i_m[iml]]])
                     else
                         error("Impossible situation in match edge loop")
                     end
@@ -402,8 +405,8 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
         end
     end # loop over face pairs
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=3)
-    @info "$tsec seconds to fill matrix entries"
+    tsec = round((t2-t1)/1e9; digits=5)
+    @info "$tsec seconds to fill $(size(ymat,1)) × $(size(ymat,2)) matrix entries"
 
     return ymat
 end      
