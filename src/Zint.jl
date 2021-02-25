@@ -216,7 +216,7 @@ Compute frequency-dependent integrals needed to fill the generalized impedance m
 - `I1`, `I1_ξ`, `I1_η`, `I2`: Complex, frequency-dependent, spectral integrals defined
                               by Eqs (7.22a), (7.27), and (7.32a).  Their units are (1/m).
 """
-function zint(Σm1_func::Function, Σm2_func::Function, rs, rmc)
+@inline function zint(Σm1_func, Σm2_func, rs, rmc) 
     ξ = SVector(0.33333333333333330, 0.10128650732345633, 0.79742698535308730,
                 0.10128650732345633, 0.47014206410511505, 0.05971587178976989,
                 0.47014206410511505)
@@ -234,8 +234,8 @@ function zint(Σm1_func::Function, Σm2_func::Function, rs, rmc)
     for i ∈ 1:length(ξ)
         rt = rs[1] + (rs[2] - rs[1]) * ξ[i]  +  (rs[3] - rs[1]) * η[i] # Source point
         ρdif = rmc - rt 
-        sig1 = Σm1_func(rhodif)
-        sig2 = Σm2_func(rhodif)
+        sig1 = Σm1_func(ρdif)::ComplexF64
+        sig2 = Σm2_func(ρdif)::ComplexF64
         sig1wght = sig1 * wght[i]
         I1_ξ += sig1wght * ξ[i]
         I1_η += sig1wght * η[i]
