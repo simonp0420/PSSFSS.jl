@@ -326,7 +326,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     Σm1_func = make_Σm_func(table1, β₁, β₂, ψ₁, ψ₂)
     Σm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=3)
+    tsec = round((t2-t1)/1e9; digits=5)
     @info "$tsec seconds to compute $mmax × $mmax electric modal tables"
     return (Σm1_func, Σm2_func)
 end    
@@ -360,7 +360,7 @@ function make_Σm_func(table::AbstractArray, β₁::MV2, β₂::MV2, ψ₁::Real
     axes(table,1) == axes(table,2) || error("Non-square table")
     mmax = maximum(axes(table,1))
     twopi = 2π
-    function Σm_func(ρdif)
+    function Σm_func(ρdif)::eltype(table)
         let table=table, β₁=β₁, β₂=β₂, ψ₁=ψ₁, ψ₂=ψ₂, mmax=mmax, twopi=twopi
             # Obtain ξ₁ and ξ₂ using Equation (2.10) or (5.31) of the theory docs:
             ξ₁_orig = (β₁ ⋅ ρdif) / twopi
@@ -501,7 +501,7 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
                 γ = mysqrt(β² - k0sq * layers[nl].ϵᵣ * layers[nl].μᵣ)
                 YrightTE = γ / layers[nl].μᵣ # TE modal admit. of Region nl multiplied by jωμ₀
                 YrightTM = layers[nl].ϵᵣ / γ # TM modal admit. of Region nl divided by jωϵ₀
-                # Step right-looking impedances down to junction s using Eq. (5.24b):
+                # Step right-looking admittances down to junction s using Eq. (5.24b):
                 for i in nl-1:-1:s+1
                     γ = mysqrt(β² - k0sq * layers[i].ϵᵣ * layers[i].μᵣ)
                     Y0TE = γ / layers[i].μᵣ # TE modal admittance (normalized)
