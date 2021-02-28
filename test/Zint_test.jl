@@ -1,6 +1,7 @@
 using PSSFSS
 using PSSFSS.Elements: s₁s₂2β₁β₂ 
 using PSSFSS.Zint: filljk!, vtxcrd
+using PSSFSS.RWG: setup_rwg
 #using StaticArrays
 using Cubature
 using LinearAlgebra: ⋅, norm

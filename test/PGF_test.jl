@@ -1,7 +1,8 @@
 using PSSFSS
 using LinearAlgebra: ×, norm
 using PSSFSS.Elements: s₁s₂2β₁β₂
-using PSSFSS.PGF: direct_electric_modal_series, direct_magnetic_modal_series, jksums, c3_calc, d3_calc
+using PSSFSS.PGF: direct_electric_modal_series, direct_magnetic_modal_series, jksums, c3_calc, 
+                  d3_calc, electric_modal_sum_funcs, magnetic_modal_sum_funcs
 using Logging: Error, ConsoleLogger, default_metafmt, global_logger
 using Test
 
