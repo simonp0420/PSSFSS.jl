@@ -13,13 +13,16 @@ Symposium Digest* (Cat. No.02CH37278), Seattle, WA, USA, 2002, pp. 2029-2032
 vol. 3, doi: 10.1109/MWSYM.2002.1012266.
 """
 module RWG
-export RWGData, setup_rwg, edge_current_unit_vector
+export RWGData, setup_rwg, edge_current_unit_vector, rwgbfft
 
 
 using ..Sheets: RWGSheet, MV2, SV2
-using StaticArrays: SVector
+using StaticArrays: SVector, MVector
 using LinearAlgebra: ⋅, norm
 using NearestNeighbors: KDTree, inrange
+using OffsetArrays
+using Statistics: mean
+using ..PSSFSSLen
 
 struct RWGData
     #  Basis function edge indices.  The value in bfe[1,i] is index of the
@@ -375,7 +378,7 @@ A 4-tuple containing
 - `η_term`: The η value of the terminal vertex of edge ie.
 
 """
-function get_ie_ξη(ie::Int, sheet::RWGSheet)
+@inline function get_ie_ξη(ie::Int, sheet::RWGSheet)
     node_init = sheet.e1[ie]  
     node_term = sheet.e2[ie]  
     ρinit = sheet.ρ[node_init]
@@ -387,4 +390,146 @@ function get_ie_ξη(ie::Int, sheet::RWGSheet)
     return (ξinit, ξterm, ηinit, ηterm)
 end
 
+
+"""
+    rwgbfft(rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real) -> ft::Vector
+    
+Compute the 2D fourier transform of the set of modified Rao-Wilton-Glisson basis functions defined 
+in `rwgdat` and `sheet`, evaluated at the transform variable `k`. `ψ₁` and `ψ₂` are the cell to cell phase shifts
+in radians.
+
+## Arguments:
+
+- `rwgdat`: Contains the basis function definitions.
+- `sheet`: The contains the triangulation info.
+- `k`: A 2-vector containing the transform variable value at which the fourier transforms are to be evaluated. 
+Units are (1/meter).
+- `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts in units of radians.
+
+## Return value:
+
+A length `nbf` complex vector containing the Fourier transforms of the basis functions.  Units are meters^2. 
+`nbf` is the number of basis functions.
+
+## Reference
+Kim McInturff and Peter S. Simon, "The Fourier transform of linearly varying functions with polygonal
+support," IEEE Trans. Antennas Propagat., Vol. 39, no. 9, Sept. 1991, pp. 1441-1443.
+
+"""
+function rwgbfft(rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real)
+    next = SVector{3, Int}(2,3,1)
+    nbf = size(rwgdat.bfe,2) # Number of basis functions
+    ft = [[0.0im,0.0im] for _ in 1:nbf]
+    floquet_factor = OffsetArray(SVector{5, ComplexF64}(1, 1, cis(-ψ₁), 1, cis(-ψ₂)),   0:4)
+    # Meanings:
+    # floquet_factor[0] Edges not on unit cell boundary
+    # floquet_factor[1] Edges at ξ=0 boundary.
+    # floquet_factor[2] Edges at ξ=1 boundary.
+    # floquet_factor[3] Edges at η=0 boundary.
+    # floquet_factor[4] Edges at η=1 boundary.
+
+    nface = size(sheet.fv,2) # Number of triangular faces
+    kmagsq = k ⋅ k
+    kmag = sqrt(kmagsq)
+    one_meter = ustrip(Float64, sheet.units, 1u"m")
+
+    lvec = zeros(MV2, 3)
+    rc = zeros(MV2, 3)
+    j0kl2 = MVector{3,Float64}(0.0, 0.0, 0.0)
+    rtrm2 = zeros(MV2, 3)
+    cphasv = MVector{3,ComplexF64}(0.0im, 0.0im, 0.0im)
+    csum = MVector{2,ComplexF64}(0.0+0.0im, 0.0+0.0im)
+    centroid = MVector{2,Float64}(0.0, 0.0)
+    ft0 = MVector{2,ComplexF64}(0.0+0.0im, 0.0+0.0im)
+    for iface in 1:nface
+        r =  vtxcrd_m(iface, sheet, one_meter)
+        lvec .= (r[next[i]] - r[i] for i in 1:3) # Edge vectors
+        rc .= (r[i] + 0.5 * lvec[i] for i in 1:3)  # Edge centers
+        if kmag * maximum(norm.(lvec)) < 1e-4 # small k
+            centroid .= mean(r)   #  Compute centroid coordinates.
+            cphase = cis(k ⋅ centroid) #  Phase factor at centroid.
+            for i in 1:3 #  Loop over three edges of the triangle
+                ie = sheet.fe[i,iface] # Global index for edge opposite r(i).
+                ib = rwgdat.ebf[ie]    # Global basis function index.
+                ib == 0 && continue
+                ft0 .= 0.5 * (centroid - r[i])
+                if rwgdat.bff[1,ib] == iface  # Plus triangle
+                    ft[ib] += ft0 * (cphase * floquet_factor[rwgdat.eci[ie]])
+                elseif rwgdat.bff[2,ib] == iface # Minus triangle
+                    ft[ib] -= ft0 * (cphase * floquet_factor[rwgdat.eci[ie]])
+                else
+                    error("Impossible situation!")
+                end
+            end
+        else # Case where k is not small
+            kfact = 2k / kmagsq
+            darea = zdotaxb(lvec[1], lvec[2]) # Twice the directed area
+            denom = darea * kmagsq
+            zdotlxk = [zdotaxb(l, k) for l in lvec]
+            ctrm1 = [im * rci - kfact for rci in rc]
+            for i in 1:3  # Loop over three edges
+                dotkl2 = 0.5 * (k ⋅ lvec[i])
+                j0kl2[i] = j₀(dotkl2)
+                rtrm2[i] = 0.5 * zdotlxk[i] * j₁(dotkl2) * lvec[i]
+                cphasv[i] = cis(k ⋅ rc[i])
+            end
+            #
+            #  Loop over edges of triangle associated with basis functions.
+            #
+            for i in 1:3 
+                ie = sheet.fe[i,iface] # Global index for edge opposite r[i].
+                ib = rwgdat.ebf[ie]    # Global basis function index.
+                ib == 0 && continue # Skip if no basis func for this edge.
+                cjr = im * r[i]
+                csum .= complex(0.0,0.0)
+                for n in 1:3  # Perform sum over n as shown in Equation (2-11):
+                    ctrm3 = (zhatcross(lvec[n]) + zdotlxk[n]*(ctrm1[n]-cjr)) * j0kl2[n]
+                    csum += cphasv[n] * (ctrm3 - rtrm2[n])
+                end
+                #csum = csum * norm(lvec(next(i))) # Needed for orig. defn. of RWG 
+                #                                          # basis funct.
+                #  Add to sum total fourier transform with proper sign:
+                if rwgdat.bff[1,ib] == iface  # Plus triangle.
+                    ft[ib] += csum * (floquet_factor[rwgdat.eci[ie]] / denom)
+                else
+                    ft[ib] -= csum * (floquet_factor[rwgdat.eci[ie]] / denom)
+                end
+            end
+        end
+    end
+    
+    return ft
+end # function
+        
+        
+"""
+    j₀(x)
+    
+Spherical Bessel function of the first kind of order 0 and argument x.
+"""
+j₀(x::Real) =     abs(x) < 1e-3 ? begin x² = x*x; 1 - x²/6*(1-x²/20) end : sin(x)/x
+j₀(x::Complex) = abs2(x) < 1e-6 ? begin x² = x*x; 1 - x²/6*(1-x²/20) end : sin(x)/x
+
+"""
+    j₁(x)
+    
+Spherical Bessel function of the first kind of order 1 and argument x.
+"""
+j₁(x::Real) =     abs(x) < 1e-3 ? x * (1/3 - x*x/30) : begin s,c = sincos(x); (s/x - c) / x end
+j₁(x::Complex) = abs2(x) < 1e-6 ? x * (1/3 - x*x/30) : begin s,c = sincos(x); (s/x - c) / x end
+    
+"""
+    vtxcrd_m(iface::Int, sheet::Sheet, one_meter::Real)
+
+Return the coordinates (in meters) of the triangle vertices for face iface.
+"""
+@inline function vtxcrd_m(iface, sheet, one_meter)
+    vi = @view sheet.fv[:,iface] # Vertex indices
+    sheet.ρ[vi] ./ one_meter
+end
+
+
+zdotaxb(a,b) = a[1] * b[2] - a[2] * b[1]
+
+            
 end # module
