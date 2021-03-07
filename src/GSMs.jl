@@ -1,6 +1,6 @@
 module GSMs
 export GSM, cascade, cascade!, initialize_gsm_file, append_gsm_data, read_gsm_file,
-        Gblock, choose_gblocks
+        Gblock, choose_gblocks, gsm_slab_interface, translate_gsm!
 
 using LinearAlgebra
 using StaticArrays: SA
@@ -28,6 +28,20 @@ function GSM(n1::Int, n2::Int)
     gsm
 end
 
+function Base.getindex(gsm::GSM, i, j)
+    (i,j) == (1,1) && (return gsm.s11)
+    (i,j) == (1,2) && (return gsm.s12)
+    (i,j) == (2,1) && (return gsm.s21)
+    (i,j) == (2,2) && (return gsm.s22)
+    throw(BoundsError(gsm, (i,j)))
+end
+
+Base.size(::GSM) = (2,2)
+function Base.size(::GSM, k) 
+    (k == 1 || k  == 2) && (return 2)
+    k > 2 && (return 1)
+    error("arraysize: dimension out of range")
+end
 
 
 """
@@ -151,31 +165,31 @@ zdotcross(a,b) = a[1] * b[2] - a[2] * b[1]
 """
     gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64) -> (gsm, tlgfvi, vincs)
 
-Calculate the GSM (generalized scattering matrix) of a `GBLOCK` containing a single electric-type
-FSS surface.  Also compute the quantities from Section 6.2 of the theory documentation needed to 
-compute incident and scattered fields.
+Calculate the partial GSM (generalized scattering matrix) due to incident fields of a 
+`GBLOCK` containing a single electric-type FSS surface.  Also compute the quantities 
+from Section 6.2 of the theory documentation needed to compute incident and scattered fields.
 
 ## Arguments
 
 - `layers`:  Contains the layer parameters for the cascade structure.  Note that the first
- and last layer's thicknesses are not accounted for in this function.  They are assumed to be semi-infinite.
+   and last layer's thicknesses are not accounted for in this function.  They are assumed 
+   to be semi-infinite.
 - `s`: Interface number (within layers) at which the FSS is located.
 - `k0`: Free-space wavenumber in rad/m.
 
 ## Return Values
 
-- `gsm::GSM`: A variable containing the generalized scattering matrix initialized by this function.
+- `gsm::GSM`: A variable containing the portion of the generalized scattering matrix due
+    to incident fields.
 
-- `tlgfvi::Matrix{ComplexF64}` `tlgfvi` is the voltage transmission line Green's function 
- (TLGF) due to a unit current. `tlgfvi[q,1]` is the TLGF for mode `q` of Region 1, with source 
-at ``z=z_s`` and observation point at ``z=z_1``. `tlgfvi[q,2]` is the TLGF for mode `q` of 
-Region N, with source at ``z=z_s`` and observation point at ``z=z_{N-1}``. 
-
+- `tlgfvi::Matrix{ComplexF64}`: `tlgfvi` is the voltage transmission line Green's function 
+    (TLGF) due to a unit current. `tlgfvi[q,1]` is the TLGF for mode `q` of Region 1, with 
+    source at ``z=z_s`` and observation point at ``z=z_1``. `tlgfvi[q,2]` is the TLGF for 
+    mode `q` of Region N, with source at ``z=z_s`` and observation point at ``z=z_{N-1}``. 
 - `vincs::Matrix{ComplexF64}`: `vincs` is the transmission line voltage evaluated at ``z = z_s``
-due to a Thevenin voltage source ``V_g = 2`` at either the left (``z=z_1``) or right (``z=z_{N-1}``)
-ends of the equivalent circuit.   `vincs[q,1]` is the voltage for mode `q` with source at ``z=z_1``, 
-`vincs[q,2]` is the voltage for mode `q` with the source at ``z=z_{N-1}``.
-
+    due to a Thevenin voltage source ``V_g = 2`` at either the left (``z=z_1``) or right (``z=z_{N-1}``)
+    ends of the equivalent circuit.   `vincs[q,1]` is the voltage for mode `q` with source at ``z=z_1``, 
+    `vincs[q,2]` is the voltage for mode `q` with the source at ``z=z_{N-1}``.
 """
 function gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
     N = length(layers)
@@ -380,7 +394,7 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
     k0sq = k0 * k0
     n1 = length(layers[1].P)  # Number of modes in Region 1.
     n2 = length(layers[N].P)  # Number of modes in Region N.
-    gsm = GSM(n1, n2)
+    gsm = GSM(n1, n2); gsm.s12 .= zero(eltype(gsm.s12)); gsm.s21 .= zero(eltype(gsm.s21))
     n12max = max(n1,n2)
     iincs = zeros(ComplexF64, n12max, 2)
     tlgfiv = zeros(ComplexF64, n12max, 2)
@@ -865,5 +879,29 @@ function choose_gblocks(strata, k0min)::Vector{Gblock}
 
     return gbl
 end
+
+"""
+    find_mode_index(p::TEorTM, m::Int, n::Int, layer::Layer)
+    
+Find the index of the mode (p,m,n).
+
+## Arguments
+
+- `p`, `m`, `n`: Mode indices. 
+- `layer`: An instance of Layer with modes initialized.
+
+## Return Value
+
+The positive integer index, if found.  Otherwise, zero.
+"""
+function find_mode_index(p, m::Int, n::Int, layer::Layer)
+    for i in 1:length(layer.P)
+        if layer.P[i] == p  && layer.M[i] == m && layer.N[i] == n
+            return i
+        end
+    end
+    return 0
+end
+
 
 end # module
