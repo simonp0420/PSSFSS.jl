@@ -1,8 +1,9 @@
 module Modes
 
 using Unitful: ustrip, @u_str
-using LinearAlgebra: norm, ⋅
-using ..Constants: twopi
+using LinearAlgebra: norm, ⋅, ×
+using StaticArrays: MVector
+using ..Constants: twopi, η₀
 using ..Layers: Layer, TEorTM, TE, TM
 using ..Sheets: Sheet, find_unique_periods
 using ..GSMs: Gblock
@@ -244,7 +245,7 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin)
     end # if
 
 
-    # Now we allocate the other layer vectors and print out the values of the modal indices:
+    # Now we allocate the other Layer field vectors
     maxmodes = 2*(2*MNmax_default+1)^2
     for i in notinablock
         layer = layers[i]
@@ -260,6 +261,59 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin)
     return nothing
 end
 
+"""
+    setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
+
+Fill the modal layer fields.  Needed for layers not contained in a Gblock.
+The arrays are assumed to have  been already allocated, and the index arrays 
+`M`, `N`, and `P` are asssumed to have been already initialized.
+
+### Input arguments
+
+- `layer`: It is assumed that the `ϵᵣ`, `μᵣ`, `β₁`, and `β₂` have been 
+    initialized, as have the modal index arrays `P`, `M`, and `N`.
+- `k0`: Free-space wavenumber (1/meter).
+- `kvec`: A real-valued 2-vector containing the x and y components of the incident
+    plane wave unit vector that defines the unit cell incremental 
+    phase shifts.
+
+### Outputs
+
+There is no explicit output, but the fields of `layer` will be modified, including
+`β`, `tvec`, `γ`, `c`, and `Y`. 
+"""
+function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
+    β₀₀ = MVector(kvec[1], kvec[2])
+    β₁, β₂ = layer.β₁, layer.β₂
+    area = twopi^2 / norm(β₁ × β₂)
+    ksq = k0^2 * layer.ϵᵣ * layer.μᵣ
+    for mode in 1:length(layer.M)
+        m,n,p = layer.M[mode], layer.N[mode], layer.P[mode]
+        β = β₀₀ + m*β₁ + n*β₂
+        β² = β ⋅ β
+        β̂ = β²*area < 1e-14 ? MVector(1.0, 0.0) : β/norm(β)
+        layer.β[mode] .= β
+        layer.γ[mode] = γ = mysqrt(β² - ksq)
+        if p == TE
+            Y = γ / (im * (k0*η₀) * layer.μᵣ)
+            tvec = zhatcross(β̂)
+        else
+          Y = im * (k0/η₀) * layer.ϵᵣ / γ
+          tvec = β̂
+        end
+        layer.Y[mode] = Y
+        layer.tvec[mode] = tvec
+        layer.c[mode] = mysqrt(1 / (area * Y))
+    end
+    return nothing
+end
+
+function zhatcross(x)
+    y = similar(x)
+    y[2] = x[1]
+    y[1] = -x[2]
+    y
+end
 
 
 """
@@ -287,31 +341,6 @@ Copy fields `β₁`, `β₂`, `P`, `M`, `N` from `l2` to `l1`, modifying `l1`.
     l1.M = copy(l2.M)
     l1.N = copy(l2.N)
     nothing
-end
-
-
-
-"""
-    find_mode_index(p::TEorTM, m::Int, n::Int, layer::Layer)
-    
-Find the index of the mode (p,m,n).
-
-## Arguments
-
-- `p`, `m`, `n`: Mode indices. 
-- `layer`: An instance of Layer with modes initialized.
-
-## Return Value
-
-The positive integer index, if found.  Otherwise, zero.
-"""
-function find_mode_index(p::TEorTM, m::Int, n::Int, layer::Layer)
-    for i in 1:length(layer.P)
-        if layer.P[i] == p  && layer.M[i] == m && layer.N[i] == n
-            return i
-        end
-    end
-    return 0
 end
 
 
