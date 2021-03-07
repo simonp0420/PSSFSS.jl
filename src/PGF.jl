@@ -190,6 +190,7 @@ containing the difference of the observation and source point position vectors.
 """
 function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
                                              s, β₁, β₂, β₀₀, convtest=5e-12)
+
     t1 = time_ns()
     nl = length(layers) # Number of layers.
     nl < 2 && error("Too few layers")
@@ -213,10 +214,16 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     mmax = mmax_list[1] ÷ 2
     mmax_old = -2
     test1 = test2 = 0.0 # Establish scope
+    first = true
     while mmax < mmax_list[end] # Convergence loop
-        mmax = nextprod([2,3,5], 1 + mmax)
-        while 0 ≠ rem(mmax,2)
+        if first
+            mmax = 0
+            first = false
+        else
             mmax = nextprod([2,3,5], 1 + mmax)
+            while 0 ≠ rem(mmax,2)
+                mmax = nextprod([2,3,5], 1 + mmax)
+            end
         end
         mmaxo2 = mmax÷2
         mmax_oldo2 = mmax_old÷2
@@ -264,7 +271,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
                 ViTM = ZleftTM * ZrightTM / (ZleftTM + ZrightTM) # multiplied by jωϵ₀
                 # Compute summands (apart from phase factor and 1/(2A) factor):
                 ViTE = 2 * ViTE / μ̃ # 1st quantity in square brackets in (5.19a)
-                table1[m,n] = ViTE - (1 + c3/κmn²) / κmn  # Eq. (2.19a)
+                table1[m,n] = ViTE - (1 + c3/κmn²) / κmn  # Eq. (5.19a)
                 ringsum1 += table1[m,n]
                 ViTM = 2 * ϵ̄ * ViTM # 1st quantity in square brackets in (5.19b)
                 table2[m,n] = (ViTM + k0sq*ϵ̄*μ̃*ViTE) / β² - (1 + d3/κmn²) / κmn  # Eq. (5.19b)
@@ -465,10 +472,16 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     mmax = mmax_list[1] ÷ 2
     mmax_old = -2
     test1 = test2 = 0.0
+    first = true
     while mmax < mmax_list[end] # Convergence loop
-        mmax = nextprod([2,3,5], 1 + mmax)
-        while 0 ≠ rem(mmax,2)
+        if first
+            mmax = 0
+            first = false
+        else
             mmax = nextprod([2,3,5], 1 + mmax)
+            while 0 ≠ rem(mmax,2)
+                mmax = nextprod([2,3,5], 1 + mmax)
+            end
         end
         mmaxo2 = mmax÷2
         mmax_oldo2 = mmax_old÷2
