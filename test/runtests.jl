@@ -10,3 +10,4 @@ using SafeTestsets
 @safetestset "GSMs Tests" begin include("GSMs_test.jl") end
 @safetestset "Modes Tests" begin include("Modes_test.jl") end
 @safetestset "FillZY Tests" begin include("FillZY_test.jl") end
+@safetestset "SymmetricStripFull Tests" begin include("full_test.jl") end
