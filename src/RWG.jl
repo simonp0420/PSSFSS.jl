@@ -13,11 +13,11 @@ Symposium Digest* (Cat. No.02CH37278), Seattle, WA, USA, 2002, pp. 2029-2032
 vol. 3, doi: 10.1109/MWSYM.2002.1012266.
 """
 module RWG
-export RWGData, setup_rwg, edge_current_unit_vector, rwgbfft
+export RWGData, setup_rwg, edge_current_unit_vector, rwgbfft!
 
 
 using ..Sheets: RWGSheet, MV2, SV2
-using StaticArrays: SVector, MVector
+using StaticArrays: SVector, MVector, MArray
 using LinearAlgebra: ⋅, norm
 using NearestNeighbors: KDTree, inrange
 using OffsetArrays
@@ -392,18 +392,20 @@ end
 
 
 """
-    rwgbfft(rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real) -> ft::Vector
+    rwgbfft!(ft, rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real) -> ft::Vector
     
-Compute the 2D fourier transform of the set of modified Rao-Wilton-Glisson basis functions defined 
-in `rwgdat` and `sheet`, evaluated at the transform variable `k`. `ψ₁` and `ψ₂` are the cell to cell phase shifts
-in radians.
+Compute the 2D fourier transform (FT) of the set of modified Rao-Wilton-Glisson basis functions 
+defined in `rwgdat` and `sheet`, evaluated at the transform variable `k`. `ψ₁` and `ψ₂` are the 
+unit cell incremental phase shifts in radians.
 
 ## Arguments:
 
+- `ft`: A vector of length `nbf` whose elements are 2-vectors, where `nbf` is the number of 
+    basis functions.  The contents of `ft` will be overwritten with the basis function FTs.
 - `rwgdat`: Contains the basis function definitions.
 - `sheet`: The contains the triangulation info.
-- `k`: A 2-vector containing the transform variable value at which the fourier transforms are to be evaluated. 
-Units are (1/meter).
+- `k`: A 2-vector containing the transform variable value at which the fourier transforms are to be 
+    evaluated. Units are (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts in units of radians.
 
 ## Return value:
@@ -416,10 +418,11 @@ Kim McInturff and Peter S. Simon, "The Fourier transform of linearly varying fun
 support," IEEE Trans. Antennas Propagat., Vol. 39, no. 9, Sept. 1991, pp. 1441-1443.
 
 """
-function rwgbfft(rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real)
+function rwgbfft!(ft, rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real)
     next = SVector{3, Int}(2,3,1)
     nbf = size(rwgdat.bfe,2) # Number of basis functions
-    ft = [[0.0im,0.0im] for _ in 1:nbf]
+    length(ft) == nbf || error("length(ft) is $(length(ft)) instead of $nbf")
+    ft .*= 0
     floquet_factor = OffsetArray(SVector{5, ComplexF64}(1, 1, cis(-ψ₁), 1, cis(-ψ₂)),   0:4)
     # Meanings:
     # floquet_factor[0] Edges not on unit cell boundary
