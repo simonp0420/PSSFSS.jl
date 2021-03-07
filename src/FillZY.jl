@@ -63,7 +63,7 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
     β₀₀ = (ψ₁ * β₁ + ψ₂ * β₂) / twopi
 
     # Initialize functions for modal series:
-    (Σm1_func, Σm2_func) = electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀)
+    (Σm1_func, Σm2_func) = electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀, 1e-7)
 
     # floquet_factor is indexed into using values in rwgdat.eci:
     floquet_factor = OffsetArray(zeros(ComplexF64, 5), 0:4) 
@@ -98,7 +98,10 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
         metal.ψ₂ = ψ₂
         metal.u = u / units_per_meter 
         # Fill the frequency-independent face/face integrals:
+        t_spatial = time()
         filljk!(metal, rwgdat, closed)
+        t_spatial = time() - t_spatial
+        @info "Spatial face integrals used $(round(t_spatial,digits=5)) sec"
     end
 
     t1 = time_ns()
@@ -196,7 +199,7 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
                     end
             
                     # Compute one of the dot products in Eq (7-15) apart from sign:
-                    dotprod = A_i ⋅ ρc2[iml]
+                    dotprod = ρc2[iml] ⋅ A_i
                     # Add contribution to the impedance matrix
                     zmat[mbf,sbf] += match_flag * (im*ω*dotprod - Φ_i)
                     # Add surface loading, if applicable:
@@ -265,7 +268,7 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
     β₀₀ = (ψ₁ * β₁ + ψ₂ * β₂) / twopi
 
     # Initialize functions for modal series:
-    (Σm1_func, Σm2_func) = magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀)
+    (Σm1_func, Σm2_func) = magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀,1e-7)
 
     # floquet_factor is indexed into using values in rwgdat.eci:
     floquet_factor = OffsetArray(zeros(ComplexF64, 5), 0:4) 
@@ -304,7 +307,10 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
         apert.ψ₂ = ψ₂
         apert.u = u / units_per_meter # Units are 1/(local length units)
         # Fill the frequency-independent face/face integrals:
+        t_spatial = time()
         filljk!(apert, rwgdat, closed)
+        t_spatial = time() - t_spatial
+        @info "Spatial face integrals used $(round(t_spatial,digits=5)) sec"
     end
 
     t1 = time_ns()
@@ -396,7 +402,7 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
                     end
             
                     # Compute one of the dot products in Eq (7-53) apart from sign:
-                    dotprod = F_i ⋅ ρc2[iml]
+                    dotprod = ρc2[iml] ⋅ F_i
             
                     # Add contribution to the admittance matrix#
                     ymat[mbf,sbf] += match_flag * (-im*ω*dotprod - Ψ_i)
