@@ -22,8 +22,13 @@
 \newcommand{\F}{\boldsymbol{F}}
 \renewcommand{\H}{\boldsymbol{H}}
 \newcommand{\h}{\boldsymbol{h}}
+\newcommand{\rhat}{\boldsymbol{\hat{r}}}
+\newcommand{\thetahat}{\boldsymbol{\hat{\theta}}}
+\newcommand{\phihat}{\boldsymbol{\hat{\phi}}}
 \newcommand{\hhat}{\rlap{$\boldsymbol{\hat{h}}$}\phantom{\boldsymbol{h}}}
 \newcommand{\vhat}{\rlap{$\boldsymbol{\hat{v}}$}\phantom{\boldsymbol{v}}}
+\newcommand{\Rhat}{\boldsymbol{\hat{R}}}
+\newcommand{\Lhat}{\boldsymbol{\hat{L}}}
 \newcommand{\J}{\boldsymbol{J}}
 \newcommand{\Jt}{\boldsymbol{\tilde{J}}}
 \newcommand{\I}{\boldsymbol{I}}
@@ -75,8 +80,8 @@
 \newcommand{\transpose}{^{\text{\sffamily{T}}}}
 \newcommand{\hermitian}{^{\text{\sffamily{H}}}}
 \newcommand{\inc}{^{\text{inc}}}
-\newcommand{\refl}{^{\text{r}}}
-\newcommand{\trans}{^{\text{t}}}
+\newcommand{\refl}{^{\text{ref}}}
+\newcommand{\trans}{^{\text{tran}}}
 \newcommand{\scat}{^{\text{sc}}}
 \renewcommand{\t}{\boldsymbol{\hat{t}}}
 \newcommand{\n}{\boldsymbol{\hat{n}}}
@@ -137,12 +142,13 @@
  {\raisebox{0pt}[0pt][0pt]{\rlap{$\vecr{I}$}}\phantom{I}_{\text{v}}}  % TLGF
 \newcommand{\tauhat}%
  {\rlap{$\boldsymbol{\hat{\tau}}$}\phantom{\boldsymbol{\tau}}} % Pol. vector
+%\newcommand{\sigmahat}{\boldsymbol{\hat{\sigma}}}  % Polarization vector
 \newcommand{\uhat}{\boldsymbol{\hat{u}}}  % Polarization vector
 \newcommand{\what}{\boldsymbol{\hat{w}}}  % Polarization vector
 \newcommand{\khat}{\boldsymbol{\hat{k}}}  % Polarization vector
 \newcommand{\sigmahat}%
  {\rlap{$\boldsymbol{\hat{\sigma}}$}\phantom{\boldsymbol{\sigma}}} % Pol. vec.
-
+\newcommand{\piotwo}{{\textstyle\frac{\pi}{2}}}
 
 %% \tlsection{x1}{x4}{n} draws a transmission line section
 %% from x1 to x4, with nodes at x1 and x4, and labels the 
@@ -262,3 +268,5 @@
 
 
  %%%%%%%%%%%%%%%%%%%%%% End macro definitions  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

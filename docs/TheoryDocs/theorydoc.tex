@@ -20,8 +20,10 @@ openany, % A chapter may start on either a recto or verso page.
 
 %\usepackage{amsmath,amssymb,mathtools} % Math
 
-\usepackage[libertine]{newtxtext}
-\usepackage[libertine]{newtxmath}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+% \usepackage[libertine]{newtxtext}
+% \usepackage[libertine]{newtxmath}
 %\usepackage{dutchcal} % For lower-case calligraphic
 \usepackage{boondox-calo} % For lower-case calligraphic
 \usepackage{pstricks,pst-node,pstricks-add}
@@ -173,8 +175,8 @@ pdfauthor={Peter S. Simon} % author
 
 \input{macro.tex}
 
-\includeonly{chapter1,chapter2,chapter3,chapter4,chapter5,chapter6,chapter7}
-%\includeonly{}
+\includeonly{chapter1,chapter2,chapter3,chapter4,chapter5,chapter6,chapter7,chapter8}
+%\includeonly{chapter8}
 
 \begin{document}
 \renewcommand{\bibname}{References}
@@ -296,6 +298,8 @@ This document is organized as follows:
     Care is taken to exploit the wide-band nature of the Green's
     functions to minimize matrix fill time for multi-frequency
     analysis.
+  \item[Chapter~\ref{chap:performance}] describes the performance parameters
+      that are available as output of the program.
 \end{description}
 
 
@@ -308,6 +312,7 @@ This document is organized as follows:
 \include{chapter5}
 \include{chapter6}
 \include{chapter7}
+\include{chapter8}
 
 
 

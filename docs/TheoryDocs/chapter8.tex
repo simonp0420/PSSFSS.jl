@@ -1,0 +1,359 @@
+\chapter{Calculation of Performance Parameters}
+\label{chap:performance}
+
+\section{Introduction}
+Although knowledge of the magnitude and phase
+of the generalized scattering matrix (GSM) elements provides a
+complete description of the frequency/polarization selective surface (FSS/PSS),
+it is often more convenient for the user to examine other performance
+parameters. This chapter defines a number of user-oriented
+performance parameters and describes how they are calculated from
+elements of the GSM.
+
+We are concerned here with only the two fundamental propagating modes in
+layers~$1$ and $N$: the principal ($m=n=0$) TE and TM modes.  We 
+assume that these two regions are lossless, so that their wavenumbers 
+$k_1$ and $k_N$ and intrinsic impedances $\eta_1$ and $\eta_N$ are
+all positive numbers. The
+scattering relation for the incident and reflected components of the
+dominant TE/TM modes is determined from the GSM:
+  \begin{align}
+    \colvec{b\one_{100} \\ b\one_{200} \\ b\enn_{100} \\ b\enn_{200}} 
+    %
+    &= 
+    %
+    \begin{bmatrix}
+      \mat{S}^{11} & \mat{S}^{12}    \\
+      \mat{S}^{21} & \mat{S}^{22}    
+    \end{bmatrix}
+    %
+    \colvec{a\one_{100} \\ a\one_{200} \\ a\enn_{100} \\ a\enn_{200}} 
+    %
+    %
+    =
+    %
+    \begin{bmatrix}
+      \matel{S}^{11}_{11} & \matel{S}^{11}_{12} & \matel{S}^{12}_{11}
+      & \matel{S}^{12}_{12} \\ 
+      \matel{S}^{11}_{21} & \matel{S}^{11}_{22} & \matel{S}^{12}_{21}
+      & \matel{S}^{12}_{22} \\ 
+      \matel{S}^{21}_{11} & \matel{S}^{21}_{12} & \matel{S}^{22}_{11}
+      & \matel{S}^{22}_{12} \\ 
+      \matel{S}^{21}_{21} & \matel{S}^{21}_{22} & \matel{S}^{22}_{21}
+      & \matel{S}^{22}_{22} 
+    \end{bmatrix}
+    \colvec{a\one_{100} \\ a\one_{200} \\ a\enn_{100} \\ a\enn_{200}}.
+    \label{eq:fssscat}
+  \end{align}
+
+\section{Horizontal and Vertical Polarization}  The GSM
+relates the incident and scattered fields using a TE/TM plane wave
+decomposition. It is sometimes more convenient (say, when analyzing a
+meanderline polarizer in other than the principal planes) to consider
+scattering and reflection using a basis consisting of vertical and
+horizontal polarization. 
+
+We need to define four sets of horizontal and vertical unit vectors.
+These are $(\hhat\inc_1,\vhat\inc_1),$ $(\hhat\refl_1,\vhat\refl_1),$
+$(\hhat\inc_N,\vhat\inc_N),$ and $(\hhat\refl_N,\vhat\refl_N),$ which
+correspond respectively to Region~$1$ incident and reflected waves and
+Region~$N$ incident and reflected waves.  
+These can be conveniently defined by employing the so-called ``Ludwig~3'' (or ``L3'')
+unit vectors defined in \cite{ludw:73}. 
+Following the cited reference, we define the
+horizontal and vertical unit vectors $\hhat$ and $\vhat$ in terms of their
+``look angles'' $\theta$ and $\phi$ as
+\begin{subequations}
+  \begin{align}
+    \hhat(\theta,\phi) &= 
+%    \x [1- \cos^2\phi (1 - \cos\theta)] 
+%    - \y (1-\cos\theta)\sin\phi\cos\phi 
+%    - \z \sin\theta \cos\phi  =
+                         \thetahat(\theta,\phi) \cos\phi - \phihat(\theta,\phi) \sin\phi, \\
+    \vhat(\theta,\phi) &= 
+%    - \x (1-\cos\theta)\sin\phi\cos\phi 
+%    + \y [1- \sin^2\phi (1 - \cos\theta)] 
+%    - \z \sin\theta \sin\phi =
+                         \thetahat(\theta,\phi) \sin\phi + \phihat(\theta,\phi) \cos\phi,
+  \end{align}
+\end{subequations}
+where
+\begin{subequations}
+  \begin{align}
+    \rhat(\theta,\phi) &= \x
+    \sin\theta\cos\phi + \y\sin\theta\sin\phi 
+    + \z\cos\theta, \\
+    \thetahat(\theta,\phi) &= \x
+    \cos\theta\cos\phi + \y\cos\theta\sin\phi 
+    - \z\sin\theta, \\
+    \phihat(\theta,\phi) &= -\x \sin\phi
+    + \y\cos\phi.
+  \end{align}
+\end{subequations}
+\begin{figure}[tbph]
+  \begin{center} 
+    \leavevmode 
+    \pspicture(-4.2,-2.5)(4.2,2)
+    %
+    \rput(0,0){FSS/PSS}  % FSS title
+                                % Region 1 labels
+    \rput[r](-2.8,0){
+      \begin{tabular}{@{}c@{}}
+        Region~$1$ \\
+        $k_1$, $\eta_1$
+      \end{tabular}}
+                                % Interface 1
+    \psline[linewidth=1pt](-1,-2)(-1,2)  \uput[d](-1,-2){$z=z_1$}
+                                % Begin Interface N-1:
+    \psline[linewidth=1pt](1,-2)(1,2)    \uput[d](1,-2){$z=z_{N-1}$}    
+                                % Region 1 labels
+    \rput[l](2.5,0){
+      \begin{tabular}{@{}c@{}}
+        Region~$N$ \\
+        $k_N$, $\eta_N$
+      \end{tabular}}
+                                % Positive z axis:
+    \psline{->}(1,0)(2,0)  \rput[l](2,0){$\;z$}
+                                % Negative z axis:
+    \psline{->}(-1,0)(-2,0)  \rput[r](-2,0){$-z\;$}
+                                % Region N incident wave vector
+    \psline[linewidth=2pt]{->}(2.5,-1.5)(1,0) 
+    \rput[l](2.5,-1.5){$\;\k_N\inc$}
+                                % Region N reflected wave vector
+    \psline[linewidth=2pt]{<-}(2.5,1.5)(1,0)
+    \rput[l](2.5,1.5){$\;\k_N\refl$}
+                                % Region 1 incident wave vector
+    \psline[linewidth=2pt]{->}(-2,-1.5)(-1,0)
+    \rput[r](-2,-1.5){$\k_1\inc\;$}
+                                % Region 1 reflected wave vector
+    \psline[linewidth=2pt]{<-}(-2,1.5)(-1,0)
+    \rput[r](-2,1.5){$\k_1\refl\;$}
+                                % Theta_1^inc arc and label:
+    \psarc[linewidth=0.6pt]{<->}(-1,0){.6}{181}{233}
+    \rput[r](-1.6,-0.4){$\theta_1\inc$}
+                                % Theta_1^ref arc and label:
+    \psarc[linewidth=0.6pt]{<->}(-1,0){.6}{127}{178}
+    \rput[r](-1.6,.4){$\theta_1\refl$}
+                                % Theta_N^inc arc and label:
+    \psarc[linewidth=0.6pt]{<->}(1,0){.6}{1}{42}
+    \rput[l](1.6,-0.4){$\theta_N\inc$}
+                                % Theta_N^ref arc and label:
+    \psarc[linewidth=0.6pt]{<->}(1,0){.6}{-42}{-1}
+    \rput[l](1.6,.4){$\theta_N\refl$}
+    \endpspicture
+    \caption{Incident and reflected wave vectors in Regions~$1$
+    and~$N$.}
+  \label{fig:wavevec}
+  \end{center}
+\end{figure}
+We now define
+appropriate look angles for Regions~1 and~$N$ for both incident
+and reflected waves.  We begin by defining incident and reflected wave
+vectors in both regions as shown in Figure~\ref{fig:wavevec}.
+\begin{subequations}
+\begin{gather}
+  \k\inc_1 = \vecbeta_{00} - \z j \gamma\one_{00}, \quad 
+  \k\refl_1 = \vecbeta_{00} + \z j \gamma\one_{00} \\
+  \k\inc_N = \vecbeta_{00} + \z j \gamma\enn_{00}, \quad
+  \k\refl_N = \vecbeta_{00} - \z j \gamma\enn_{00}.
+\end{gather}
+\end{subequations}
+Recall that for the assumed propagating modes, both $\gamma\one_{00}$ and $\gamma\enn_{00}$ lie on the positive imaginary
+axis of the complex plane.  Also, note that the tangential components of the wave vectors are
+identical for all four cases, as they must be due
+to the continuity (``phase match'') boundary condition at each interface.
+The look angles are now defined via
+\begin{subequations}
+  \begin{alignat}{2}
+    \cos\theta_1\inc &= \frac{\z \bdot \k_1\inc}{k_1} 
+    = \frac{-j\gamma\one_{00}}{k_1} = \frac{\abs{\gamma\one_{00}}}{k_1}, & \qquad
+    \sin\theta_1\inc &= \frac{\beta_{00}}{k_1} \\
+    \cos\phi_1\inc &= \x \bdot \frac{\vecbeta_{00}}{\beta_{00}}
+    = \frac{\beta_{00x}}{\beta_{00}}, & 
+    \sin\phi_1\inc &= \y \bdot \frac{\vecbeta_{00}}{\beta_{00}} 
+    = \frac{\beta_{00y}}{\beta_{00}} \\
+    \theta_1\refl &= \theta_1\inc, & \qquad
+    \phi_1\refl &= \phi_1\inc + \pi \\
+    \cos\theta_N\refl &= \frac{\z \bdot \k_N\refl}{k_N} 
+    = \frac{-j\gamma\enn_{00}}{k_N} =  \frac{\abs{\gamma\enn_{00}}}{k_N}, & \qquad
+    \sin\theta_N\refl &= \frac{\beta_{00}}{k_N} \\
+    \phi_N\refl &= \phi_1\inc, &  & \\
+    \theta_N\inc &= \theta_N\refl, & \qquad
+    \phi_N\inc &= \phi_N\refl + \pi  = \phi_1\refl
+  \end{alignat} 
+\end{subequations}
+We then choose
+\begin{gather}
+  \bigl( \hhat\inc_1,\vhat\inc_1 \bigr) = 
+  \bigl( \hhat(\theta\inc_1,\phi\inc_1),\vhat(\theta\inc_1,\phi\inc_1) \bigr), \quad
+  \bigl( \hhat\refl_1,\vhat\refl_1 \bigr) = 
+  \bigl( \hhat(\theta\refl_1,\phi\refl_1),\vhat(\theta\refl_1,\phi\refl_1) \bigr), \\
+  \bigl( \hhat\inc_N,\vhat\inc_N \bigr) = 
+  \bigl( \hhat(\theta\inc_N,\phi\inc_N),\vhat(\theta\inc_N,\phi\inc_N) \bigr), \quad
+  \bigl( \hhat\refl_N,\vhat\refl_N \bigr) = 
+  \bigl( \hhat(\theta\refl_N,\phi\refl_N),\vhat(\theta\refl_N,\phi\refl_N) \bigr).
+\end{gather}
+These choices imply that the tangential components of incident and reflected horizontal L3 vectors of a given region are
+equal, as are the tangential components of the vertical vectors.  In fact, if $k\_1$ and $k_N$ are equal, then
+these statements are true considering both regions together.
+
+
+\section{Circular Polarization}
+The circular polarization basis vectors are defined in terms of the Ludwig~3 vectors as
+\begin{subequations}
+  \begin{alignat}{2}
+  \Lhat_1\inc &= \frac{\sqrt{2}}{2}(\hhat_1\inc + j\vhat_1\inc), &\quad
+  \Rhat_1\inc &= \frac{\sqrt{2}}{2}(\hhat_1\inc - j\vhat_1\inc), \\
+  %
+  \Lhat_1\refl &= \frac{\sqrt{2}}{2}(\hhat_1\refl - j\vhat_1\refl), &\quad
+  \Rhat_1\refl &= \frac{\sqrt{2}}{2}(\hhat_1\refl + j\vhat_1\refl), \\
+  %
+  \Lhat_N\inc &= \frac{\sqrt{2}}{2}(\hhat_N\inc - j\vhat_N\inc), &\quad
+  \Rhat_N\inc &= \frac{\sqrt{2}}{2}(\hhat_N\inc + j\vhat_N\inc), \\
+  %
+  \Lhat_N\refl &= \frac{\sqrt{2}}{2}(\hhat_N\refl + j\vhat_N\refl), &\quad
+  \Rhat_N\refl &= \frac{\sqrt{2}}{2}(\hhat_N\refl - j\vhat_N\refl), \\
+  \end{alignat}
+\end{subequations}
+
+\section{Scattering Relations for Alternate Basis Vectors}
+The GSM computed by \pssfss\ defines the scattering relationship for fields decomposed into principal (zero-order)
+TE and TM Floquet modes.  It is also desired to determine the scattering between fields expressed as components along the
+four basis vectors $\Lhat$, $\Rhat$, $\hhat$, and $\vhat$.  For example, it is of interest to determine the Region~$N$ transmitted LHCP and RHCP (left and right-hand circular polarization) components for a horizontally polarized wave incident
+from Region~$1$ onto a PSS composed of a meanderline polarizer. 
+
+
+\subsection{ Incident Fields}
+\subsubsection[Region~$1$ Incidence]{Region~$\boldsymbol{1}$ Incidence}
+
+Consider a plane wave incident upon the FSS from Region~$1$:
+\begin{equation}
+  \E\inc = E_1\inc \tauhat e^{-j\k_1\inc \bdot (\r - \z z_1)}, \quad z<z_1
+  \label{eq:Einc1}
+\end{equation}
+where $\tauhat_1\inc$ is any of the Region~$1$ incidence unitary basis vectors previously introduced, and
+\begin{equation}
+  \label{eq:E0inc1}
+  E_1\inc = \sqrt{\frac{P_0 \eta_1}{A \cos\theta_1\inc} } = \sqrt{\frac{P_0 k_1\eta_1}{\abs{\gamma_{00}\one} A}}
+\end{equation}
+is chosen to ensure that the incident field is normalized to $P_0 = \SI{1}{w}$ incident on the unit
+cell of area $A$.
+In order to find the fields scattered from the FSS by the incident
+field in \eqref{eq:Einc1}, we express the incident field as the sum of
+a TE and TM wave:
+\begin{equation}
+  (\x\x+\y\y) \bdot \E\inc = a_{100}\one \e\one_{100} + a_{200}\one \e\one_{200}
+  \label{eq:Einc1expand}
+\end{equation}
+where it will be recalled that a subscript of $(100)$ denotes the
+principal TE mode and $(200)$ denotes the principal TM mode.
+The expansion coefficients in \eqref{eq:Einc1expand} are determined
+by equating the tangential components of \eqref{eq:Einc1} with \eqref{eq:Einc1expand} and
+invoking the orthogonality of the Floquet modes.  First for the TE mode:
+\begin{align}
+  \iint_{U'} & \bigl(a_{100}\one \e\one_{100} + a_{200}\one \e\one_{200}\bigr) \cross
+  (\h\one_{100})^* \bdot \z \, \d A 
+  =
+  \iint_{U'} E_1\inc (\tauhat_1\inc - \z\z\bdot\tauhat_1\inc) e^{-j\k_1\inc \bdot \vecrho} \cross
+  \bigl(\h\one_{100}\bigr)^* \bdot \z \, \d A \nonumber \\
+                                %
+   a\one_{100} &= \frac{1}{P\one_{100}}
+  \iint_{U'} E_1\inc (\tauhat_1\inc - \z\z\bdot\tauhat_1\inc) \cross 
+  \bigl[
+    \bigl(Y\one_{100}\bigr)^* 
+    \z \cross \bigl(c\one_{100}\bigr)^* \t_{100})
+                            \bigr] \bdot \z \, \d A  \nonumber \\
+   %
+  &= \frac{E_1\inc Y\one_{100} c\one_{100} A}{P_0}
+  \tauhat_1\inc \bdot \t_{100}
+\end{align}
+where we used the facts that $P_{pmn}\eye = P_0$ and the mode normalization constant and modal admittance are positive
+for propagating modes. 
+Using Equations~\eqref{eq:modenormalization}, \eqref{eq:TEmodes}, and \eqref{eq:E0inc1} this result
+can be further simplified:
+\begin{align}
+  a\one_{100} &= \frac{A}{P_0} \sqrt{\frac{P_0 k_1\eta_1}{\abs{\gamma_{00}\one} A}} % E_o^inc
+                \; \frac{\abs{\gamma_{00}\one}}{k_1\eta_1} % Y\one_{000}
+                \; \sqrt{\frac{k_1\eta_1P_0}{A \abs{\gamma_{00}\one}}} % c_{000}\one
+                \,   \tauhat_1\inc \bdot \t_{100} = \tauhat_1\inc \bdot \t_{100}. 
+\end{align}
+
+A similar derivation for determining the TM travelling wave coefficient results in
+\begin{equation}
+  a\one_{200} = \frac{\tauhat_1\inc \bdot \t_{200}}{\cos\theta_1\inc}.
+\end{equation}
+
+\subsubsection[Region \textit{N} Incidence]{Region~$\boldsymbol{N}$ Incidence}
+
+Consider a plane wave incident upon the FSS from Region~$N$:
+\begin{equation}
+  \E\inc = E_N\inc \tauhat e^{-j\k_N\inc \bdot (\r - \z z_N)}, \quad z > z_N
+  \label{eq:EincN}
+\end{equation}
+where $\tauhat\inc$ is any of the Region~$N$ incidence unitary basis vectors previously introduced, and
+\begin{equation}
+  \label{eq:E0incN}
+  E_N\inc = \sqrt{\frac{P_0 k_N\eta_N}{\abs{\gamma_{00}\enn} A}}.
+\end{equation}
+Peforming a similar derivation to that done for the Region~1 incidence case results in similar formulas for the
+travelling wave coefficients:
+\begin{equation}
+  a\enn_{100} = \tauhat_N\inc \bdot \t_{100}, \quad
+  a\enn_{200} = \frac{\tauhat_N\inc \bdot \t_{200}}{\cos\theta_N\inc}.
+\end{equation}
+
+\subsection{Scattered Fields}
+\subsubsection{Region~1 Scattered Fields}
+
+The electric fields scattered by the FSS into Region~$1$ and evaluated in the $z=z_1$ plane are
+\begin{equation}
+  \E\scat(0,0,z_1) =  b\one_{100} \e\one_{100} + b\one_{200} \bigl(\e\one_{200} +
+  j \z c_{200}\one \beta_{00} / \gamma_{00}\one  \bigr)
+   \label{eq:escat11}
+\end{equation}
+where $b\one_{100}$ and $b\one_{200}$ are determined from the
+scattering relation \eqref{eq:fssscat}.  
+
+Suppose now that we wish to determine the components of the Region~$1$
+scattered electric field along basis vectors $\tauhat_1\refl$, and $\sigmahat_1\refl$, where
+$(\tauhat_1\refl$, $\sigmahat_1\refl)$ is either $(\hhat\refl_1, \vhat\refl_1$ or $(\Lhat\refl_1, \Rhat\refl_1)$:
+\begin{equation}
+  \E\scat(0,0,z_1) =  E\inc_1 \bigl(  b\one_{\tau} \tauhat_1\refl + b\one_{\sigma} \sigmahat_1\refl \bigr).
+\end{equation}
+Since the bases are unitary vectors, the coefficients are easily found by dotting the complex
+conjugate of the basis vector with the given electric field.  Performing this operation and solving for
+the basis vector coefficient, we find that
+\begin{subequations}
+\begin{align}
+  b_{\tau}\one &= b_{100}\one \bigl(\tauhat_1\refl\bigr)^*  \bdot \t_{100} +
+                 b_{200}\one \bigl(\tauhat_1\refl\bigr)^*  \bdot \left( \t_{200} +
+                 \frac{\beta_{00}}{\abs{\gamma_{00}\one}} \z \right),   \\
+  b_{\sigma}\one &= b_{100}\one \bigl(\sigmahat_1\refl\bigr)^*  \bdot \t_{100} +
+                 b_{200}\one \bigl(\sigmahat_1\refl\bigr)^*  \bdot \left( \t_{200} +
+                 \frac{\beta_{00}}{\abs{\gamma_{00}\one}} \z \right) 
+\end{align}
+\end{subequations}
+
+
+\subsubsection[Region~\textit{N}~Scattered Fields]{Region~\boldmath$N$\unboldmath~Scattered Fields}
+
+The derivation to determine the scattered field coefficients for Ludwig~3 or circular polarization basis
+vectors goes through exactly the same as for Region~$1$, except for a change in the sign of the $z$-component
+of TM electric field.  The resulting formulas are
+\begin{subequations}
+\begin{align}
+  b_{\tau}\enn &= b_{100}\enn \bigl(\tauhat_N\refl\bigr)^*  \bdot \t_{100} +
+                 b_{200}\enn \bigl(\tauhat_N\refl\bigr)^*  \bdot \left( \t_{200} -
+                 \frac{\beta_{00}}{\abs{\gamma_{00}\enn}} \z \right),   \\
+  b_{\sigma}\enn &= b_{100}\enn \bigl(\sigmahat_N\refl\bigr)^*  \bdot \t_{100} +
+                 b_{200}\enn \bigl(\sigmahat_N\refl\bigr)^*  \bdot \left( \t_{200} -
+                 \frac{\beta_{00}}{\abs{\gamma_{00}\enn}} \z \right) 
+\end{align}
+\end{subequations}
+
+
+
+
+
+
+

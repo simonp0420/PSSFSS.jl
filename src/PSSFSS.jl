@@ -17,21 +17,24 @@ include("Zint.jl")
 include("FillZY.jl")
 include("GSMs.jl")
 include("Modes.jl")
+include("Outputs.jl")
 
 using Reexport
 using LinearAlgebra: ×, norm, ⋅, factorize
 using StaticArrays: MVector, MArray
 using .Rings
 @reexport using .PSSFSSLen
-@reexport using .Layers: Layer
-using .Sheets: Sheet, RWGSheet
+@reexport using .Layers: Layer, TEorTM, TE, TM
 @reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross
+@reexport using .Outputs
+using .Sheets: Sheet, RWGSheet
 using .RWG: setup_rwg, rwgbfft!, RWGData
 using .GSMs: GSM, cascade, cascade, gsm_electric_gblock, gsm_magnetic_gblock,
                       gsm_slab_interface, initialize_gsm_file, translate_gsm!
 using .FillZY: fillz, filly
 using .Modes: zhatcross
 using .Constants: twopi
+
 
 const tdigits = 4 # Number of decimal places used to display elapsed time
 

@@ -28,7 +28,7 @@ to the direction along the axis of the strips.  The formula is from Problem 10.6
 *Field Theory of Guided Waves, Second Ed.*, IEEE Press, 1991.  The series have been accelerated
 by appying a Kummer transformation, using the first two terms in the Maclaurin series for the
 inverse sin function.  `kP` must be in the half-open interval [0,1). The default number of summed
-terms `nterms` yeilds better than 10 digits of accuracy over this full interval.
+terms `nterms` yeilds better than 10 digits of accuracy over the interval [0.01,0.99].
 """
 function grating(kP;nterms=30)
     sum1 = 1.3862943611198906 # \sum_{n=1}^{\infty} 1/(n-1/2) - 1/n = log(4) 
