@@ -231,21 +231,31 @@ S12IMAG(m,n) = simag(1,2,m,n)
 S21IMAG(m,n) = simag(2,1,m,n)
 S22IMAG(m,n) = simag(2,2,m,n)
 
-ΔIPD = Outout("ΔIPD") do o
+ΔIPD21 = Outout("ΔIPD") do o
     rad2deg(angle(getsijmn(2,1,1,1,o)/getsijmn(2,1,2,2,o)))
 end
-
-ΔIL = Outout("ΔIL") do o
-    10*log10(abs2(getsijmn(2,1,1,1,o)/getsijmn(2,1,2,2,o)))
+ΔIPD12 = Outout("ΔIPD") do o
+    rad2deg(angle(getsijmn(1,2,1,1,o)/getsijmn(1,2,2,2,o)))
 end
 
-ARDB(i,j,n) = Outout("ARdB$i$j($n)") do o
+ΔIL21 = Outout("ΔIL") do o
+    10*log10(abs2(getsijmn(2,1,1,1,o)/getsijmn(2,1,2,2,o)))
+end
+ΔIL12 = Outout("ΔIL") do o
+    10*log10(abs2(getsijmn(1,2,1,1,o)/getsijmn(1,2,2,2,o)))
+end
+
+ardb(i,j,n) = Outout("ARdB$i$j($n)") do o
     jP = im * getsijmn(i,j,1,n,o)/getsijmn(i,j,2,n,o) # Modified Linear Pol. ratio
     Q = (1-jP)/(1+jP) # Circular polarization ratio
     absQ = abs(Q)
     absQ > 1 && (absQ = 1/absQ)
     ardb = 20*log10((1+absQ)/(1-absQ))
 end
+ARDB11(n) = ardb(1,1,n)
+ARDB12(n) = ardb(1,2,n)
+ARDB21(n) = ardb(2,1,n)
+ARDB22(n) = ardb(2,2,n)
 
 
 FGHZ = Outout("FGHZ") do o
@@ -325,13 +335,12 @@ end
 
 Convert list of user output requests to a vector of functors that generate the requested
 outputs when applied to an `Output` instance.  In the conversion process, replace
-lower case letters with upper case.  The first argument can be a string which will be
-used as the file name to which the data will be written.
+lower case letters with upper case.
 
 ### Examples
 
-    julia> output = @outputs "filename.csv" FGHz θ ϕ s11db(te,te) S11ang(Te,te)
-    julia> output = @outputs "filename.csv" FGHz theta phi s21db(R,H) ARdB21(H) ARdB11(v)
+    julia> output = @outputs FGHz θ ϕ s11db(te,te) S11ang(Te,te)
+    julia> output = @outputs FGHz theta phi s21db(R,H) ARdB21(H) ARdB11(v)
 """
 macro outputs(args...)
     newargs = Any[]
@@ -344,7 +353,7 @@ macro outputs(args...)
             end
             push!(newargs, arg)
         else
-            push!(newargs, arg)
+            error("Illegal @outputs construction")
         end
     end
     tuple([eval(a) for a in newargs]...)
