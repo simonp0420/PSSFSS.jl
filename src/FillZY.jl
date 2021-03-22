@@ -7,7 +7,7 @@ using StaticArrays: SMatrix
 using OffsetArrays
 using Unitful # for ustrip and u"m"
 using LinearAlgebra: norm, ⋅
-using ..Constants: μ₀, ϵ₀, c₀, twopi, fourpi, tol
+using ..Constants: μ₀, ϵ₀, c₀, twopi, fourpi, tol, tdigits
 using ..Layers: Layer
 using ..Sheets: RWGSheet #, MV2, SV2
 using ..RWG: RWGData
@@ -22,7 +22,7 @@ const third = SMatrix{3,3}([0 3 2; 3 0 1; 2 1 0])
 
 
 """
-    fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::RWGData) -> zmat
+    fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::RWGData) -> zmat
 
 Fill the generalized impedance matrix for an FSS of electric current type.
 
@@ -46,7 +46,7 @@ Fill the generalized impedance matrix for an FSS of electric current type.
           method formulation.
 
 """  
-function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::RWGData)
+function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::RWGData)
     
 
     closed = true              # Always use singularity extraction.
@@ -101,7 +101,7 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
         t_spatial = time()
         filljk!(metal, rwgdat, closed)
         t_spatial = time() - t_spatial
-        @info "Spatial face integrals used $(round(t_spatial,digits=5)) sec"
+        @info "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
     end
 
     t1 = time_ns()
@@ -218,14 +218,14 @@ function fillz(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,rwgdat::
         end # face pairs in this equivalence class
     end # facepair loop
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=5)
-    @info "$tsec seconds to fill $(size(zmat,1)) × $(size(zmat,2)) matrix entries"
+    tsec = round((t2-t1)/1e9; digits=tdigits)
+    @info "      $tsec seconds to fill $(size(zmat,1)) × $(size(zmat,2)) matrix entries"
     return zmat
 end
 
 
 """
-    filly(k0,u,layers::Vector{Layer},s,ψ₁,ψ₂,apert::RWGSheet,rwgdat::RWGData) -> ymat
+    filly(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,apert::RWGSheet,rwgdat::RWGData) -> ymat
 
 Fill the generalized impedance matrix for an FSS of electric current type.
 
@@ -249,7 +249,7 @@ Fill the generalized impedance matrix for an FSS of electric current type.
           method formulation.
 
 """  
-function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
+function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
 
     closed = true              # Always use singularity extraction.
 
@@ -310,7 +310,7 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
         t_spatial = time()
         filljk!(apert, rwgdat, closed)
         t_spatial = time() - t_spatial
-        @info "Spatial face integrals used $(round(t_spatial,digits=5)) sec"
+        @info "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
     end
 
     t1 = time_ns()
@@ -411,8 +411,8 @@ function filly(k0, u, layers::Vector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
         end
     end # loop over face pairs
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=5)
-    @info "$tsec seconds to fill $(size(ymat,1)) × $(size(ymat,2)) matrix entries"
+    tsec = round((t2-t1)/1e9; digits=tdigits)
+    @info "      $tsec seconds to fill $(size(ymat,1)) × $(size(ymat,2)) matrix entries"
 
     return ymat
 end      

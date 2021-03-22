@@ -13,7 +13,7 @@ using ..PGF: mysqrt
 const MNmax_default = 6
 
 """
-    choose_layer_modes!(strata, gbl, k0max, dbmin)
+    choose_layer_modes!(strata, gbl, k0max, dbmin=25.0)
 
     #
 Set up the arrays of modal indices `M`, `N`, and `P` for all layers not included
@@ -41,7 +41,7 @@ will have fields β₁ and β₂ appropriately set, and will have the arrays `β
 
 - `dbmin`  Minimum attenuation any neglected mode must incur (dB > 0).
 """
-function choose_layer_modes!(strata, gbl, k0max, dbmin)
+function choose_layer_modes!(strata, gbl, k0max, dbmin=25.0)
     T = Union{Layer,Sheet}
     all(t isa T for t in strata) || error("strata elements must be of type Sheet or Layer")
     islayer = map(t -> t isa Layer, strata)
@@ -92,6 +92,7 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin)
             l.β₂ = MVector(0.0, twopi) # cell 1m in x by 1m in y.
         end
         mset .= true
+        notinablock = 1:length(layers)
 
     else   # There is at least one non-NULL sheet in the structure
         last_gbl = findlast(x -> !iszero(x.j) && sheets[junc[x.j]].style ≠ "NULL", gbl)
@@ -212,14 +213,13 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin)
             @label nextouter
         end # while
         # Done with all interior layers.
-        # Choose numbers of modes in the end layers. Any mode that can 
-        # propagate at k0max will be defined. Use the periodicity of the 
-        # closest FSS sheets for each end layer.
+        # Choose two modes in the end layers (the principal Floquet modes).
+        # Use the periodicity of the closest FSS sheets for each end layer.
         for (l, sh) in ((layers[1], sheets[first_sheet]), (layers[nl], sheets[last_sheet]))
             one_meter = ustrip(sh.units, 1u"m")
             l.β₁ = sh.β₁ * one_meter
             l.β₂ = sh.β₂ * one_meter
-            fill_mmax_pmn!(l, MNmax_default, k0max, dbmin)
+            fill_mmax_pmn!(l, 0, k0max, dbmin)
             select_pmn!(l, k0max) # eliminate evanescant modes
         end
         mset[1] = mset[nl] = true

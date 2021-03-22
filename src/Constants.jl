@@ -1,5 +1,5 @@
 module Constants
-export μ₀, ϵ₀, c₀, η₀, twopi, fourpi, tol, dbmin
+export μ₀, ϵ₀, c₀, η₀, twopi, fourpi, tol, dbmin, tdigits
 
 "Permeability of free space [H/m]"
 const μ₀ = 1.25663706212*1e-6
@@ -22,6 +22,9 @@ const dbmin = 25.0
 
 "Min. elect. length for a layer to not be included in a `GBLOCK`"
 const min_elength = twopi * 0.05 
+
+"Number of digits to use in printing elapsed time"
+const tdigits = 4
 
 
 end

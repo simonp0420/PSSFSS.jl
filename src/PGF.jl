@@ -8,6 +8,7 @@ using ..Rings: Ring
 using ..Sheets: MV2
 using ..Layers: Layer
 using FFTW: fft!
+using ..Constants: tdigits
 
 # Variables used by the spatial routines:
 const jkringmax = 65 # Max. number of rings to sum over
@@ -169,7 +170,7 @@ potential and electric scalar potential as defined in Eqs. (5.19) of the theory 
 - `k0`: Free-space wavenumber (1/meter).
 - `u`:  Smoothing parameter (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts (radians).
-- `layers`  An array of element type `Layer` containing the layer 
+- `layers`  An `AbstractVector` of element type `Layer` containing the layer 
        parameters for the cascade structure.  Note that the first
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
@@ -188,7 +189,7 @@ theory documentation.  Each function takes a single argument `ρdif`, a 2-vector
 containing the difference of the observation and source point position vectors.
 
 """
-function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
+function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{Layer},
                                              s, β₁, β₂, β₀₀, convtest=5e-12)
 
     t1 = time_ns()
@@ -333,8 +334,8 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     Σm1_func = make_Σm_func(table1, β₁, β₂, ψ₁, ψ₂)
     Σm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=5)
-    @info "$tsec seconds to compute $mmax × $mmax electric modal tables"
+    tsec = round((t2-t1)/1e9; digits=tdigits)
+    @info "      $tsec seconds to compute $mmax × $mmax electric modal tables"
     return (Σm1_func, Σm2_func)
 end    
 
@@ -420,7 +421,7 @@ potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory 
 - `k0`: Free-space wavenumber (1/meter).
 - `u`:  Smoothing parameter (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts (radians).
-- `layers`  An array of element type `Layer` containing the layer 
+- `layers`  An `AbstractVector` of element type `Layer` containing the layer 
        parameters for the cascade structure.  Note that the first
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
@@ -439,7 +440,7 @@ theory documentation.  Each function takes a single argument `ρdif`, a 2-vector
 containing the difference of the observation and source point position vectors.
 
 """
-function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
+function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{Layer},
                                             s, β₁, β₂, β₀₀, convtest=5e-12)
     t1 = time_ns()
     nl = length(layers) # Number of layers.
@@ -587,8 +588,8 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::Vector{Layer},
     Σpm1_func = make_Σm_func(table1, β₁, β₂, ψ₁, ψ₂)
     Σpm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
-    tsec = round((t2-t1)/1e9; digits=3)
-    @info "$tsec seconds to compute $mmax × $mmax magnetic modal tables"
+    tsec = round((t2-t1)/1e9; digits=tdigits)
+    @info "      $tsec seconds to compute $mmax × $mmax magnetic modal tables"
     return (Σpm1_func, Σpm2_func)
 end
 

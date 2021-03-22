@@ -343,6 +343,7 @@ function edge_current_unit_vector(ie::Integer, rwgdat::RWGData, metal::RWGSheet)
     # at one of the edge nodes is positive:
     f = rwgdat.bff[1,bf]# Obtain the "plus" face adjacent to edge ie.
     # Find the free vertex of this face:
+    nfree = 0 # Establish scope
     for i in 1:3
       nfree = metal.fv[i,f]
       nfree != n1  &&  nfree != n2 && break

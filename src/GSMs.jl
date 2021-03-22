@@ -163,10 +163,10 @@ zdotcross(a,b) = a[1] * b[2] - a[2] * b[1]
 
 
 """
-    gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64) -> (gsm, tlgfvi, vincs)
+    gsm_electric_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Float64) -> (gsm, tlgfvi, vincs)
 
 Calculate the partial GSM (generalized scattering matrix) due to incident fields of a 
-`GBLOCK` containing a single electric-type FSS surface.  Also compute the quantities 
+`Gblock` containing a single electric-type FSS surface.  Also compute the quantities 
 from Section 6.2 of the theory documentation needed to compute incident and scattered fields.
 
 ## Arguments
@@ -191,7 +191,7 @@ from Section 6.2 of the theory documentation needed to compute incident and scat
     ends of the equivalent circuit.   `vincs[q,1]` is the voltage for mode `q` with source at ``z=z_1``, 
     `vincs[q,2]` is the voltage for mode `q` with the source at ``z=z_{N-1}``.
 """
-function gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
+function gsm_electric_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Float64)
     N = length(layers)
     cosha = OffsetArray(zeros(ComplexF64, N-2), 2:N-1)
     sinha = OffsetArray(zeros(ComplexF64, N-2), 2:N-1)
@@ -235,8 +235,7 @@ function gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
             end
             if i < N
                 # Compute remaining quantities for internal layers:
-                cosha[i], sinha[i] = sincos(im * layers[i].width * γ)
-                sinha[i] = -sinha[i]
+                sinha[i], cosha[i] = sinhcosh(layers[i].width * γ)
                 tanha[i] = sinha[i] / cosha[i]
                 Zleft[i] = Z0[i] *
                     (Zleft[i-1] + Z0[i]*tanha[i]) / (Z0[i] + Zleft[i-1] * tanha[i])  # Eq. (6.12b).
@@ -249,7 +248,6 @@ function gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
                 (Zright[i+1] + Z0[i+1]*tanha[i+1]) / 
                 (Z0[i+1] + Zright[i+1] * tanha[i+1])  # Eq. (6.4b).
         end
-        
         # Compute voltage and current at z = z_1 using Eq. (6.3):
         current = 2  / (Zright[1] + Z0[1])
         voltage = current * Zright[1]
@@ -302,8 +300,7 @@ function gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
             end
             if i > 1
                 # Compute remaining quantities for internal layers:
-                cosha[i], sinha[i] = sincos(im * layers[i].width * γ)
-                sinha[i] = -sinha[i]
+                sinha[i], cosha[i] = sinhcosh(layers[i].width * γ)
                 tanha[i] = sinha[i] / cosha[i]
                 Zright[i-1] = Z0[i] *
                     (Zright[i] + Z0[i]*tanha[i]) / (Z0[i] + Zright[i] * tanha[i])  # Eq. (6.4b)
@@ -313,7 +310,7 @@ function gsm_electric_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
         Zleft[1] = Z0[1] # Eq. (6.12a)
         for i in 2:N-1
             Zleft[i] = Z0[i] *
-                (Zleft(i-1) + Z0[i]*tanha[i]) / (Z0[i] + Zleft(i-1) * tanha[i]) # Eq. (6.12b)
+                (Zleft[i-1] + Z0[i]*tanha[i]) / (Z0[i] + Zleft[i-1] * tanha[i]) # Eq. (6.12b)
         end
         # Compute voltage and current at z = z_1 using Eq. (6.11):
         current = -2  / (Zleft[N-1] + Z0[N])
@@ -416,8 +413,7 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
                 Z0[i] = γ / (im * (k0/η₀) * layers[i].ϵᵣ) # TM
             end
             # Compute remaining quantities for internal layers:
-            cosha[i], sinha[i] = sincos(im * layers[i].width * γ)
-            sinha[i] = -sinha[i]
+            sinha[i], cosha[i] = sinhcosh(layers[i].width * γ)
             tanha[i] = sinha[i] / cosha[i]
             Zleft[i] = Z0[i] *
                 (Zleft[i-1] + Z0[i]*tanha[i]) / (Z0[i] + Zleft[i-1] * tanha[i])  # Eq. (6.12b).
@@ -472,8 +468,7 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
                 Z0[i] = γ / (im * k0/η₀ * layers[i].ϵᵣ)
             end
             # Compute remaining quantities for internal layers:
-            cosha[i], sinha[i] = sincos(im * layers[i].width * γ)
-            sinha[i] = -sinha[i]
+            sinha[i], cosha[i] = sinhcosh(layers[i].width * γ)
             tanha[i] = sinha[i] / cosha[i]
             Zright[i-1] = Z0[i] * (Zright[i] + Z0[i]*tanha[i]) / 
                 (Z0(i) + Zright(i) * tanha(i))  # Eq. (6.23b)
@@ -580,7 +575,7 @@ function gsm_slab_interface(L1::Layer, L2::Layer, k0)::GSM
           # admittance on the fly.
       
           # Locate identical mode in region 1:
-          i1 = find_mode_index(L2.P[i2], L2.m[i2], L2.n[i2], L1)
+          i1 = find_mode_index(L2.P[i2], L2.M[i2], L2.N[i2], L1)
 
           if i1 == 0
               # Obtain wavenumber (Region 1) squared
@@ -703,7 +698,6 @@ on each side of the GSM.
 """
 function translate_gsm!(g, dx, dy, layer1, layer2)
     
-    COMPLEX(WP)                          :: t1(size(layer1.p)), t2(size(layer2.p))
     dxy = SA[dx, dy]
 
     # Check that layers have correct number of modes:
@@ -903,5 +897,14 @@ function find_mode_index(p, m::Int, n::Int, layer::Layer)
     return 0
 end
 
+@inline function sinhcosh(x)
+    @fastmath begin
+        expx = exp(x)
+        expmx = 1/expx
+        sinhx = 0.5*(expx - expmx)
+        coshx = 0.5*(expx + expmx)
+    end
+    return (sinhx, coshx)
+end
 
 end # module

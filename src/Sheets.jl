@@ -134,7 +134,7 @@ Find the unique unit cells for the sheets used in the FSS analysis.
 """
 function find_unique_periods(junction::Vector{Int}, sheets) 
     all(t isa Sheet for t in sheets) || error("Elements of sheets must be of type Sheet")
-    one_meter = map(x -> ustrip(x.units, 1.0u"m"), sheets)    
+    one_meter = map(x -> ustrip(Float64, x.units, 1.0u"m"), sheets)    
     s1s2 = vcat(map(x -> hcat(x.s₁..., x.s₂...), sheets)...) # Each row is s1x s1y s2x s2y
     s1s2 = s1s2 ./ one_meter # All rows now are comparable (in meters)
     s1s2 = round.(s1s2, sigdigits=8)

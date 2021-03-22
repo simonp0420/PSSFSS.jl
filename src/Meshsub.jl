@@ -94,8 +94,8 @@ function meshsub(;points::Matrix{<:Real}, seglist::Matrix{<:Integer},
     sh.fe = similar(sh.fv) # Preallocation
     for tri in 1:size(sh.fv,2)
         n1, n2, n3 = sh.fv[:,tri]
-        for (side, m1, m2) in [(1,n1,n3), (2,n1,n2), (3,n2,n3)]
-            found = false
+        for (side, m1, m2) in [(1,n2,n3), (2,n1,n3), (3,n1,n2)]
+                found = false
             for i in 1:length(sh.e1)
                 if (sh.e1[i] == m1 && sh.e2[i] == m2) || (sh.e1[i] == m2 && sh.e2[i] == m1)
                     sh.fe[side,tri] = i
@@ -106,6 +106,7 @@ function meshsub(;points::Matrix{<:Real}, seglist::Matrix{<:Integer},
             !found && error("triangle edge not found connecting vertices $m1 and $m2 for face $tri")
         end
     end
+    sh.fr = zeros(Float64, size(sh.fv,2)) # Face resistance vector
     return sh               
 end # function
 
