@@ -14,6 +14,7 @@ using ..RWG: RWGData
 using ..PGF: c3_calc, d3_calc
 using ..Zint: zint, filljk!, vtxcrd
 using ..PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
+using ..Log: @logfile, @logscreen
 
 const next = (2,3,1)
 const prev = (3,1,2)
@@ -101,7 +102,7 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
         t_spatial = time()
         filljk!(metal, rwgdat, closed)
         t_spatial = time() - t_spatial
-        @info "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
+        @logfile "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
     end
 
     t1 = time_ns()
@@ -219,7 +220,7 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
     end # facepair loop
     t2 = time_ns()
     tsec = round((t2-t1)/1e9; digits=tdigits)
-    @info "      $tsec seconds to fill $(size(zmat,1)) × $(size(zmat,2)) matrix entries"
+    @logfile "      $tsec seconds to fill $(size(zmat,1)) × $(size(zmat,2)) matrix entries"
     return zmat
 end
 
@@ -310,7 +311,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
         t_spatial = time()
         filljk!(apert, rwgdat, closed)
         t_spatial = time() - t_spatial
-        @info "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
+        @logfile "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
     end
 
     t1 = time_ns()
@@ -412,7 +413,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
     end # loop over face pairs
     t2 = time_ns()
     tsec = round((t2-t1)/1e9; digits=tdigits)
-    @info "      $tsec seconds to fill $(size(ymat,1)) × $(size(ymat,2)) matrix entries"
+    @logfile "      $tsec seconds to fill $(size(ymat,1)) × $(size(ymat,2)) matrix entries"
 
     return ymat
 end      

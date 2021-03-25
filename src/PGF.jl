@@ -9,6 +9,7 @@ using ..Sheets: MV2
 using ..Layers: Layer
 using FFTW: fft!
 using ..Constants: tdigits
+using ..Log: @logfile
 
 # Variables used by the spatial routines:
 const jkringmax = 65 # Max. number of rings to sum over
@@ -335,7 +336,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     Σm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
     tsec = round((t2-t1)/1e9; digits=tdigits)
-    @info "      $tsec seconds to compute $mmax × $mmax electric modal tables"
+    @logfile "      $tsec seconds to compute $mmax × $mmax electric modal tables"
     return (Σm1_func, Σm2_func)
 end    
 
@@ -589,7 +590,7 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     Σpm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
     t2 = time_ns()
     tsec = round((t2-t1)/1e9; digits=tdigits)
-    @info "      $tsec seconds to compute $mmax × $mmax magnetic modal tables"
+    @logfile "      $tsec seconds to compute $mmax × $mmax magnetic modal tables"
     return (Σpm1_func, Σpm2_func)
 end
 

@@ -1,4 +1,5 @@
 module Constants
+
 export μ₀, ϵ₀, c₀, η₀, twopi, fourpi, tol, dbmin, tdigits
 
 "Permeability of free space [H/m]"
@@ -25,7 +26,6 @@ const min_elength = twopi * 0.05
 
 "Number of digits to use in printing elapsed time"
 const tdigits = 4
-
 
 end
 
