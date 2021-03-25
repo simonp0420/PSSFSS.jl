@@ -13,6 +13,7 @@ using LinearAlgebra: ×, norm, ⋅, factorize
 using StaticArrays: MVector, MArray, @SVector
 using Unitful: ustrip, @u_str
 using Logging: with_logger
+using ProgressMeter
 
 include("Constants.jl")
 include("Log.jl")
@@ -38,7 +39,7 @@ using .GSMs: GSM, cascade, cascade!, gsm_electric_gblock, gsm_magnetic_gblock,
 using .FillZY: fillz, filly
 using .Modes: zhatcross, choose_layer_modes!, setup_modes!
 using .Constants: twopi, c₀, tdigits
-using .Log: pssfss_logger, @logfile, @logscreen
+using .Log: pssfss_logger, @logfile
 @reexport using .PSSFSSLen
 @reexport using .Layers: Layer, TEorTM, TE, TM
 @reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross
@@ -95,6 +96,8 @@ function analyze(strata, flist, steering, outlist; logfile="pssfss.log", resultf
 end
 
 function _analyze(strata, flist, steering, outlist, resultfile)
+    ntotal = length(flist) * length(steering[1]) * length(steering[2])
+    progress = Progress(ntotal,1)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()),'T')
     @logfile "\n\nStarting PSSFSS analysis on $(date) at $(clock)\n\n"
@@ -129,9 +132,9 @@ function _analyze(strata, flist, steering, outlist, resultfile)
             st = sind(θ)
             sp, cp = sincosd(ϕ)
         end
-        @logscreen "Beginning $(steer)"
+        @logfile "Beginning $(steer)"
         for fghz in flist
-            @logscreen "  $(fghz) GHz"
+            @logfile "  $(fghz) GHz"
             t_freq = time()
             k0 = twopi*fghz*1e9/c₀
             if keys(steer)[1] == :θ
@@ -140,7 +143,7 @@ function _analyze(strata, flist, steering, outlist, resultfile)
             end
             setup_modes!.(layers, k0, Ref(β⃗₀₀))
             if !(angle(layers[begin].γ[1]) ≈ angle(layers[end].γ[1]) ≈ π/2)
-                @logscreen "  Skipping $(fghz) GHz due to cutoff principal modes in ambient medium"
+                @logfile "  Skipping $(fghz) GHz due to cutoff principal modes in ambient medium"
                 continue
             end
             # Initialize overall GSM and propagate it through layer 1's width:
@@ -210,7 +213,7 @@ function _analyze(strata, flist, steering, outlist, resultfile)
                     writedlm(io, permutedims([r(result) for r in row[2]]), ',')
                 end
             end
-                
+            next!(progress)                
         end # Frequency loop
     end # steering angle loop
 
