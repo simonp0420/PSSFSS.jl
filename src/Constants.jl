@@ -19,7 +19,7 @@ const fourpi = 4π
 const tol = 1e-4
 
 "Minimum modal attenuation"
-const dbmin = 25.0 
+const dbmin = 30.0
 
 "Min. elect. length for a layer to not be included in a `GBLOCK`"
 const min_elength = twopi * 0.05 

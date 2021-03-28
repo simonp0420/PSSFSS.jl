@@ -3,7 +3,7 @@ module Modes
 using Unitful: ustrip, @u_str
 using LinearAlgebra: norm, ⋅, ×
 using StaticArrays: MVector
-using ..Constants: twopi, η₀
+using ..Constants: twopi, η₀, dbmin
 using ..Layers: Layer, TEorTM, TE, TM
 using ..Sheets: Sheet, find_unique_periods
 using ..GSMs: Gblock
@@ -13,7 +13,7 @@ using ..PGF: mysqrt
 const MNmax_default = 6
 
 """
-    choose_layer_modes!(strata, gbl, k0max, dbmin=25.0)
+    choose_layer_modes!(strata, gbl, k0max, dbmin)
 
     #
 Set up the arrays of modal indices `M`, `N`, and `P` for all layers not included
@@ -41,7 +41,7 @@ will have fields β₁ and β₂ appropriately set, and will have the arrays `β
 
 - `dbmin`  Minimum attenuation any neglected mode must incur (dB > 0).
 """
-function choose_layer_modes!(strata, gbl, k0max, dbmin=25.0)
+function choose_layer_modes!(strata, gbl, k0max, dbmin=dbmin)
     T = Union{Layer,Sheet}
     all(t isa T for t in strata) || error("strata elements must be of type Sheet or Layer")
     islayer = map(t -> t isa Layer, strata)
@@ -220,7 +220,6 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin=25.0)
             l.β₁ = sh.β₁ * one_meter
             l.β₂ = sh.β₂ * one_meter
             fill_mmax_pmn!(l, 0, k0max, dbmin)
-            select_pmn!(l, k0max) # eliminate evanescant modes
         end
         mset[1] = mset[nl] = true
 
@@ -292,7 +291,7 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
         β = β₀₀ + m*β₁ + n*β₂
         β² = β ⋅ β
         β̂ = β²*area < 1e-14 ? MVector(1.0, 0.0) : β/norm(β)
-        layer.β[mode] .= β
+        layer.β[mode] = β
         layer.γ[mode] = γ = mysqrt(β² - ksq)
         if p == TE
             Y = γ / (im * (k0*η₀) * layer.μᵣ)
@@ -346,7 +345,7 @@ end
 
 
 """
-    fill_mmax_pmn!(layer::Layer, MNmax::Int, k0max, dbmin=-Inf)
+    fill_mmax_pmn!(layer::Layer, MNmax::Int, k0max, dbmin)
 
 Fill the `layer` modal index arrays `M`, `N`, and `P` given the `layer`
 material parameters and reciprocal lattice vectors, the wavenumber `k0max` 

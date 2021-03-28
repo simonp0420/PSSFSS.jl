@@ -379,7 +379,7 @@ due to a Norton current source ``I_g = 2`` at either the left (``z=z_1``) or rig
 ends of the equivalent circuit.   `iincs[q,1]` is the current for mode `q` with source at ``z=z_1``, 
 `iincs[q,2]` is the voltage for mode `q` with the source at ``z=z_{N-1}``.
 """
-function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
+function gsm_magnetic_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Float64)
     N = length(layers)
     cosha = OffsetArray(zeros(ComplexF64, N-2), 2:N-1)
     sinha = OffsetArray(zeros(ComplexF64, N-2), 2:N-1)
@@ -395,7 +395,6 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
     n12max = max(n1,n2)
     iincs = zeros(ComplexF64, n12max, 2)
     tlgfiv = zeros(ComplexF64, n12max, 2)
-
     # Loop over the region 1 source modes:
     for q1 in 1:n1
         Z0[1] = 1 / layers[1].Y[q1]  # Obtain region 1 modal impedance
@@ -451,7 +450,7 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
         tlgfiv[q1,1] = current # Save quantity used in Eq. (6.37a)
 
     end  # Done with Region 1 modes
-    
+
     #  Loop over the region N source modes:
     for q2 in 1:n2
         Z0[N] = 1 / layers[N].Y[q2]  # Obtain region N modal impedance
@@ -471,8 +470,9 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
             sinha[i], cosha[i] = sinhcosh(layers[i].width * γ)
             tanha[i] = sinha[i] / cosha[i]
             Zright[i-1] = Z0[i] * (Zright[i] + Z0[i]*tanha[i]) / 
-                (Z0(i) + Zright(i) * tanha(i))  # Eq. (6.23b)
+                (Z0[i] + Zright[i] * tanha[i])  # Eq. (6.23b)
         end
+
         # Loop over regions in forward order to get Zleft:
         Zleft[s] = zero(eltype(Zleft)) # Short-circuited
         #Zleft(s+1) = Z0(s+1) * tanha(s+1) # Eq. (6.31a)
@@ -486,7 +486,6 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
         voltage = -current * Zleft[N-1]
         # Compute reflection term using Eq. (6.35):
         gsm.s22[q2,q2] = 1 + current
-      
         # Step voltage and current down to junction s using Eq. (6.32):
         for i in N-2:-1:s
             current = current * cosha[i+1] + voltage * sinha[i+1] / Z0[i+1]
@@ -500,7 +499,7 @@ function gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64)
         # Step up to z_{N-1} using (6.24):
         for i in s+1:N-1
             current = current * cosha[i] - voltage * sinha[i] / Z0[i]
-            voltage = current * zright[i]
+            voltage = current * Zright[i]
         end
         tlgfiv[q2,2] = current # Save quantity used in (6.18b)
     end # Done with Region N modes
@@ -835,17 +834,13 @@ function choose_gblocks(strata, k0min)::Vector{Gblock}
                 if j2 - j1 < 4  
                     error("""
                     Unequal unit cells for sheets $(junc[j1]) and $(junc[j2]).
-                    Try splitting layer $(jmid)""")
+                    At least 4 thin intervening layers needed for differing periodicities.
+                    Try splitting layer $(jmid).""")
                 end                
                 owner[j1:jmid-1] .= j1
                 owner[jmid+1:j2] .= j2
             else
-                # Need 3 layers between: One associated with each sheet, and one for defining modes.
-                if j2 - j1 < 3
-                    error("""
-                    Too few layers between sheets $(junc[j1]) and $(junc[j2]).
-                           Try splitting layer $(jmid)""")
-                end
+                # Equal periodicity. 
                 owner[j1:jmid-1] .= j1
                 owner[jmid:j2] .= j2
             end

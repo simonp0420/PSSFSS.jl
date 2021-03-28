@@ -38,13 +38,13 @@ using .GSMs: GSM, cascade, cascade!, gsm_electric_gblock, gsm_magnetic_gblock,
              gsm_slab_interface, translate_gsm!, choose_gblocks, Gblock
 using .FillZY: fillz, filly
 using .Modes: zhatcross, choose_layer_modes!, setup_modes!
-using .Constants: twopi, c₀, tdigits
+using .Constants: twopi, c₀, tdigits, dbmin
 using .Log: pssfss_logger, @logfile
 @reexport using .PSSFSSLen
 @reexport using .Layers: Layer, TEorTM, TE, TM
-@reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross
-@reexport using .Outputs
-using .Outputs: Result
+@reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross, nullsheet
+@reexport using .Outputs: @outputs, extract_result_file
+using .Outputs: Result, append_result_data
 
 export analyze
 
@@ -96,6 +96,7 @@ function analyze(strata, flist, steering, outlist; logfile="pssfss.log", resultf
 end
 
 function _analyze(strata, flist, steering, outlist, resultfile)
+    ncount = 0 # Number of analyses performed
     ntotal = length(flist) * length(steering[1]) * length(steering[2])
     progress = Progress(ntotal,1)
     isfile(resultfile) && rm(resultfile)
@@ -105,7 +106,7 @@ function _analyze(strata, flist, steering, outlist, resultfile)
     k0min, k0max = twopi*1e9/c₀ .* extrema(flist)
     gbls = choose_gblocks(strata, k0min)
     gsm_save = Vector{GSM}(undef, length(gbls)) # Storage for reusable GSMs
-    choose_layer_modes!(strata, gbls, k0max)
+    choose_layer_modes!(strata, gbls, k0max, dbmin)
     layers::Vector{Layer} = [s for s in strata if s isa Layer]
     sheets::Vector{RWGSheet} = [s for s in strata if s isa Sheet]
     (gbldup,junc) = get_gbldup(gbls, layers, sheets, strata)
@@ -119,7 +120,6 @@ function _analyze(strata, flist, steering, outlist, resultfile)
     end
     # Begin analysis loops over steering angles and frequency
     firstoutput = true
-    results = Result[]
     for stout in steering[1], stin in steering[2]
         steer = getsttuple(steering, stout, stin)
         if keys(steer)[1] == :ψ₁
@@ -158,7 +158,7 @@ function _analyze(strata, flist, steering, outlist, resultfile)
                 i_sheet = i_junc == 0 ? 0 : junc[i_junc]
                 if i_sheet ≠ 0
                     if gbldup[ig] > 0
-                        gsmb = gsm_save[gbldup[ig]] # Use previously calculated GSM
+                        gsmb = deepcopy(gsm_save[gbldup[ig]]) # Use previously calculated GSM
                     else
                         region = @view layers[i1:i2]
                         sheet = sheets[i_sheet]
@@ -173,18 +173,18 @@ function _analyze(strata, flist, steering, outlist, resultfile)
                             error("Illegal sheet class: $(sheet.class)")
                         end
 
-                        gbldup[ig] < 0 && (gsm_save[ig] = gsmb) 
-
-                        # Apply translations if requested:
-                        if sheet.dx ≠ 0 || sheet.dy ≠ 0
-                            upm = ustrip(Float64, sheet.units, 1u"m")
-                            dx = sheet.dx / upm
-                            dy = sheet.dy / upm
-                            translate_gsm!(gsmb, dx, dy, first(region), last(region))
-                        end
-         
+                        gbldup[ig] < 0 && (gsm_save[ig] = gsmb)          
                     end
+                    # Apply translations if requested:
+                    if sheet.dx ≠ 0 || sheet.dy ≠ 0
+                        upm = ustrip(Float64, sheet.units, 1u"m")
+                        dx = sheet.dx / upm
+                        dy = sheet.dy / upm
+                        translate_gsm!(gsmb, dx, dy, first(region), last(region))
+                    end
+
                 else # no sheet
+                    @assert i2 - i1 == 1
                     gsmb = gsm_slab_interface(layers[i1], layers[i2], k0)
                 end
                 gsmc = cascade(gsma, gsmb)
@@ -197,11 +197,10 @@ function _analyze(strata, flist, steering, outlist, resultfile)
             result = Result(gsmc, steer, β⃗₀₀, fghz, layers[1].ϵᵣ, layers[1].μᵣ, 
             layers[1].β₁, layers[1].β₂, layers[end].ϵᵣ, layers[end].μᵣ, 
             layers[end].β₁, layers[end].β₂)
-            push!(results,result)
 
+            ncount += 1
             # Write to output files
-            
-
+            append_result_data(resultfile,string(ncount),result)
             for row in eachrow(outlist)
                 if firstoutput
                     open(row[1], "w") do io
@@ -213,13 +212,13 @@ function _analyze(strata, flist, steering, outlist, resultfile)
                     writedlm(io, permutedims([r(result) for r in row[2]]), ',')
                 end
             end
-            next!(progress)                
+            next!(progress) # Bump progress meter
         end # Frequency loop
     end # steering angle loop
 
     date, clock = split(string(now()),'T')
     @logfile "\n\n PSSFSS analysis exiting on $(date) at $(clock)\n\n"
-    return results
+    return nothing
 end # function
 
 
@@ -399,7 +398,7 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
     ψ₁ = k⃗inc ⋅ sheet.s₁ / one_meter
     ψ₂ = k⃗inc ⋅ sheet.s₂ / one_meter
     @logfile "    Beginning matrix fill for sheet $(is_global)"
-    ymat = filly(k0,u[is_global],layers,s,ψ₁,ψ₂,sheet,rwgdat)
+    ymat = filly(k0,u,layers,s,ψ₁,ψ₂,sheet,rwgdat)
     t_fill = round(time() - t_temp, digits=tdigits)
     @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is_global)"
     # Factor the matrix:

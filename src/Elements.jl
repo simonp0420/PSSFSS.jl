@@ -1,6 +1,6 @@
 module Elements
 
-export rectstrip, polyring, meander, loadedcross, jerusalemcross
+export rectstrip, polyring, meander, loadedcross, jerusalemcross, nullsheet
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
 using ..Sheets: RWGSheet, rotate!, combine, recttri, MV2, SV2
@@ -95,6 +95,27 @@ const optional_kwargs =
         
 """
         
+
+"""
+    nullsheet(;class::Char)
+
+Return a variable of type `RWGSheet` that contains a null sheet.
+
+# Arguments:
+- `class::Char='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface 
+  currents, as used to model a wire or metallic patch-type FSS.  If `'M'`,  the unknowns are
+  magnetic surface currents, as used to model a slot or aperture in a perfectly conducting plane.
+
+
+"""
+function nullsheet(; class::Char='M')::RWGSheet
+    sheet = RWGSheet()
+    sheet.style = "NULL"
+    sheet.class = class
+    return sheet
+end # function
+
+
 
 """
     rectstrip(;Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, units::PSSFSSLength, kwargs...)
@@ -580,6 +601,7 @@ function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
 
 
     # Set the face sheet resistance values.
+    sheet.fr = zeros(size(sheet.fv,2))
     Rsheet = kwargs[:Rsheet]
     sheet.fr .= Rsheet  # Broadcast value to entire array.
 
@@ -700,7 +722,7 @@ function loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real
     e2[1:11] = 2:12
     e2[12] = 1
     segmarkers[1:12] .= 1
-    areat =  4 * (L1 - L2)/2 * L2 # total area for solid cross
+    areat =  2 * (L1 - L2) * L2 # total area for solid cross
     
     if 2w < L2
         #  Set up inner boundary for annulus:
@@ -721,7 +743,7 @@ function loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real
         e2[24] = 13
         segmarkers[13:24] .= 2
         holes = [holes ρ₀]
-        areat -= 4 * (L1 - 2w) * (L2 - 2w)  # Subract inner void
+        areat -= 2 * (L1 - L2) * (L2 - 2w)  # Subract inner void
     end      
 
     if orient ≠ 0

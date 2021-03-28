@@ -1,5 +1,5 @@
 module Outputs
-export @outputs, Result
+export @outputs, Result, append_result_data, read_result_file, extract_result_file
 
 using LinearAlgebra: ⋅, norm
 using ..Constants: c₀, twopi
@@ -9,6 +9,8 @@ using ..Elements: s₁s₂2β₁β₂
 using ..Modes: zhatcross
 using Unitful
 using StaticArrays: @SVector
+using JLD2: JLD2, jldopen
+using FileIO: load
 
 @enum HorV H=1 V=2
 @enum RorL R=1 L=2
@@ -232,16 +234,22 @@ S22IMAG(m,n) = simag(2,2,m,n)
 ΔIPD21 = Outfun("ΔIPD") do o
     rad2deg(angle(getsijmn(2,1,1,1,o)/getsijmn(2,1,2,2,o)))
 end
+DIPD21 = ΔIPD21
+
 ΔIPD12 = Outfun("ΔIPD") do o
     rad2deg(angle(getsijmn(1,2,1,1,o)/getsijmn(1,2,2,2,o)))
 end
+DIPD12 = ΔIPD12
 
 ΔIL21 = Outfun("ΔIL") do o
     10*log10(abs2(getsijmn(2,1,1,1,o)/getsijmn(2,1,2,2,o)))
 end
+DIL21 = ΔIL21
+
 ΔIL12 = Outfun("ΔIL") do o
     10*log10(abs2(getsijmn(1,2,1,1,o)/getsijmn(1,2,2,2,o)))
 end
+DIL12 = ΔIL12
 
 ardb(i,j,n) = Outfun("ARdB$i$j($n)") do o
     jP = im * getsijmn(i,j,1,n,o)/getsijmn(i,j,2,n,o) # Modified Linear Pol. ratio
@@ -353,6 +361,54 @@ macro outputs(args...)
         end
     end
     tuple([eval(a) for a in newargs]...)
+end
+
+
+"""
+    append_result_data(fname::AbstractString, gname::String, result::Result)
+
+Append a `Result` instance to a result file for a particular frequency and pair of scan parameters.
+
+## Arguments
+
+- `fname`: The name of the result file to be appended to.
+- `gname`: The unique `JLD2` group name to be used in the file for grouping the data 
+  associated with this frequency/scan case.
+- `result`:  The `Result` data to be written to the file.
+"""
+function append_result_data(fname::AbstractString, gname::String, result::Result)
+    jldopen(fname, "a") do fid
+        group = JLD2.Group(fid, gname)
+        group["result"] = result
+    end
+    return    
+end
+
+"""
+    read_result_file(fname::AbstractString) --> Vector{Result}
+
+Read a result file (in JLD2 format) and return a vector of results.    
+"""
+function read_result_file(fname::AbstractString)::Vector{Result}
+    dat = load(fname) # a Dict
+    ks = collect(keys(dat))
+    sort!(ks, by = x -> parse(Int,split(x, '/')[1]))
+    Result[dat[k] for k in ks]
+end
+
+"""
+    extract_result_file(fname::AbstractString, ops::Tuple) --> Matrix
+
+Return a matrix of outputs extracted from a results file.  `ops` is a 
+Tuple returned by the `@outputs` macro.
+
+### Example
+    ops = @outputs FGHz S11DB(H,H) S11ANG(H,H)
+    extract_results_file("pssfss.res", ops)
+"""
+function extract_result_file(fname::AbstractString, ops::Tuple)
+    results = read_result_file(fname)
+    [o(r) for r in results, o in ops]
 end
 
 end # module
