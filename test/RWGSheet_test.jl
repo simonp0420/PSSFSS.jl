@@ -1,9 +1,9 @@
 using PSSFSS
-import PSSFSS.Sheets: MV2, recttri, combine, read_sheet_data, write_sheet_data
+import PSSFSS.Sheets: SV2, recttri, combine, read_sheet_data, write_sheet_data
 using Test
 
-bl = MV2([0.,0.])
-tr = MV2([1.,1.])
+bl = SV2([0.,0.])
+tr = SV2([1.,1.])
 nx = ny = 1
 sh1 = recttri(bl, tr, nx, ny)   
 @testset "recttri" begin
@@ -18,8 +18,8 @@ sh1 = recttri(bl, tr, nx, ny)
     @test sh1.fv == reshape([1,4,3, 1,2,4], 3,2)
 end
 
-bl = MV2([1.,0.])
-tr = MV2([2.,1.])
+bl = SV2([1.,0.])
+tr = SV2([2.,1.])
 nx = ny = 1
 sh2 = recttri(bl, tr, nx, ny)
 dup_coor = 'x'
@@ -34,8 +34,8 @@ sh3 = combine(sh1, sh2, dup_coor, dup_coor_value)
 end
 
 
-bl = MV2([0.,1.])
-tr = MV2([1.,2.])
+bl = SV2([0.,1.])
+tr = SV2([1.,2.])
 nx = ny = 1
 sh2 = recttri(bl, tr, nx, ny)
 dup_coor = 'y'
@@ -49,8 +49,8 @@ sh3 = combine(sh1, sh2, dup_coor, dup_coor_value)
     @test sh3.fv == [1 1 3 3; 4 2 6 4; 3 4 5 6]
 end
 
-bl = MV2([1.,1.])
-tr = MV2([2.,2.])
+bl = SV2([1.,1.])
+tr = SV2([2.,2.])
 nx = ny = 1
 sh2 = recttri(bl, tr, nx, ny)
 dup_coor = 'y'
@@ -65,8 +65,8 @@ sh3 = combine(sh1, sh2, dup_coor, dup_coor_value)
     @test sh3.fv == [1 1 4 4; 4 2 7 5; 3 4 6 7]
 end
 
-bl = MV2([2.,0.])
-tr = MV2([3.,1.])
+bl = SV2([2.,0.])
+tr = SV2([3.,1.])
 nx = ny = 1
 sh2 = recttri(bl, tr, nx, ny)
 dup_coor = ' '

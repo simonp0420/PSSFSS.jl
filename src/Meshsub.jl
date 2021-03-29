@@ -4,7 +4,7 @@ export meshsub
 
 using Printf: @sprintf
 using Triangulate: TriangulateIO, triangulate
-using ..Sheets: RWGSheet, MV2
+using ..Sheets: SV2, RWGSheet
 
 
 """
@@ -85,7 +85,7 @@ function meshsub(;points::Matrix{<:Real}, seglist::Matrix{<:Integer},
     # Set up the sheet data structures:
     sh = RWGSheet()
     plist = triout.pointlist
-    sh.ρ = [MV2(plist[:,i]) for i in 1:size(plist, 2)]
+    sh.ρ = [SV2(plist[:,i]) for i in 1:size(plist, 2)]
     sh.e1 = triout.edgelist[1,:]
     sh.e2 = triout.edgelist[2,:]
     sh.fv = copy(triout.trianglelist)

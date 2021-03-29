@@ -1,17 +1,16 @@
 module Sheets
 
-export RWGSheet, read_sheet_data, write_sheet_data, find_unique_periods,
-       rotate!, combine, recttri, MV2, SV2
+export RWGSheet, read_sheet_data, write_sheet_data, find_unique_periods
+export rotate!, combine, recttri, SV2, MV2
 
+using StaticArrays: SVector, MVector
 using ..PSSFSSLen
 using JLD2
 using LinearAlgebra: norm
 using RecipesBase
 
-using StaticArrays
 const MV2 = MVector{2,Float64}
 const SV2 = SVector{2,Float64}
-MSV2 = Union{MV2,SV2}
 
 abstract type Sheet end
 
@@ -19,10 +18,10 @@ abstract type Sheet end
 mutable struct RWGSheet <: Sheet
   style::String 
   units::PSSFSSLength # Length unit
-  s₁::MV2 # Direct lattice vector (specified units)
-  s₂::MV2 # Direct lattice vector (specified units)
-  β₁::MV2 # Reciprocal lattice vector (1/(specified units))
-  β₂::MV2 # Reciprocal lattice vector (1/(specified units))
+  s₁::SV2 # Direct lattice vector (specified units)
+  s₂::SV2 # Direct lattice vector (specified units)
+  β₁::SV2 # Reciprocal lattice vector (1/(specified units))
+  β₂::SV2 # Reciprocal lattice vector (1/(specified units))
   dx::Float64 # Unit cell displacment in x (in specified units)
   dy::Float64 # Unit cell displacment in y (in specified units)
   rot::Float64 # Rotation angle for unit cell (deg)
@@ -62,10 +61,10 @@ import Base.==
 
 # Add a zero-argument constructor:
 RWGSheet() = RWGSheet("", u"mm",            # style, units
-                      MV2([0.0,0.0]),       # s₁
-                      MV2([0.0,0.0]),       # s₂
-                      MV2([0.0,0.0]),       # β₁
-                      MV2([0.0,0.0]),       # β₂
+                      SV2([0.0,0.0]),       # s₁
+                      SV2([0.0,0.0]),       # s₂
+                      SV2([0.0,0.0]),       # β₁
+                      SV2([0.0,0.0]),       # β₂
                       0.0, 0.0, 0.0,        # dx, dy, rot
                       SV2[],                # ρ
                       Int[], Int[],         # e1, e2
@@ -369,12 +368,12 @@ end
 
 
 """
-    recttri(rhobl::MVector{2,Float64}, rhotr::MVector{2,Float64}, nx::Int, ny::Int)
+    recttri(rhobl::SVector{2,Float64}, rhotr::SVector{2,Float64}, nx::Int, ny::Int)
 
 Create a variable of type `RWGSheet` that contains the triangulation for 
 a rectangular strip.  The fields `ρ`, `e1`, `e2`, `fv`, and `fe` properly initialized.
 """
-function recttri(rhobl::MV2, rhotr::MV2, nx::Int, ny::Int)   
+function recttri(rhobl::SV2, rhotr::SV2, nx::Int, ny::Int)   
     nodecount = (nx+1) * (ny+1)  # Number of nodes.
     edgecount = 3*nx*ny + nx + ny  # Number of edges.
     facecount = 2*nx*ny  # Number of faces.

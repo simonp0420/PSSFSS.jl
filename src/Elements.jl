@@ -3,7 +3,7 @@ module Elements
 export rectstrip, polyring, meander, loadedcross, jerusalemcross, nullsheet
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
-using ..Sheets: RWGSheet, rotate!, combine, recttri, MV2, SV2
+using ..Sheets: RWGSheet, rotate!, combine, recttri, SV2
 using ..Meshsub: meshsub
 using StaticArrays: SA
 using LinearAlgebra: ×, norm, ⋅
@@ -28,8 +28,8 @@ function s₁s₂2β₁β₂(s₁,s₂)
     fact = 2π / norm(s1 × s2)
     β1 = fact .* s2 × [0,0,1]
     β2 = fact .* [0,0,1] × s1
-    β₁ = MV2(β1[1:2])
-    β₂ = MV2(β2[1:2])
+    β₁ = SV2(β1[1:2])
+    β₂ = SV2(β2[1:2])
     return β₁, β₂
 end
 
@@ -146,8 +146,8 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     sheet.style = "strip"
     sheet.units = units
 
-    sheet.s₁ = MV2([Px,0.0])
-    sheet.s₂ = MV2([0.0,Py])
+    sheet.s₁ = SV2([Px,0.0])
+    sheet.s₂ = SV2([0.0,Py])
     sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
         
     nodecount = (Nx+1) * (Ny+1)  # Number of nodes.
@@ -155,7 +155,7 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     facecount = 2*Nx*Ny  # Number of faces.
 
     # Setup nodes
-    sheet.ρ = MV2.([zeros(2) for i in 1:nodecount])
+    sheet.ρ = SV2.([zeros(2) for i in 1:nodecount])
     x0 = 0.5 * (Px - Lx)  # Center strip in unit cell
     y0 = 0.5 * (Py - Ly)  # Center strip in unit cell
     n = 0  # Initialize node index.
@@ -163,7 +163,7 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
         yj = j * (Ly / Ny)
         for i in 0:Nx
             n += 1  # Bump node index.
-            sheet.ρ[n] = MV2([x0 + i * (Lx / Nx), y0 + yj])
+            sheet.ρ[n] = SV2([x0 + i * (Lx / Nx), y0 + yj])
         end
     end
     
@@ -237,7 +237,7 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = MV2([kwargs[:dx], kwargs[:dy]])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
     if dxdy ≠ [0.,0.]
         sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
     end
@@ -332,11 +332,11 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     areat = sum(area) # total area of all rings.
     areatri = areat/ntri # Desired area of a single triangle
 
-    ρ = Array{MV2}(undef, 0)
+    ρ = Array{SV2}(undef, 0)
     e1 = Array{Cint}(undef, 0)
     e2 = Array{Cint}(undef, 0)
     segmarkers = Array{Cint}(undef, 0)
-    holes = Array{MV2}(undef, 0)
+    holes = Array{SV2}(undef, 0)
     boundary = 0
     node = 0
     for iring in 1:nring
@@ -348,7 +348,7 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
                 push!(e1, node)
                 push!(e2, node+1)
                 push!(segmarkers, boundary)
-                push!(ρ, ρ₀ + b[iring] * MV2([reverse(sincosd(orient+(i-1)*α))...]))
+                push!(ρ, ρ₀ + b[iring] * SV2([reverse(sincosd(orient+(i-1)*α))...]))
             end 
             e2[end] -= sides
         else 
@@ -405,7 +405,7 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
                     push!(e1, node)
                     push!(e2, node+1)
                     push!(segmarkers, boundary)
-                    push!(ρ,  ρ₀ + a[iring] * MV2([reverse(sincosd(orient+(i-i1)*α))...]))
+                    push!(ρ,  ρ₀ + a[iring] * SV2([reverse(sincosd(orient+(i-i1)*α))...]))
                 end
                 e2[end] = nodesave
             else
@@ -418,7 +418,7 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
                         push!(e1, node)
                         push!(e2, node+1)
                         push!(segmarkers, boundary)
-                        push!(ρ, ρ₀ + r * MV2([reverse(sincosd(orient+(i-1)*α))...]))
+                        push!(ρ, ρ₀ + r * SV2([reverse(sincosd(orient+(i-1)*α))...]))
                     end
                     e2[end] = nodesave
                 end
@@ -427,11 +427,11 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     end
 
     # Calculation coordinates of "hole" points
-    ρhole = Array{MV2}(undef, 0)
+    ρhole = Array{SV2}(undef, 0)
     a[1] > 0 && push!(ρhole, ρ₀)
     
     for i in 1:nring-1
-        unitvector = MV2([reverse(sincosd(orient))...])
+        unitvector = SV2([reverse(sincosd(orient))...])
         r = 0.5 * (b[i] + a[i+1])
         push!(ρhole, ρ₀ + r * unitvector)
     end
@@ -455,7 +455,7 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = MV2([kwargs[:dx], kwargs[:dy]])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
     if dxdy ≠ [0.,0.]
         sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
     end
@@ -463,8 +463,8 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     sheet.style = "polyring"
     sheet.ξη_check = fillcell
     sheet.units = units
-    sheet.s₁ = MV2(s1)
-    sheet.s₂ = MV2(s2)
+    sheet.s₁ = SV2(s1)
+    sheet.s₂ = SV2(s2)
     sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
 
     return sheet
@@ -530,7 +530,7 @@ function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     check_optional_kw_arguments!(kwargs)
     @testpos(a); @testpos(b); @testpos(h); @testpos(w1); @testpos(w2); @testpos(ntri) 
 
-    ρ = Array{MV2}(undef, 0)
+    ρ = Array{SV2}(undef, 0)
     e1 = Array{Cint}(undef, 0)
     e2 = Array{Cint}(undef, 0)
     segmarkers = Array{Cint}(undef, 0)
@@ -554,48 +554,48 @@ function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     yoffset = (b - h) / 2
     Lx = (a/2 - w1) / 2
     Ly = h - 2w2
-    ρbl = MV2([0.0, yoffset])
-    ρtr = ρbl + MV2([Lx, w2])
+    ρbl = SV2([0.0, yoffset])
+    ρtr = ρbl + SV2([Lx, w2])
     sh1 = recttri(ρbl,ρtr,nx1,ny1)
     # Triangulate third section:
-    ρbl = MV2([Lx, yoffset])
-    ρtr = ρbl + MV2([w1, w2])
+    ρbl = SV2([Lx, yoffset])
+    ρtr = ρbl + SV2([w1, w2])
     sh2 = recttri(ρbl,ρtr,nx2,ny1)
     # Combine them:
     sh3 = combine(sh1, sh2, 'x', Lx)
     # Add to section 5, store result in sh2:
-    ρbl = MV2([Lx, yoffset+w2])
-    ρtr = ρbl + MV2([w1, Ly])
+    ρbl = SV2([Lx, yoffset+w2])
+    ρtr = ρbl + SV2([w1, Ly])
     sh1 = recttri(ρbl, ρtr, nx2, ny2)
     sh2 = combine(sh3, sh1, 'y', ρbl[2])
     #  Add to section 7, store result in sh3
-    ρbl = MV2([Lx, yoffset+w2+Ly])
-    ρtr = ρbl + MV2([w1, w2])
+    ρbl = SV2([Lx, yoffset+w2+Ly])
+    ρtr = ρbl + SV2([w1, w2])
     sh1 = recttri(ρbl, ρtr, nx2, ny1)
     sh3 = combine(sh2, sh1, 'y', ρbl[2])
     #  Add to sections 9 and 10, store result in sh2
-    ρbl = MV2([Lx+w1, yoffset+w2+Ly])
-    ρtr = ρbl + MV2([2*Lx, w2])
+    ρbl = SV2([Lx+w1, yoffset+w2+Ly])
+    ρtr = ρbl + SV2([2*Lx, w2])
     sh1 = recttri(ρbl, ρtr, 2nx1, ny1)
     sh2 = combine(sh3, sh1, 'x', ρbl[1])
     #  Add to section 8, store result in sh3
-    ρbl = MV2([ρtr[1], ρbl[2]])
-    ρtr = ρbl + MV2([w1, w2])
+    ρbl = SV2([ρtr[1], ρbl[2]])
+    ρtr = ρbl + SV2([w1, w2])
     sh1 = recttri(ρbl, ρtr, nx2, ny1)
     sh3 = combine(sh2, sh1, 'x', ρbl[1])
     # Add to section 6, store result in sh2:
-    ρbl = MV2([ρbl[1], yoffset+w2])
-    ρtr = ρbl + MV2([w1, Ly])
+    ρbl = SV2([ρbl[1], yoffset+w2])
+    ρtr = ρbl + SV2([w1, Ly])
     sh1 = recttri(ρbl, ρtr, nx2, ny2)
     sh2 = combine(sh3, sh1, 'y', ρtr[2])
     #  Add to section 4, store result in sh3
-    ρbl = MV2([ρbl[1], yoffset])
-    ρtr = ρbl + MV2([w1, w2])
+    ρbl = SV2([ρbl[1], yoffset])
+    ρtr = ρbl + SV2([w1, w2])
     sh1 = recttri(ρbl, ρtr, nx2, ny1)
     sh3 = combine(sh2, sh1, 'y', ρtr[2])
     # Add to section 2, store result in sh2:
-    ρbl = MV2([ρtr[1], yoffset])
-    ρtr = ρbl + MV2([Lx, w2])
+    ρbl = SV2([ρtr[1], yoffset])
+    ρtr = ρbl + SV2([Lx, w2])
     sh1 = recttri(ρbl, ρtr, nx1, ny1)
     sheet = combine(sh3, sh1, 'x', ρbl[1])
 
@@ -610,11 +610,11 @@ function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     sheet.class = kwargs[:class]
     sheet.style = "meander"
     sheet.units = units
-    sheet.s₁ = MV2([a, 0.0])
-    sheet.s₂ = MV2([0.00, b])
+    sheet.s₁ = SV2([a, 0.0])
+    sheet.s₂ = SV2([0.00, b])
     sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
     rotate!(sheet, kwargs[:rot])
-    dxdy = MV2([kwargs[:dx], kwargs[:dy]])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
     if dxdy ≠ [0.,0.]
         sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
     end
@@ -699,25 +699,25 @@ function loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real
     # Initialization:
     nv = (2w < L2 ? 24 : 12) # Total number of vertices
     ρ₀ = 0.5 * (s1 + s2) # Calculate center of polygon.
-    ρ = Array{MV2}(undef, nv)
+    ρ = Array{SV2}(undef, nv)
     e1 = Array{Cint}(undef, nv)
     e2 = Array{Cint}(undef, nv)
     segmarkers = Array{Cint}(undef, nv)
     holes = Array{Cdouble}(undef, 2,0)
 
     # Set up the (outer) polygon geometry:
-    ρ[1] = MV2([L2/2, L2/2])
-    ρ[2] = MV2([L1/2, ρ[1][2]]) 
-    ρ[3] = MV2([ρ[2][1], -ρ[2][2]])
-    ρ[4] = MV2([ρ[1][1], ρ[3][2]])
-    ρ[5] = MV2([ρ[4][1], -L1/2])
-    ρ[6] = MV2([-ρ[5][1], ρ[5][2]])
-    ρ[7] = MV2([ρ[6][1], ρ[4][2]])
-    ρ[8] = MV2([-ρ[3][1], ρ[7][2]])
-    ρ[9] = MV2([ρ[8][1], ρ[1][2]])
-    ρ[10] = MV2([ρ[7][1], ρ[9][2]])
-    ρ[11] = MV2([ρ[10][1], -ρ[6][2]])
-    ρ[12] = MV2([ρ[1][1], ρ[11][2]])
+    ρ[1] = SV2([L2/2, L2/2])
+    ρ[2] = SV2([L1/2, ρ[1][2]]) 
+    ρ[3] = SV2([ρ[2][1], -ρ[2][2]])
+    ρ[4] = SV2([ρ[1][1], ρ[3][2]])
+    ρ[5] = SV2([ρ[4][1], -L1/2])
+    ρ[6] = SV2([-ρ[5][1], ρ[5][2]])
+    ρ[7] = SV2([ρ[6][1], ρ[4][2]])
+    ρ[8] = SV2([-ρ[3][1], ρ[7][2]])
+    ρ[9] = SV2([ρ[8][1], ρ[1][2]])
+    ρ[10] = SV2([ρ[7][1], ρ[9][2]])
+    ρ[11] = SV2([ρ[10][1], -ρ[6][2]])
+    ρ[12] = SV2([ρ[1][1], ρ[11][2]])
     e1[1:12] = 1:12
     e2[1:11] = 2:12
     e2[12] = 1
@@ -771,7 +771,7 @@ function loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = MV2([kwargs[:dx], kwargs[:dy]])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
     if dxdy ≠ [0.,0.]
         sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
     end
@@ -990,7 +990,7 @@ function jerusalemcross(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = MV2([kwargs[:dx], kwargs[:dy]])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
     if dxdy ≠ [0.,0.]
         sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
     end

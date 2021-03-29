@@ -1,7 +1,7 @@
 module Zint
 
 using StaticArrays: SVector, MVector
-using ..Sheets: SV2, MV2, RWGSheet
+using ..Sheets: SV2, RWGSheet
 using ..Layers: Layer
 using ..RWG: RWGData
 using ..PGF: jksums
@@ -13,7 +13,6 @@ export filljk!, zint
 
 
 zhatcross(t) = [-t[2], t[1]]
-zhatcross(t::MV2) = MV2(-t[2], t[1])
 zhatcross(t::SV2) = SV2(-t[2], t[1])
 
 
@@ -73,7 +72,7 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
     K = zeros(ComplexF64, nufp)
     K_ξ = zeros(ComplexF64, nufp)
     K_η = zeros(ComplexF64, nufp)
-    ρ_r = zeros(typeof(MV2(0.,0.)), nufp)
+    ρ_r = zeros(typeof(SV2(0.,0.)), nufp)
     rinv = zeros(Float64, nufp) 
 
     i2s = CartesianIndices((nface,nface))

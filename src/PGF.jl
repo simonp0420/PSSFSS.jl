@@ -5,7 +5,7 @@ export electric_modal_sum_funcs, magnetic_modal_sum_funcs, jksums
 using LinearAlgebra: norm, ⋅, ×
 using OffsetArrays
 using ..Rings: Ring
-using ..Sheets: MV2
+using ..Sheets: SV2
 using ..Layers: Layer
 using FFTW: fft!
 using ..Constants: tdigits
@@ -343,7 +343,7 @@ end
 
 
 """
-    make_Σm_func(table::AbstractArray, β₁::MV2, β₂::MV2, ψ₁::Real, ψ₂::Real) -> Σm_func
+    make_Σm_func(table::AbstractArray, β₁::SV2, β₂::SV2, ψ₁::Real, ψ₂::Real) -> Σm_func
 
 Return a one-argument function `Σm` that evaluates one of the four modal series defined in
 Equations (5.19) and (5.26) of the theory documentation. The single argument to `Σm` is a 2-vector
@@ -365,7 +365,7 @@ using a 6-point interpolation into a precomputed table.
              precomputed table.
 
 """
-function make_Σm_func(table::AbstractArray, β₁::MV2, β₂::MV2, ψ₁::Real, ψ₂::Real)
+function make_Σm_func(table::AbstractArray, β₁::SV2, β₂::SV2, ψ₁::Real, ψ₂::Real)
     axes(table,1) == axes(table,2) || error("Non-square table")
     mmax = maximum(axes(table,1))
     twopi = 2π

@@ -10,7 +10,7 @@ using Dates: now
 using DelimitedFiles: writedlm
 using Printf: @sprintf
 using LinearAlgebra: ×, norm, ⋅, factorize
-using StaticArrays: MVector, MArray, @SVector
+using StaticArrays: SVector, SArray, @SVector
 using Unitful: ustrip, @u_str
 using Logging: with_logger
 using ProgressMeter
@@ -251,17 +251,18 @@ function calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real,
                                  rwgdat::RWGData, s::Int, k0, k⃗inc, is_global::Int)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
-    acf = MVector(0.0,0.0)
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
     nbf = size(rwgdat.bfe,2) # Number of basis functions
-    bfftstore = zeros(MArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
+    bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
 
     # Compute area correction factors for the mode normalization constants of 
     # the two end regions:
+    tempvec = zeros(2)
     for (i,l) in enumerate(@view layers[[begin,end]])
       area_i = twopi * twopi / norm(l.β₁ × l.β₂)
-      acf[i] = √(area_i / area)
+      tempvec[i] = √(area_i / area)
     end
+    acf = SVector(tempvec[1], tempvec[2])
 
     # Set up the partial GSM due to incident field
     (gsm, tlgfvi, vincs) = gsm_electric_gblock(layers, s, k0)
@@ -371,17 +372,19 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
                                  rwgdat::RWGData, s::Int, k0, k⃗inc, is_global::Int)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
-    acf = MVector(0.0,0.0)
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
     nbf = size(rwgdat.bfe,2) # Number of basis functions
-    bfftstore = zeros(MArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
+    bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
 
     # Compute area correction factors for the mode normalization constants of 
     # the two end regions:
+    tempvec = zeros(2)
     for (i,l) in enumerate(@view layers[[begin,end]])
       area_i = twopi * twopi / norm(l.β₁ × l.β₂)
-      acf[i] = √(area_i / area)
+      tempvec[i] = √(area_i / area)
     end
+    acf = SVector(tempvec[1], tempvec[2])
+
 
     # Set up the partial GSM due to incident field
     (gsm, tlgfiv, iincs) = gsm_magnetic_gblock(layers, s, k0)

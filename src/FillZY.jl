@@ -9,7 +9,7 @@ using Unitful # for ustrip and u"m"
 using LinearAlgebra: norm, ⋅
 using ..Constants: μ₀, ϵ₀, c₀, twopi, fourpi, tol, tdigits
 using ..Layers: Layer
-using ..Sheets: RWGSheet #, MV2, SV2
+using ..Sheets: RWGSheet 
 using ..RWG: RWGData
 using ..PGF: c3_calc, d3_calc
 using ..Zint: zint, filljk!, vtxcrd

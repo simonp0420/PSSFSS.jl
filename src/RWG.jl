@@ -16,8 +16,8 @@ module RWG
 export RWGData, setup_rwg, edge_current_unit_vector, rwgbfft!
 
 
-using ..Sheets: RWGSheet, MV2, SV2
-using StaticArrays: SVector, MVector, MArray
+using ..Sheets: RWGSheet, SV2
+using StaticArrays: SVector, MVector, SArray
 using LinearAlgebra: ⋅, norm
 using NearestNeighbors: KDTree, inrange
 using OffsetArrays
@@ -437,26 +437,26 @@ function rwgbfft!(ft, rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁
     kmag = sqrt(kmagsq)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
 
-    lvec = zeros(MV2, 3)
-    rc = zeros(MV2, 3)
+    lvec = zeros(SV2, 3)
+    rc = zeros(SV2, 3)
     j0kl2 = MVector{3,Float64}(0.0, 0.0, 0.0)
-    rtrm2 = zeros(MV2, 3)
+    rtrm2 = zeros(SV2, 3)
     cphasv = MVector{3,ComplexF64}(0.0im, 0.0im, 0.0im)
     csum = MVector{2,ComplexF64}(0.0+0.0im, 0.0+0.0im)
-    centroid = MVector{2,Float64}(0.0, 0.0)
-    ft0 = MVector{2,ComplexF64}(0.0+0.0im, 0.0+0.0im)
+    centroid = SVector{2,Float64}(0.0, 0.0)
+    ft0 = SVector{2,ComplexF64}(0.0+0.0im, 0.0+0.0im)
     for iface in 1:nface
         r =  vtxcrd_m(iface, sheet, one_meter)
         lvec .= (r[next[i]] - r[i] for i in 1:3) # Edge vectors
         rc .= (r[i] + 0.5 * lvec[i] for i in 1:3)  # Edge centers
         if kmag * maximum(norm.(lvec)) < 1e-4 # small k
-            centroid .= mean(r)   #  Compute centroid coordinates.
+            centroid = mean(r)   #  Compute centroid coordinates.
             cphase = cis(k ⋅ centroid) #  Phase factor at centroid.
             for i in 1:3 #  Loop over three edges of the triangle
                 ie = sheet.fe[i,iface] # Global index for edge opposite r(i).
                 ib = rwgdat.ebf[ie]    # Global basis function index.
                 ib == 0 && continue
-                ft0 .= 0.5 * (centroid - r[i])
+                ft0 = 0.5 * (centroid - r[i])
                 if rwgdat.bff[1,ib] == iface  # Plus triangle
                     ft[ib] += ft0 * (cphase * floquet_factor[rwgdat.eci[ie]])
                 elseif rwgdat.bff[2,ib] == iface # Minus triangle

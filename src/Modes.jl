@@ -2,7 +2,7 @@ module Modes
 
 using Unitful: ustrip, @u_str
 using LinearAlgebra: norm, ⋅, ×
-using StaticArrays: MVector
+using StaticArrays: SVector
 using ..Constants: twopi, η₀, dbmin
 using ..Layers: Layer, TEorTM, TE, TM
 using ..Sheets: Sheet, find_unique_periods
@@ -88,8 +88,8 @@ function choose_layer_modes!(strata, gbl, k0max, dbmin=dbmin)
             l.P = [TE, TM]
             l.M = [0, 0]
             l.N = [0, 0]
-            l.β₁ = MVector(twopi, 0.0)
-            l.β₂ = MVector(0.0, twopi) # cell 1m in x by 1m in y.
+            l.β₁ = SVector(twopi, 0.0)
+            l.β₂ = SVector(0.0, twopi) # cell 1m in x by 1m in y.
         end
         mset .= true
         notinablock = 1:length(layers)
@@ -282,7 +282,7 @@ There is no explicit output, but the fields of `layer` will be modified, includi
 `β`, `tvec`, `γ`, `c`, and `Y`. 
 """
 function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
-    β₀₀ = MVector(kvec[1], kvec[2])
+    β₀₀ = SVector(kvec[1], kvec[2])
     β₁, β₂ = layer.β₁, layer.β₂
     area = twopi^2 / norm(β₁ × β₂)
     ksq = k0^2 * layer.ϵᵣ * layer.μᵣ
@@ -290,7 +290,7 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
         m,n,p = layer.M[mode], layer.N[mode], layer.P[mode]
         β = β₀₀ + m*β₁ + n*β₂
         β² = β ⋅ β
-        β̂ = β²*area < 1e-14 ? MVector(1.0, 0.0) : β/norm(β)
+        β̂ = β²*area < 1e-14 ? SVector(1.0, 0.0) : β/norm(β)
         layer.β[mode] = β
         layer.γ[mode] = γ = mysqrt(β² - ksq)
         if p == TE

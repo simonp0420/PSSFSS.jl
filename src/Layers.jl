@@ -6,7 +6,7 @@
 module Layers
 
 using ..PSSFSSLen  # For length units and ustrip only
-using StaticArrays: MVector
+using StaticArrays: SVector
 
 export Layer, Gblock, TEorTM, TE, TM
 
@@ -56,14 +56,14 @@ mutable struct Layer
     P::Vector{TEorTM}
     M::Vector{Int}
     N::Vector{Int}
-    β₁::MVector{2,Float64}  # Reciprocal lattice vector (1/m)
-    β₂::MVector{2,Float64}  # Reciprocal lattice vector (1/m)
+    β₁::SVector{2,Float64}  # Reciprocal lattice vector (1/m)
+    β₂::SVector{2,Float64}  # Reciprocal lattice vector (1/m)
     # Transverse portion of modal propagation vectors (radians/meter):
-    β::Vector{MVector{2,Float64}}
+    β::Vector{SVector{2,Float64}}
     γ::Vector{ComplexF64} # Modal attenuation constants (nepers/meter)
     Y::Vector{ComplexF64} # Modal admittances (Siemens)
     c::Vector{ComplexF64} # Modal normalization constants (volts/meter)
-    tvec::Vector{MVector{2,Float64}} # Modal unit electric field vectors (unitless)
+    tvec::Vector{SVector{2,Float64}} # Modal unit electric field vectors (unitless)
     
     # Interior constructor:
     function Layer(;name="Layer", width::Unitful.Length=0u"mm", ϵᵣ::Real=1.0,
@@ -71,9 +71,9 @@ mutable struct Layer
                     cϵᵣ = ϵᵣ * complex(1.0, -tanδ)
                     cμᵣ = μᵣ * complex(1.0, -mtanδ) 
                     new(name, cϵᵣ, cμᵣ, width, float(ustrip(u"m", width)),
-                        TEorTM[], Int[], Int[], MVector{2}([0.,0.]), MVector{2}([0.,0.]), 
-                        MVector{2,Float64}[], ComplexF64[], ComplexF64[], ComplexF64[], 
-                        MVector{2,Float64}[])
+                        TEorTM[], Int[], Int[], SVector{2}([0.,0.]), SVector{2}([0.,0.]), 
+                        SVector{2,Float64}[], ComplexF64[], ComplexF64[], ComplexF64[], 
+                        SVector{2,Float64}[])
     end # function
 end # struct
 

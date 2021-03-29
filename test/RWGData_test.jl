@@ -1,6 +1,6 @@
 using PSSFSS
 using PSSFSS.RWG
-using StaticArrays: MArray
+using StaticArrays: SArray
 using Test
 
 
@@ -40,7 +40,7 @@ end
     sheet = rectstrip(Lx=1, Ly=1, Px=1, Py=1, Nx=2, Ny=1, units=mm, fufp=false)
     rwgdat = setup_rwg(sheet)
     nbf = size(rwgdat.bff,2)
-    ft = zeros(MArray{Tuple{2},ComplexF64,1,2}, (nbf))
+    ft = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf))
     k = [0.,0.]; ψ₁ = 0.0; ψ₂ = 0.0
     rwgbfft!(ft, rwgdat, sheet, k, ψ₁, ψ₂)
     @test ft[1] ≈ [0.0001666666666666667 + 0.0im, -0.0003333333333333334 + 0.0im]
@@ -50,7 +50,7 @@ end
     sheet = rectstrip(Lx=1, Ly=1, Px=1, Py=1, Nx=2, Ny=1, units=inch, fufp=false)
     rwgdat = setup_rwg(sheet)
     nbf = size(rwgdat.bff,2)
-    ft = zeros(MArray{Tuple{2},ComplexF64,1,2}, (nbf))
+    ft = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf))
     k = [20.0,-30.3]; ψ₁ = 0.8; ψ₂ = -0.7
     rwgbfft!(ft, rwgdat, sheet, k, ψ₁, ψ₂)
     @test ft[1] ≈ [0.003986416685586114 - 0.0010511300702857503im, -0.008079847138694855 + 0.0021304773084817956im]
