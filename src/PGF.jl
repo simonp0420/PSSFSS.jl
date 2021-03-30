@@ -389,16 +389,26 @@ function make_Σm_func(table::AbstractArray, β₁::SV2, β₂::SV2, ψ₁::Real
             p = mmax * ξ₁ - m 
             n = trunc(Int, mmax * ξ₂)
             q = mmax * ξ₂ - n 
-            pp = 1 - p  # p' in interpolation formula
-            qp = 1 - q  # q' in interpolation formula
+
+            p² = p*p
+            q² = q*q
+            pq = p*q
+
             # Perform the interpolation using formula 25.2.67 of AMS-55:
-            Σm = q*(q-1)/2 * table[m,n-1] +
-                 p*(p-1)/2 * table[m-1,n] + 
-                (1 + p*q - p*p - q*q) * table[m,n] +
-                p*(p - 2*q + 1)/2 * table[m+1,n] +
-                q*(q - 2*p + 1)/2 * table[m,n+1] +
-                p*q * table[m+1,n+1] 
-            # Add any phase shift due to range:
+            Σm = 0.5*(q² - q) * table[m,n-1] +
+                 0.5*(p² - p) * table[m-1,n] + 
+                (1 + pq - p² - q²) * table[m,n] +
+                0.5*(p² - 2pq + p) * table[m+1,n] +
+                0.5*(q² - 2pq + q) * table[m,n+1] +
+                pq * table[m+1,n+1] 
+#=                Σm = q*(q-1)/2 * table[m,n-1] +
+                p*(p-1)/2 * table[m-1,n] + 
+               (1 + p*q - p*p - q*q) * table[m,n] +
+               p*(p - 2*q + 1)/2 * table[m+1,n] +
+               q*(q - 2*p + 1)/2 * table[m,n+1] +
+               p*q * table[m+1,n+1] 
+=#
+           # Add any phase shift due to range:
             if mshift ≠ 0 || nshift ≠ 0
                 Σm *= cis(-(mshift*ψ₁ + nshift*ψ₂)) # Eq. (5.30)
             end
