@@ -51,6 +51,7 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
     
 
     closed = true              # Always use singularity extraction.
+    spinlock = Threads.SpinLock()
     nbf = size(rwgdat.bfe, 2)
     zmat = zeros(ComplexF64, nbf, nbf)
 
@@ -106,7 +107,10 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
     end
 
     t1 = time_ns()
-    for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
+    Threads.@threads for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
+        zcontrib = zeros(ComplexF64, 9)
+        mbfsave = ones(Int, 9)
+        sbfsave = ones(Int, 9)
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
@@ -153,8 +157,13 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
         ρc2 =  0.5 * [rmc - rm[i] for i in 1:3]
       
         # Loop over the face pairs in this equivalence class:
-        for (i0, ifmifs) in enumerate(rwgdat.ufp2fp[iufp])
-            rowcol = i2s[ifmifs]
+        for (i0, ifmifs2) in enumerate(rwgdat.ufp2fp[iufp])
+            zcontrib .= zero(eltype(zcontrib))
+            mbfsave .= one(eltype(mbfsave))
+            sbfsave .= one(eltype(mbfsave))
+            savecounter = 0
+
+            rowcol = i2s[ifmifs2]
             ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
             is = @view metal.fe[:,ifs]      # Obtain the three edges of source tri.
             i_m = @view metal.fe[:,ifm]      # Obtain the three edges of the match tri.
@@ -188,6 +197,7 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
           
                 # Now loop over each edge of the match triangle:
                 for iml in 1:3 # iml is local edge index, i_m[iml] is global index.
+                    savecounter += 1
                     self_edge = i_m[iml] == is[isl] # Match edge = Source edge?
                     mbf = ebf[i_m[iml]]  # Match basis function for this match edge.
                     mbf == 0 && continue  # no basis function defined for this match tri edge
@@ -202,7 +212,10 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
                     # Compute one of the dot products in Eq (7-15) apart from sign:
                     dotprod = ρc2[iml] ⋅ A_i
                     # Add contribution to the impedance matrix
-                    zmat[mbf,sbf] += match_flag * (im*ω*dotprod - Φ_i)
+                    mbfsave[savecounter] = mbf
+                    sbfsave[savecounter] = sbf
+                    zcontrib[savecounter] += match_flag * (im*ω*dotprod - Φ_i)
+                    #zmat[mbf,sbf] += match_flag * (im*ω*dotprod - Φ_i)
                     # Add surface loading, if applicable:
                     if self_tri && metal.fr[ifm] ≠ 0
                         if self_edge
@@ -212,10 +225,16 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
                             Zload = metal.fr[ifs] / area48 * source_flag * match_flag * 
                                 (ls[isl]^2  +  ls[iml]^2  - 3 * ls[third[isl,iml]]^2) # Eq. (7-35)
                         end
-                        zmat[mbf,sbf] += Zload
+                        zcontrib[savecounter] += Zload
+                        #zmat[mbf,sbf] += Zload
                     end
                 end 
             end # loop over isl, source triangle edges
+            Threads.lock(spinlock)
+                @inbounds for kkk in 1:9
+                    zmat[mbfsave[kkk], sbfsave[kkk]] += zcontrib[kkk]
+                end
+            Threads.unlock(spinlock)
         end # face pairs in this equivalence class
     end # facepair loop
     t2 = time_ns()
@@ -253,7 +272,7 @@ Fill the generalized impedance matrix for an FSS of electric current type.
 function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwgdat)
 
     closed = true              # Always use singularity extraction.
-
+    spinlock = Threads.SpinLock()
     nbf = size(rwgdat.bfe, 2)
     ymat = zeros(ComplexF64, nbf, nbf)
 
@@ -315,7 +334,10 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
     end
 
     t1 = time_ns()
-    for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
+    Threads.@threads for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
+        ycontrib = zeros(ComplexF64, 9)
+        mbfsave = ones(Int, 9)
+        sbfsave = ones(Int, 9)
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix.
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
@@ -356,6 +378,11 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
       
         # Loop over the face pairs this equivalence class:
         for (i0, ifmifs) in enumerate(rwgdat.ufp2fp[iufp])
+            ycontrib .= zero(eltype(ycontrib))
+            mbfsave .= one(eltype(mbfsave))
+            sbfsave .= one(eltype(mbfsave))
+            savecounter = 0
+    
             rowcol = i2s[ifmifs]
             ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
             is = @view apert.fe[:,ifs]      # Obtain the three edges of source tri.
@@ -391,6 +418,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
           
                 # Now loop over each edge of the match triangle:
                 for iml in 1:3 # iml is local edge index, im[iml] is global index.
+                    savecounter += 1
                     self_edge = i_m[iml] == is[isl] # Match edge = Source edge?
                     mbf = ebf[i_m[iml]]  # Match basis function for this edge.
                     mbf == 0 && continue # no basis function defined for this edge
@@ -406,9 +434,17 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
                     dotprod = ρc2[iml] ⋅ F_i
             
                     # Add contribution to the admittance matrix#
-                    ymat[mbf,sbf] += match_flag * (-im*ω*dotprod - Ψ_i)
+                    mbfsave[savecounter] = mbf
+                    sbfsave[savecounter] = sbf
+                    ycontrib[savecounter] += match_flag * (-im*ω*dotprod - Ψ_i)
+                    #ymat[mbf,sbf] += match_flag * (-im*ω*dotprod - Ψ_i)
                 end
             end # loop over source edges
+            Threads.lock(spinlock)
+                @inbounds for kkk in 1:9
+                    ymat[mbfsave[kkk], sbfsave[kkk]] += ycontrib[kkk]
+                end
+            Threads.unlock(spinlock)
         end
     end # loop over face pairs
     t2 = time_ns()
