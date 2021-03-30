@@ -9,7 +9,7 @@ using Reexport
 using Dates: now
 using DelimitedFiles: writedlm
 using Printf: @sprintf
-using LinearAlgebra: ×, norm, ⋅, factorize
+using LinearAlgebra: ×, norm, ⋅, factorize, ldiv!
 using StaticArrays: SVector, SArray, @SVector
 using Unitful: ustrip, @u_str
 using Logging: with_logger
@@ -321,7 +321,7 @@ function calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real,
             imat = [b ⋅ sourcevec for b in bfftstore[:,sr,qp]] # Eq. (7.39)
             # Solve the matrix equation
             t_solve1 = time()
-            imat = zmatf \ imat
+            ldiv!(zmatf, imat)
             t_solve2 = time()
             t_solve += t_solve2 - t_solve1
             nsolve += 1
@@ -445,7 +445,7 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
             vmat = [b ⋅ sourcevec for b in bfftstore[:,sr,qp]] # Eq. (7.64)
             # Solve the matrix equation
             t_solve1 = time()
-            vmat = ymatf \ vmat
+            ldiv!(ymatf, vmat)
             t_solve2 = time()
             t_solve += t_solve2 - t_solve1
             nsolve += 1
