@@ -3,7 +3,7 @@ export fillz, filly
 
 
 using Statistics: mean
-using StaticArrays: SMatrix
+using StaticArrays: SMatrix, MVector
 using OffsetArrays
 using Unitful # for ustrip and u"m"
 using LinearAlgebra: norm, ⋅
@@ -108,9 +108,9 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
 
     t1 = time_ns()
     Threads.@threads for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
-        zcontrib = zeros(ComplexF64, 9)
-        mbfsave = ones(Int, 9)
-        sbfsave = ones(Int, 9)
+        zcontrib = MVector{9,ComplexF64}(0im, 0im, 0im, 0im, 0im, 0im, 0im, 0im, 0im) 
+        mbfsave = MVector{9,Int}(0, 0, 0, 0, 0, 0, 0, 0, 0) 
+        sbfsave = MVector{9,Int}(0, 0, 0, 0, 0, 0, 0, 0, 0) 
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
@@ -231,7 +231,7 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
                 end 
             end # loop over isl, source triangle edges
             Threads.lock(spinlock)
-                @inbounds for kkk in 1:9
+                @inbounds for kkk in 1:savecounter
                     zmat[mbfsave[kkk], sbfsave[kkk]] += zcontrib[kkk]
                 end
             Threads.unlock(spinlock)
@@ -335,9 +335,9 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
 
     t1 = time_ns()
     Threads.@threads for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
-        ycontrib = zeros(ComplexF64, 9)
-        mbfsave = ones(Int, 9)
-        sbfsave = ones(Int, 9)
+        ycontrib = MVector{9,ComplexF64}(0im, 0im, 0im, 0im, 0im, 0im, 0im, 0im, 0im) 
+        mbfsave = MVector{9,Int}(0, 0, 0, 0, 0, 0, 0, 0, 0) 
+        sbfsave = MVector{9,Int}(0, 0, 0, 0, 0, 0, 0, 0, 0) 
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix.
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
@@ -380,7 +380,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
         for (i0, ifmifs) in enumerate(rwgdat.ufp2fp[iufp])
             ycontrib .= zero(eltype(ycontrib))
             mbfsave .= one(eltype(mbfsave))
-            sbfsave .= one(eltype(mbfsave))
+            sbfsave .= one(eltype(sbfsave))
             savecounter = 0
     
             rowcol = i2s[ifmifs]
@@ -433,7 +433,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
                     # Compute one of the dot products in Eq (7-53) apart from sign:
                     dotprod = ρc2[iml] ⋅ F_i
             
-                    # Add contribution to the admittance matrix#
+                    # Add contribution to the admittance matrix
                     mbfsave[savecounter] = mbf
                     sbfsave[savecounter] = sbf
                     ycontrib[savecounter] += match_flag * (-im*ω*dotprod - Ψ_i)
@@ -441,7 +441,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
                 end
             end # loop over source edges
             Threads.lock(spinlock)
-                @inbounds for kkk in 1:9
+                @inbounds for kkk in 1:savecounter
                     ymat[mbfsave[kkk], sbfsave[kkk]] += ycontrib[kkk]
                 end
             Threads.unlock(spinlock)
