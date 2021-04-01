@@ -739,30 +739,21 @@ blocks for the FSS structure.
 
 ## Input arguments:
 
-- `strata`: A vector whose elements are either `Layer` or `Sheet` objects. `strata` defines the planar
-geometry being analyzed.
+- `layers`: A vector of `Layer` objects.
+- `sheets`: A vector of `Sheet` objects.
+- `junc`: An integer vector containing in `junc[k]` the sheet number present at junction `k` or `0`
+  if no sheet is present.
 - `k0min`:    The minimum free-space wavenumber (rad/m) for all analysis cases.
 
 ## Return value:
 
 - `gbl`:  A vector of `Gblock` elements defining the GBLOCKS used to analyze the complete FSS structure.
 """
-function choose_gblocks(strata, k0min)::Vector{Gblock}
-    T = Union{Layer,Sheet}
-    all(t isa T for t in strata) || error("strata elements must be of type Sheet or Layer")
-    islayer = map(t -> t isa Layer, strata)
-    layers = @view strata[islayer]
+function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int}, 
+                                                                     k0min::Float64)::Vector{Gblock}
     nl = length(layers)
     nj = nl-1 # number of dielectric junctions
-    issheet = map(x -> x isa Sheet, strata)
-    sheets = @view strata[issheet]
     ns = length(sheets)
-    if issheet[1] || issheet[end]
-        error("First and last strata must be dielectric layers")
-    end
-    if ns > 1 && any(diff(findall(issheet)) .== 1)
-        error("Adjacent sheets must be separated by one or more dielectric layers")
-    end
 
     # Pure radome case is easy:
     if ns == 0 || all(t.style == "NULL" for t in sheets)
@@ -772,12 +763,7 @@ function choose_gblocks(strata, k0min)::Vector{Gblock}
 
     # Compute min. electrical length of each layer:
     elength = [k0min * l.width * sqrt(real(l.ϵᵣ * l.μᵣ)) for l in layers]
-
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
-
-    junc = zeros(Int, nj)
-    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
-
+    sint = findall(junc .≠ 0) # sint[k] contains dielectric interface number of k'th sheet 
     upa = find_unique_periods(junc, sheets)
     
     # Initialize junction ownerships to self:

@@ -48,27 +48,34 @@ using .Outputs: Result, append_result_data
 export analyze
 
 
+
 """
-    analyze(strata::Vector, flist, steering, outlist; logfile="pssfss.log", resultfile="pssfss.res")
+    analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
 
 Analyze a full FSS/PSS structure over a range of frequencies and steering angles/phasings.  
 Generate output files as specified in `outlist`.
 
 ## Positional Arguments
-- `strata`:  A vector of `Layer` and `Sheet` objects.
+- `strata`:  A vector of `Layer` and `Sheet` objects. The first and last entries must be of type `Layer`.
 
 - `flist`: An iterable containing the analysis frequencies in GHz.
 
-- `steering`: A length 2 `NamedTuple` containing as keys either
+- `steering`: A length 2 `NamedTuple` containing as keys the steering parameter labels and as values
+  the iterables that define the values of steering parameters to be analyzed.
 
     - one of {`:phi` ,`:ϕ`} and one of {`:theta`, `:θ`}, or
 
-    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}
+    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}.  
+
+  All steering parameters are input in degrees.
   
   The program will analyze while iterating over a triple loop over the two steering 
   parameters and frequency, with frequency in the innermost loop (i.e. varying the fastest).
   The steering parameter listed first will be in the outermost loop and will therefore
   vary most slowly.
+
+
+## Keyword Arguments
 
 - `outlist`:  A matrix with 2 columns.  The first column in each row is a string
   containing the name of the CSV file to write the output to.  The second entry in
@@ -76,8 +83,7 @@ Generate output files as specified in `outlist`.
   contents of the specified file(s) will be updated as the program completes each analysis
   frequency.
 
-## Keyword Arguments
-- `logfile`:  A string containing the name of the log file to which timing and other 
+  - `logfile`:  A string containing the name of the log file to which timing and other 
   information about the run is written. Defaults to `"pssfss.log"`.
   If this file already exists, it will be overwritten.
 
@@ -87,31 +93,105 @@ Generate output files as specified in `outlist`.
   the analysis performed for each scan condition and frequency. The result file can be
   post-processed to produce similar or additional outputs that were requested at run time
   via the `outlist` argument.
-"""
-function analyze(strata, flist, steering, outlist; logfile="pssfss.log", resultfile="pssfss.res")
-    with_logger(pssfss_logger(logfile)) do 
-        _analyze(strata, flist, steering, outlist, resultfile)
-    end
-end
 
-function _analyze(strata, flist, steering, outlist, resultfile)
+"""
+function analyze(strata::Vector{Any}, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
+    layers = Layer[s for s in strata if s isa Layer]
+    sheets = RWGSheet[s for s in strata if s isa RWGSheet]
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
+    freqstemp = float.(collect(flist))
+    if length(freqstemp) < 2
+        freqs = Float64[freqstemp]
+    else
+        freqs::Vector{Float64} = freqstemp
+    end
+
+    stkeys::Tuple{Symbol, Symbol} = keys(steering)
+    stvaluestemp = [float.(collect(s)) for s in steering]
+    stvalues = Vector{Float64}[]
+    for (i,s) in pairs(stvaluestemp)
+        if length(s) < 2
+            push!(stvalues, Float64[s])
+        else
+            push!(stvalues, s)
+        end
+    end
+
+    with_logger(pssfss_logger(logfile)) do 
+        _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=outlist, resultfile=resultfile)
+    end
+end # function
+
+
+
+"""
+function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=Any[], 
+                                                        resultfile="pssfss.res")
+
+
+## Positional Arguments
+- `layers`:  A vector of `Layer` objects.
+
+- `sheets`:  A vector of `RWGSheet` objects.
+
+- `junc`: `junc[k]` contains the sheet number present at layer interface `k` or `0` if no sheet
+  is present there.
+
+- `freqs`: A vector containing the analysis frequencies in GHz.
+
+- `stkeys`: A length 2 `Tuple` containing as the steering angle labels as `Symbols` Either
+
+    - one of {`:phi` ,`:ϕ`} and one of {`:theta`, `:θ`}, or
+
+    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}.  
+
+  The angular steering parameters are input in degrees, while the incremental phase shift
+  parameters are input in radians.  
+  
+  The program will analyze while iterating over a triple loop over the two steering 
+  parameters and frequency, with frequency in the innermost loop (i.e. varying the fastest).
+  The steering parameter listed first will be in the outermost loop and will therefore
+  vary most slowly.
+
+
+## Keyword Arguments
+
+- `outlist`:  A matrix with 2 columns.  The first column in each row is a string
+  containing the name of the CSV file to write the output to.  The second entry in
+  each row is a tuple generated by the `@outputs` macro of the `Outputs` module. The 
+  contents of the specified file(s) will be updated as the program completes each analysis
+  frequency.
+
+- `resultfile`:  A string containing the name of the results file. Defaults to `pssfss.res`.
+  If this file already exists, it will be overwritten.  It is a binary
+  file that contains information (including the generalized scattering matrix) from 
+  the analysis performed for each scan condition and frequency. The result file can be
+  post-processed to produce similar or additional outputs that were requested at run time
+  via the `outlist` argument.
+"""
+function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], resultfile="pssfss.res")
     ncount = 0 # Number of analyses performed
-    ntotal = length(flist) * length(steering[1]) * length(steering[2])
+    ntotal = length(freqs) * length(stvalues[1]) * length(stvalues[2])
     progress = Progress(ntotal,1)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()),'T')
     @logfile "\n\nStarting PSSFSS analysis on $(date) at $(clock)\n\n"
-    check_inputs(strata, flist, steering, outlist)
-    k0min, k0max = twopi*1e9/c₀ .* extrema(flist)
-    gbls = choose_gblocks(strata, k0min)
+    check_inputs(layers, sheets, junc, freqs, stkeys, stvalues, outlist)
+    k0min, k0max = twopi*1e9/c₀ .* extrema(freqs)
+    gbls = choose_gblocks(layers, sheets, junc, k0min)
     gsm_save = Vector{GSM}(undef, length(gbls)) # Storage for reusable GSMs
-    choose_layer_modes!(strata, gbls, k0max, dbmin)
-    layers::Vector{Layer} = [s for s in strata if s isa Layer]
-    sheets::Vector{RWGSheet} = [s for s in strata if s isa Sheet]
-    (gbldup,junc) = get_gbldup(gbls, layers, sheets, strata)
+    choose_layer_modes!(layers, sheets, junc, gbls, k0max, dbmin)
+    gbldup = get_gbldup(gbls, layers, sheets, junc)
     usi = unique_indices(sheets)
-    rwgdat::Vector{RWGData} = [setup_rwg(sheet) for sheet in sheets]
-    report_layers_sheets(strata, rwgdat, usi)
+    rwgdat = RWGData[setup_rwg(sheet) for sheet in sheets]
+    report_layers_sheets(layers, sheets, junc, rwgdat, usi)
     uvec::Vector{Float64} = map(sheets) do sh  # Green's function smoothing factors
         sh.style == "NULL" && (return 0.0)
         ufactor = 0.5 * ustrip(Float64, sh.units, 1u"m")
@@ -119,10 +199,10 @@ function _analyze(strata, flist, steering, outlist, resultfile)
     end
     # Begin analysis loops over steering angles and frequency
     firstoutput = true
-    for stout in steering[1], stin in steering[2]
-        steer = getsttuple(steering, stout, stin)
+    for stout in stvalues[1], stin in stvalues[2]
+        steer = getsttuple(stkeys, stout, stin)
         if keys(steer)[1] == :ψ₁
-            ψ₁, ψ₂ = steer # radians
+            ψ₁, ψ₂ = deg2rad.([steer...]) # radians
             upm::Float64 = ustrip(Float64, sheets[1].units, 1u"m")
             β₁, β₂ = sheets[1].β₁*upm, sheets[1].β₂*upm
             β⃗₀₀ = (ψ₁*β₁ + ψ₂*β₂) / twopi # Eq. (2.13b)
@@ -132,7 +212,7 @@ function _analyze(strata, flist, steering, outlist, resultfile)
             sp, cp = sincosd(ϕ)
         end
         @logfile "Beginning $(steer)"
-        for fghz in flist
+        for fghz in freqs
             @logfile "  $(fghz) GHz"
             t_freq = time()
             k0 = twopi*fghz*1e9/c₀
@@ -246,8 +326,8 @@ Compute the generalized scattering matrix for a sheet of class `'J'`.
 - `gsm::GSM`  The full GSM for the GBlock including incident fields and scattered fields due
     to currents induced on the sheet surface.
 """
-function calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real,
-                                 rwgdat::RWGData, s::Int, k0, k⃗inc, is_global::Int)
+function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::Float64,
+                                 rwgdat::RWGData, s::Int, k0::Float64, k⃗inc::SVector{2, Float64}, is_global::Int)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
@@ -370,8 +450,8 @@ Compute the generalized scattering matrix for a sheet of class `'M'`.
 - `gsm::GSM`  The full GSM for the GBlock including incident fields and scattered fields due
     to magnetic currents induced in the gaps on the sheet surface.
 """
-function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
-                                 rwgdat::RWGData, s::Int, k0, k⃗inc, is_global::Int)
+function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::Float64,
+                                 rwgdat::RWGData, s::Int, k0::Float64, k⃗inc::SVector{2, Float64}, is_global::Int)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
@@ -475,7 +555,7 @@ end
 
 
 """
-    getsttuple(steering::NamedTuple, stout::Real, stin::Real) -> NamedTuple
+    getsttuple(stkeys::Tuple{Symbol,Symbol}, stout::Float64, stin::Float64) -> NamedTuple
 
 Return a named tuple either of the form `(θ = θ, ϕ = ϕ)` or `(ψ₁ = ψ₁, ψ₂ = ψ₂)` that serves
 to define the current steering situation. Actually, the input field names can be spelled out in
@@ -483,30 +563,30 @@ English as `:theta`, `:phi`, `:psi1`, and `:psi2`.
 
 ### Arguments
 
-- `steering`: A named 2-tuple with fieldnames either (`:ψ₁` and `ψ₂`) or (`:θ` and `:ϕ`) 
+- `stkeys`: A 2-tuple containing steering parameters as `Symbols`, either (`:ψ₁` and `ψ₂`) or (`:θ` and `:ϕ`) 
   (or their spelled-out English versions as detailed above), either of which
   could be listed in either order.  The order is significant in that the first member of the pair
   defines the outer steering loop.  
 
 - `stout` and `stin`: These are the current values of the outer and inner steering variables,
-  respectively.
+  respectively. 
 """
-function getsttuple(steering::NamedTuple, stout::Real, stin::Real)
-    stin, stout = float.((stin,stout))
-    if keys(steering)[1] ∈ (:phi, :ϕ)
+function getsttuple(stkeys::Tuple{Symbol, Symbol}, stout::Float64, stin::Float64)
+    if stkeys[1] ∈ (:phi, :ϕ, :Phi, :PHI, :Φ)
         return (θ = stin, ϕ = stout)
-    elseif keys(steering)[2] ∈ (:phi, :ϕ)
+    elseif stkeys[2] ∈ (:phi, :ϕ, :Phi, :PHI, :Φ)
         return (θ = stout, ϕ = stin)
-    elseif keys(steering)[1] ∈ (:psi1, :ψ₁)
+    elseif keys(steering)[1] ∈ (:psi1, :Psi1, :PSI1, :ψ₁, :Ψ₁, :ψ1, :Ψ1)
         return (ψ₁ = stout, ψ₂ = stin)
     else
         return (ψ₁ = stin, ψ₂ = stout)
     end
 end
 
-function check_inputs(strata, flist, steering, outlist)
-    # Check that input and output media are lossless
+function check_inputs(layers, sheets, junc, freqs, stkeys, stvalues, outlist)
+    # Check that input and output media are lossless and the same
     # Check that ψ₁ and ψ₂ are not specified when there are no nonnull sheets
+
     return
 end
 
@@ -531,7 +611,7 @@ function unique_indices(v::Vector)
 end
 
 """
-    get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{Sheet}, strata::Vector)
+    get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int})
     -> (gbldup, junc)
 
 Return `gbldup::Vector{Int}` of the same length as `gbls`. 
@@ -550,14 +630,8 @@ Two `Gblock`s are considered identical if they
 `junc::Vector{Int}` is has length `length(Layers)-1`. `junc[i]`` is the sheet number 
 present at dielectric interface `i`, or `0` if no sheet is present there.
 """
-function get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{<:Sheet}, strata)
+function get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int})
     gbldup = zeros(Int, length(gbls))
-    issheet = map(x -> x isa Sheet, strata)
-    islayer = map(x -> x isa Layer, strata)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
-    junc = zeros(Int, length(layers)-1)
-    junc[sint] = 1:length(sheets) #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
-
     for (g1,gbl1) in pairs(gbls)
         (gbldup[g1] ≠ 0 || gbl1.j == 0) && continue
         j1, rng1 = gbl1.j, gbl1.rng
@@ -584,37 +658,30 @@ function get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{
             gbldup[g2] = g1  # GSM of Gblock g2 is obtained from saved GSM of block g1
         end
     end
-    return (gbldup, junc)
+    return gbldup
 end # function
     
 
-function report_layers_sheets(strata, rwgdat, usi)
-    layers = [s for s in strata if s isa Layer]
-    sheets = [s for s in strata if s isa Sheet]
+function report_layers_sheets(layers, sheets, junc, rwgdat, usi)
     @logfile "Dielectric layer information... \n"
     @logfile " Layer  Width  units  epsr   tandel   mur  mtandel modes  beta1x  beta1y  beta2x  beta2y"
     @logfile " ----- ------------- ------- ------ ------- ------ ----- ------- ------- ------- -------"
-    js = 0 # sheet counter 
-    jl = 0 # layer counter
-    for s in strata
-        if s isa Layer
-            l = s
-            jl += 1
-            eps = real(l.ϵᵣ)
-            tandel = -imag(l.ϵᵣ) / eps
-            mu = real(l.μᵣ)
-            mtandel = -imag(l.μᵣ) / mu 
-            nmode = length(l.P)
-            units = string(unit(l.user_width))
-            units == "inch" && (units = "in")
-            uw_unitless = ustrip(l.user_width)
-            str = @sprintf(" %5i %9.4f %3s %7.2f %6.4f %7.2f %6.4f %5i %7.1f %7.1f %7.1f %7.1f",
+    for (jl,l) in pairs(layers)
+        eps = real(l.ϵᵣ)
+        tandel = -imag(l.ϵᵣ) / eps
+        mu = real(l.μᵣ)
+        mtandel = -imag(l.μᵣ) / mu 
+        nmode = length(l.P)
+        units = string(unit(l.user_width))
+        units == "inch" && (units = "in")
+        uw_unitless = ustrip(l.user_width)
+        str = @sprintf(" %5i %9.4f %3s %7.2f %6.4f %7.2f %6.4f %5i %7.1f %7.1f %7.1f %7.1f",
               jl,uw_unitless, units, eps, tandel, mu, mtandel, nmode, l.β₁[1], l.β₁[2], 
               l.β₂[1], l.β₂[2])
-            @logfile "$str"
-        else
-            # A Sheet object
-            js += 1
+        @logfile "$str"
+        if jl < length(layers) && junc[jl] ≠ 0
+            js = junc[jl]
+            s = sheets[js]
             om = ustrip(Float64, s.units, 1.0u"m")
             str = @sprintf(
                 " ==================  Sheet %3i  ======================== %7.1f %7.1f %7.1f %7.1f",
@@ -622,20 +689,14 @@ function report_layers_sheets(strata, rwgdat, usi)
             @logfile "$str"
         end
     end
-  
+    sint = findall(junc .≠ 0) # sint[k] contains dielectric interface number of k'th sheet 
+
     @logfile "\n\n\nPSS/FSS sheet information...\n"
     @logfile "Sheet  Loc         Style      Rot  J/M Faces Edges Nodes Unknowns  NUFP"
     @logfile "-----  ---  ---------------- ----- --- ----- ----- ----- -------- ------"
-    
-    js = jl = 0
-    for s in strata
-        if s isa Layer
-            jl += 1
-            continue
-        end
-        js += 1
+    for (js,s) in pairs(sheets)
         str = @sprintf("%4i   %3i  %16s %5.1f  %1s  %5i %5i %5i  %6i %7i",
-             usi[js], jl, s.style, s.rot, s.class, size(s.fe,2), length(s.e1), 
+             usi[js], sint[js], s.style, s.rot, s.class, size(s.fe,2), length(s.e1), 
              length(s.ρ), size(rwgdat[js].bfe,2), length(rwgdat[js].ufp2fp))
         @logfile "$str"
     end
@@ -644,7 +705,7 @@ function report_layers_sheets(strata, rwgdat, usi)
 end
 
 
-
+#=
 FGHzType = Union{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}},
                StepRange{Int64, Int64},
                Vector{Int},
@@ -671,5 +732,5 @@ precompile(calculate_jtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,In
                                                                       SVector{2,Float64}, Int))
 precompile(calculate_mtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
                                                                       SVector{2,Float64}, Int))
-
+=#
 end # module
