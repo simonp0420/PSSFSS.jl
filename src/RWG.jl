@@ -24,7 +24,7 @@ using OffsetArrays
 using Statistics: mean
 using ..PSSFSSLen
 
-struct RWGData
+mutable struct RWGData
     #  Basis function edge indices.  The value in bfe[1,i] is index of the
     #  edge of the "plus" triangle associated with basis function i.
     #  The value in bfe[2,i] is the index of the edge of the "minus" triangle
@@ -67,6 +67,10 @@ struct RWGData
     #  face pair index uses column major ordering to enumerate the elements 
     #  of a matrix of order Nface × Nface.
     ufp2fp::Array{Array{Int,1},1}
+
+    zorymat::Array{ComplexF64,2} # MoM matrix
+    rhs::Vector{ComplexF64}  # MoM right-hand side 
+    bfftstore::Array{SArray{Tuple{2},ComplexF64,1,2}, 3} # Basis function Fourier Transforms
 
     nufp::Int  # Number of unique face pairs.
 end # mutable struct
@@ -250,13 +254,14 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     end # ξ0_loop
 
     i == nbf || error("Inconsistent number of basis functions")
-
-    
+    zorymat = zeros(ComplexF64, nbf, nbf)
+    rhs = zeros(ComplexF64, nbf)
+    bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, 0,0,0)
     nufp =  nface*nface 
     ufpm = reshape(collect(1:nufp), (nface,nface))
     if !sheet.fufp  # Don't search for unique face pairs. Assume all are unique.
         ufp2fp = [ [i] for i in 1:nufp]
-        return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, nufp)
+        return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, zorymat, rhs, bfftstore, nufp)
     end
         
     
@@ -314,7 +319,7 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     end
     nufp == length(ufp2fp) || error("Miscount of nufp")
     
-    return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, nufp)    
+    return RWGData(bfe, bff, ebf, eci, ufpm, ufp2fp, zorymat, rhs, bfftstore, nufp)    
 
 end # function setup_rwg
 

@@ -16,6 +16,9 @@ const jkringmax = 65 # Max. number of rings to sum over
   
 # Variables used by the spectral routines:
 const mmax_list = (32, 2048)
+mg = mmax_list[2] ÷ 2
+const table1g = OffsetArray(zeros(ComplexF64, 2mg+1, 2mg+1), -mg:mg, -mg:mg) 
+const table2g = OffsetArray(zeros(ComplexF64, 2mg+1, 2mg+1), -mg:mg, -mg:mg)
 
 
 #=
@@ -207,8 +210,8 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     d3 = d3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
 
     m = mmax_list[2] ÷ 2
-    table1 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m) 
-    table2 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m)
+    table1 = table1g; table1 .= zero(ComplexF64)
+    table2 = table2g; table2 .= zero(ComplexF64)
 
     converged = false
     convrepeat = 40 # number of consecutive rings for which convergence must occur
@@ -298,10 +301,17 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
 
     # Create proper sized storage arrays for FFT routine:
     mmaxo2 = mmax÷2
+    #t1vec = zeros(ComplexF64, (mmax+2)^2)
+    #table1t = reshape(view(t1vec,1:mmax^2), mmax, mmax)
+    #table1t .= @view table1[-mmaxo2:mmaxo2-1,-mmaxo2:mmaxo2-1]
+    #t2vec = zeros(ComplexF64, (mmax+2)^2)
+    #table2t = reshape(view(t2vec,1:mmax^2), mmax, mmax)
+    #table2t .= @view table2[-mmaxo2:mmaxo2-1,-mmaxo2:mmaxo2-1]
+
     table1t = table1[-mmaxo2:mmaxo2-1,-mmaxo2:mmaxo2-1]
     table2t = table2[-mmaxo2:mmaxo2-1,-mmaxo2:mmaxo2-1]
-    fft!(table1t)
-    fft!(table2t) 
+    fft!(table1t::Matrix{ComplexF64})
+    fft!(table2t::Matrix{ComplexF64}) 
     # Adjust phase according to Equation (5.32).  Also, include factor of 1/(2*area)
     for q in 0:mmax-1
         qterm = q * (π - ψ₂/mmax)
@@ -315,22 +325,36 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     # Create proper sized interpolation array---Note that we add an extra row
     # and extra column at both the beginning and end of each table to allow 
     # for extra points needed in the interpolation scheme.
-    table1 = OffsetArray(zeros(ComplexF64, mmax+2, mmax+2), -1:mmax, -1:mmax)
-    table1[0:mmax-1, 0:mmax-1] = table1t
-    table2 = OffsetArray(zeros(ComplexF64, mmax+2, mmax+2), -1:mmax, -1:mmax)
-    table2[0:mmax-1, 0:mmax-1] = table2t
-    # Add extra row and column to cover all the way to ξ=1 and η=1:
-    table1[mmax, 0:mmax-1] = cis(-ψ₁) * table1[0, 0:mmax-1]
-    table1[0:mmax-1, mmax] = cis(-ψ₂) * table1[0:mmax-1, 0]
-    table1[mmax, mmax] = cis(-(ψ₁+ψ₂)) * table1[0,0]
-    table2[mmax, 0:mmax-1] = cis(-ψ₁) * table2[0, 0:mmax-1]
-    table2[0:mmax-1, mmax] = cis(-ψ₂) * table2[0:mmax-1, 0]
-    table2[mmax, mmax] = cis(-(ψ₁+ψ₂)) * table2[0,0]
-    # Add extra row and column to cover all the way to ξ=-1/mmax and η=-1/mmax:
-    table1[-1, 0:mmax] = cis(ψ₁) * table1[mmax-1, 0:mmax]
-    table1[-1:mmax-1, -1] = cis(ψ₂) * table1[-1:mmax-1, mmax-1]
-    table2[-1, 0:mmax] = cis(ψ₁) * table2[mmax-1, 0:mmax]
-    table2[-1:mmax-1, -1] = cis(ψ₂) * table2[-1:mmax-1, mmax-1]
+    #tab1e1 = OffsetArray(reshape(t1vec, mmax+2, mmax+2), -1:mmax, -1:mmax)
+    #tab1e2 = OffsetArray(reshape(t2vec, mmax+2, mmax+2), -1:mmax, -1:mmax)
+    table1 = OffsetArray(zeros(ComplexF64,mmax+2,mmax+2), -1:mmax, -1:mmax)
+    table2 = OffsetArray(zeros(ComplexF64,mmax+2,mmax+2), -1:mmax, -1:mmax)
+    #@inbounds for k = mmax:-1:1, j in mmax:-1:1  # Copy without inadvertent overwriting
+    #    table1[j-1,k-1] = table1t[j,k]
+    #    table2[j-1,k-1] = table2t[j,k]
+    #end
+    table1[0:mmax-1, 0:mmax-1] .= table1t
+    table2[0:mmax-1, 0:mmax-1] .= table2t
+    # Fill extra row and column to cover all the way to ξ=1 and η=1:
+    cis1 = cis(-ψ₁); cis2 = cis(-ψ₂); cis12 = cis1 * cis2
+    @inbounds for k in 0:mmax-1
+        table1[mmax, k] = cis1 * table1[0, k]
+        table1[k, mmax] = cis2 * table1[k, 0]
+        table2[mmax, k] = cis1 * table2[0, k]
+        table2[k, mmax] = cis2 * table2[k, 0]
+    end
+    table1[mmax, mmax] = cis12 * table1[0,0]
+    table2[mmax, mmax] = cis12 * table2[0,0]
+    # Fill in extra row and column to cover all the way to ξ=-1/mmax and η=-1/mmax:
+    cis1 = 1/cis1; cis2 = 1/cis2
+    @inbounds for k in 0:mmax
+        table1[-1, k] = cis1 * table1[mmax-1, k]
+        table2[-1, k] = cis1 * table2[mmax-1, k]
+    end
+    @inbounds for k in -1:mmax-1
+        table1[k, -1] = cis2 * table1[k, mmax-1]
+        table2[k, -1] = cis2 * table2[k, mmax-1]
+    end
     # Use meaningful names:
     Σm1_func = make_Σm_func(table1, β₁, β₂, ψ₁, ψ₂)
     Σm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
@@ -395,7 +419,7 @@ function make_Σm_func(table::AbstractArray, β₁::SV2, β₂::SV2, ψ₁::Real
             pq = p*q
 
             # Perform the interpolation using formula 25.2.67 of AMS-55:
-            Σm = 0.5*(q² - q) * table[m,n-1] +
+            @inbounds Σm = 0.5*(q² - q) * table[m,n-1] +
                  0.5*(p² - p) * table[m-1,n] + 
                 (1 + pq - p² - q²) * table[m,n] +
                 0.5*(p² - 2pq + p) * table[m+1,n] +
@@ -475,8 +499,8 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     p3 = d3s / layers[s].μᵣ + d3sp1 / layers[s+1].μᵣ
 
     m = mmax_list[2] ÷ 2
-    table1 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m) 
-    table2 = OffsetArray(zeros(ComplexF64, 2m+1, 2m+1), -m:m, -m:m)
+    table1 = table1g; table1 .= zero(ComplexF64)
+    table2 = table2g; table2 .= zero(ComplexF64)
 
     converged = false
     convrepeat = 40 # number of consecutive rings for which convergence must occur
@@ -566,9 +590,9 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     fft!(table1t)
     fft!(table2t) 
     # Adjust phase according to Equation (5.32).  Also, include factor of 1/area:
-    for q in 0:mmax-1
+    @inbounds for q in 0:mmax-1
         qterm = q * (π - ψ₂/mmax)
-        for p in 0:mmax-1
+        @inbounds for p in 0:mmax-1
             pterm = p * (π - ψ₁/mmax)
             cfact = cis(pterm+qterm) / area
             table1t[p+1,q+1] *= cfact

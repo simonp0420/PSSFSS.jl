@@ -4,12 +4,11 @@ if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optle
     @eval Base.Experimental.@optlevel 3
 end
 
-
 using Reexport
 using Dates: now
 using DelimitedFiles: writedlm
 using Printf: @sprintf
-using LinearAlgebra: ×, norm, ⋅, factorize, ldiv!
+using LinearAlgebra: ×, norm, ⋅, factorize, lu!, ldiv!
 using StaticArrays: SVector, SArray, @SVector
 using Unitful: ustrip, @u_str
 using Logging: with_logger
@@ -253,8 +252,10 @@ function calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real,
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
     nbf = size(rwgdat.bfe,2) # Number of basis functions
-    bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
-
+    if isempty(rwgdat.bfftstore)
+        rwgdat.bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
+    end
+    bfftstore = rwgdat.bfftstore
     # Compute area correction factors for the mode normalization constants of 
     # the two end regions:
     tempvec = zeros(2)
@@ -284,7 +285,7 @@ function calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real,
     @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is_global)"
     # Factor the matrix:
     t_temp = time()
-    zmatf = factorize(zmat)
+    zmatf = lu!(zmat)
     t_factor = round(time() - t_temp, digits=tdigits)
     @logfile "      $(t_factor) seconds to factor matrix for sheet $(is_global)"
     t_temp = time()
@@ -313,12 +314,13 @@ function calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real,
     t_extract = 0.0
     i_extract = 0
     t_solve = 0.0
+    imat = rwgdat.rhs
     for (sr,ls) in enumerate(@view layers[[begin,end]]) # Loop over source regions
         for qp in 1:length(ls.P) # Loop over srce reg modes
             # Incident field for source layer in absence of the FSS sheet:
             sourcevec = vincs[qp,sr] * ls.c[qp] * acf[sr] * ls.tvec[qp]
             # Compute generalized voltage vector:
-            imat = [b ⋅ sourcevec for b in bfftstore[:,sr,qp]] # Eq. (7.39)
+            imat .= (b ⋅ sourcevec for b in bfftstore[:,sr,qp]) # Eq. (7.39)
             # Solve the matrix equation
             t_solve1 = time()
             ldiv!(zmatf, imat)
@@ -374,8 +376,10 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
     nbf = size(rwgdat.bfe,2) # Number of basis functions
-    bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
-
+    if isempty(rwgdat.bfftstore)
+        rwgdat.bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
+    end
+    bfftstore = rwgdat.bfftstore
     # Compute area correction factors for the mode normalization constants of 
     # the two end regions:
     tempvec = zeros(2)
@@ -406,7 +410,7 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
     @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is_global)"
     # Factor the matrix:
     t_temp = time()
-    ymatf = factorize(ymat)
+    ymatf = lu!(ymat)
     t_factor = round(time() - t_temp, digits=tdigits)
     @logfile "      $(t_factor) seconds to factor matrix for sheet $(is_global)"
     t_temp = time()
@@ -434,6 +438,7 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
     nsolve = 0
     t_extract = 0.0
     t_solve = 0.0
+    vmat = rwgdat.rhs
     i_extract = 0
     σ = -1
     for (sr,ls) in enumerate(@view layers[[begin,end]]) # Loop over source regions
@@ -442,7 +447,7 @@ function calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real,
             # Incident field for Region sr (Eq. (7.64))
             sourcevec = iincs[qp,sr] * ls.c[qp] * ls.Y[qp] * zhatcross(ls.tvec[qp])
             # Compute generalized current vector:
-            vmat = [b ⋅ sourcevec for b in bfftstore[:,sr,qp]] # Eq. (7.64)
+            vmat .= (b ⋅ sourcevec for b in bfftstore[:,sr,qp]) # Eq. (7.64)
             # Solve the matrix equation
             t_solve1 = time()
             ldiv!(ymatf, vmat)
@@ -638,5 +643,33 @@ function report_layers_sheets(strata, rwgdat, usi)
     nothing
 end
 
+
+
+FGHzType = Union{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}},
+               StepRange{Int64, Int64},
+               Vector{Int},
+                 Vector{Float64}}
+SteeringType = Union{NamedTuple{(:θ, :ϕ), Tuple{Int, Int}},
+                     NamedTuple{(:θ, :ϕ), Tuple{Float64, Int}},
+                     NamedTuple{(:θ, :ϕ), Tuple{Int, Float64}},
+                     NamedTuple{(:θ, :ϕ), Tuple{Float64, Float64}},
+                     NamedTuple{(:theta, :phi), Tuple{Int, Int}},
+                     NamedTuple{(:theta, :phi), Tuple{Float64, Int}},
+                     NamedTuple{(:theta, :phi), Tuple{Int, Float64}},
+                     NamedTuple{(:theta, :phi), Tuple{Float64, Float64}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Int, Int}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Float64, Int}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Int, Float64}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Float64, Float64}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Int, Int}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Float64, Int}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Int, Float64}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Float64, Float64}}}
+
+precompile(analyze, (Vector{Any}, FGHzType, SteeringType, Matrix{Any}))
+precompile(calculate_jtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
+                                                                      SVector{2,Float64}, Int))
+precompile(calculate_mtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
+                                                                      SVector{2,Float64}, Int))
 
 end # module
