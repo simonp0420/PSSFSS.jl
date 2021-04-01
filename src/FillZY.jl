@@ -53,7 +53,8 @@ function fillz(k0,u,layers::AbstractVector{Layer},s,ψ₁,ψ₂,metal::RWGSheet,
     closed = true              # Always use singularity extraction.
     spinlock = Threads.SpinLock()
     nbf = size(rwgdat.bfe, 2)
-    zmat = zeros(ComplexF64, nbf, nbf)
+    zmat = rwgdat.zorymat
+    zmat .= zero(eltype(zmat))
 
     # Initialize the Green's functions expansion coefficients:
     c3 = c3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
@@ -274,7 +275,8 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
     closed = true              # Always use singularity extraction.
     spinlock = Threads.SpinLock()
     nbf = size(rwgdat.bfe, 2)
-    ymat = zeros(ComplexF64, nbf, nbf)
+    ymat = rwgdat.zorymat
+    ymat .= zero(eltype(ymat))
 
     # Initialize the Green's functions expansion coefficients:
     c3s = c3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ)
