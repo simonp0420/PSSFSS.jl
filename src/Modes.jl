@@ -5,7 +5,7 @@ using LinearAlgebra: norm, ⋅, ×
 using StaticArrays: SVector
 using ..Constants: twopi, η₀, dbmin
 using ..Layers: Layer, TEorTM, TE, TM
-using ..Sheets: Sheet, find_unique_periods
+using ..Sheets: RWGSheet, find_unique_periods
 using ..GSMs: Gblock
 using ..Rings: Ring
 using ..PGF: mysqrt
@@ -13,7 +13,7 @@ using ..PGF: mysqrt
 const MNmax_default = 6
 
 """
-    choose_layer_modes!(strata, gbl, k0max, dbmin)
+    choose_layer_modes!(layers, sheets, junc, gbl, k0max, dbmin)
 
     #
 Set up the arrays of modal indices `M`, `N`, and `P` for all layers not included
@@ -29,11 +29,15 @@ these values to define the periodicity for the modes in a given layer.
 
 ## Arguments
 
-- `strata`: A vector whose elements are either `Layer` or `Sheet` objects. `strata` defines the planar
-geometry being analyzed.  It is assumed that for each `Layer` in `strata` not included in a `Gblock`, 
+- `layers`: A vector of Layer objects. It is assumed that for each `Layer` not included in a `Gblock`, 
 the permeability and permittivity have been correctly initialized.  On exit, these same excluded layers 
-will have fields β₁ and β₂ appropriately set, and will have the arrays `β`, `γ`, `Y`, 
+will have fields `β₁` and `β₂` appropriately set, and will have the arrays `β`, `γ`, `Y`, 
 `c`, and `tvec` allocated for the  appropriate number of modes.
+
+- `sheets`: A vector of Sheet objects.
+
+- `junc`: An integer vector.  `junk[k]` contains the sheet number located at junction `k` or `0` if 
+  no sheet is present.
 
 - `gbl`: An collection of `Gblock`s containing the definitions of the GSM block entities.
 
@@ -41,21 +45,13 @@ will have fields β₁ and β₂ appropriately set, and will have the arrays `β
 
 - `dbmin`  Minimum attenuation any neglected mode must incur (dB > 0).
 """
-function choose_layer_modes!(strata, gbl, k0max, dbmin=dbmin)
-    T = Union{Layer,Sheet}
-    all(t isa T for t in strata) || error("strata elements must be of type Sheet or Layer")
-    islayer = map(t -> t isa Layer, strata)
-    layers = @view strata[islayer]
+function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int},
+                                                 gbl::Vector{Gblock}, k0max::Float64, dbmin::Float64=dbmin)
+
     nl = length(layers)
     nj = nl-1 # number of dielectric junctions
-    issheet = map(x -> x isa Sheet, strata)
-    sheets = @view strata[issheet]
     ns = length(sheets)
     ngbl = length(gbl)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
-    junc = zeros(Int, nj)
-    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
-
 
     # Make all layers unique:
     for i in 2:length(layers)
@@ -307,11 +303,8 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
     return nothing
 end
 
-function zhatcross(x)
-    y = similar(x)
-    y[2] = x[1]
-    y[1] = -x[2]
-    y
+function zhatcross(x::T) where T
+    T([-x[2], x[1]])
 end
 
 

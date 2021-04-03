@@ -1,7 +1,8 @@
 using PSSFSS
 using PSSFSS.Modes: choose_layer_modes!
 #using PSSFSS.Elements: rectstrip, polyring
-#using PSSFSS.Layers: Layer
+using PSSFSS.Layers: Layer
+using PSSFSS.Sheets: RWGSheet
 #using PSSFSS.PSSFSSLen: mm, cm, inch, mil
 using PSSFSS.GSMs: Gblock, choose_gblocks
 using PSSFSS.Constants: c₀, twopi
@@ -29,14 +30,24 @@ oldlogger = global_logger(testlogger)
         Layer(name="Vacuum")
     ]
 
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
     k0min = twopi * fmin / c₀
     fmax = 8.0 * 1e9  # minimum frequency [Hz]
     k0max = twopi * fmax / c₀
     dbmin = 25.0
 
-    gbl = choose_gblocks(strata, k0min)
-    choose_layer_modes!(strata, gbl, k0max, dbmin)
+    gbl = choose_gblocks(layers, sheets, junc, k0min)
+    choose_layer_modes!(layers, sheets, junc, gbl, k0max, dbmin)
     @test [length(l.P) for l in strata if l isa Layer] == [2,0,0,18,0,0,2]
 end
 
@@ -57,14 +68,24 @@ end
         Layer(name="Vacuum")
     ]
 
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
     k0min = twopi * fmin / c₀
     fmax = 8.0 * 1e9  # minimum frequency [Hz]
     k0max = twopi * fmax / c₀
     dbmin = 25.0
 
-    gbl = choose_gblocks(strata, k0min)
-    choose_layer_modes!(strata, gbl, k0max, dbmin)
+    gbl = choose_gblocks(layers, sheets, junc, k0min)
+    choose_layer_modes!(layers, sheets, junc, gbl, k0max, dbmin)
     @test [length(l.P) for l in strata if l isa Layer] == [2,0,0,2,2,0,0,2]
 end
 
@@ -90,9 +111,19 @@ end
     fmax = 8.0 * 1e9  # minimum frequency [Hz]
     k0max = twopi * fmax / c₀
     dbmin = 25.0
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
 
-    gbl = choose_gblocks(strata, k0min)
-    choose_layer_modes!(strata, gbl, k0max, dbmin)
+    gbl = choose_gblocks(layers, sheets, junc, k0min)
+    choose_layer_modes!(layers, sheets, junc, gbl, k0max, dbmin)
     #@test_logs [(:info,),(:info,),(:info,)] choose_layer_modes!(strata, gbl, k0max, dbmin)
     @test [length(l.P) for l in strata if l isa Layer] == [2,0,0,42,0,0,0,2]
 
