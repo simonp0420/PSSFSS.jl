@@ -326,6 +326,7 @@ end # function setup_rwg
 
 
 zhatcross(t) = SV2([-t[2], t[1]])
+zhatcross(t::SV2) = SV2(-t[2], t[1])
 
 
 

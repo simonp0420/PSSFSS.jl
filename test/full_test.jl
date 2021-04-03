@@ -1,11 +1,12 @@
 using PSSFSS
 using PSSFSS: calculate_jtype_gsm, calculate_mtype_gsm
 using PSSFSS.Constants: c₀
-using PSSFSS.Sheets: Sheet
+using PSSFSS.Sheets: RWGSheet
 using PSSFSS.RWG: setup_rwg
 using PSSFSS.GSMs: GSM, choose_gblocks
 using PSSFSS.Modes: choose_layer_modes!, setup_modes!
 using LinearAlgebra: norm, ⋅
+using StaticArrays: @SVector
 using Test
 using Logging: Error, ConsoleLogger, default_metafmt, global_logger
 
@@ -80,18 +81,27 @@ dbmin = 25.0
               sheet
               Layer()]
 
-    layers = [s for s in strata if s isa Layer]
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
 
-    s = findfirst(x -> x isa Sheet, strata) - 1 # location of Sheet
+    s = findfirst(x -> x isa RWGSheet, strata) - 1 # location of Sheet
 
-    gbl = choose_gblocks(strata, k0)
-    choose_layer_modes!(strata, gbl, k0, dbmin)
+    gbl = choose_gblocks(layers, sheets, junc, k0)
+    choose_layer_modes!(layers, sheets, junc, gbl, k0, dbmin)
     β₁, β₂ = sheet.β₁, sheet.β₂
     ufact = 0.5
     units_per_meter = ustrip(Float64, sheet.units, 1u"m")
     u = ufact * max(norm(β₁), norm(β₂)) * units_per_meter
     rwgdat = setup_rwg(sheet)
-    k⃗inc = units_per_meter * [ψ₁/Px, ψ₂/Py]
+    k⃗inc = @SVector([units_per_meter * ψ₁/Px, units_per_meter * ψ₂/Py])
     for layer in layers
         setup_modes!(layer, k0, k⃗inc)
     end
@@ -107,20 +117,28 @@ end
     sheet = rectstrip(Px=Px, Py=Py, Lx=Lx, Ly=Ly, Nx=Nx, Ny=Ny, units=inch, class='M')
     strata = [Layer()
               sheet
-              Layer()]
+              Layer() ]     
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
+    s = findfirst(x -> x isa RWGSheet, strata) - 1 # location of Sheet
 
-    layers = [s for s in strata if s isa Layer]
-    s = findfirst(x -> x isa Sheet, strata) - 1 # location of Sheet
-
-    gbl = choose_gblocks(strata, k0)
+    gbl = choose_gblocks(layers, sheets, junc, k0)
     dbmin = 25.0
-    choose_layer_modes!(strata, gbl, k0, dbmin)
+    choose_layer_modes!(layers, sheets, junc, gbl, k0, dbmin)
     β₁, β₂ = sheet.β₁, sheet.β₂
     ufact = 0.5
     units_per_meter = ustrip(Float64, sheet.units, 1u"m")
     u = ufact * max(norm(β₁), norm(β₂)) * units_per_meter
     rwgdat = setup_rwg(sheet)
-    k⃗inc = units_per_meter * [ψ₁/Px, ψ₂/Py]
+    k⃗inc = @SVector([units_per_meter * ψ₁/Px, units_per_meter * ψ₂/Py])
     for layer in layers
         setup_modes!(layer, k0, k⃗inc)
     end

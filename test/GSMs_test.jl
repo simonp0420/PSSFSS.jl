@@ -6,6 +6,7 @@ using PSSFSS.GSMs: GSM, cascade, cascade!, initialize_gsm_file,
 using PSSFSS.Layers: Layer, TEorTM, TE, TM
 using PSSFSS.PSSFSSLen
 using PSSFSS.Elements: rectstrip
+using PSSFSS.Sheets: RWGSheet
 using PSSFSS.Constants: c₀, twopi
 using Test
 
@@ -147,8 +148,19 @@ end
          rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
          Layer()
         ]
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
+    
     FGHz = 2.0; k0 = twopi * FGHz*1e9 / c₀
-    gbl = choose_gblocks(strata, k0)
+    gbl = choose_gblocks(layers, sheets, junc, k0)
     @test length(gbl) == 4
     @test gbl[1] == Gblock(1:1,1)
     @test gbl[2] == Gblock(2:2,0)
@@ -173,9 +185,19 @@ end
         Layer(name="Vacuum")
     ]
 
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
     k0min = twopi * fmin / c₀
-    gbl = choose_gblocks(strata, k0min)
+    gbl = choose_gblocks(layers, sheets, junc, k0min)
     @test gbl[1] == Gblock(1:3,2)
     @test gbl[2] == Gblock(4:6,5)
 end
@@ -196,17 +218,19 @@ end
         Layer(name="Vacuum")
     ]
 
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
     k0min = twopi * fmin / c₀
-    failed = false
-    try
-        choose_gblocks(strata, k0min) 
-    catch ex
-        failed = true
-        @test ex isa ErrorException
-        @test contains(ex.msg, "Too few layers")
-    end 
-    @test failed 
+    @test choose_gblocks(layers, sheets, junc, k0min) == [Gblock(1:2,2), Gblock(3:5,4)]
 end
 
 @testset "choose_gblocks4" begin
@@ -231,10 +255,20 @@ end
         Layer(name="Vacuum")
     ]
 
+    islayer = map(x -> x isa Layer, strata)
+    issheet = map(x -> x isa RWGSheet, strata)
+    layers = convert(Vector{Layer}, strata[islayer])
+    sheets = convert(Vector{RWGSheet}, strata[issheet])
+    nl = length(layers)
+    nj = nl - 1
+    ns = length(sheets)
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    junc = zeros(Int, nj)
+    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
     k0min = twopi * fmin / c₀
 
-    @test choose_gblocks(strata, k0min) == [Gblock(1:3,2), Gblock(4:6,5),Gblock(7:9,8)]
+    @test choose_gblocks(layers, sheets, junc, k0min) == [Gblock(1:3,2), Gblock(4:6,5),Gblock(7:9,8)]
 
 end
 
