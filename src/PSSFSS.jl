@@ -707,4 +707,32 @@ function report_layers_sheets(layers, sheets, junc, rwgdat, usi)
 end
 
 
+
+FGHzType = Union{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}},
+               StepRange{Int64, Int64},
+               Vector{Int},
+                 Vector{Float64}}
+SteeringType = Union{NamedTuple{(:θ, :ϕ), Tuple{Int, Int}},
+                     NamedTuple{(:θ, :ϕ), Tuple{Float64, Int}},
+                     NamedTuple{(:θ, :ϕ), Tuple{Int, Float64}},
+                     NamedTuple{(:θ, :ϕ), Tuple{Float64, Float64}},
+                     NamedTuple{(:theta, :phi), Tuple{Int, Int}},
+                     NamedTuple{(:theta, :phi), Tuple{Float64, Int}},
+                     NamedTuple{(:theta, :phi), Tuple{Int, Float64}},
+                     NamedTuple{(:theta, :phi), Tuple{Float64, Float64}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Int, Int}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Float64, Int}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Int, Float64}},
+                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Float64, Float64}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Int, Int}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Float64, Int}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Int, Float64}},
+                     NamedTuple{(:psi1, :psi2), Tuple{Float64, Float64}}}
+
+precompile(analyze, (Vector{Any}, FGHzType, SteeringType, Matrix{Any}))
+precompile(calculate_jtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
+                                                                      SVector{2,Float64}, Int))
+precompile(calculate_mtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
+                                                                      SVector{2,Float64}, Int))
+
 end # module
