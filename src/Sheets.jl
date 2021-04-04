@@ -3,7 +3,7 @@ module Sheets
 export RWGSheet, read_sheet_data, write_sheet_data, find_unique_periods
 export rotate!, combine, recttri, SV2, MV2
 
-using StaticArrays: SVector, MVector
+using StaticArrays: SVector, MVector, SMatrix
 using ..PSSFSSLen
 using JLD2
 using LinearAlgebra: norm
@@ -172,7 +172,7 @@ Rotate a sheet by rot degrees (counter-clockwise).
 function rotate!(sh::RWGSheet, rot::Real)
     rot == 0 && return
     s,c = sincosd(rot)
-    rotmat = SA[c -s;s c]
+    rotmat = SMatrix{2,2}([c -s;s c])
     sh.s₁ = rotmat * sh.s₁
     sh.s₂ = rotmat * sh.s₂
     sh.β₁ = rotmat * sh.β₁
@@ -180,6 +180,7 @@ function rotate!(sh::RWGSheet, rot::Real)
     for n in eachindex(sh.ρ)
         sh.ρ[n] = rotmat * sh.ρ[n]
     end
+    sh.rot = rot
 end
 
 

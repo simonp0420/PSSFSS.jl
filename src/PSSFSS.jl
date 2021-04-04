@@ -246,10 +246,10 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
                         s = gbl.j - i1 + 1 # sheet interface location within `region`
                         if sheet.class == 'J'
                             gsmb = calculate_jtype_gsm(region, sheet, uvec[i_sheet], 
-                                                       rwgdat[i_sheet], s, k0, β⃗₀₀, i_sheet)              
+                                                       rwgdat[i_sheet], s, k0, β⃗₀₀, usi[i_sheet])              
                         elseif sheet.class == 'M'
                             gsmb = calculate_mtype_gsm(region, sheet, uvec[i_sheet],
-                                                       rwgdat[i_sheet], s, k0, β⃗₀₀, i_sheet)
+                                                       rwgdat[i_sheet], s, k0, β⃗₀₀, usi[i_sheet])
                         else
                             error("Illegal sheet class: $(sheet.class)")
                         end
@@ -257,6 +257,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
                         gbldup[ig] < 0 && (gsm_save[ig] = gsmb)          
                     end
                     # Apply translations if requested:
+                    sheet = sheets[i_sheet]
                     if sheet.dx ≠ 0 || sheet.dy ≠ 0
                         upm = ustrip(Float64, sheet.units, 1u"m")
                         dx = sheet.dx / upm
@@ -305,7 +306,7 @@ end # function
 
 
 """
-    calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real, rwgdat::RWGData, s::Int, k0, k⃗inc, is_global::Int) -> gsm
+    calculate_jtype_gsm(layers, sheet::RWGSheet, u::Real, rwgdat::RWGData, s::Int, k0, k⃗inc, is::Int) -> gsm
 
 Compute the generalized scattering matrix for a sheet of class `'J'`.
 
@@ -321,7 +322,7 @@ Compute the generalized scattering matrix for a sheet of class `'J'`.
 - `k⃗inc`: A 2-vector containing the incident field wave vector x and y components. Note
     that by the phase match condition this vector is the same for all layers in the entire FSS
     structure.
-- `is_global`: The global sheet index for the `sheet` argument within the global list of sheets.
+- `is`: The sheet index for the `sheet` argument within the global list of sheets.
 
 ### Return Value
 
@@ -329,7 +330,7 @@ Compute the generalized scattering matrix for a sheet of class `'J'`.
     to currents induced on the sheet surface.
 """
 function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::Float64,
-                                 rwgdat::RWGData, s::Int, k0::Float64, k⃗inc::SVector{2, Float64}, is_global::Int)
+                                 rwgdat::RWGData, s::Int, k0::Float64, k⃗inc::SVector{2, Float64}, is::Int)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
@@ -361,15 +362,15 @@ function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
     t_temp = time()
     ψ₁ = k⃗inc ⋅ sheet.s₁ / one_meter
     ψ₂ = k⃗inc ⋅ sheet.s₂ / one_meter
-    @logfile "    Beginning matrix fill for sheet $(is_global)"
+    @logfile "    Beginning matrix fill for sheet $(is)"
     zmat = fillz(k0,u,layers,s,ψ₁,ψ₂,sheet,rwgdat)
     t_fill = round(time() - t_temp, digits=tdigits)
-    @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is_global)"
+    @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is)"
     # Factor the matrix:
     t_temp = time()
     zmatf = lu!(zmat)
     t_factor = round(time() - t_temp, digits=tdigits)
-    @logfile "      $(t_factor) seconds to factor matrix for sheet $(is_global)"
+    @logfile "      $(t_factor) seconds to factor matrix for sheet $(is)"
     t_temp = time()
     # Compute and store the basis function Fourier transforms:
     i_ft = 0
@@ -391,7 +392,7 @@ function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
         end
     end
     t_fft = round(time() - t_temp, digits=tdigits)
-    @logfile "      $(t_fft) seconds for basis function Fourier transforms at $(i_ft) points"
+    #@logfile "      $(t_fft) seconds for basis function Fourier transforms at $(i_ft) points"
     nsolve = 0
     t_extract = 0.0
     i_extract = 0
@@ -424,12 +425,12 @@ function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
             t_extract = t_extract + (t_extract2 - t_extract1)
         end
     end
-    @logfile "      $(round(t_extract,digits=tdigits)) seconds to extract $(i_extract) GSM entries"
+    #@logfile "      $(round(t_extract,digits=tdigits)) seconds to extract $(i_extract) GSM entries"
     return gsm
 end  
 
 """
-    calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real, rwgdat::RWGData, s::Int, k⃗inc, is_global::Int) -> gsm
+    calculate_mtype_gsm(layers, sheet::RWGSheet, u::Real, rwgdat::RWGData, s::Int, k⃗inc, is::Int) -> gsm
 
 Compute the generalized scattering matrix for a sheet of class `'M'`.
 
@@ -445,7 +446,7 @@ Compute the generalized scattering matrix for a sheet of class `'M'`.
 - `k⃗inc`: A 2-vector containing the incident field wave vector x and y components. Note
     that by the phase match condition this vector is the same for all layers in the entire FSS
     structure.
-- `is_global`: The global sheet index for the `sheet` argument within the global list of sheets.
+- `is`: The sheet index for the `sheet` argument within the global list of sheets.
 
 ### Return Value
 
@@ -453,7 +454,7 @@ Compute the generalized scattering matrix for a sheet of class `'M'`.
     to magnetic currents induced in the gaps on the sheet surface.
 """
 function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::Float64,
-                                 rwgdat::RWGData, s::Int, k0::Float64, k⃗inc::SVector{2, Float64}, is_global::Int)
+                                 rwgdat::RWGData, s::Int, k0::Float64, k⃗inc::SVector{2, Float64}, is::Int)
     one_meter = ustrip(Float64, sheet.units, 1u"m")
     area = norm(sheet.s₁ × sheet.s₂) / one_meter^2 # Unit cell area (m^2).
     nmodesmax = max(length(layers[begin].P), length(layers[end].P)) 
@@ -486,15 +487,15 @@ function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
     t_temp = time()
     ψ₁ = k⃗inc ⋅ sheet.s₁ / one_meter
     ψ₂ = k⃗inc ⋅ sheet.s₂ / one_meter
-    @logfile "    Beginning matrix fill for sheet $(is_global)"
+    @logfile "    Beginning matrix fill for sheet $(is)"
     ymat = filly(k0,u,layers,s,ψ₁,ψ₂,sheet,rwgdat)
     t_fill = round(time() - t_temp, digits=tdigits)
-    @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is_global)"
+    @logfile "      $(t_fill) seconds total matrix fill time for sheet $(is)"
     # Factor the matrix:
     t_temp = time()
     ymatf = lu!(ymat)
     t_factor = round(time() - t_temp, digits=tdigits)
-    @logfile "      $(t_factor) seconds to factor matrix for sheet $(is_global)"
+    @logfile "      $(t_factor) seconds to factor matrix for sheet $(is)"
     t_temp = time()
     # Compute and store the basis function Fourier transforms:
     i_ft = 0
@@ -707,32 +708,5 @@ function report_layers_sheets(layers, sheets, junc, rwgdat, usi)
 end
 
 
-
-FGHzType = Union{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}},
-               StepRange{Int64, Int64},
-               Vector{Int},
-                 Vector{Float64}}
-SteeringType = Union{NamedTuple{(:θ, :ϕ), Tuple{Int, Int}},
-                     NamedTuple{(:θ, :ϕ), Tuple{Float64, Int}},
-                     NamedTuple{(:θ, :ϕ), Tuple{Int, Float64}},
-                     NamedTuple{(:θ, :ϕ), Tuple{Float64, Float64}},
-                     NamedTuple{(:theta, :phi), Tuple{Int, Int}},
-                     NamedTuple{(:theta, :phi), Tuple{Float64, Int}},
-                     NamedTuple{(:theta, :phi), Tuple{Int, Float64}},
-                     NamedTuple{(:theta, :phi), Tuple{Float64, Float64}},
-                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Int, Int}},
-                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Float64, Int}},
-                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Int, Float64}},
-                     NamedTuple{(:ψ₁, :ψ₂), Tuple{Float64, Float64}},
-                     NamedTuple{(:psi1, :psi2), Tuple{Int, Int}},
-                     NamedTuple{(:psi1, :psi2), Tuple{Float64, Int}},
-                     NamedTuple{(:psi1, :psi2), Tuple{Int, Float64}},
-                     NamedTuple{(:psi1, :psi2), Tuple{Float64, Float64}}}
-
-precompile(analyze, (Vector{Any}, FGHzType, SteeringType, Matrix{Any}))
-precompile(calculate_jtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
-                                                                      SVector{2,Float64}, Int))
-precompile(calculate_mtype_gsm, (AbstractVector{Any}, Sheet, Float64, RWGData,Int, Float64,
-                                                                      SVector{2,Float64}, Int))
 
 end # module

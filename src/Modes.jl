@@ -9,6 +9,7 @@ using ..Sheets: RWGSheet, find_unique_periods
 using ..GSMs: Gblock
 using ..Rings: Ring
 using ..PGF: mysqrt
+using ..Log: @logscreen
 
 const MNmax_default = 6
 
@@ -88,7 +89,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
             l.β₂ = SVector(0.0, twopi) # cell 1m in x by 1m in y.
         end
         mset .= true
-        notinablock = 1:length(layers)
+        notinablock = collect(1:length(layers))::Vector{Int}
 
     else   # There is at least one non-NULL sheet in the structure
         last_gbl = findlast(x -> !iszero(x.j) && sheets[junc[x.j]].style ≠ "NULL", gbl)
@@ -133,10 +134,14 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                     # adjacent to layer i containing a nonnull sheet with a different periodicity:
                     if ijunc_other ≠ 0 && upa[ijunc] ≠ upa[ijunc_other] &&
                        sheets[isht_other].style ≠ "NULL" 
-                        error("""
-                               Unequal unit cells in sheets $(isht) and $(isht_other)
-                                      Try dividing layer $(i) into 2 halves.""")
-
+                        @logscreen """
+                                    ******************* Warning ***********************
+                                       Unequal unit cells in sheets $(isht) and $(isht_other)
+                                       Setting #modes in dividing layer $(i) to 2
+                                    ******************* Warning ***********************
+                                  
+                                    """
+                        MNmax = 0
                     end
                     # Select the mode indices for layer i:
                     fill_mmax_pmn!(layers[i], MNmax, k0max, dbmin)
@@ -145,7 +150,8 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                     # mset is true, indicating that this layer belongs to a gblock containing an FSS.
                     # IF the periodicity of that FSS is inconsistent with that of the current gblock
                     # then we can't satisfy both requirements, so abort.
-                    if ijunc_other ≠ 0 && upa[ijunc] ≠ upa[ijunc_other] && sheets[isht_other].style ≠ "NULL"
+                    if ijunc_other ≠ 0 && upa[ijunc] ≠ upa[ijunc_other] && length(layers[i].P) ≠ 2 &&
+                        sheets[isht_other].style ≠ "NULL"
                         error("""
                         Unequal unit cells in sheets $(isht) and $(isht_other).
                                Try dividing layer $(i) into 2 halves. """)
@@ -187,9 +193,13 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                         layers[i].N = [0, 0]
                         mset[i] = true
                         if length(layers[i-1].P) ≠ 2 || length(layers[i+1].P) ≠ 2
-                            @warn  """"
-                            Setting # modes in Layer $(i) to 2 due to 
-                                unequal unit cells in surrounding FSS sheets """
+                            @logscreen """
+                            ******************* Warning ***********************
+                                Setting # modes in Layer $(i) to 2 due to 
+                                unequal unit cells in surrounding FSS sheets 
+                            ******************* Warning ***********************
+                          
+                            """
                         end
                     end
                 elseif  mset[i-1] && !mset[i+1]
@@ -232,9 +242,12 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                 l.M = [0, 0]
                 l.N = [0, 0]
             end
-            @warn """
-            Setting # modes in layers $(il) and $(il+1) to 2 due to
-                unequal unit cells in surrounding FSS sheets.
+            @logscreen """
+            ******************* Warning ***********************
+                Setting # modes in layers $(il) and $(il+1) to 2 due
+                to unequal unit cells in surrounding FSS sheets 
+            ******************* Warning ***********************
+          
             """
         end
     end # if
@@ -248,9 +261,14 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
         for field in (:β, :γ, :Y, :c, :tvec)
             setfield!(layer, field, zeros(eltype(getfield(layer,field)), nmodes))
         end
-        nmodes == maxmodes && @warn """
-        Maximum number of modes reached. GSM results may not be accurate.
-                 Consider increasing MNmax_default from its current value $(MNmax_default)"""
+        nmodes == maxmodes &&  @logscreen """
+        ******************* Warning ************************
+        Maximum number of modes reached. GSM results may not
+        be accurate.  Consider increasing MNmax_default from
+        its current value of $(MNmax_default)
+        ******************* Warning ************************
+      
+        """
     end
 
     return nothing

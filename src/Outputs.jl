@@ -84,8 +84,8 @@ function sourcemat(j::Int, n::HorV, o::Result)
     if j == 1 # Region 1 incidence
         (θ,ϕ) = (θ1inc, ϕ1inc) # Eqs. (8.5a) and (8.5b)
     else # Region N incidence
-        n1 = sqrt(real(o.ϵᵣin * o.μᵣin))
-        n2 = sqrt(real(o.ϵᵣout * o.μᵣout))
+        n1 = sqrt(real(o.ϵᵣin) * real(o.μᵣin))
+        n2 = sqrt(real(o.ϵᵣout) * real(o.μᵣout))
         θ = asind(n1/n2*sind(θ1inc)) # Snell's law
         ϕ = ϕ1inc + 180
     end 
@@ -107,8 +107,8 @@ function sourcemat(j::Int, n::RorL, o::Result)
         (θ,ϕ) = (θ1inc, ϕ1inc) # Eqs. (8.5a) and (8.5b)
         sgn = 1
     else # Region N incidence
-        n1 = sqrt(real(o.ϵᵣin * o.μᵣin))
-        n2 = sqrt(real(o.ϵᵣout * o.μᵣout))
+        n1 = sqrt(real(o.ϵᵣin) * real(o.μᵣin))
+        n2 = sqrt(real(o.ϵᵣout) * real(o.μᵣout))
         θ = asind(n1/n2*sind(θ1inc)) # Snell's law
         ϕ = ϕ1inc + 180
         sgn = -1
@@ -140,8 +140,8 @@ function obsmat(i::Int, n::HorV, o::Result)
         (θ, ϕ) = (θ1inc, ϕ1inc+180) # Eq. (8.5c)
         sgn = 1
     else # Region N reflection
-        n1 = sqrt(real(o.ϵᵣin * o.μᵣin))
-        n2 = sqrt(real(o.ϵᵣout * o.μᵣout))
+        n1 = sqrt(real(o.ϵᵣin) * real(o.μᵣin))
+        n2 = sqrt(real(o.ϵᵣout) * real(o.μᵣout))
         θ = asind(n1/n2*sind(θ1inc)) # Snell's law
         ϕ = ϕ1inc  # Eq. (8.5e)
         sgn = -1
@@ -163,8 +163,8 @@ function obsmat(i::Int, n::RorL, o::Result)
         (θ,ϕ) = (θ1inc, ϕ1inc+180) # Eq. (8.5c)
         sgn = 1
     else # Region N reflection
-        n1 = sqrt(o.ϵᵣin * o.μᵣin)
-        n2 = sqrt(o.ϵᵣout * o.μᵣout)
+        n1 = sqrt(real(o.ϵᵣin) * real(o.μᵣin))
+        n2 = sqrt(real(o.ϵᵣout) * real(o.μᵣout))
         θ = asind(n1/n2*sind(θ1inc)) # Snell's law
         ϕ = ϕ1inc  # Eq. (8.5e)
         sgn = -1
@@ -258,10 +258,10 @@ ardb(i,j,n) = Outfun("ARdB$i$j($n)") do o
     absQ > 1 && (absQ = 1/absQ)
     ardb = 20*log10((1+absQ)/(1-absQ))
 end
-ARDB11(n) = ardb(1,1,n)
-ARDB12(n) = ardb(1,2,n)
-ARDB21(n) = ardb(2,1,n)
-ARDB22(n) = ardb(2,2,n)
+AR11DB(n) = ardb(1,1,n)
+AR12DB(n) = ardb(1,2,n)
+AR21DB(n) = ardb(2,1,n)
+AR22DB(n) = ardb(2,2,n)
 
 
 FGHZ = Outfun("FGHZ") do o
