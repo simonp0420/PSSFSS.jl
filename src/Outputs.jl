@@ -1,5 +1,5 @@
 module Outputs
-export @outputs, Result, append_result_data, read_result_file, extract_result_file
+export @outputs, Result, append_result_data, read_result_file, extract_result_file, extract_result
 
 using LinearAlgebra: ⋅, norm
 using ..Constants: c₀, twopi
@@ -29,12 +29,15 @@ struct Result
     ϵᵣin::ComplexF64
     μᵣin::ComplexF64
     β₁in::SV2  # radians/meter
-    β₂in::SV2  # in units of unitsin
+    β₂in::SV2  # radians/meter
     ϵᵣout::ComplexF64
     μᵣout::ComplexF64
-    β₁out::SV2 # in units of unitsout
-    β₂out::SV2 # in units of unitsout
+    β₁out::SV2 # radians/meter
+    β₂out::SV2 # radians/meter
 end
+
+Base.show(::IO, ::MIME"text/plain", r::Result) =
+    print("Result: ", r.FGHz, " GHz, ", r.steering, ", GSM", size(r.gsm.s12))
 
 
 
@@ -43,6 +46,20 @@ struct Outfun{F <: Function}
     label::String
 end
 (o::Outfun)(r::Result) = o.f(r)  # Make it a functor
+
+Base.show(::IO, ::MIME"text/plain", o::Outfun) =
+    print("Outfun: ", o.label)
+
+function Base.show(::IO, ::MIME"text/plain", t::NTuple{N,Outfun} where {N})
+    print("Outfun NTuple: (")
+    for (i,o) in pairs(t)
+        if i < length(t)
+            print(o.label, ", ")
+        else
+            print(o.label,")")
+        end
+    end
+end
 
 
 """
@@ -251,7 +268,7 @@ DIL21 = ΔIL21
 end
 DIL12 = ΔIL12
 
-ardb(i,j,n) = Outfun("ARdB$i$j($n)") do o
+ardb(i,j,n) = Outfun("AR$i$j($n)dB") do o
     jP = im * getsijmn(i,j,1,n,o)/getsijmn(i,j,2,n,o) # Modified Linear Pol. ratio
     Q = (1-jP)/(1+jP) # Circular polarization ratio
     absQ = abs(Q)
@@ -404,11 +421,32 @@ Tuple returned by the `@outputs` macro.
 
 ### Example
     ops = @outputs FGHz S11DB(H,H) S11ANG(H,H)
-    extract_results_file("pssfss.res", ops)
+    data = extract_result_file("pssfss.res", ops)
 """
 function extract_result_file(fname::AbstractString, ops::Tuple)
     results = read_result_file(fname)
     [o(r) for r in results, o in ops]
+end
+
+"""
+    extract_result(r::Result, ops::NTuple{N,Outfun}) --> Row Matrix
+    extract_result(r::AbstractVector{Result}, ops::NTuple{N,Outfun}) --> Matrix
+
+Return a matrix of outputs extracted from a `Result` instance or vector.  `ops` is a 
+`NTuple` as returned by the `@outputs` macro.
+
+### Example
+    results = analyze(...)
+    ops = @outputs FGHz s11dB(h,h) s11ang(h,h)
+    data = extract_result(results, ops)
+    # or data = extract_result(results[1], ops) # returns a single row
+"""
+function extract_result(results::AbstractVector{Result}, ops::Tuple)
+    [o(r) for r in results, o in ops]
+end
+
+function extract_result(results::Result, ops::Tuple)
+    permutedims([o(results) for o in ops])
 end
 
 end # module

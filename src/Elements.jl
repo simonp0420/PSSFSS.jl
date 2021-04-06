@@ -144,7 +144,7 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     @testpos(Lx); @testpos(Ly); @testpos(Nx); @testpos(Ny); @testpos(Px); @testpos(Py)
 
     sheet = RWGSheet()
-    sheet.style = "strip"
+    sheet.style = "rectstrip"
     sheet.units = units
 
     sheet.s₁ = SV2([Px,0.0])

@@ -84,7 +84,11 @@ RWGSheet() = RWGSheet("", u"mm",            # style, units
                       true, false)          # ξη_check, fufp
                     
 
-  
+Base.show(::IO, ::MIME"text/plain", s::RWGSheet) =
+    print("RWGSheet: style=", s.style, ", class=", s.class, ", ", length(s.ρ), " nodes, ", length(s.e1), 
+            " edges, ", size(s.fv,2), " faces")
+             
+                    
 """
     read_sheet_data(filename::AbstractString)
     

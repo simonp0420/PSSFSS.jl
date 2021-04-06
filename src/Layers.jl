@@ -81,7 +81,7 @@ Base.:(==)(l1::Layer, l2::Layer) =
              all(f -> getfield(l1, f) == getfield(l2, f), 1:nfields(l1))
 
 Base.show(::IO, ::MIME"text/plain", l::Layer) =
-    println(l.name, ": width=", l.user_width, ", ϵᵣ=", real(l.ϵᵣ), ", tanδ=", -imag(l.ϵᵣ)/real(l.ϵᵣ),
+    print(l.name, ": width=", l.user_width, ", ϵᵣ=", real(l.ϵᵣ), ", tanδ=", -imag(l.ϵᵣ)/real(l.ϵᵣ),
             ", μᵣ=", real(l.μᵣ), ", mtanδ=", -imag(l.μᵣ)/real(l.μᵣ), ", ", length(l.P), " modes" )
 
 

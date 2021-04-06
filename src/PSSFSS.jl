@@ -42,7 +42,7 @@ using .Log: pssfss_logger, @logfile
 @reexport using .PSSFSSLen
 @reexport using .Layers: Layer
 @reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross, nullsheet
-@reexport using .Outputs: @outputs, extract_result_file
+@reexport using .Outputs: @outputs, extract_result_file, extract_result
 using .Outputs: Result, append_result_data
 
 export analyze
@@ -96,8 +96,8 @@ Generate output files as specified in `outlist`.
 
 """
 function analyze(strata::Vector{Any}, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
-    layers = Layer[s for s in strata if s isa Layer]
-    sheets = RWGSheet[s for s in strata if s isa RWGSheet]
+    layers = Layer[deepcopy(s) for s in strata if s isa Layer]
+    sheets = RWGSheet[deepcopy(s) for s in strata if s isa RWGSheet]
     islayer = map(x -> x isa Layer, strata)
     issheet = map(x -> x isa RWGSheet, strata)
     nl = length(layers)
@@ -201,6 +201,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
     end
     # Begin analysis loops over steering angles and frequency
     firstoutput = true
+    results = Result[]
     for stout in stvalues[1], stin in stvalues[2]
         steer = getsttuple(stkeys, stout, stin)
         if keys(steer)[1] == :ψ₁
@@ -279,7 +280,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
             result = Result(gsmc, steer, β⃗₀₀, fghz, layers[1].ϵᵣ, layers[1].μᵣ, 
             layers[1].β₁, layers[1].β₂, layers[end].ϵᵣ, layers[end].μᵣ, 
             layers[end].β₁, layers[end].β₂)
-
+            push!(results, result)
             ncount += 1
             # Write to output files
             append_result_data(resultfile,string(ncount),result)
@@ -300,7 +301,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
 
     date, clock = split(string(now()),'T')
     @logfile "\n\n PSSFSS analysis exiting on $(date) at $(clock)\n\n"
-    return nothing
+    return results
 end # function
 
 
