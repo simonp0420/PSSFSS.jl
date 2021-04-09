@@ -471,7 +471,11 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     return sheet
 
 end # function polyring
-
+# Add a method for scalar `a` and `b`:
+function polyring(;s1::Vector, s2::Vector, a::Real, b::Real, sides::Int, ntri::Int, units::PSSFSSLength,
+    orient::Real=0.0, kwarg...)::RWGSheet
+    polyring(;s1, s2, a=[float(a)], b=[float(b)], sides, ntri, units, orient, kwarg...)
+end
 
 """
     meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
