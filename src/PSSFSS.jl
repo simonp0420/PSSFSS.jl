@@ -97,7 +97,7 @@ Generate output files as specified in `outlist`.
 """
 function analyze(strata::Vector{Any}, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
     layers = Layer[deepcopy(s) for s in strata if s isa Layer]
-    sheets = RWGSheet[deepcopy(s) for s in strata if s isa RWGSheet]
+    sheets = RWGSheet[s for s in strata if s isa RWGSheet]
     islayer = map(x -> x isa Layer, strata)
     issheet = map(x -> x isa RWGSheet, strata)
     nl = length(layers)
@@ -255,7 +255,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
                             error("Illegal sheet class: $(sheet.class)")
                         end
 
-                        gbldup[ig] < 0 && (gsm_save[ig] = gsmb)          
+                        gbldup[ig] < 0 && (gsm_save[ig] = deepcopy(gsmb))          
                     end
                     # Apply translations if requested:
                     sheet = sheets[i_sheet]
