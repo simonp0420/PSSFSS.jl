@@ -817,12 +817,14 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
             if upa[j1] ≠ upa[j2] 
                 # Need 4 layers between: One associated with each sheet and 2 more for matching
                 # up the periodicities with Layers of principal modes.
+                #=
                 if j2 - j1 < 4  
                     error("""
                     Unequal unit cells for sheets $(junc[j1]) and $(junc[j2]).
                     At least 4 thin intervening layers needed for differing periodicities.
                     Try splitting layer $(jmid).""")
                 end                
+                =#
                 owner[j1:jmid-1] .= j1
                 owner[jmid+1:j2] .= j2
             else
@@ -851,6 +853,9 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
         end
         junc[j] ≠ 0 && (gbl[jg].j = j)
     end
+
+    # Check that every junction occurs exactly once in the list of Gblocks
+        vcat((vec(g.rng) for g in gbl)...) == 1:nj || error("Bad Gblock vector: $gbl")
 
     return gbl
 end
