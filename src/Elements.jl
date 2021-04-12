@@ -266,7 +266,7 @@ All arguments are keyword arguments which can be entered in any order.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
                Entries in `a` and `b` must be strictly increasing, except for possibly `b[end]` as discussed 
                below. `b[i] > a[i]` ∀ `i ∈ 1:n`, except possibly `b[end]` as discussed below. 
-               `a[0]` may be zero to denote a solid (non-annular) polygon as the first "ring".
+               `a[1]` may be zero to denote a solid (non-annular) polygon as the first "ring".
                 It is possible to let the outermost ring to extend completely to the unit cell boundary.  
                 This is specified by setting `b[end]` < 0, in which case `-b[end]` is interpreted as the 
                 number of edges along the shorter of the `s1` and `s2` lattice vectors.
@@ -471,11 +471,6 @@ function polyring(;s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     return sheet
 
 end # function polyring
-# Add a method for scalar `a` and `b`:
-function polyring(;s1::Vector, s2::Vector, a::Real, b::Real, sides::Int, ntri::Int, units::PSSFSSLength,
-    orient::Real=0.0, kwarg...)::RWGSheet
-    polyring(;s1, s2, a=[float(a)], b=[float(b)], sides, ntri, units, orient, kwarg...)
-end
 
 """
     meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
