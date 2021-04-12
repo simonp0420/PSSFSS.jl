@@ -70,8 +70,8 @@ Obtain the `(m,n)` entry of the `(i,j)` partition of `o.gsm`.  Note that
 In either of the last two cases, the GSM is modified appropriately as described in 
 Chapter 8 of the theory documentation.
 """
-@inline function getsijmn(i::Int, j::Int, m::Int, n::Int, o::Result)
-    o.gsm[i,j][m,n]
+@inline function getsijmn(i::Int, j::Int, m::Union{Int,TEorTM}, n::Union{Int,TEorTM}, o::Result)
+    o.gsm[i,j][Int(m), Int(n)]
 end
 
 
