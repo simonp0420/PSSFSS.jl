@@ -34,14 +34,14 @@ using .Rings
 using .Sheets: Sheet, RWGSheet
 using .RWG: setup_rwg, rwgbfft!, RWGData
 using .GSMs: GSM, cascade, cascade!, gsm_electric_gblock, gsm_magnetic_gblock,
-             gsm_slab_interface, translate_gsm!, choose_gblocks, Gblock
+             gsm_slab_interface, translate_gsm!, choose_gblocks, Gblock, pecgsm, pmcgsm
 using .FillZY: fillz, filly
 using .Modes: zhatcross, choose_layer_modes!, setup_modes!
 using .Constants: twopi, c₀, tdigits, dbmin
 using .Log: pssfss_logger, @logfile
 @reexport using .PSSFSSLen
 @reexport using .Layers: Layer
-@reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross, nullsheet
+@reexport using .Elements: rectstrip, polyring, meander, loadedcross, jerusalemcross, pecsheet, pmcsheet
 @reexport using .Outputs: @outputs, extract_result_file, extract_result
 using .Outputs: Result, append_result_data
 
@@ -95,9 +95,9 @@ Generate output files as specified in `outlist`.
   via the `outlist` argument.
 
 """
-function analyze(strata::Vector{Any}, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
+function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
     layers = Layer[deepcopy(s) for s in strata if s isa Layer]
-    sheets = RWGSheet[s for s in strata if s isa RWGSheet]
+    sheets = RWGSheet[s for s in strata if s isa Sheet]
     islayer = map(x -> x isa Layer, strata)
     issheet = map(x -> x isa RWGSheet, strata)
     nl = length(layers)
@@ -251,6 +251,10 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
                         elseif sheet.class == 'M'
                             gsmb = calculate_mtype_gsm(region, sheet, uvec[i_sheet],
                                                        rwgdat[i_sheet], s, k0, β⃗₀₀, usi[i_sheet])
+                        elseif sheet.class == 'E'
+                            gsmb = pecgsm(length(region[1].P), length(region[end].P))
+                        elseif sheet.class == 'H'
+                            gsmb = pmcgsm(length(region[1].P), length(region[end].P))
                         else
                             error("Illegal sheet class: $(sheet.class)")
                         end
@@ -289,12 +293,12 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
                     open(row[1], "w") do io
                         writedlm(io, permutedims([r.label for r in row[2]]), ',')
                     end
-                    firstoutput = false
                 end
                 open(row[1], "a") do io
                     writedlm(io, permutedims([r(result) for r in row[2]]), ',')
                 end
             end
+            firstoutput = false
             next!(progress) # Bump progress meter
         end # Frequency loop
     end # steering angle loop

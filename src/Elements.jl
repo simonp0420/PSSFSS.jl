@@ -1,6 +1,6 @@
 module Elements
 
-export rectstrip, polyring, meander, loadedcross, jerusalemcross, nullsheet
+export rectstrip, polyring, meander, loadedcross, jerusalemcross, pecsheet, pmcsheet
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
 using ..Sheets: RWGSheet, rotate!, combine, recttri, SV2
@@ -97,24 +97,33 @@ const optional_kwargs =
 """
         
 
-"""
-    nullsheet(;class::Char)
-
-Return a variable of type `RWGSheet` that contains a null sheet.
-
-# Arguments:
-- `class::Char='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface 
-  currents, as used to model a wire or metallic patch-type FSS.  If `'M'`,  the unknowns are
-  magnetic surface currents, as used to model a slot or aperture in a perfectly conducting plane.
-
 
 """
-function nullsheet(; class::Char='M')::RWGSheet
+    pecsheet()
+
+Return a variable of type `RWGSheet` that contains a perfect electric conducting sheet (i.e. an "E-wall").
+
+"""
+function pecsheet()::RWGSheet
     sheet = RWGSheet()
     sheet.style = "NULL"
-    sheet.class = class
+    sheet.class = 'E'
     return sheet
 end # function
+
+"""
+    pmcsheet()
+
+Return a variable of type `RWGSheet` that contains a perfect magnetic conducting sheet (i.e. an "H-wall").
+
+"""
+function pmcsheet()::RWGSheet
+    sheet = RWGSheet()
+    sheet.style = "NULL"
+    sheet.class = 'H'
+    return sheet
+end # function
+
 
 
 
@@ -655,7 +664,7 @@ at a 45 degree angle wrt the x-axis.
      |     ------------   |       |   -------------
      |     |  |-----------|       |------------|  |
      |     |  |                                |  |
-    L_1    |  |                                |  |
+     L1    |  |                                |  |
      |     |  |                                |  |
      |     |  |                                |  |
      |     |  ------------          ------------  |
@@ -668,7 +677,7 @@ at a 45 degree angle wrt the x-axis.
      |                 |              |
      V                 ----------------
     
-                       <--- L_2 ------>
+                       <---- L2 ------>
     
 # Arguments:
 

@@ -1,6 +1,6 @@
 module GSMs
 export GSM, cascade, cascade!, initialize_gsm_file, append_gsm_data, read_gsm_file,
-        Gblock, choose_gblocks, gsm_slab_interface, translate_gsm!
+        Gblock, choose_gblocks, gsm_slab_interface, translate_gsm!, pecgsm, pmcgsm
 
 using LinearAlgebra
 using StaticArrays: SA
@@ -41,6 +41,25 @@ function Base.size(::GSM, k)
     (k == 1 || k  == 2) && (return 2)
     k > 2 && (return 1)
     error("arraysize: dimension out of range")
+end
+
+
+function pecgsm(n1,n2)
+    gsm = GSM(n1,n2)
+    gsm.s11[diagind(gsm.s11)] .= -one(eltype(gsm.s11))
+    gsm.s22[diagind(gsm.s22)] .= -one(eltype(gsm.s22))
+    gsm.s12 .= zero(eltype(gsm.s12))
+    gsm.s21 .= zero(eltype(gsm.s21))
+    return gsm
+end
+
+function pmcgsm(n1,n2)
+    gsm = GSM(n1,n2)
+    gsm.s11[diagind(gsm.s11)] .= one(eltype(gsm.s11))
+    gsm.s22[diagind(gsm.s22)] .= one(eltype(gsm.s22))
+    gsm.s12 .= zero(eltype(gsm.s12))
+    gsm.s21 .= zero(eltype(gsm.s21))
+    return gsm
 end
 
 
@@ -732,7 +751,7 @@ end
 
 
 """
-    choose_gblocks(strata, k0min) -> gbl::Vector{Gblock}
+    choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int}, k0min::Float64) -> gbl::Vector{Gblock}
 
 Set up gbl, the array of GBLOCKs the defines the basic GSM building 
 blocks for the FSS structure.
@@ -757,7 +776,7 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
 
     # Pure radome case is easy:
     if ns == 0 || all(t.style == "NULL" for t in sheets)
-        gbl = [Gblock(i:i, 0) for i = 1:nj]
+        gbl = [junc[i] == 0 ? Gblock(i:i, 0) : Gblock(i:i,i) for i = 1:nj]
         return gbl
     end
 
@@ -855,8 +874,7 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
     end
 
     # Check that every junction occurs exactly once in the list of Gblocks
-        vcat((vec(g.rng) for g in gbl)...) == 1:nj || error("Bad Gblock vector: $gbl")
-
+    vcat((vec(g.rng) for g in gbl)...) == 1:nj || error("Bad Gblock vector: $gbl")
     return gbl
 end
 
