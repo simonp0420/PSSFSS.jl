@@ -751,7 +751,7 @@ end
 
 
 """
-    choose_gblocks(strata, k0min) -> gbl::Vector{Gblock}
+    choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int}, k0min::Float64) -> gbl::Vector{Gblock}
 
 Set up gbl, the array of GBLOCKs the defines the basic GSM building 
 blocks for the FSS structure.
@@ -874,8 +874,7 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
     end
 
     # Check that every junction occurs exactly once in the list of Gblocks
-        vcat((vec(g.rng) for g in gbl)...) == 1:nj || error("Bad Gblock vector: $gbl")
-
+    vcat((vec(g.rng) for g in gbl)...) == 1:nj || error("Bad Gblock vector: $gbl")
     return gbl
 end
 
