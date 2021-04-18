@@ -22,7 +22,7 @@ const tol = 1e-4
 const dbmin = 30.0
 
 "Min. elect. length for a layer to not be included in a `GBLOCK`"
-const min_elength = twopi * 0.05 
+const min_elength = twopi * 0.1 
 
 "Number of digits to use in printing elapsed time"
 const tdigits = 4
