@@ -1,3 +1,13 @@
+"""
+`PSSFSS` is a software package for the analysis of polarization and frequency selective surfaces (PSSs and FSSs).
+The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric [`Layer`](@ref)s 
+and zero or more [`Sheet`](@ref) objects denoting the PSS/FSS surfaces.  After also specifying the scan angles or
+unit cell incremental phasings, frequencies to be considered, and optionally some output parameters to be written
+to CSV file(s), 
+the user then invokes the [`analyze`](@refs) function to perform the analysis.  FSS/PSS triangulations
+can be conveniently visualized using the `plot` command of the `Plots` package.
+
+"""
 module PSSFSS
 
 if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
@@ -83,7 +93,7 @@ Generate output files as specified in `outlist`.
   contents of the specified file(s) will be updated as the program completes each analysis
   frequency.
 
-  - `logfile`:  A string containing the name of the log file to which timing and other 
+- `logfile`:  A string containing the name of the log file to which timing and other 
   information about the run is written. Defaults to `"pssfss.log"`.
   If this file already exists, it will be overwritten.
 
