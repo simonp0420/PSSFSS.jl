@@ -1,12 +1,7 @@
 using PSSFSS
-using PSSFSS: calculate_jtype_gsm, calculate_mtype_gsm
 using PSSFSS.Constants: c₀
-using PSSFSS.Sheets: RWGSheet
-using PSSFSS.RWG: setup_rwg
-using PSSFSS.GSMs: GSM, choose_gblocks
-using PSSFSS.Modes: choose_layer_modes!, setup_modes!
-using LinearAlgebra: norm, ⋅
-using StaticArrays: @SVector
+using PSSFSS.GSMs: GSM
+using LinearAlgebra: norm
 using Test
 using Logging: Error, ConsoleLogger, default_metafmt, global_logger
 
@@ -15,8 +10,6 @@ testlogger = ConsoleLogger(stderr, Error,
                        meta_formatter=default_metafmt, show_limited=true,
                        right_justify=0)
 oldlogger = global_logger(testlogger)
-
-
 
 
 """
@@ -50,6 +43,7 @@ end
 
 
 FGHz = 0.8
+steering = (θ=0, ϕ=0)
 ## Compute analytic answer
 (r,t) = grating(2π*FGHz)
 gsmexact = GSM(2,2)
@@ -58,55 +52,26 @@ gsmexact.s22 = gsmexact.s11
 gsmexact.s21 = [t 0; 0 -r]
 gsmexact.s12 = gsmexact.s21
 
-
-
-ψ₁ = ψ₂ = 0.0
-
 c_inchghz = c₀ * 100/2.54 * 1e-9
-k0 = 2π*FGHz*1e9/c₀
 period = c_inchghz # so the period/wavelength = freq in GHz
-
 Py = period
 Ly = period/2
 Px = Lx = Ly/10
 Ny = 40
 Nx = round(Int, Ny*Lx/Ly)
-dbmin = 25.0
+
 
 
 @testset "JtypeSymmetricStrip" begin
 
-    sheet = rectstrip(Px=Px, Py=Py, Lx=Lx, Ly=Ly, Nx=Nx, Ny=Ny, units=inch)
+    sheet = rectstrip(;Px, Py, Lx, Ly, Nx, Ny, units=inch)
     strata = [Layer()
               sheet
               Layer()]
 
-    islayer = map(x -> x isa Layer, strata)
-    issheet = map(x -> x isa RWGSheet, strata)
-    layers = convert(Vector{Layer}, strata[islayer])
-    sheets = convert(Vector{RWGSheet}, strata[issheet])
-    nl = length(layers)
-    nj = nl - 1
-    ns = length(sheets)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
-    junc = zeros(Int, nj)
-    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
-
-    s = findfirst(x -> x isa RWGSheet, strata) - 1 # location of Sheet
-
-    gbl = choose_gblocks(layers, sheets, junc, k0)
-    choose_layer_modes!(layers, sheets, junc, gbl, k0, dbmin)
-    β₁, β₂ = sheet.β₁, sheet.β₂
-    ufact = 0.5
-    units_per_meter = ustrip(Float64, sheet.units, 1u"m")
-    u = ufact * max(norm(β₁), norm(β₂)) * units_per_meter
-    rwgdat = setup_rwg(sheet)
-    k⃗inc = @SVector([units_per_meter * ψ₁/Px, units_per_meter * ψ₂/Py])
-    for layer in layers
-        setup_modes!(layer, k0, k⃗inc)
-    end
-
-    gsmj = calculate_jtype_gsm(layers, sheet, u,rwgdat, s, k0, k⃗inc, s);
+    results = analyze(strata, FGHz, steering, logfile=devnull, 
+                      resultfile=devnull, showprogress=false)
+    gsmj = results[1].gsm
     for m in 1:2, n in 1:2
         @test norm(gsmj[m,n] - gsmexact[m,n], Inf) < 0.01
     end
@@ -114,38 +79,14 @@ end
 
 @testset "MtypeSymmetricStrip" begin
 
-    sheet = rectstrip(Px=Px, Py=Py, Lx=Lx, Ly=Ly, Nx=Nx, Ny=Ny, units=inch, class='M')
+    sheet = rectstrip(;Px, Py, Lx, Ly, Nx, Ny, units=inch, class='M')
     strata = [Layer()
               sheet
               Layer() ]     
-    islayer = map(x -> x isa Layer, strata)
-    issheet = map(x -> x isa RWGSheet, strata)
-    layers = convert(Vector{Layer}, strata[islayer])
-    sheets = convert(Vector{RWGSheet}, strata[issheet])
-    nl = length(layers)
-    nj = nl - 1
-    ns = length(sheets)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
-    junc = zeros(Int, nj)
-    junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
-    s = findfirst(x -> x isa RWGSheet, strata) - 1 # location of Sheet
 
-    gbl = choose_gblocks(layers, sheets, junc, k0)
-    dbmin = 25.0
-    choose_layer_modes!(layers, sheets, junc, gbl, k0, dbmin)
-    β₁, β₂ = sheet.β₁, sheet.β₂
-    ufact = 0.5
-    units_per_meter = ustrip(Float64, sheet.units, 1u"m")
-    u = ufact * max(norm(β₁), norm(β₂)) * units_per_meter
-    rwgdat = setup_rwg(sheet)
-    k⃗inc = @SVector([units_per_meter * ψ₁/Px, units_per_meter * ψ₂/Py])
-    for layer in layers
-        setup_modes!(layer, k0, k⃗inc)
-    end
-
-    gsmm = calculate_mtype_gsm(layers, sheet, u,rwgdat, s, k0, k⃗inc, s);
-
-
+    results = analyze(strata, FGHz, steering, logfile=devnull, 
+                      resultfile=devnull, showprogress=false)
+    gsmm = results[1].gsm
     for m in 1:2, n in 1:2
         @test  norm(gsmm[m,n] - gsmexact[m,n], Inf) < 0.01
     end
