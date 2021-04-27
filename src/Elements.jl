@@ -526,7 +526,7 @@ All arguments are keyword arguments which can be entered in any order.
 ## Required arguments:
 - `a`,`b`,`h`,`w1`, `w2`: Geometrical parameters as defined above.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles distributed among all the annular regions. 
+- `ntri`:  The desired total number of triangles. 
            This is a guide, the actual number will likely be different.
     
 $(optional_kwargs)
