@@ -2,11 +2,11 @@
 CurrentModule = PSSFSS
 ```
 
-# PSSFSS - analysis of polarization and frequency selective surfaces in Julia
+# [PSSFSS](https://github.com/simonp0420/PSSFSS) - analysis of polarization and frequency selective surfaces in Julia
 
 **Author: Peter S. Simon (@simonp0420)**
 
-`PSSFSS` is a Julia package for analyzing 
+[PSSFSS](https://github.com/simonp0420/PSSFSS) is a Julia package for analyzing 
 [polarization selective surfaces](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=polarization+selective+surface&btnG=) (PSSs), [frequency selective surfaces](https://en.wikipedia.org/wiki/Frequency_selective_surface) (FSSs), 
 [reflectarray](https://en.wikipedia.org/wiki/Reflectarray_antennahttps://en.wikipedia.org/wiki/Reflectarray_antenna) elements, 
 [radomes](https://en.wikipedia.org/wiki/Radome), and similar structures.  It is intended to be useful to antenna design engineers and others who work in applied electromagnetic engineering.
@@ -47,21 +47,8 @@ performed in the same analysis script using the immensely powerful Julia program
 * Frequency sweeps are fast for normal incidence or for the case where unit cell incremental phase shifts ψ₁ and ψ₂ are constant
   with frequency (as in a waveguide).  Frequency sweeps where the angle of incidence is held constant are typically much slower (except for normal incidence).
 
+
+# Index
 ```@index
 ```
-```@docs
-analyze
-Layer
-pecsheet
-pmcsheet
-rectstrip
-polyring
-meander
-loadedcross
-jerusalemcross
-```
 
-[//]: # ```@autodocs
-[//]: # Modules = [PSSFSS]
-[//]: # Private = false
-[//]: # ```
