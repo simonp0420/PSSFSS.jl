@@ -401,6 +401,8 @@ function append_result_data(fname::AbstractString, gname::String, result::Result
     return    
 end
 
+append_result_data(::Base.DevNull, ::String, ::Result) = nothing
+
 """
     read_result_file(fname::AbstractString) --> Vector{Result}
 

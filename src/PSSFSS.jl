@@ -57,10 +57,11 @@ using .Outputs: Result, append_result_data
 
 export analyze
 
-
+Base.isfile(f::Base.DevNull) = false
+Base.open(f::Base.DevNull,::AbstractString) = f
 
 """
-    analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
+    analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res", showprogress::Bool=true)
 
 Analyze a full FSS/PSS structure over a range of frequencies and steering angles/phasings.  
 Generate output files as specified in `outlist`.
@@ -104,8 +105,11 @@ Generate output files as specified in `outlist`.
   post-processed to produce similar or additional outputs that were requested at run time
   via the `outlist` argument.
 
+- `showprogress`: If true (default), then show progress bar during execution.
+
 """
-function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res")
+function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log", 
+    resultfile="pssfss.res", showprogress::Bool=true)
     layers = Layer[deepcopy(s) for s in strata if s isa Layer]
     sheets = RWGSheet[s for s in strata if s isa Sheet]
     islayer = map(x -> x isa Layer, strata)
@@ -135,15 +139,16 @@ function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.lo
     end
 
     with_logger(pssfss_logger(logfile)) do 
-        _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=outlist, resultfile=resultfile)
+        _analyze(layers, sheets, junc, freqs, stkeys, stvalues; 
+                 outlist, resultfile, showprogress)
     end
 end # function
 
 
 
 """
-function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=Any[], 
-                                                        resultfile="pssfss.res")
+function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; 
+    outlist=Any[], resultfile="pssfss.res", showprogress::Bool=true)
 
 
 ## Positional Arguments
@@ -185,13 +190,16 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=Any[],
   the analysis performed for each scan condition and frequency. The result file can be
   post-processed to produce similar or additional outputs that were requested at run time
   via the `outlist` argument.
+
+- `showprogress`: If true, use ProgressMeter to show execution progress
 """
-function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], resultfile="pssfss.res")
-    println("Beginning PSSFSS Analysis")
+function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; 
+    outlist=[], resultfile="pssfss.res", showprogress::Bool=true)
+    showprogress && println("Beginning PSSFSS Analysis")
     ncount = 0 # Number of analyses performed
     ntotal = length(freqs) * length(stvalues[1]) * length(stvalues[2])
-    progress = Progress(ntotal,1)
-    update!(progress, 0)
+    showprogress && (progress = Progress(ntotal,1))
+    showprogress && update!(progress, 0)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()),'T')
     @logfile "\n\nStarting PSSFSS analysis on $(date) at $(clock)\n\n"
@@ -309,7 +317,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; outlist=[], res
                 end
             end
             firstoutput = false
-            next!(progress) # Bump progress meter
+            showprogress && next!(progress) # Bump progress meter
         end # Frequency loop
     end # steering angle loop
 
