@@ -31,9 +31,9 @@ Triangulate = "f7e6ffb2-c36d-4f8f-a77e-16e897189344"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
+Reexport = "^1.0.0"
 Revise = ">= 2"
 julia = "1"
-Reexport = "^1.0.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
