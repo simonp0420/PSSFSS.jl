@@ -139,15 +139,15 @@ end
 
 @testset "choose_gblocks1" begin
     strata = 
-        [Layer()
-         rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
-         Layer(width=20mm)
-         Layer(width=1mil)
-         Layer(width=10mm)
-         Layer(width=1mil, ϵᵣ=2.2)
-         rectstrip(units=mm, Px = 1, Py = 1, Lx=1, Ly=1, Nx=2, Ny=2)
-         Layer()
-        ]
+    [Layer()
+     rectstrip(units=cm, Px = 1, Py = 1, Lx=0.5, Ly=0.5, Nx=10, Ny=10)
+     Layer(width=1mil, ϵᵣ=2.2)
+     Layer(width=1mil)
+     Layer(width=3mm)
+     rectstrip(units=cm, Px = 1, Py = 1, Lx=0.5, Ly=0.5, Nx=10, Ny=10)
+     Layer(width=1mil, ϵᵣ=2.2)
+     Layer()
+    ]
     islayer = map(x -> x isa Layer, strata)
     issheet = map(x -> x isa RWGSheet, strata)
     layers = convert(Vector{Layer}, strata[islayer])
@@ -159,13 +159,11 @@ end
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     
-    FGHz = 2.0; k0 = twopi * FGHz*1e9 / c₀
+    FGHz = 10.0; k0 = twopi * FGHz*1e9 / c₀
     gbl = choose_gblocks(layers, sheets, junc, k0)
-    @test length(gbl) == 4
-    @test gbl[1] == Gblock(1:1,1)
-    @test gbl[2] == Gblock(2:2,0)
-    @test gbl[3] == Gblock(3:3,0)
-    @test gbl[4] == Gblock(4:5,5)
+    @test length(gbl) == 2
+    @test gbl[1] == Gblock(1:3,1)
+    @test gbl[2] == Gblock(4:5,4)
 end
 
 @testset "choose_gblocks2" begin
@@ -268,7 +266,7 @@ end
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
     k0min = twopi * fmin / c₀
 
-    @test choose_gblocks(layers, sheets, junc, k0min) == [Gblock(1:3,2), Gblock(4:6,5),Gblock(7:9,8)]
+    @test choose_gblocks(layers, sheets, junc, k0min) == [Gblock(1:2,2), Gblock(3:5,5),Gblock(6:9,8)]
 
 end
 

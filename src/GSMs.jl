@@ -831,26 +831,15 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
             end
             #
             # At this point, we've determined that both sheets are non-null, and closely separated
-            #
-            jmid = (j1 + j2 + 1) ÷ 2
-            if upa[j1] ≠ upa[j2] 
-                # Need 4 layers between: One associated with each sheet and 2 more for matching
-                # up the periodicities with Layers of principal modes.
-                #=
-                if j2 - j1 < 4  
-                    error("""
-                    Unequal unit cells for sheets $(junc[j1]) and $(junc[j2]).
-                    At least 4 thin intervening layers needed for differing periodicities.
-                    Try splitting layer $(jmid).""")
-                end                
-                =#
-                owner[j1:jmid-1] .= j1
-                owner[jmid+1:j2] .= j2
-            else
-                # Equal periodicity. 
-                owner[j1:jmid-1] .= j1
-                owner[jmid:j2] .= j2
-            end
+            # Pick the electrically thickest layer between them as the dividing line.
+            # If several layers tie for max thickness, choose the one closest to the middle.
+            elmax = maximum(@view elength[j1+1:j2])
+            best_layers = findall(elength .== elmax)
+            layermid = (j1 + j2 + 1) ÷ 2
+            (_,ibest) = findmin(abs.(best_layers .- layermid))
+            layerbest = best_layers[ibest]
+            owner[j1:layerbest-1] .= j1
+            owner[layerbest:j2] .= j2
         end
     end
       

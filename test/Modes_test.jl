@@ -86,7 +86,7 @@ end
 
     gbl = choose_gblocks(layers, sheets, junc, k0min)
     choose_layer_modes!(layers, sheets, junc, gbl, k0max, dbmin)
-    @test [length(l.P) for l in strata if l isa Layer] == [2,0,0,2,2,0,0,2]
+    @test [length(l.P) for l in strata if l isa Layer] == [2,0,0,2,0,0,0,2]
 end
 
 @testset "choose_layer_modes!3" begin
