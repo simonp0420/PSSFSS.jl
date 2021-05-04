@@ -90,11 +90,11 @@ Base.show(io::IO, ::MIME"text/plain", s::RWGSheet) =
              
                     
 """
-    read_sheet_data(filename::AbstractString)
+    read_sheet_data(filename::AbstractString)::RWGSheet
     
 Read the sheet geometry data from a `JLD2` file named in `filename`.
 """
-function read_sheet_data(filename::AbstractString)
+function read_sheet_data(filename::AbstractString)::RWGSheet
     jldopen(filename, "r") do file
         try
             return file["sheet"]

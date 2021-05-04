@@ -28,6 +28,10 @@ performed in the same analysis script using the immensely powerful Julia program
 
 * Designed to be useful and accessible to working engineers.
 * Accommodates planar FSS/PSS surfaces with no limits to number of dielectric layers or FSS/PSS sheets.
+* Automatically chooses number of modes needed for cascading multiple FSS/PSS sheets using
+  generalized scattering matrices (GSMs).
+* Supports (approximate) cascading multiple sheets of different periodicities, as in a multilayer
+  meanderline polarizer.
 * Simple specification of geometry to be analyzed.
 * Solution of mixed-potential integral equation using Rao-Wilton-Glisson triangle subdomain basis functions 
   and multi-threaded method of moments.
@@ -52,9 +56,18 @@ performed in the same analysis script using the immensely powerful Julia program
 
 
 ## Installation
-PSSFSS is not yet registered, so it must be installed by the Julia package manager with an explicit URL:
+PSSFSS is not yet registered, so it must currently be installed by the Julia package manager with an explicit URL:
 
 ```Julia
 julia> ]
 (v1.6) pkg> add add https://github.com/simonp0420/PSSFSS.jl
 ```
+
+## Documentation
+- The theory documentation is [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/TheoryDocs/theorydoc.pdf)
+- The user manual is [here](https://simonp0420.github.io/PSSFSS.jl/stable)
+
+## Community
+Help from the community is actively sought and greatly appreciated!  There are several open issues which you might
+want to tackle, and the documentation could always be improved. Pull requests are welcome.  Feel free to open more issues, whether for 
+basic capability, performance, examples, documentation, etc.
