@@ -36,8 +36,8 @@ struct Result
     β₂out::SV2 # radians/meter
 end
 
-Base.show(::IO, ::MIME"text/plain", r::Result) =
-    print("Result: ", r.FGHz, " GHz, ", r.steering, ", GSM", size(r.gsm.s12))
+Base.show(io::IO, ::MIME"text/plain", r::Result) =
+    print(io, "Result: ", r.FGHz, " GHz, ", r.steering, ", GSM", size(r.gsm.s12))
 
 
 
@@ -47,16 +47,16 @@ struct Outfun{F <: Function}
 end
 (o::Outfun)(r::Result) = o.f(r)  # Make it a functor
 
-Base.show(::IO, ::MIME"text/plain", o::Outfun) =
-    print("Outfun: ", o.label)
+Base.show(io::IO, ::MIME"text/plain", o::Outfun) =
+    print(io, "Outfun: ", o.label)
 
-function Base.show(::IO, ::MIME"text/plain", t::NTuple{N,Outfun} where {N})
+function Base.show(io::IO, ::MIME"text/plain", t::NTuple{N,Outfun} where {N})
     print("Outfun NTuple: (")
     for (i,o) in pairs(t)
         if i < length(t)
-            print(o.label, ", ")
+            print(io, o.label, ", ")
         else
-            print(o.label,")")
+            print(io, o.label,")")
         end
     end
 end
