@@ -835,6 +835,7 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
             # If several layers tie for max thickness, choose the one closest to the middle.
             elmax = maximum(@view elength[j1+1:j2])
             best_layers = findall(elength .== elmax)
+            filter!(j -> j1+1 ≤ j ≤ j2, best_layers)
             layermid = (j1 + j2 + 1) ÷ 2
             (_,ibest) = findmin(abs.(best_layers .- layermid))
             layerbest = best_layers[ibest]
@@ -842,7 +843,6 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
             owner[layerbest:j2] .= j2
         end
     end
-      
     # Count number of GBLOCKS needed:
     ngbl = 1
     for j in 2:nj
