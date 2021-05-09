@@ -14,7 +14,7 @@ using ..RWG: RWGData
 using ..PGF: c3_calc, d3_calc
 using ..Zint: zint, filljk!, vtxcrd
 using ..PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
-using ..Log: @logfile, @logscreen
+using ..Log: @logfile
 
 const next = (2,3,1)
 const prev = (3,1,2)

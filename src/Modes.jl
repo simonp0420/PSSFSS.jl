@@ -9,7 +9,7 @@ using ..Sheets: RWGSheet, find_unique_periods
 using ..GSMs: Gblock
 using ..Rings: Ring
 using ..PGF: mysqrt
-using ..Log: @logscreen
+using ..Log: @logfile
 
 const MNmax_default = 6
 
@@ -134,7 +134,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                     # adjacent to layer i containing a nonnull sheet with a different periodicity:
                     if ijunc_other ≠ 0 && upa[ijunc] ≠ upa[ijunc_other] &&
                        sheets[isht_other].style ≠ "NULL" 
-                        @logscreen """
+                        @logfile    """
                                     ******************* Warning ***********************
                                        Unequal unit cells in sheets $(isht) and $(isht_other)
                                        Setting #modes in dividing layer $(i) to 2
@@ -193,7 +193,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                         layers[i].N = [0, 0]
                         mset[i] = true
                         if length(layers[i-1].P) ≠ 2 || length(layers[i+1].P) ≠ 2
-                            @logscreen """
+                            @logfile """
                             ******************* Warning ***********************
                                 Setting # modes in Layer $(i) to 2 due to 
                                 unequal unit cells in surrounding FSS sheets 
@@ -242,7 +242,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                 l.M = [0, 0]
                 l.N = [0, 0]
             end
-            @logscreen """
+            @logfile """
             ******************* Warning ***********************
                 Setting # modes in layers $(il) and $(il+1) to 2 due
                 to unequal unit cells in surrounding FSS sheets 
@@ -261,7 +261,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
         for field in (:β, :γ, :Y, :c, :tvec)
             setfield!(layer, field, zeros(eltype(getfield(layer,field)), nmodes))
         end
-        nmodes == maxmodes &&  @logscreen """
+        nmodes == maxmodes &&  @logfile """
         ******************* Warning ************************
         Maximum number of modes reached. GSM results may not
         be accurate.  Consider increasing MNmax_default from
