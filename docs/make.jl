@@ -1,5 +1,9 @@
 using PSSFSS
-using Documenter
+using Documenter, Literate
+
+cd("literate") do
+  include("literate/compile.jl") 
+end
 
 makedocs(;
     clean=false,
@@ -14,6 +18,10 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Manual" => "manual.md",
+        "Examples" => "examples.md",
+        "Function Reference" => "reference.md",
+        "Index" => "function_index.md"
     ],
 )
 
