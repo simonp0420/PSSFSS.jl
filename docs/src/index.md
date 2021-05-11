@@ -63,7 +63,7 @@ julia> ]
 
 ## Documentation
 - The theory documentation is [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/TheoryDocs/theorydoc.pdf)
-- The user manual is [here](https://simonp0420.github.io/PSSFSS.jl/stable)
+- The user manual is [here](https://simonp0420.github.io/PSSFSS.jl)
 
 
 ## Community
