@@ -1,9 +1,12 @@
 using PSSFSS
-using Documenter, Literate
+using Documenter
 
+#=
+using Literate
 cd("literate") do
   include("literate/compile.jl") 
 end
+=#
 
 makedocs(;
     clean=false,

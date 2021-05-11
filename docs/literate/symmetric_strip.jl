@@ -65,13 +65,15 @@ steering = (θ=0, ϕ=0)
 strata = [Layer()
           sheet
           Layer()]
-results_j = analyze(strata, flist, steering, showprogress=false)
+results_j = analyze(strata, flist, steering, showprogress=false,
+                    resultfile=devnull, logfile=devnull); 
 p1 = plot(sheet)
 p2 = plot(sheet, unitcell=true)
-title = plot(title = "Symmetric Strip Triangulation", 
+ptitle = plot(title = "Symmetric Strip Triangulation", 
              grid = false, showaxis = false, xtick=[], ytick=[],
              bottom_margin = -50Plots.px)
-plot(title, p1, p2, layout = @layout([A{0.09h}; [B C]]))
+plot(ptitle, p1, p2, layout = @layout([A{0.09h}; [B C]]))
+
 # Note that setting `Lx = Px` causes the strip to fully occupy the x-extent
 # of the unit cell.  PSSFSS automatically ensures that the triangle edges at these unit
 # cell boundaries define basis functions that satisfy the Floquet (phase shift) boundary
@@ -83,11 +85,14 @@ sheet = rectstrip(;class='M', Px, Py, Lx, Ly, Nx, Ny, units=inch)
 strata = [Layer()
           sheet
           Layer()]
-results_m = analyze(strata, flist, steering, showprogress=false);
+results_m = analyze(strata, flist, steering, showprogress=false,
+                    resultfile=devnull, logfile=devnull); 
+
 # 
 # Each 50-frequency run of `analyze` takes about 14 seconds
 # for this geometry of 720 triangles on my machine.  
-# More detailed timing information is available in the log file.
+# More detailed timing information is available in the log file
+# (which is omitted for generating this documentation).
 
 # We will compare the PSSFSS results to the analytic solution:
 ## Generate exact results:

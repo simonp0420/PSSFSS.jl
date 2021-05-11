@@ -10,7 +10,7 @@
 # We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
 # is "unloaded", i.e. the center section is filled in with metallization:
 
-using PSSFSS, Plots
+using PSSFSS, Plots, DelimitedFiles
 sheet = loadedcross(w=1.0, L1=0.6875, L2=0.0625, s1=[1.0,0.0], 
                     s2=[0.0,1.0], ntri=600, units=cm)
 plot(sheet, unitcell=true)
@@ -29,6 +29,7 @@ sheet
 # frequency.  Following the reference, the list of analysis frequencies is varied slightly
 # depending on the value of dielectric constant:
 
+resultsstack = Any[]
 steering = (ϕ=0, θ=0)
 for eps in [1, 2, 4]
     strata = [  Layer()
@@ -43,20 +44,20 @@ for eps in [1, 2, 4]
     else
         flist = 1:0.2:20
     end
-    outputs = ["eps$(eps).csv"  @outputs FGHz s11mag(v,v)]
-    results = analyze(strata, flist, steering, outlist=outputs, showprogress=false)
+    results = analyze(strata, flist, steering, showprogress=false, 
+                      resultfile=devnull, logfile=devnull)
+    push!(resultsstack, results)
 end
 
 # The above loop requires about 80 seconds of execution time on my machine.
 # Compare PSSFSS results to those digitized from the dissertation figure:
 
-using DelimitedFiles
 col=[:red,:blue,:green]
 p = plot(xlim=(0.,30), xtick = 0:5:30, ylim=(0,1), ytick=0:0.1:1, 
          xlabel="Frequency (GHz)", ylabel="Reflection Coefficient Magnitude",
-         legend=:topleft)
+         legend=:topleft, lw=2)
 for (i,eps) in enumerate([1,2,4])
-    data = readdlm("eps$(eps).csv", ',', skipstart=1)
+    data = extract_result(resultsstack[i],  @outputs FGHz s11mag(v,v))
     plot!(p, data[:,1], data[:,2], label="PSSFSS ϵᵣ = $eps", lc=col[i])
     data = readdlm("../src/assets/barlevy_diss_eps$(eps).csv", ',')
     plot!(p, data[:,1], data[:,2], label="Barlevy ϵᵣ = $eps", lc=col[i], ls=:dot)

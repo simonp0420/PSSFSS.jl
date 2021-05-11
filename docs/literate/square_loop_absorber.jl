@@ -29,7 +29,8 @@ for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, col
               Layer(width=5mm)
               pecsheet() # Perfectly conducting ground plane
               Layer()]
-    results = analyze(strata, 1:0.2:25, (ϕ=0, θ=0), showprogress=false)
+    results = analyze(strata, 1:0.2:25, (ϕ=0, θ=0), showprogress=false,
+                      resultfile=devnull, logfile=devnull)
     data = extract_result(results, @outputs FGHz s11dB(h,h))
     plot!(p, data[:,1], data[:,2], label="PSSFSS "*label, lc=color)
     dat = readdlm("../src/assets/costa_2014_" * lowercase(label) * "_reflection.csv", ',')

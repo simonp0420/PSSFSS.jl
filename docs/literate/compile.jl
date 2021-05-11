@@ -1,4 +1,4 @@
-#using Literate
+using Literate
 
 function notebook_filter(str)
   re1 = r"(?<!`)``(?!`)"  # Two backquotes not preceded by nor followed by another
@@ -35,6 +35,7 @@ function postinclude(str)
   for file in examples_list
     mdfile = splitext(file)[1] * ".md"
     str *= read(mdfile, String)
+    rm(mdfile)
   end
   str
 end

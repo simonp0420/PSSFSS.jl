@@ -49,8 +49,9 @@ strata = [
 steering = (θ=0, ϕ=0)
 flist = 10:0.1:20
 
-results = analyze(strata, flist, steering, showprogress=false); 
-
+results = analyze(strata, flist, steering, showprogress=false, 
+                  resultfile=devnull, logfile=devnull); 
+ 
 # Here is the script that compares PSSFSS predicted performance with very
 # high accuracy predictions from CST and COMSOL that were digitized from figures in the paper.
 

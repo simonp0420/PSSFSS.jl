@@ -37,7 +37,8 @@ strata = [  Layer()
             Layer(ϵᵣ=1.3, width=1.1cm)
             Layer()  ]
 flist = 1:0.1:20
-results = analyze(strata, flist, steering, resultfile=devnull, showprogress=false)
+results = analyze(strata, flist, steering, resultfile=devnull, 
+                  logfile=devnull, showprogress=false)
 data = extract_result(results, @outputs FGHz s21db(v,v) s11db(v,v))
 using DelimitedFiles
 dat = readdlm("../src/assets/MaybellLoadedCrossResults.csv", ',', skipstart=1)
