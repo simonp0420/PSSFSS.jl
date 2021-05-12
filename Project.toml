@@ -25,6 +25,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 JLD2 = "0.4.5"
+ProgressMeter = "1.6"
 Reexport = "^1.0.0"
 julia = "1"
 
