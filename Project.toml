@@ -25,8 +25,17 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 FileIO = "1.8"
+FFTW = "1.4"
 JLD2 = "0.4.5"
+ProgressMeter = "1.6"
+NearestNeighbors = "0.4"
+LoggingExtras = "0.4"
+RecipesBase = "1.1"
+OffsetArrays = "1.8"
 Reexport = "^1.0.0"
+Triangulate = "1.0"
+StaticArrays = "1.1"
+Unitful = "1.7"
 julia = "1"
 
 [extras]
