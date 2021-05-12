@@ -24,6 +24,7 @@ Triangulate = "f7e6ffb2-c36d-4f8f-a77e-16e897189344"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
+FFTW = "1.4"
 JLD2 = "0.4.5"
 Reexport = "^1.0.0"
 julia = "1"
