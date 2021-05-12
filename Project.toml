@@ -26,6 +26,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 FFTW = "1.4"
 JLD2 = "0.4.5"
+ProgressMeter = "1.6"
 NearestNeighbors = "0.4"
 LoggingExtras = "0.4"
 RecipesBase = "1.1"
