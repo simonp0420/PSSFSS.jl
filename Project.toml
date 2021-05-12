@@ -26,6 +26,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 FFTW = "1.4"
 JLD2 = "0.4.5"
+RecipesBase = "1.1"
 OffsetArrays = "1.8"
 Reexport = "^1.0.0"
 Unitful = "1.7"
