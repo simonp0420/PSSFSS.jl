@@ -1,0 +1,646 @@
+\chapter{Calculation of Incident Fields and GSM Entries}
+\label{chap:incgsm}
+
+\section{Introduction}
+
+
+In Chapter~\ref{chap:gfstratified} a method was presented to efficiently evaluate the
+potential Green's functions for a multiply stratified medium under
+quasi-periodic boundary conditions.  In order to make use of the
+Green's functions in a periodic moment method procedure, it is also
+necessary to compute the incident fields and pick off the scattering
+matrix entries for the multiply stratified medium.  This chapter provides
+the framework for these tasks.
+
+We will assume that the single FSS sheet is located at interface
+number $s$, located between layers $s$ and $s+1$, where $1 \leq s < N.$
+
+\section{Electric Current Unknowns}
+\subsection{Calculation of Incident Fields}
+In this case the incident field is the field that would exist in the
+ structure in the absence of the unknown electric currents (and the
+ metalization which they represent). That is, the incident field is
+ the field present in the pure radome case, with primary excitation
+ from an incoming normalized Floquet mode with unit excitation
+ coefficient.
+
+ There are two cases to consider.  In the first case, the primary excitation
+ is a Region~$1$ Floquet mode propagating in the $+z$ direction.  
+ In the second case, the exciting wave is a Region~$N$ Floquet mode
+ propagating in the  $-z$ direction.
+
+
+\subsubsection{Region~1 Incidence}
+The primary excitation is a plane wave incident from Region~1 with
+transverse electric field given by
+\begin{equation}
+  \e_q \one(x,y) e^{-\gamma\one (z-z_1)}
+\end{equation}
+where $q$ is the
+modal triple index $q = (p_q,m_q,n_q).$ 
+The transmission line equivalent circuit for determining the incident
+field present at any desired junction plane is shown in Figure~\ref{fig:equiv1}.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \psset{unit=0.95cm}
+    \pspicture(-1.5,-1.9)(12,1.6)
+    \psset{nodesep=0pt}
+    \vsource{-1.5} \rput[l](-2,0.35){$V_g$}
+    \seriesload{-1.5}{-0.75}{0}{$Z_{q}^{(1)}$} 
+    \zlabel{0}{$z_1$}
+    \tlsection{0}{1.8}{2}
+    \zlabel{1.8}{$z_2$}
+    \tlsection{1.8}{3.5}{3}
+    \tlsection{4.3}{6.4}{\ensuremath{s}}
+    \zlabel{6.4}{$z_s$}
+    \tlsection{6.4}{8.7}{\ensuremath{s+1}}
+    \tlsection{9.5}{11.6}{\ensuremath{N-1}}
+    \shuntload{11.6}{$Z_{q}^{(N)}$}
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(3.9,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(3.9,-0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuit used to find
+    incident electric field for a plane wave incident from Region~1.}
+    \label{fig:equiv1}
+  \end{center}
+\end{figure}
+We choose the generator voltage $V_g = 2$ to supply a unit incoming voltage
+wave. The total incident (both incoming and reflected) electric field at
+$z=z_1$ is then
+\begin{equation}
+  \Idemfactor_z \bdot \E\inc(x,y,z_1) = V(z_1) \e_q\one(x,y)
+  = \frac{V_g}{2}(1 + S^{11}_{qq}) \e_q\one(x,y)
+\end{equation}
+where $S^{11}_{qq}$ is the
+partial GSM entry due to the incident fields.
+We can find $V(z_1)$ using the transmission line equivalent circuit.
+The voltage and current at the junction plane $z=z_1$ are
+\begin{equation}
+  V(z_1) = \frac{V_g\Zright(z_1)}{\Zright(z_1) + Z_q\one}, \quad
+  I(z_1) = \frac{V_g}{\Zright(z_1) + Z_q\one}
+\end{equation}
+where $\Zright(z_i)$ is the impedance seen looking to the right at
+$z=z_i$.  The right-looking impedances seen at the junction planes
+are easily determined using the following recursive
+formulas derived from elementary transmission line theory:
+\begin{subequations}
+  \begin{align}
+    &\Zright(z_{N-1}) = Z_{q}^{(N)} \\
+    &\Zright(z_i) = Z_{q}^{(i+1)} 
+    \frac%
+    {\Zright(z_{i+1}) + Z_{q}^{(i+1)}\tanh(\gamma_{q}^{(i+1)} h^{(i+1)})}%
+    {Z_{q}^{(i+1)} + \Zright(z_{i+1})\tanh(\gamma_{q}^{(i+1)} h^{(i+1)})}, \notag \\
+    & \mkern300mu i = N-2,N-3,\ldots,1.
+  \end{align}
+\end{subequations}
+A similar recursive procedure can be used to calculate the
+equivalent circuit voltages and currents
+at each of the remaining junction planes:
+\begin{multline}
+  V(z_i) = V(z_{i-1}) \cosh(\gamma_{q}\eye h\eye)
+  - Z_q\eye
+  I(z_{i-1}) \sinh (\gamma_{q}\eye h\eye), \quad
+  I(z_i) = \frac{V(z_i)}{\Zright(z_i)} \\
+  i = 2,3,\ldots,N-1. 
+  \label{eq:recurseright}
+\end{multline}
+
+The total incident (both incoming and reflected) electric field at
+$z=z_s$ is then
+\begin{equation}
+  \Idemfactor_z \bdot \E\inc(x,y,z_s) = V(z_s) \e_q\one(x,y)
+  = V(z_s) \frac{c_q\one}{c_q\ess} \e_q\ess(x,y),
+\end{equation}
+where we used the fact that $\e_q\one / c_q\one = \e_q\ess / c_q\ess.$
+
+The partial transmission scattering parameter (due to the incident
+field) $S^{21}_{qq}$ is obtained from the equivalent circuit voltage
+at $z=z_{N-1}$:
+\begin{equation}
+  \Idemfactor \bdot \E\inc(x,y,z_{N-1}) = V(z_{N-1}) \e_q\one(x,y) 
+  = S^{21}_{qq} \e_q\enn(x,y).
+\end{equation}
+Since $\e_q\one / c_q\one = \e_q\enn / c_q\enn$ we find that
+\begin{equation}
+  S^{21}_{qq} = V(z_{N-1}) \frac{c_q\one}{c_q\enn}.
+\end{equation}
+
+
+
+\subsubsection[Region N Incidence]{Region~$N$ Incidence}
+The primary excitation is a plane wave incident from Region~$N$ with
+transverse electric field given by
+\begin{equation}
+  \e_q \enn(x,y) e^{\gamma\one (z-z_{N-1})}
+\end{equation}
+where $q$ is the
+modal triple index $q = (p_q,m_q,n_q).$
+The transmission line equivalent circuit for determining the incident
+field present at any desired junction plane is shown in Figure~\ref{fig:equiv2}.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \psset{unit=0.95cm}
+    \pspicture(0.3,-1.9)(13,1.6)
+    \psset{nodesep=0pt}
+    \shuntload{0}{$Z_{q}\one$}
+    \zlabel{0}{$z_1$}
+    \tlsection{0}{1.8}{2}
+    \zlabel{1.8}{$z_2$}
+    \tlsection{1.8}{3.5}{3}
+    \tlsection{4.3}{6.4}{\ensuremath{s}}
+    \zlabel{6.4}{$z_s$}
+    \tlsection{6.4}{8.7}{\ensuremath{s+1}}
+    \tlsection{9.5}{11.6}{\ensuremath{N-1}}
+    \vsource{13} \rput[l](13.03,0.35){$V_g$}
+    \seriesload{11.6}{12.35}{13}{$Z_{q}\enn$} 
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(3.9,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(3.9,-0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuit used to find
+    incident electric field for a plane wave incident from Region~$N$.}
+    \label{fig:equiv2}
+  \end{center}
+\end{figure}
+We choose the generator voltage $V_g = 2$ 
+to supply a unit incoming voltage wave.
+The total incident (both incoming and reflected) electric field at  
+$z=z_{N-1}$ is
+\begin{equation}
+  \Idemfactor_z \bdot \E\inc(x,y,z_{N-1}) = V(z_{N-1}) \e_q\enn(x,y)
+  = (1 + S^{22}_{qq}) \e_q\enn(x,y)
+\end{equation}
+where $S^{22}_{qq}$ is the
+partial GSM entry due to the incident fields.
+We can find $V(z_{N-1})$ using the transmission line equivalent circuit.
+The voltage and current at the junction plane $z=z_{N-1}$ are
+\begin{equation}
+  V(z_{N-1}) =  \frac{V_g\Zleft(z_{N-1})}{\Zleft(z_{N-1}) + Z_q\enn}, \quad
+  I(z_{N-1}) = \frac{-V_g}{\Zleft(z_{N-1}) + Z_q\enn}
+\end{equation}
+where $\Zleft(z_i)$ is the impedance seen looking to the left at
+$z=z_i$.  The left-looking impedances seen at the junction planes
+are easily determined using the following recursive
+formulas derived from elementary transmission line theory:
+\begin{subequations}
+  \begin{align}
+    &\Zleft(z_1) = Z_{q}\one \\
+    &\Zleft(z_i) = Z_{q}\eye 
+    \frac%
+    {\Zleft(z_{i-1}) + Z_{q}\eye \tanh(\gamma_{q}\eye h\eye)}%
+    {Z_{q}\eye + \Zleft(z_{i-1})\tanh(\gamma_{q}\eye h\eye)}, \notag \\
+    & \mkern300mu i = 2,3,\ldots,N-1.
+  \end{align}
+\end{subequations}
+A similar recursive procedure can be used to calculate the 
+equivalent circuit voltages and currents at each of the remaining
+junction planes:
+\begin{multline}
+  \left\{
+    \begin{array}{@{}l@{}}
+      \displaystyle
+      V(z_i) = V(z_{i+1}) \cosh (\gamma_{q}\epw h\epw)
+      + Z_q\epw
+      I(z_{i+1}) \sinh ( \gamma_{q}\epw h\epw ), \\
+      \displaystyle
+      I(z_i) = -V(z_i)/\Zleft(z_i)
+    \end{array}
+  \right.
+  \\
+  i = N-2,N-3\ldots,1. 
+  \label{eq:recurseleft}
+\end{multline}
+
+The total incident (both incoming and reflected) electric field at
+$z=z_s$ is then
+\begin{equation}
+  \Idemfactor_z \bdot \E\inc(x,y,z_s) = V(z_s) \e_q\enn(x,y)
+  = V(z_s) \frac{c_q\enn}{c_q\spw} \e_q\spw(x,y),
+\end{equation}
+where we used the fact that $\e_q\enn / c_q\enn = \e_q\spw / c_q\spw.$
+
+The partial transmission scattering parameter (due to the incident
+field) $S^{12}_{qq}$ is obtained from the equivalent circuit voltage
+at $z=z_1$:
+\begin{equation}
+  \Idemfactor \bdot \E\inc(x,y,z_{1}) = V(z_{1}) \e_q\enn(x,y) 
+  = S^{12}_{qq} \e_q\one(x,y).
+\end{equation}
+Since $\e_q\enn / c_q\enn = \e_q\one / c_q\one$ we find that
+\begin{equation}
+  S^{12}_{qq} = V(z_{1}) \frac{c_q\enn}{c_q\one}.
+\end{equation}
+
+\subsection{Calculation of (scattered) GSM entries}
+We now assume that the electric surface currents $\Js$ 
+on the FSS sheet located at $z=z_s$ have been obtained using the
+method of moments.  We seek expressions for the outgoing  wave
+coefficients $\{b_q\one\}$
+and $\{b_q\enn\}$ in the scattered field expansions
+\begin{equation}
+  \E\scat(x,y,z) =
+  \begin{cases}
+    \displaystyle
+    \sum_{q} b_q\one \e_q\one(x,y) e^{j\gamma_q\one (z-z_1)} & (z<z_1) \\[0.5ex]
+    \displaystyle
+    \sum_{q} b_q\enn \e_q\enn(x,y) e^{-j\gamma_q\enn (z-z_{N-1})} & (z>z_{N-1}).
+  \end{cases}
+\end{equation}
+These coefficients are the partial GSM entries due to the scattered
+(radiated by the induced surface currents) fields.
+Using the results of \cite{mimo:97} we find that they are given by
+\begin{subequations}
+  \label{eq:belectric}
+\begin{align}
+  b_q\one &= 
+  -\t_q \bdot \ftJs(\vecbeta_{m_q,n_q}) 
+  \frac%
+  {V_i^{p_q}(\vecbeta_{m_q,n_q},z_1,z_s)}%
+  {A c_q\one} 
+%   =  -\t_q \bdot \ftJs(\vecbeta_{m_q,n_q}) 
+%   \frac%
+%   {c_q\one Y_q\one V_i^{p_q}(\vecbeta_{m_q,n_q},z_1,z_s) }%
+%   {P_0} 
+  \\
+  b_q\enn &= 
+  -\t_q \bdot \ftJs(\vecbeta_{m_q,n_q}) 
+  \frac%
+  {V_i^{p_q}(\vecbeta_{m_q,n_q},z_{N-1},z_s)}%
+  {A c_q\enn} 
+\end{align}
+\end{subequations}
+where $\t_q$ is the modal polarization vector defined in \eqref{eq:tdef}, and $V_i^p$ is the
+transmission line Green's function for the
+voltage due to a unit current source for either the TE ($p=1$) or TM
+($p=2$) equivalent circuit, shown in Figure~\ref{fig:equiv3}.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \pspicture(-0.3,-1.9)(12,1.6)
+    \psset{nodesep=0pt}
+    \shuntload{0}{$Z_{q}^{(1)}$} 
+    \zlabel{0}{$z_1$}
+    \tlsection{0}{1.8}{2}
+    \zlabel{1.8}{$z_2$}
+    \tlsection{1.8}{3.5}{3}
+    \tlsection{4.3}{6.4}{\ensuremath{s}}
+    \zlabel{6.4}{$z_s$}
+    \isource{6.4} \rput[l](6.45,0.35){$1\,\text{A}$}
+    \tlsection{6.4}{8.7}{\ensuremath{s+1}}
+    \tlsection{9.5}{11.6}{\ensuremath{N-1}}
+    \shuntload{11.6}{$Z_{q}^{(N)}$}
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(3.9,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(3.9,-0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuit used to find
+    scattered fields.
+    We set $p=1$ when evaluating $\Vi\TE$ and $p=2$ for
+    $\Vi\TM$. Superscripted quantities in parentheses are region
+    designators. }
+    \label{fig:equiv3}
+  \end{center}
+\end{figure}
+Since we have a unit current source at $z=z_s$ the
+voltage there is equal to the total impedance at that point:
+\begin{subequations}
+\begin{align}
+  \Vi^p(\vecbeta_{m_q,n_q},z_s,z_s) &= 
+  Z^{\text{tot}}(z_s) = 
+  \frac{1}{\frac{1}{\Zleft(z_s)} + \frac{1}{\Zright(z_s)}}
+  =
+  \frac{\Zleft(z_s) \, \Zright(z_s)}{\Zleft(z_s) + \Zright(z_s)}, \\
+  \Ii^p(\vecbeta_{m_q,n_q},z_s^+,z_s) &=
+  \frac{\Vi^p(\vecbeta_{m_q,n_q},z_s,z_s)}{\Zright(z_s)}, \\
+  \Ii^p(\vecbeta_{m_q,n_q},z_s^-,z_s) &=
+  \frac{-\Vi^p(\vecbeta_{m_q,n_q},z_s,z_s)}{\Zleft(z_s)}. 
+\end{align}
+\end{subequations}
+With the voltage and current known at $z_s$, one can apply 
+\eqref{eq:recurseleft} for $i=s-1, s-2, \ldots, 1$ and 
+\eqref{eq:recurseright} for $i=s+1, s+2, \ldots, N-1$ to determine
+Green's function voltages needed to evaluate Equations~\eqref{eq:belectric}.
+
+\section{Magnetic Current Unknowns}
+\subsection{Calculation of Incident Fields}
+In this case the incident field is the field that would exist in the
+ structure in the absence of the unknown magnetic currents, but in the
+ presence of the unperforated ground plane at $z=z_s.$
+ That is, the incident field is the sum of the incoming and reflected
+ (due to the ground plane) waves, with primary excitation
+ from an incoming normalized Floquet mode with unit excitation
+ coefficient.
+
+ There are two cases to consider.  In the first case, the primary excitation
+ is a Region~$1$ Floquet mode propagating in the $+z$ direction.  
+ In the second case, the exciting wave is a Region~$N$ Floquet mode
+ propagating in the  $-z$ direction.
+
+
+\subsubsection{Region~1 Incidence}
+The primary excitation is a plane wave incident from Region~1 with
+transverse magnetic field given by
+\begin{equation}
+  \h_q \one(x,y) e^{-\gamma\one (z-z_1)}
+\end{equation}
+where $q$ is the
+modal triple index $q = (p_q,m_q,n_q).$ 
+The transmission line equivalent circuit for determining the incident
+magnetic field present at any desired junction plane is shown in 
+Figure~\ref{fig:mequiv1}.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \psset{unit=0.95cm}
+    \pspicture(-1.5,-1.9)(9,1.6)
+    \psset{nodesep=0pt}
+    \isource{-1.5} \rput[l](-2,0.35){$I_g$}
+    \shuntload{-0.75}{$Y_{q}^{(1)}$} 
+    \psline(-1.5,0.8)(0,0.8) \psline(-1.5,-0.8)(0,-0.8)
+    \zlabel{0}{$z_1$}
+    \tlsection{0}{1.8}{2}
+    \zlabel{1.8}{$z_2$}
+    \tlsection{1.8}{3.5}{3}
+    \tlsection{4.3}{6.4}{\ensuremath{s-1}}
+    \zlabel{6.4}{$z_{s-1}$}
+    \tlsection{6.4}{8.7}{\ensuremath{s}}
+    \zlabel{8.7}{$z_{s}$}
+    \psline(8.7,-0.8)(8.7,0.8) % Short Circuit
+    \rput*(3.9,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(3.9,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuit used to find
+    incident magnetic field at $z=z_s$ for a plane wave incident from 
+    Region~1.}
+    \label{fig:mequiv1}
+  \end{center}
+\end{figure}
+We choose the generator current $I_g = 2$ to supply a unit incoming current
+wave. The total incident (both incoming and reflected) magnetic field at
+$z=z_1$ is then
+\begin{equation}
+  \Idemfactor_z \bdot \H\inc(x,y,z_1) = I(z_1) \h_q\one(x,y)
+  = \frac{I_g}{2}(1 - S^{11}_{qq}) \h_q\one(x,y)
+\end{equation}
+where $S^{11}_{qq}$ is the
+partial GSM entry due to the incident fields.
+We can find $I(z_1)$ using the transmission line equivalent circuit.
+The current and voltage at the junction plane $z=z_1$ are
+\begin{equation}
+  I(z_1) = \frac{I_g}{1 + \Zright(z_1)  Y_q\one}, \quad
+  V(z_1) = \frac{I_g \Zright(z_1)}{1 + \Zright(z_1)  Y_q\one}, \quad
+\end{equation}
+where $\Zright(z_i)$ is the impedance seen looking to the right at
+$z=z_i$.  The right-looking impedances seen at the junction planes
+are easily determined using the following recursive
+formulas derived from elementary transmission line theory:
+\begin{subequations}
+  \begin{align}
+    &\Zright(z_{s-1}) = Z_{q}^{(s)} \tanh(\gamma_{q}^{(s)} h^{(s)}) \\
+    &\Zright(z_i) = Z_{q}^{(i+1)} 
+    \frac%
+    {\Zright(z_{i+1}) + Z_{q}^{(i+1)}\tanh(\gamma_{q}^{(i+1)} h^{(i+1)})}%
+    {Z_{q}^{(i+1)} + \Zright(z_{i+1})\tanh(\gamma_{q}^{(i+1)}
+      h^{(i+1)})}, 
+    \notag \\
+    & \mkern300mu i = s-2,s-3,\ldots,1.
+  \end{align}
+\end{subequations}
+A similar recursive procedure can be used to calculate the
+equivalent circuit currents and voltages
+at each of the remaining junction planes:
+\begin{multline}
+  I(z_i) = I(z_{i-1}) \cosh(\gamma_{q}\eye h\eye)
+  - Y_q\eye
+  V(z_{i-1}) \sinh (\gamma_{q}\eye h\eye), \quad
+  V(z_i) = I(z_i)  \Zright(z_i) \\
+  i = 2,3,\ldots,s. 
+  \label{eq:Mrecurseright}
+\end{multline}
+
+The total incident (both incoming and reflected) magnetic field at
+$z=z_s$ is then
+\begin{equation}
+  \Idemfactor_z \bdot \H\inc(x,y,z_s) = I(z_s) \h_q\one(x,y)
+  = I(z_s) \frac{c_q\ess}{c_q\one} \h_q\ess(x,y),
+\end{equation}
+where we used the fact that $ c_q\one \h_q\one  = c_q\ess \h_q\ess.$
+
+The partial reflection scattering parameter (due to the incident
+field) $S^{11}_{qq}$ is obtained from the equivalent circuit current
+at $z=z_{1}$:
+\begin{equation}
+  \Idemfactor \bdot \H\inc(x,y,z_{1}) = I(z_{1}) \h_q\one(x,y) 
+  = (1-S^{11}_{qq}) \h_q\one(x,y),
+\end{equation}
+so that
+\begin{equation}
+  S^{11}_{qq} = 1-I(z_{1}).
+\end{equation}
+
+
+
+\subsubsection[Region N Incidence]{Region~$N$ Incidence}
+The primary excitation is a plane wave incident from Region~$N$ with
+transverse magnetic field given by
+\begin{equation}
+  -\h_q \enn(x,y) e^{\gamma\one (z-z_{N-1})}
+\end{equation}
+where $q$ is the
+modal triple index $q = (p_q,m_q,n_q).$
+The transmission line equivalent circuit for determining the incident
+field present at any desired junction plane is shown in 
+Figure~\ref{fig:mequiv2}.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \psset{unit=0.95cm}
+    \pspicture(1.8,-1.9)(13,1.6)
+    \psset{nodesep=0pt}
+    \psline(1.8,-0.8)(1.8,0.8)
+    \zlabel{1.8}{$z_s$}
+    \tlsection{1.8}{3.8}{\ensuremath{s+1}}
+    \tlsection{3.8}{6.0}{\ensuremath{s+2}}
+    \zlabel{3.8}{$z_{s+1}$}
+    \tlsection{6.8}{9.4}{\ensuremath{N-2}}
+    \zlabel{9.4}{$z_{N-2}$}
+    \tlsection{9.4}{11.6}{\ensuremath{N-1}}
+    \shuntload{12.1}{$Y_{q}\enn$}
+    \isource{13} \rput[l](13.0,0.35){$\,I_g$}
+    \psline(11.6,-0.8)(13.0,-0.8) \psline(11.6,0.8)(13.0,0.8)
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(6.4,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(6.4,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuit used to find
+    incident electric field for a plane wave incident from Region~$N$.}
+    \label{fig:mequiv2}
+  \end{center}
+\end{figure}
+We choose the generator current $I_g = 2$ 
+to supply a unit incoming current wave.
+The total incident (both incoming and reflected) magnetic field at  
+$z=z_{N-1}$ is
+\begin{equation}
+  \Idemfactor_z \bdot \H\inc(x,y,z_{N-1}) = I(z_{N-1}) \h_q\enn(x,y)
+  = ( S^{22}_{qq}-1) \h_q\enn(x,y)
+\end{equation}
+where $S^{22}_{qq}$ is the
+partial GSM entry due to the incident fields.
+We can find $V(z_{N-1})$ using the transmission line equivalent circuit.
+The current and voltage at the junction plane $z=z_{N-1}$ are
+\begin{equation}
+  I(z_{N-1}) =  \frac{-I_g}{1+\Zleft(z_{N-1})  Y_q\enn}, \quad
+  V(z_{N-1}) =  \frac{-I_g \Zleft(z_{N-1})}{1+\Zleft(z_{N-1})  Y_q\enn}
+\end{equation}
+where $\Zleft(z_i)$ is the impedance seen looking to the left at
+$z=z_i$.  The left-looking impedances seen at the junction planes
+are easily determined using the following recursive
+formulas derived from elementary transmission line theory:
+\begin{subequations}
+  \begin{align}
+    &\Zleft(z_{s+1}) = Z_{q}^{(s+1)} \tanh(\gamma_{q}^{(s+1)} h^{(s+1)}) \\
+    &\Zleft(z_i) = Z_{q}\eye 
+    \frac%
+    {\Zleft(z_{i-1}) + Z_{q}\eye \tanh(\gamma_{q}\eye h\eye)}%
+    {Z_{q}\eye + \Zleft(z_{i-1})\tanh(\gamma_{q}\eye h\eye)}, \quad
+     i = s+2,s+3,\ldots,N-1.
+  \end{align}
+\end{subequations}
+A similar recursive procedure can be used to calculate the 
+equivalent circuit currents and voltages at each of the remaining
+junction planes:
+\begin{multline}
+  \left\{
+    \begin{array}{@{}l@{}}
+      \displaystyle
+      I(z_i) = I(z_{i+1}) \cosh (\gamma_{q}\epw h\epw)
+      + Y_q\epw
+      V(z_{i+1}) \sinh ( \gamma_{q}\epw h\epw ), \\
+      \displaystyle
+      V(z_i) = -I(z_i) \Zleft(z_i)
+    \end{array}
+  \right.
+  \\
+  i = N-2,N-3\ldots,s. 
+  \label{eq:Mrecurseleft}
+\end{multline}
+
+The total incident (both incoming and reflected) magnetic field at
+$z=z_s$ is then
+\begin{equation}
+  \Idemfactor_z \bdot \H\inc(x,y,z_s) = I(z_s) \h_q\enn(x,y)
+  = I(z_s) \frac{c_q\spw}{c_q\enn} \h_q\spw(x,y),
+\end{equation}
+where we used the fact that $ c_q\enn \h_q\enn = c_q\spw \h_q\spw.$
+
+The partial reflection scattering parameter (due to the incident
+field) $S^{22}_{qq}$ is obtained from the equivalent circuit current
+at $z=z_{N-1}$:
+\begin{equation}
+  \Idemfactor \bdot \H\inc(x,y,z_{N-1}) = I(z_{N-1}) \h_q\enn(x,y) 
+  = (S^{22}_{qq} - 1) \h_q\enn(x,y),
+\end{equation}
+so that
+\begin{equation}
+  S^{22}_{qq} = I(z_{N-1}) + 1.
+\end{equation}
+
+\subsection{Calculation of (scattered) GSM entries}
+We now assume that the magnetic surface currents $\sigma\Ms$ at 
+$z = z_s-0$ and $-\sigma\Ms$ at $z = z_s+0$ have been numerically
+determined, where $\sigma = 1$ for a primary wave incident from
+Region~$1$ and $\sigma = -1$ for a primary wave incident from Region~$N$. 
+We seek expressions
+for the outgoing  wave coefficients $\{b_q\one\}$
+and $\{b_q\enn\}$ in the scattered field expansions
+\begin{equation}
+  \H\scat(x,y,z) =
+  \begin{cases}
+    \displaystyle
+    \sum_{q} -b_q\one \h_q\one(x,y) 
+    e^{j\gamma_q\one (z-z_1)} & (z<z_1) \\[0.5ex]
+    \displaystyle
+    \sum_{q} b_q\enn \h_q\enn(x,y) 
+    e^{-j\gamma_q\enn (z-z_{N-1})} & (z>z_{N-1}).
+  \end{cases}
+\end{equation}
+These coefficients are the partial GSM entries due to the scattered
+(radiated by the induced surface currents) fields.
+Using the results of \cite{mimo:97} we find that they are 
+\begin{subequations}
+  \label{eq:bmagnetic}
+\begin{align}
+  b_{q}\one &= 
+  \z\cross\t_{q} \bdot \ftMs(\vecbeta_{m_q,n_q}) 
+  \frac%
+  {\sigma c_{q}\one  I_v^{p_q}(\vecbeta_{m_q,n_q},z_1,z_s)}%
+  {P_0} \\
+  %
+  b_{q}\enn &= 
+  \z\cross\t_{q} \bdot \ftMs(\vecbeta_{m_q,n_q}) 
+  \frac%
+  {\sigma c_{q}\enn I_v^{p_q}(\vecbeta_{m_q,n_q},z_{N-1},z_s)}%
+  {P_0} 
+  %
+\end{align}
+\end{subequations}
+where $I_v^{p_q}$ is the transmission line Green's function for the
+current due to a unit voltage source for either the TE ($p_q=1$) or TM
+($p_q=2$) equivalent circuit, as shown in Figure~\ref{fig:mequiv3},
+and $P_0 \equiv \SI{1}{\watt}$.
+\begin{figure}[tbp]
+  \begin{center}
+    \footnotesize
+    \pspicture(-0.3,-1.7)(12,1.6)
+    \psset{nodesep=0pt}
+    \shuntload{0}{$Y_{q}^{(1)}$} 
+    \zlabel{0}{$z_1$}
+    \tlsection{0}{1.8}{2}
+    \tlsection{2.6}{4.7}{\ensuremath{s}}
+    \invertedvsource{4.7} \rput[l](4.75,0.35){$1\,\text{V}$}
+    \zlabel{4.7}{$z_s$}
+    \zlabel{6.4}{$z_s$}
+    \vsource{6.4} \rput[l](6.45,0.35){$1\,\text{V}$}
+    \tlsection{6.4}{8.7}{\ensuremath{s+1}}
+    \tlsection{9.5}{11.6}{\ensuremath{N-1}}
+    \shuntload{11.6}{$Y_{q}^{(N)}$}
+    \zlabel{11.6}{$z_{N-1}$}
+    \rput*(2.2,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(2.2,-0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,0.8){\huge$\boldsymbol{\cdots}$}
+    \rput*(9.1,-0.8){\huge$\boldsymbol{\cdots}$}
+    \endpspicture
+    \caption{Equivalent transmission line circuits used to find
+    scattered fields.
+    We set $p=1$ when evaluating $\Iv\TE$ and $p=2$ for
+    $\Iv\TM$. Superscripted quantities in parentheses are region
+    designators. }
+    \label{fig:mequiv3}
+  \end{center}
+\end{figure}
+For either the left-looking or right-looking equivalent circuit, 
+we have a unit voltage source at $z=z_s$ so that the
+current there is equal to the admittance seen at that point:
+\begin{subequations}
+\begin{align}
+  \Vv^{p}(\vecbeta_{m_q,n_q},z_s^-,z_s) &= -1, \quad
+  \Iv^{p}(\vecbeta_{m_q,n_q},z_s^-,z_s) = \Yleft(z_s^-) = 1/\Zleft(z_s^-), \\
+  \Vv^{p}(\vecbeta_{m_q,n_q},z_s^+,z_s) &= 1, \quad \hphantom{-}
+  \Iv^{p}(\vecbeta_{m_q,n_q},z_s^+,z_s) = \Yright(z_s^+) = 1/\Zright(z_s^+).
+\end{align}
+\end{subequations}
+With the voltage and current known at $z_s$, one can apply 
+\eqref{eq:Mrecurseleft} for $i=s-1, s-2, \ldots, 1$ and 
+\eqref{eq:Mrecurseright} for $i=s+1, s+2, \ldots, N-1$ to determine
+Green's function currents needed to evaluate Equations~\eqref{eq:bmagnetic}.
+  

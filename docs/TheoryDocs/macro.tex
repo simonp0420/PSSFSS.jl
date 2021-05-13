@@ -1,0 +1,272 @@
+%%%%%%%%%%%%%%%%%%%%%% Begin macro definitions  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{bm} % Correct bold math
+\newcommand{\pssfss}{PSSFSS}
+\renewcommand{\d}{\text{d}}  % for use in integrals
+\newcommand{\Realnum}{\mathbb{R}}
+\newcommand{\Complexnum}{\mathbb{C}}
+\newcommand{\Integers}{\mathbb{Z}}
+\newcommand{\Fourier}{\mathcal{F}}
+\DeclareMathOperator{\RealOp}{Re}
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\Real}[1]{\RealOp\left\{#1\right\}}
+\DeclareMathOperator{\ImagOp}{Im}
+\newcommand{\Imag}[1]{\ImagOp\left\{#1\right\}}
+\newcommand{\diag}[1]{\text{diag}\left\{#1\right\}}
+\newcommand{\0}{\boldsymbol{0}}
+\newcommand{\A}{\boldsymbol{A}}
+\newcommand{\E}{\boldsymbol{E}}
+\newcommand{\e}{\boldsymbol{e}}
+\renewcommand{\k}{\boldsymbol{k}}
+\newcommand{\f}{\boldsymbol{f}}  % Basis function.
+\newcommand{\ftf}{\boldsymbol{\tilde{f}}}  % Basis function Fourier transform.
+\newcommand{\F}{\boldsymbol{F}}
+\renewcommand{\H}{\boldsymbol{H}}
+\newcommand{\h}{\boldsymbol{h}}
+\newcommand{\rhat}{\boldsymbol{\hat{r}}}
+\newcommand{\thetahat}{\boldsymbol{\hat{\theta}}}
+\newcommand{\phihat}{\boldsymbol{\hat{\phi}}}
+\newcommand{\hhat}{\rlap{$\boldsymbol{\hat{h}}$}\phantom{\boldsymbol{h}}}
+\newcommand{\vhat}{\rlap{$\boldsymbol{\hat{v}}$}\phantom{\boldsymbol{v}}}
+\newcommand{\Rhat}{\boldsymbol{\hat{R}}}
+\newcommand{\Lhat}{\boldsymbol{\hat{L}}}
+\newcommand{\J}{\boldsymbol{J}}
+\newcommand{\Jt}{\boldsymbol{\tilde{J}}}
+\newcommand{\I}{\boldsymbol{I}}
+\newcommand{\K}{\boldsymbol{K}}
+\newcommand{\Js}{\J_{\text{s}}}
+\newcommand{\ftJs}{\boldsymbol{\tilde{J}}_{\text{s}}}
+\renewcommand{\L}{\boldsymbol{L}}
+\newcommand{\M}{\boldsymbol{M}}
+\newcommand{\Ms}{\boldsymbol{M}_{\text{s}}}
+\newcommand{\ftMs}{\boldsymbol{\tilde{M}}_{\text{s}}}
+\renewcommand{\r}{\boldsymbol{r}}
+\newcommand{\x}{\boldsymbol{\hat{x}}}
+\newcommand{\y}{\boldsymbol{\hat{y}}}
+\newcommand{\z}{\boldsymbol{\hat{z}}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\gradient}{\boldsymbol{\nabla}}
+\newcommand{\cross}{\boldsymbol{\times}}
+\newcommand{\bdot}{\boldsymbol{\cdot}}
+\newcommand{\curl}{\boldsymbol{\nabla} \cross}
+\newcommand{\divergence}{\boldsymbol{\nabla} \bdot}
+\newcommand{\laplace}{\nabla^2}  % Scalar Laplacian Operator
+\newcommand{\vlaplace}{\gradient^2}  % Vector Laplacian Operator
+\newcommand{\qe}{q_{\text{e}}}  % Electric charge density
+\newcommand{\qm}{q_{\text{m}}}  % Magnetic charge density
+\newcommand{\union}{\bigcup}  % Magnetic charge density
+\newcommand{\s}{\boldsymbol{s}}  % Direct lattice vector
+\newcommand{\vecbeta}{\boldsymbol{\beta}}  % Reciprocal lattice vector
+\newcommand{\betahat}{\boldsymbol{\hat{\beta}}}  % Reciprocal lattice unit vector
+\newcommand{\vecrho}{\boldsymbol{\rho}}  % Reciprocal lattice vector
+\newcommand{\colvec}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+%\newcommand{\colvec}[1]{\left[\begin{array}{c} #1 \end{array}\right]}
+\newcommand{\TE}{^{\text{TE}}}
+\newcommand{\TM}{^{\text{TM}}}
+\newcommand{\mat}[1]{\boldsymbol{\mathcal{#1}}}
+\newcommand{\matel}[1]{\mathcal{#1}}
+\newcommand{\Icoef}{\matel{I}}  % Electric current expansion coefficient.
+\newcommand{\Vcoef}{\matel{V}}  % Magnetic current expansion coefficient.
+\newcommand{\one}{^{(1)}} % Region 1 designator
+\newcommand{\two}{^{(2)}} % Region 2 designator
+\newcommand{\eye}{^{(i)}} % Region i designator
+\newcommand{\epw}{^{(i+1)}} % Region i+1 designator
+\newcommand{\enn}{^{(N)}} % Region N designator
+\newcommand{\ess}{^{(s)}} % Region s designator
+\newcommand{\spw}{^{(s+1)}} % Region s+1 designator
+\newcommand{\tmi}{^{(3-i)}} % Region 3-i designator
+\newcommand{\three}{^{(3)}} % Region 3 designator
+\newcommand{\four}{^{(4)}} % Region 4 designator
+\newcommand{\transpose}{^{\text{\sffamily{T}}}}
+\newcommand{\hermitian}{^{\text{\sffamily{H}}}}
+\newcommand{\inc}{^{\text{inc}}}
+\newcommand{\refl}{^{\text{ref}}}
+\newcommand{\trans}{^{\text{tran}}}
+\newcommand{\scat}{^{\text{sc}}}
+\renewcommand{\t}{\boldsymbol{\hat{t}}}
+\newcommand{\n}{\boldsymbol{\hat{n}}}
+\newcommand{\pdx}[1]{\frac{\partial #1}{\partial x}}
+\newcommand{\pdz}[1]{\frac{\partial #1}{\partial z}}
+\newcommand{\pdu}[1]{\frac{\partial #1}{\partial u}}
+\newcommand{\summn}{\sum_{m,n}}
+\newcommand{\dyad}[1]{\boldsymbol{\bar{#1}}}
+\newcommand{\Idemfactor}{\dyad{I}}
+\newcommand{\GAxx}{G^A_{xx}}
+\newcommand{\GtAxx}{\tilde{G}^{A}_{xx}}
+\newcommand{\GFxx}{G^F_{xx}}
+\newcommand{\GrFxx}{\raisebox{0pt}[0pt][0pt]{$\vecr{G}$}\vphantom{G}^F_{xx}}
+\newcommand{\GlFxx}{\raisebox{0pt}[0pt][0pt]{$\vecl{G}$}\vphantom{G}^F_{xx}}
+\newcommand{\GPhi}{{G}^{\Phi}}
+\newcommand{\GtPhi}{{G}^{\Phi}}
+\newcommand{\GPsi}{{G}^{\Psi}}
+\newcommand{\GrPsi}{\raisebox{0pt}[0pt][0pt]{$\vecr{G}$}\vphantom{G}^\Psi}
+\newcommand{\GlPsi}{\raisebox{0pt}[0pt][0pt]{$\vecl{G}$}\vphantom{G}^\Psi}
+\newcommand{\rcp}{\r^{\text{c}+}} % Positive centroid r vector.
+\newcommand{\rcm}{\r^{\text{c}-}} % Negative centroid r vector.
+\newcommand{\rcpm}{\r^{\text{c}\pm}} % Plus or Negative centroid r vector.
+\newcommand{\vecrhocp}{\vecrho^{\text{c}+}} % Positive centroid rho vector.
+\newcommand{\vecrhocm}{\vecrho^{\text{c}-}} % Positive centroid rho vector.
+\newcommand{\vecrhocpm}{\vecrho^{\text{c}\pm}} % Positive centroid rho vector.
+\newcommand{\innerprod}[1]{\left< #1 \right>}
+%\renewcommand{\iint}{\int \!\!\! \int}
+\newcommand{\rcu}{\r^{\text{c}u}} % Centroid r vector for triangle ``u''.
+\newcommand{\rhocu}{\rho^{\text{c}u}} % Centroid rho for triangle ``u''.
+\renewcommand{\P}{\boldsymbol{P}}
+\renewcommand{\l}{\boldsymbol{l}}
+\newcommand{\lhat}{\boldsymbol{\hat{l}}}
+\renewcommand{\u}{\boldsymbol{\hat{u}}}  % unit vector.
+\newcommand{\is}{i_{\text{s}}}  % Source region designator
+\renewcommand{\it}{i_{\text{t}}}  % Transmitted region designator
+\newcommand{\eyes}{^{(\is)}} % Source Region designator
+\newcommand{\eyet}{^{(\it)}} % Transmitted Region designator
+% Vector accent pointing to left:
+\newcommand{\vecl}[1]{\overset{\raisebox{-0.6ex}{\tiny$\boldsymbol{\leftarrow}$}}{#1}}  
+% Vector accent pointing to right:
+\newcommand{\vecr}[1]{\overset{\raisebox{-0.6ex}{\tiny$\mkern5mu\boldsymbol{\rightarrow}$}}{#1}}  
+\newcommand{\Zright}{\vecr{Z}}
+\newcommand{\Zleft}{\vecl{Z}}
+%\newcommand{\Yleft}{\vecl{Y}}
+%\newcommand{\Yright}{\vecr{Y}}
+ \newcommand{\Yleft}%
+     {\raisebox{0pt}[0pt][0pt]{\rlap{$\vecl{\phantom{Y}}$}}Y}  % TLGF
+ \newcommand{\Yright}%
+ {\raisebox{0pt}[0pt][0pt]{\rlap{$\vecr{\phantom{Y}}$}}Y}  % TLGF
+\newcommand{\Vi}{V_{\text{i}}}  % TLGF
+\newcommand{\Vv}{V_{\text{v}}}  % TLGF
+\newcommand{\Ii}{I_{\text{i}}}  % TLGF
+\newcommand{\Iv}{I_{\text{v}}}  % TLGF
+
+ \newcommand{\Ilv}%
+ {\raisebox{0pt}[0pt][0pt]{\rlap{$\vecl{I}$}}\phantom{I}_{\text{v}}}  % TLGF
+ \newcommand{\Irv}%
+ {\raisebox{0pt}[0pt][0pt]{\rlap{$\vecr{I}$}}\phantom{I}_{\text{v}}}  % TLGF
+\newcommand{\tauhat}%
+ {\rlap{$\boldsymbol{\hat{\tau}}$}\phantom{\boldsymbol{\tau}}} % Pol. vector
+%\newcommand{\sigmahat}{\boldsymbol{\hat{\sigma}}}  % Polarization vector
+\newcommand{\uhat}{\boldsymbol{\hat{u}}}  % Polarization vector
+\newcommand{\what}{\boldsymbol{\hat{w}}}  % Polarization vector
+\newcommand{\khat}{\boldsymbol{\hat{k}}}  % Polarization vector
+\newcommand{\sigmahat}%
+ {\rlap{$\boldsymbol{\hat{\sigma}}$}\phantom{\boldsymbol{\sigma}}} % Pol. vec.
+\newcommand{\piotwo}{{\textstyle\frac{\pi}{2}}}
+
+%% \tlsection{x1}{x4}{n} draws a transmission line section
+%% from x1 to x4, with nodes at x1 and x4, and labels the 
+%% section as number ``n''
+\newcommand{\tlsection}[3]{%
+                                % Draw top line:
+  \mmultido{\rrone=#1+0.3,\rrtwo=#2+-0.3}{1}{%
+    \qdisk(#1,0.8){1.5pt} \psline(#1,.8)(\rrone,.8) %
+    \psframe(\rrone,0.7)(\rrtwo,0.9) %
+    \psline(\rrtwo,0.8)(#2,0.8) \qdisk(#2,0.8){1.5pt} %
+                                % Draw bottom line
+    \qdisk(#1,-0.8){1.5pt} \psline(#1,-0.8)(\rrone,-0.8) %
+    \psframe(\rrone,-0.9)(\rrtwo,-0.7) %
+    \psline(\rrtwo,-0.8)(#2,-0.8) \qdisk(#2,-0.8){1.5pt} %
+                                % Labels
+    \pcline[linestyle=none](\rrone,0)(\rrtwo,0)
+    \lput{:U}{\cstack{$Z_{pmn}^{(#3)}$ \\[0.5ex] $\gamma_{mn}^{(#3)}$}}
+                                % Dimensions
+    \pcline[linewidth=0.5pt]{<->}(\rrone,1.3)(\rrtwo,1.3)
+    \pcline{|-|}(\rrone,1.3)(\rrtwo,1.3)
+    \lput*{:U}{$h^{(#3)}$}
+    }
+  }
+
+%% \Ytlsection{x1}{x4}{n} draws a transmission line section
+%% from x1 to x4, with nodes at x1 and x4, and labels the 
+%% section as number ``n'' using a Y rather than a Z
+\newcommand{\Ytlsection}[3]{%
+                                % Draw top line:
+  \mmultido{\rrone=#1+0.3,\rrtwo=#2+-0.3}{1}{%
+    \qdisk(#1,0.8){1.5pt} \psline(#1,.8)(\rrone,.8) %
+    \psframe(\rrone,0.7)(\rrtwo,0.9) %
+    \psline(\rrtwo,0.8)(#2,0.8) \qdisk(#2,0.8){1.5pt} %
+                                % Draw bottom line
+    \qdisk(#1,-0.8){1.5pt} \psline(#1,-0.8)(\rrone,-0.8) %
+    \psframe(\rrone,-0.9)(\rrtwo,-0.7) %
+    \psline(\rrtwo,-0.8)(#2,-0.8) \qdisk(#2,-0.8){1.5pt} %
+                                % Labels
+    \pcline[linestyle=none](\rrone,0)(\rrtwo,0)
+    \lput{:U}{\cstack{$Y_{q}^{(#3)}$ \\[0.5ex] $\gamma_{mn}^{(#3)}$}}
+                                % Dimensions
+    \pcline[linewidth=0.5pt]{<->}(\rrone,1.3)(\rrtwo,1.3)
+    \pcline{|-|}(\rrone,1.3)(\rrtwo,1.3)
+    \lput*{:U}{$h^{(#3)}$}
+    }
+  }
+
+
+%% \vsource{x} places a voltage generator at location x
+\newcommand{\vsource}[1]{%
+  \psline(#1,-0.8)(#1,-0.2) \qdisk(#1,-0.8){1.5pt}
+  \psline(#1,0.8)(#1,0.2) \qdisk(#1,0.8){1.5pt}
+  \pscircle[fillcolor=white](#1,0){0.2}
+  %\psline{->}(#1,-0.13)(#1,0.13)
+   \rput(#1,0){\renewcommand{\arraystretch}{0}%
+     \raisebox{-3pt}[0pt][0pt]{%
+     \begin{tabular}{@{}c@{}}
+       $\scriptstyle+$ \\ \raisebox{1pt}[0.8\height][0pt]{$\scriptstyle-$}
+     \end{tabular}}%
+     }
+  }
+
+
+
+%% \invertedvsource{x} places an upside down voltage generator at location x
+\newcommand{\invertedvsource}[1]{%
+  \psline(#1,-0.8)(#1,-0.2) \qdisk(#1,-0.8){1.5pt}
+  \psline(#1,0.8)(#1,0.2) \qdisk(#1,0.8){1.5pt}
+  \pscircle[fillcolor=white](#1,0){0.2}
+  %\psline{->}(#1,-0.13)(#1,0.13)
+   \rput(#1,0){\renewcommand{\arraystretch}{0}%
+     \raisebox{-2pt}[0pt][0pt]{%
+     \begin{tabular}{@{}c@{}}
+       $\scriptstyle-$ \\ \raisebox{1pt}[0.8\height][0pt]{$\scriptstyle+$}
+     \end{tabular}}%
+     }
+  }
+
+
+
+%% \isource{x} places a current generator at location x
+\newcommand{\isource}[1]{%
+  \psline(#1,-0.8)(#1,-0.2) \qdisk(#1,-0.8){1.5pt}
+  \psline(#1,0.8)(#1,0.2) \qdisk(#1,0.8){1.5pt}
+  \pscircle[fillcolor=white](#1,0){0.2}
+  \psline{->}(#1,-0.13)(#1,0.13)
+  }
+
+%% \shuntload{x}{label} places a load at location x with label ``label''
+\newcommand{\shuntload}[2]{%
+  \psline(#1,-0.8)(#1,0.8) \qdisk(#1,-0.8){1.5pt} \qdisk(#1,0.8){1.5pt}
+  \rput*(#1,0){\psframebox[framesep=2pt,boxsep=false]{#2}}
+  }
+%% \zlabel{x}{label} places label at location x:
+\newcommand{\zlabel}[2]{%
+  \psline[linestyle=dashed,linewidth=0.6pt](#1,-1.6)(#1,-1)
+  \rput[t](#1,-1.7){#2}
+  }
+
+\newcommand{\cstack}[1]{\begin{tabular}{@{}c@{}} #1 \end{tabular}}
+\newcommand{\khatinc}{\boldsymbol{\hat{k}}^{\text{i}}}
+\newcommand{\thetainc}{\theta^{\text{i}}}
+
+%% \seriesload{x1}{x2}{x3}{label} draws a series load 
+%% from x1 to x3, centered at x2, 
+%% with nodes at x1 and x3, and labels the 
+%% load using the third argument:
+\newcommand{\seriesload}[4]{%
+                                % Draw top line:
+  \qdisk(#1,0.8){1.5pt} \psline(#1,.8)(#3,.8) \qdisk(#3,0.8){1.5pt} %
+                                % Draw bottom line
+  \qdisk(#1,-0.8){1.5pt} \psline(#1,-0.8)(#3,-0.8) \qdisk(#3,-0.8){1.5pt} %
+                                % Labels
+  \rput*(#2,0.8){\psframebox[boxsep=false]{#4}} %
+  }
+
+
+
+ %%%%%%%%%%%%%%%%%%%%%% End macro definitions  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

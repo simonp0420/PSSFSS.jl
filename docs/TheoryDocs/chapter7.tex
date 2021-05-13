@@ -1,0 +1,1194 @@
+\chapter{Moment Method Formulation}
+\label{chap:mom}
+In this chapter we describe a procedure for determining
+the induced electric or magnetic surface currents on a single-sheet FSS
+(frequency selective surface) located at one of the junction planes in
+a multiply stratified medium, when excited by an incident plane wave.  
+The analysis is performed using the method of moments, employing
+a space-domain formulation of the potential Green's functions, 
+which are  described in previous chapters.
+Once the equivalent induced
+surface currents have been determined, the single-sheet scattering
+parameters can be extracted using the formulas presented in
+Chapter~\ref{chap:incgsm}.  Scattering parameters of more complicated structures
+consisting of several cascaded FSS sheets interlaced with dielectric
+layers can be determined from the individual sheet scattering parameters using
+the results of Chapter~\ref{chap:gsm}.
+%
+The following novel features are incorporated in this analysis:
+\begin{itemize}
+\item The use of a wide-band expansion of the stratified medium
+  periodic Green's functions has been incorporated into the moment
+  method procedure, greatly reducing the time needed to compute the
+  elements of the interaction matrices.  This technique was first
+  reported in \cite{simo:01b}.
+\item Modifications have been introduced into the triangle subdomain
+  basis functions  of Rao, Wilton, and Glisson \cite{rawg:82} to
+  enable representation of currents that cross unit cell boundaries.
+  This work was previously reported in \cite{simo:02c}.
+\end{itemize}
+%
+%
+\begin{figure}[tbhp]
+  \begin{center} \footnotesize
+    \leavevmode
+    \pspicture(1,4.2)(12.9,10)
+    \psset{nodesep=2.5pt}
+                                % Begin Input Medium:
+    \rput(1.5,7){\cstack{Layer \\1 \\ $(\mu_1,\epsilon_1)$}}
+    \psline[linewidth=1pt](2.3,4.5)(2.3,8.5)  \uput[d](2.3,4.5){$z_1$}
+    \pnode(2.3,8.5){Junction1}
+    \rput[b](1.8,9.5){\rnode{Junction1label}{Junction~1}}
+    \ncline[linewidth=0.5pt]{->}{Junction1label}{Junction1}
+                                % Begin Layer 2:
+    \rput(3.15,7){\cstack{Layer \\ 2 \\ $(\mu_2,\epsilon_2)$}}
+    \psline[linewidth=1pt](4,4.5)(4,8.5)    \uput[d](4,4.5){$z_2$}
+    \pnode(4,8.5){Junction2}
+    \rput[b](4,9.5){\rnode{Junction2label}{Junction 2}}
+    \ncline[linewidth=0.5pt]{->}{Junction2label}{Junction2}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(2.3,5.5)(4,5.5) \lput*{:U}{$h^{(2)}$}
+                                % Begin Layer 3:
+    \rput(5,7){\cstack{Layer \\ 3 \\ $(\mu_3,\epsilon_3)$}}
+    \psline[linewidth=1pt](6,4.5)(6,8.5)    \uput[d](6,4.5){$z_3$}
+    \pnode(6,8.5){Junction3}
+    \rput[b](5.5,9){\rnode{Junction3label}{Junction 3}}
+    \ncline[linewidth=0.5pt]{->}{Junction3label}{Junction3}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(4,5.5)(6,5.5) \lput*{:U}{$h^{(3)}$}
+                                % Ellipses:
+    \rput(6.5,6.5){\large$\boldsymbol{\cdots}$}
+                                % Begin junction N-3:
+    \psline[linewidth=1pt](7,4.5)(7,8.5)    \uput[d](7,4.5){$z_{N-3}$}
+    \pnode(7,8.5){JunctionNsm2}
+    \rput[b](6.5,9.5){\rnode{JunctionNsm2label}{Junction $N-3$}}
+    \ncline[linewidth=0.5pt]{->}{JunctionNsm2label}{JunctionNsm2}
+                                % Begin Layer N-2:
+    \rput(8.125,7){\cstack{Layer \\ $N-2$ \\ $(\mu_{N-2},\epsilon_{N-2})$}}
+    \psline[linewidth=1pt](9.25,4.5)(9.25,8.5)    \uput[d](9.25,4.5){$z_{N-2}$}  
+    \pnode(9.25,8.5){JunctionNsm1}
+    \rput[b](9.25,9){\rnode{JunctionNsm1label}{Junction $N-2$}}
+    \ncline[linewidth=0.5pt]{->}{JunctionNsm1label}{JunctionNsm1}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(7,5.5)(9.25,5.5) \lput*{:U}{$h^{(N-2)}$}
+                                % Begin Layer N-1:
+    \rput(10.375,7){\cstack{Layer \\ $N-1$ \\ $(\mu_{N-1},\epsilon_{N-1})$}}
+    \psline[linewidth=1pt](11.5,4.5)(11.5,8.5)    \uput[d](11.5,4.5){$z_{N-1}$}    
+    \pnode(11.5,8.5){JunctionNs}
+    \rput[b](11.5,9.5){\rnode{JunctionNslabel}{Junction $N-1$}}
+    \ncline[linewidth=0.5pt]{->}{JunctionNslabel}{JunctionNs}
+    \pcline[linewidth=0.5pt,nodesep=1pt]{<->}(9.25,5.5)(11.5,5.5) \lput*{:U}{$h^{(N-1)}$}
+                                % Begin Output Medium:
+    \rput(12.4,7){\cstack{Layer \\ $N$ \\ $(\mu_{N},\epsilon_{N})$}}
+    \endpspicture
+  \end{center}
+  \caption{The structure under consideration is a stack of $N \geq 2$
+    dielectric layers.  Layers~1 and $N$ are semi-infinite in extent.
+    For $2 \leq i \leq N-1$, layer~$i$ lies in the region $z_{i-1} < z
+    < z_i$, is of thickness $h\eye = z_i - z_{i-1}$, and is characterized by
+    permeability $\mu_i$ and permittivity $\epsilon_i$.}
+  \label{fig:geom4}
+\end{figure}
+%
+
+The FSS is located in the interface plane $z=z_s$ of the multiple
+layered structure shown in Figure~\ref{fig:geom4}.
+The structure is laterally invariant, with each dielectric layer being
+homogeneous and isotropic.
+Each layer $i=1,2, \ldots, N$ is characterized by a complex
+permittivity $\epsilon_i$ and permeability $\mu_i$, each of which lies
+either in the fourth quadrant of the complex plane, or on the real axis.  The
+medium intrinsic wavenumbers are $k_i = \omega\sqrt{\mu_i\epsilon_i}$.
+We will assume that the single FSS sheet is located at interface
+number $s$, located between layers $s$ and $s+1$, where $1 \leq s < N.$
+
+
+In general, we can model a zero-thickness, perfectly conducting FSS
+using either electric or magnetic currents as the unknowns.  In the
+former case, the metalization is removed, and the support\footnote{%
+  The support of a function is defined as the closure of the set of
+  points where the function takes nonzero values.}%
+of the unknown electric
+surface current consists of the region previously occupied by the
+metalization.  In the latter case, the entire interface plane $z=0$ is
+replaced with a zero-thickness PEC (perfect electric conductor) and
+the support of the magnetic current is the portion of the plane
+formerly {\em not} occupied by the PEC.  
+
+One generally chooses the type of equivalent currents employed in a
+given problem so as to minimize the area of the currents' support, and
+thus the number of unknowns to be solved for in the MoM problem.
+For aperture-type elements magnetic currents are usually
+selected; for wire-type elements electric currents are the natural choice.
+In the case where an FSS is constructed of lossy material, we are forced
+to use electric currents as the unknowns.
+
+\section{Electric Current Mixed Potential Integral Equation}
+In this section we consider an FSS that is modeled using equivalent
+electric surface current.  This choice is convenient when less than
+half of the unit cell area is occupied by metal or when the FSS is
+etched onto a sheet of lossy material.
+
+The boundary value problem to be solved is \cite{mitz:68}
+\begin{equation}
+  Z_s(\vecrho) \Js(\vecrho)  -\Idemfactor_z \bdot \E\scat(\vecrho) = 
+  \Idemfactor_z \bdot \E\inc(\vecrho), \quad (\vecrho \in S)
+  \label{eq:EFIE}
+\end{equation}
+where $\E\scat$ is the scattered electric field due to the equivalent
+currents flowing 
+on the surface $S$ of the FSS, $\E\inc$ is the incident electric field
+(the plane wave, including incident, reflected, and transmitted
+components, that would exist in the absence of the FSS), $Z_s$ is the
+surface resistance of the FSS sheet material,
+and $\Idemfactor_z = \x\x + \y\y$ is the unit surface dyadic.  In
+terms of potentials this becomes
+\begin{equation}
+  Z_s(\vecrho) \Js(\vecrho) + [j\omega \A(\vecrho) +
+  \gradient\Phi(\vecrho)] \bdot \Idemfactor_z = 
+  \E\inc(\vecrho) \bdot \Idemfactor_z, \quad (\vecrho \in S)
+  \label{eq:MPIE}
+\end{equation}
+where the potentials can be expressed as superposition integrals
+using appropriately defined Green's functions 
+(Chapter~\ref{chap:gfstratified})
+$\GAxx$ and $\GPhi$:
+\begin{gather}
+  \Idemfactor_z \bdot \A(\vecrho) = 
+  \iint \GAxx(\vecrho-\vecrho') \cdot \Js(\vecrho') \, \d S',
+  \label{eq:Asup}\\
+  \Phi(\vecrho) = \iint \GPhi(\vecrho-\vecrho') \cdot \qe(\vecrho') \, \d S'.
+  \label{eq:Phisup}
+\end{gather}
+In \eqref{eq:Asup} and \eqref{eq:Phisup}, $\Js$ and $\qe$ are the unknown
+induced electric surface current and surface charge densities,
+respectively, which will be determined
+by enforcing
+Equation~\eqref{eq:MPIE} in an approximate manner using the method of
+moments.  We use the triangle subdomain basis functions of Rao, Wilton and
+Glisson \cite{rawg:82}, suitably modified so as to accommodate the
+periodic boundary conditions encountered in the unit cell analysis.
+
+
+\subsection{Basis Functions}
+\label{sec:bf}
+We now enunciate a few important definitions and 
+and properties of the basis functions in order to establish
+notation.
+The support of $\Js$ is first partitioned into a number of triangles.
+In \cite{rawg:82} a basis function is defined over each pair of triangles which share a common
+edge.  In this work, we include not only these adjacent pairs of
+triangles, but also those pairs of triangles which would be adjacent
+if one of the pair were translated by $\s_1$ or $\s_2$ from its actual
+position.
+
+Consider first a typical pair of adjacent triangles; their common edge
+is not on the boundary of the unit cell.
+Figure~\ref{fig:basis} shows two such triangles, $T_m^+$ and $T_m^-$,
+which comprise the support of the $m$th basis function and which
+share an interior edge of the triangulated surface.  Points in $T_m^+$ may be designated 
+by either the position vector $\r$ which locates them with respect to the global
+origin, or by $\vecrho_m^+$, which is defined with respect to the free vertex
+of $T_m^+$.  The vector $\vecrho_m^-$ is defined similarly for points in $T_m^-$, 
+except that it is directed {\em towards} the free vertex of $T_m^-$.
+Which of the two triangles is designated ``plus'' and which is ``minus'' depends
+on an arbitrary choice of positive current reference direction for the
+$m$th basis function.
+Positive reference current flows across the edge from $T_m^+$ to $T_m^-$. The basis
+function associated with the $m$th edge is then defined as
+\begin{equation}
+  \label{eq:basis}
+  \f_m(\r) = 
+  \begin{cases}
+    \displaystyle
+    \frac{l_m e^{j\theta_m^+}}{2A_m^+} \vecrho_m^+ & \text{if $\r \in T_m^+$} \\
+    \displaystyle
+    \frac{\rule{0pt}{3ex}l_m e^{j\theta_m^-}}{2A_m^-} \vecrho_m^- & \text{if $\r \in T_m^-$} \\
+    \0 & \text{otherwise},
+  \end{cases}
+\end{equation}
+where $l_m$ is the length of the common edge, $A_m^{\pm}$ is the area
+of triangle $T_m^{\pm}$, and $\theta_m^+ = \theta_m^- = 0$ in this case.
+%
+\begin{figure}[tbp]
+  \begin{center}
+    \leavevmode
+      \pspicture(-5,-2)(5,5)
+      % Begin by defining locations of triangle vertices as PStricks nodes:
+      \pnode(-5,0){Pfree}  % The free node of the plus triangle.
+      \pnode(4.5,2){Mfree}  % The free node of the plus triangle.
+      \pnode(1,4.5){Top}     % The top node of the common edge.
+      \pnode(1,0){Bot}     % The bottom node of the common edge.
+      \rput(0.5,-2){\rnode{Origin}{$\bullet$}} % The coordinate system origin.
+      \rput[l](0.5,-2){\quad Origin}
+        \psset{linewidth=1.3pt}   % For triangle legs
+       \psset{arrowsize=6pt,arrowinset=0.5,arrowlength=2.5}
+        \ncline{Pfree}{Bot}     % BL triangle leg
+        \mput{\rnode{BLEdgeCenter}{}}  % Put node at center of bottom left edge.
+        \ncline{Pfree}{Top}     % TL triangle leg
+        \aput(0.5){$T_m^+$}
+        \ncline{Mfree}{Bot}     % BR triangle edge
+        \ncline{Mfree}{Top}     % TR triangle edge
+        \bput(0.5){$T_m^-$}
+        \ncline{Top}{Bot}       % Common triangle edge
+        \mput{\rnode{CommonEdgeCenter}{}}  % Put node at center of common edge.
+        \psset{linestyle=none}   % Don't want to see the next few lines.
+        \ncline{Pfree}{CommonEdgeCenter} 
+        \lput(0.6667){\rnode{Pcentroid}{\Large$\bullet$}}  % Positive triangle centroid
+        \ncline{Mfree}{CommonEdgeCenter} 
+        \lput(0.6667){\rnode{Mcentroid}{\Large$\bullet$}}  % Negative triangle centroid
+        \ncline{Pcentroid}{BLEdgeCenter}
+        \lput(0.4){\rnode{ObsPoint}{\Large$\bullet$}}  % Observation point location.
+        %
+        \psset{linestyle=solid,linewidth=1pt,nodesepA=0pt,nodesepB=0pt} 
+        \ncline{->}{Pfree}{Pcentroid}  \aput[1pt](0.7){$\vecrhocp_m$}
+        \ncline{->}{Pfree}{ObsPoint}  \bput[1pt](0.7){$\vecrho^+_m$}
+        \ncline{->}{Mcentroid}{Mfree}  \aput[2pt](0.5){$\vecrhocm_m$}
+                                %
+        \ncline{->}{Origin}{Pcentroid}  \bput[1pt](0.4){$\rcp_m$}
+        \ncline{->}{Origin}{Mcentroid}  \bput[1pt](0.3){$\rcm_m$}
+        \ncline{->}{Origin}{ObsPoint}   \aput(0.5){$\r$}
+        \ncline[arrowsize=3pt 2,arrowinset=0.5,arrowlength=2,%
+        linewidth=0.6pt,offset=10pt,nodesep=1pt]{<->}{Bot}{Top}
+        \ncline[linewidth=0.6pt,offset=10pt,nodesep=0pt]{|-|}{Bot}{Top} \lput*{:U}{$l_m$}
+      \endpspicture
+    \caption{Triangular basis function geometry showing two triangles with
+      a common edge.  The superscript ``c'' denotes the centroid of the triangle.}
+    \label{fig:basis}
+  \end{center}
+\end{figure}
+%
+A few facts about the basis functions should be kept in mind.  First, 
+the basis functions are unitless.  Units are carried by the expansion
+coefficients associated with the basis functions.  Second,
+the 
+support of a single basis function is limited to two, typically adjacent triangles.
+Third, the total current density in any given triangle is the vector sum
+of contributions from up to three distinct basis functions whose common support
+includes that triangle.  Fourth, any current flow normal to an edge is due 
+entirely to the basis function associated with that edge.  Finally, the
+basis functions are normalized so that the normal component of current
+density crossing the defining edge is unity%
+%
+\footnote{It is easy to see that the normal current density crossing
+  an edge is constant by
+recalling that the equation of a plane in space is $\n \bdot \r = \text{constant}$.
+Similarly, the equation of the line containing the defining edge for the $m$th
+basis function is $\n \bdot \vecrho_m^{\pm} = \text{constant}$.  In fact, the
+normalization for the basis functions is selected so that this constant is
+unity in magnitude.}
+%
+at any point of the edge.
+This means that the expansion
+coefficients $\{\Icoef_m\}$ defined below can be interpreted as the
+total current
+crossing the associated edge(s) of the triangulated surface.
+
+
+This definition is identical to that of \cite{rawg:82} except for the
+introduction of the factors containing $\theta_n^\pm$.  To see why
+these are necessary, consider the situation shown in
+Figure~\ref{fig:basis2}.  Points within the unit cell are
+parameterized using
+\begin{equation}
+  \vecrho = \xi \s_1 + \eta \s_2, \quad 0 \leq \xi < 1, \; 0 \leq \eta
+  < 1.
+\end{equation}
+%
+\begin{figure}[tbp]
+  \begin{center}
+    \leavevmode
+      \psset{unit=0.3in,linewidth=0.8pt}
+      \pspicture(0,0)(10,10)
+      % Begin by defining locations of triangle vertices as PStricks nodes:
+      \pnode(0,0){Origin}  % The origin is at the lower left corner
+      \pnode(9,3){S1}
+      \pnode(1,7){S2}
+      \pnode(10,10){S1plusS2}
+      \pnode(2,3){TplusC}  % Third node of plus triangle
+      \pnode(6.5,4){TminusC}  % Third node of plus triangle
+      %  Now draw vectors bounding the unit cell:
+      \ncline[arrowsize=6pt,arrowinset=0.5,arrowlength=2.5]{->}{Origin}{S1} 
+      \bput(0.99){$\s_1$}  \bput{:U}(0.5){$\eta = 0$}
+      \ncline[arrowsize=6pt,arrowinset=0.5,arrowlength=2.5]{->}{Origin}{S2} 
+      \aput(0.99){$\s_2$} \aput{:U}(0.6){$\xi = 0$}
+      \lput(0.1){\rnode{TplusA}{}}  % Define first node of plus triangle
+      \lput(0.4){\rnode{TplusB}{}}  % Define second node of plus triangle
+      \ncline{S1}{S1plusS2} 
+      \bput{:U}(0.6){$\xi = 1$}
+      \lput(0.1){\rnode{TminusA}{}}  % Define first node of minus triangle
+      \lput(0.4){\rnode{TminusB}{}}  % Define second node of minus triangle
+      \ncline{S2}{S1plusS2} 
+       \aput{:U}(0.5){$\eta = 1$}
+       %
+       %  Draw the ``plus'' triangle at xi = 0:
+       {\psset{linewidth=1.5pt}
+         \ncline{TplusA}{TplusB} \ncline{TplusB}{TplusC}
+         \ncline{TplusC}{TplusA} }
+       \aput[1pt](0.3){$T_m^+$}
+       %  Draw the ``minus'' triangle at xi = 1:
+       {\psset{linewidth=1.5pt}
+       \ncline{TminusA}{TminusB} \ncline{TminusB}{TminusC} \ncline{TminusC}{TminusA} }
+       \bput[1pt](0.2){$T_m^-$}
+       % Draw the constant eta lines bounding the triangle edges at
+       % the unit cell boundaries:
+       \ncline[linestyle=dashed]{TplusA}{TminusA}
+       \aput{:U}{$\eta=\eta_1$}
+       \ncline[linestyle=dashed]{TplusB}{TminusB}
+       \aput{:U}{$\eta=\eta_2$}
+       % Draw the dimensioning line at xi = 0:
+       \ncline[arrowsize=3pt 2,arrowinset=0.5,arrowlength=2,%
+        linewidth=0.6pt,offset=9pt,nodesep=1pt]{<->}{TplusA}{TplusB}
+        \ncline[linewidth=0.6pt,offset=9pt,nodesep=0pt]{|-|}{TplusA}{TplusB} 
+        \lput*{:U}{$l_m$}
+       % Draw the dimensioning line at xi = 1:
+       \ncline[arrowsize=3pt 2,arrowinset=0.5,arrowlength=2,%
+        linewidth=0.6pt,offset=-9pt,nodesep=1pt]{<->}{TminusA}{TminusB}
+        \ncline[linewidth=0.6pt,offset=-9pt,nodesep=0pt]{|-|}{TminusA}{TminusB} 
+        \lput*{:U}{$l_m$}
+      \endpspicture
+    \caption{Triangular basis function geometry showing a pair of triangles
+      located at the $\xi = \text{constant}$ unit cell boundaries.}
+    \label{fig:basis2}
+  \end{center}
+\end{figure}
+%
+Unit cell boundaries are located at $\xi = 0$, $\xi = 1$, $\eta = 0$,
+and $\eta = 1$.  In order to preserve the periodicity of the computed
+currents we agree to triangulate the unit cell in such a way
+that the number and location of the resulting edges along the $\xi = 0$ and $\xi
+= 1$ boundaries are identical, and similarly for the $\eta = 0$ and $\eta
+= 1$ boundaries.  A pair of triangles $T_m^+$ and $T_m^-$ with 
+edges at the $\xi=0$ and
+$\xi=1$ boundaries, respectively, are shown in the figure.  
+These edges both span the same range of $\eta$ and so are parallel and
+congruent. A basis function is defined for each such pair of triangles
+on the $\xi = \text{constant}$ or $\eta = \text{constant}$ boundaries.
+We focus attention upon the basis function $\f_m$ whose support is
+the union of the two triangle faces shown in the figure.  
+Because of the boundary condition
+\begin{equation}
+  V(\r + m\s_1 + n\s_2) = V(\r) e^{-j(m\psi_1 + n \psi_2)}, \quad
+  \forall m,n \in \Integers
+\end{equation}
+enforced on all currents and fields in the unit cell,
+it must be true that the normal current density crossing the edge at $\xi=1$
+is equal to that crossing the $\xi=0$ edge multiplied by the factor
+$e^{-j\psi_1}$.  Therefore, we must insist that
+\begin{equation}
+  \theta_m^- = \theta_m^+ - \psi_1.
+\end{equation}
+We will establish the convention that $\theta_m^\pm = 0$ for all edges
+except those along the $\xi=1$ and $\eta=1$ unit cell boundaries.  Therefore, for
+the situation shown in Figure~\ref{fig:basis2} we have $\theta_m^- =
+-\psi_1$ and similarly for all other triangles with one edge located
+on the $\xi = 1$ boundary.  For triangles with an edge on the $\eta=1$
+boundary we set the corresponding phase to $-\psi_2$.  
+
+We now expand the unknown electric surface current density in a series of these basis
+functions:
+\begin{equation}
+  \label{eq:Jexpand}
+  \Js(\vecrho) =  \sum_{n=1}^{N_J} \frac{\Icoef_n}{l_n} \f_n(\vecrho).
+\end{equation}
+The number of basis functions
+$N_J$ is equal to the number of interior edges of the triangulated surface in the
+$z=0$ plane of the unit cell plus the number of edges along the $\xi=0$ and $\eta=0$
+borders of the unit cell.  Note that $\Icoef_n$ has units of \si{A}.
+
+
+\subsection{Impedance Matrix}
+\subsubsection{Reduction to Matrix Equation}
+Having expanded the unknown current in a series of suitable basis functions, 
+it is now desired to determine the coefficients in a way that satisfies 
+Equation~\eqref{eq:MPIE} as closely as possible.  
+The method of moments transforms the functional Equation~\eqref{eq:MPIE}
+to a matrix equation by enforcing it in an average manner.
+This is accomplished by first defining an inner product which maps a pair of
+functions to a single complex number, and then repeatedly
+{\em testing\/} the equation by taking the inner product of both sides with a 
+number of {\em testing\/} or {\em weighting\/} functions.
+
+The inner product used in testing Equation~\eqref{eq:MPIE} is
+\begin{equation}
+  \innerprod{\f, \boldsymbol{g}} = \iint \f \bdot \boldsymbol{g}^* \; \d S.
+\end{equation}
+The asterisk denotes complex conjugation and the integration is performed over 
+the portion of the $z=0$ plane containing the common support of the two 
+functions $\f$ and $\boldsymbol{g}$.
+We choose our testing functions to be the same as our basis functions 
+(Galerkin's method).  Then taking the inner product of \eqref{eq:MPIE}
+with each of the functions $\f_m/l_m$  for $m = 1,2,\ldots, N_J$ yields
+\begin{multline}
+  j\omega \innerprod{\A,\f_m/l_m} + \innerprod{\gradient\Phi,\f_m/l_m}
+  + \innerprod{Z_s \Js, \f_m/l_m} 
+          = \innerprod{\E\inc, \f_m/l_m}, \\
+      m = 1, 2, \ldots,  N_J.   \label{eq:Emom}
+\end{multline}  
+Following \cite{rawg:82} we can approximate the second term of 
+\eqref{eq:Emom} by
+\begin{equation}
+  \innerprod{\gradient\Phi, \f_m/l_m} \approx 
+         e^{-j\theta_m^-} \Phi(\rcm_m) - e^{-j\theta_m^+} \Phi(\rcp_m)  \label{eq:Phimom}
+\end{equation}
+where $\rcpm_m$ is the centroid of triangle $T_m^{\pm}$. The first
+term is also approximated as in the reference:
+\begin{equation}
+  \innerprod{\A, \f_m/l_m} \approx \frac{1}{2} 
+      \left[ \A(\rcp_m) \bdot \vecrhocp_m e^{-j\theta_m^+} +  
+             \A(\rcm_m) \bdot \vecrhocm_m  e^{-j\theta_m^-}
+      \right].      \label{eq:Amom}
+\end{equation}  
+$\vecrhocpm_m$ is the vector $\vecrho_m^{\pm}$ evaluated at the centroid
+of the corresponding triangle.
+
+
+Substituting the expansion of the current \eqref{eq:Jexpand} into \eqref{eq:Emom}
+yields the desired matrix equation.
+\begin{equation}
+  \mat{Z} \mat{I} =  \mat{V},  \label{eq:matrix}
+\end{equation}
+where $\mat{Z} = [\matel{Z}_{mn}]$ is the so-called {\em generalized impedance 
+matrix}, a square matrix of order $N_J$ with units of \si{\ohm}.  
+$\mat{I} = [\Icoef_m]$ is the column matrix of unknown current
+coefficients with units of $\si{A}$. 
+$\mat{V}= [\matel{V}_m]$ is the excitation vector (or {\em generalized
+voltage vector}) with units of $\si{V}$.
+The elements of the generalized impedance matrix are
+\begin{multline}
+  \matel{Z}_{mn} = 
+  \innerprod{Z_s \f_n/l_n,\f_m/l_m}
+   \\
+   \mbox{} + j \omega \left(
+    \A_{mn}^+ \bdot \frac{\vecrhocp_m}{2} e^{-j\theta_m^+}
+    +
+    \A_{mn}^- \bdot \frac{\vecrhocm_m}{2} e^{-j\theta_m^-}
+  \right)
+  + \Phi_{mn}^- e^{-j\theta_m^-} - \Phi_{mn}^+ e^{-j\theta_m^+}
+\end{multline}
+where
+\begin{align}
+  \A_{mn}^{\pm} & \equiv 
+  \frac{1}{l_n} \iint  
+  \GAxx(\rcpm_m;\r') \, \f_n(\r') \; \d S'  \notag \\
+  &= 
+    \frac{e^{j\theta_n^+}}{2A_n^+} \iint_{T_n^+}  \!\!\!
+    \GAxx(\rcpm_m;\r') \, \vecrho_n^+ \; \d S'
+    +
+    \frac{e^{j\theta_n^-}}{2A_n^-} \iint_{T_n^-}  \!\!\!
+    \GAxx(\rcpm_m;\r')  \, \vecrho_n^- \; \d S'
+    \label{eq:Amnpm}
+\end{align}
+and
+\begin{align}
+  \Phi_{mn}^{\pm} &\equiv \frac{j}{\omega l_n} \iint
+  \GPhi(\rcpm_m;\r')
+  \gradient'_s \bdot \f_n(\r')  
+  \; \d S'
+  \notag \\
+  &= \frac{j}{\omega}
+  \left[
+    \frac{e^{j\theta_n^+}}{A_n^+} \iint_{T_n^+}  \!\!\!
+    \GPhi(\rcpm_m;\r') \; \d S'
+    -
+    \frac{e^{j\theta_n^-}}{A_n^-} \iint_{T_n^-}{}  \!\!\!
+    \GPhi(\rcpm_m;\r') \; \d S'
+  \right]    \label{eq:Phimnpm}
+\end{align}
+and we have used the fact \cite{rawg:82} that
+\begin{equation}  
+  \gradient_s \bdot \f_n(\r) = 
+  \begin{cases}
+    \displaystyle  \frac{l_n}{A_n^+} e^{j\theta_n^+}  & \text{if $\r \in T_n^+$} \\
+    \displaystyle \frac{\rule{0pt}{2ex}-l_n}{A_n^-} 
+    e^{j\theta_n^-} & \text{if $\r \in T_n^-$} \\
+    0                               & \text{otherwise}
+  \end{cases}
+  \label{eq:fdiv}
+\end{equation}    
+which holds true for a basis function consisting of a pair of adjacent
+triangles.  For basis functions defined on nonadjacent pairs, the
+expression for the surface divergence includes a pair of line
+singularities whose contributions to \eqref{eq:Phimnpm} can be
+shown to cancel.
+
+ \subsubsection{Efficient Evaluation of the Generalized Impedance Matrix}
+ The authors of \cite{rawg:82} discuss the way in which redundant calculations can 
+ be avoided by considering face-pair contributions to $\mat{Z}$ rather than the 
+ edge-pair contributions used in the definitions of \eqref{eq:Amnpm} and
+ \eqref{eq:Phimnpm}.  Here we apply the same technique using our
+ potential Green's functions specific to this problem.  In addition,
+ we individually track the contributions to the impedance matrix 
+ exhibiting distinct frequency dependence, thus allowing a
+ wide-band implementation.
+
+ \paragraph{Vector Potential Contributions}
+
+ Consider first a typical vector integral needed
+ to evaluate $\matel{Z}_{mn}$.  
+ The quantity
+ \begin{equation}
+   \A_i^{uv} =   \frac{e^{j\theta_i^\pm}}{2A^v}  \iint_{T^v}  \!\!\!
+           \GAxx(\rcu;\r') \, \vecrho_i \; \d S' \label{eq:Aiuv}
+ \end{equation}
+ represents the magnetic vector potential at the centroid $\rcu$ of triangle
+ $T^u$ due to the $i\text{th}$ basis function defined on triangle $T^v$.
+ In \eqref{eq:Aiuv} we have temporarily assumed a local numbering scheme
+ on the source triangle, with vertices at $\r_1$, $\r_2$, and $\r_3$,
+ and where 
+ \begin{equation}
+   \vecrho_i =  \pm (\r' - \r_i), \quad i = 1, 2, 3.
+   \label{eq:vecrhosubi}
+ \end{equation}
+ The plus sign is selected in \eqref{eq:Aiuv} and \eqref{eq:vecrhosubi} 
+ if the associated basis function defines 
+ positive current to flow {\em out\/} through the $i\text{th}$ edge of
+ the triangle, which lies opposite the $i$th vertex.
+ Using the expressions for the magnetic vector potential Green's
+ function given in  Chapter~\ref{chap:gfstratified}, Equation~\eqref{eq:Aiuv} can 
+ be written as  the sum of a frequency dependent term arising from the modal
+ difference series, added to several contributions arising from the
+ spatial series:
+ \begin{equation}
+   \A_i^{uv} = \frac{\tilde{\mu}}{4\pi} e^{j\theta^{\pm}_i} 
+   \left[
+     4\pi \I_{1i}^{uv}%(\mu_1,\epsilon_1,\mu_2,\epsilon_2) 
+     + 
+     \frac{1}{2A^v}  \iint_{T^v}  \!
+     \frac{\vecrho_i}{\rhocu_{00}} \, \d S' +
+     u \J_i^{uv} +
+     \frac{c_3(\scriptstyle\mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1})}%
+     {u} \K_i^{uv} 
+   \right] \label{eq:Aiuv2}
+ \end{equation}
+ where
+ \begin{subequations}
+   \begin{align}
+     \I_{1i}^{uv} &=
+     \frac{1}{2A^v}  \iint_{T^v}  \!\!\!
+     \Sigma_{M1}(\rcu;\r')
+     \, \vecrho_i \; \d S', \\
+     %
+     \Sigma_{M1}(\rcu;\r') &= 
+     \frac{1}{2A} \summn 
+     \left[
+       \frac{2\Vi\TE(\vecbeta_{mn},z_s,z_s)}{j\omega\tilde{\mu}}
+       - \frac{1}{\kappa_{mn}} -
+       \frac{c_3({\scriptstyle\mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1}})}%
+       {\kappa_{mn}^3}
+     \right] e^{-j\vecbeta_{mn}\bdot(\rcu-\r')}, \\
+                                %
+     \J_i^{uv} &=
+     \frac{1}{2A^v}  \iint_{T^v}  \!\!\!
+     \vecrho_i \,
+     \summn  \frac{e^{-u\rhocu_{mn}}-\delta_{m0}\delta_{n0}}{u\rhocu_{mn}}  
+     e^{-j(m\psi_1+n\psi_2)} \; \d S', \\
+                                %
+     \K_i^{uv} &=
+     \frac{1}{2A^v}  \iint_{T^v}  \!\!\!
+     \vecrho_i \,
+     \summn  e^{-u\rhocu_{mn}}
+     e^{-j(m\psi_1+n\psi_2)} \; \d S',
+   \end{align}
+ \end{subequations}
+ and $\rhocu_{mn} = \norm{\rcu  - \r' - m\s_1 -n\s_2}$.  Note that the
+ only frequency dependence in \eqref{eq:Aiuv2} occurs in the terms
+ $\I_{1i}^{uv}$ and $c_3$.  Therefore, the contrubutions due to the
+ singular integral, $\J_i^{uv}$ and $\K_i^{uv}$ can be computed once,
+stored, and combined appropriately at each new analysis frequency.
+Although $\I_{1i}^{uv}$ must be computed anew at each frequency, the modal
+difference series occurring in its integrand can be very rapidly evaluated by
+simple interpolation into a two-dimensional table obtained from the
+FFT (Section~\ref{sec:modalFFT}).
+
+Calculation of the singular integral in \eqref{eq:Aiuv2} is discussed
+in Appendix~\ref{app:singint}.  Efficient evaluation of the remaining
+integrals is discussed next.
+
+Each of the integrals $\I_{1i}^{uv}$, $\J_i^{uv}$, 
+and $\K_i^{uv}$ is of
+the form
+\begin{equation}
+  \L_i = \x L_{ix} + \y L_{iy} = \frac{1}{2A^v} \iint_{T^v} \!\!\!
+  \vecrho_i \,
+  f(\r;\r') \, \d S'.
+\end{equation}
+Each involves a bounded, well-behaved
+integrand which can be integrated numerically using a low-order Gaussian 
+scheme designed especially for surface integration (cubature)
+over triangular domains \cite{zien:71}.  However, it is advantageous to first 
+express them in terms of integrals which do not depend on the particular basis function
+index $i$.  To accomplish 
+this, we employ the so-called {\em normalized area coordinates\/} 
+$(\xi,\eta,\zeta)$.%
+\footnote{In this section ``$\eta$'' is used to mean one of the 
+  normalized area coordinates.  Elsewhere in these notes the same symbol 
+  may be used to represent the intrinsic impedance of a dielectric medium.}
+The source point can be written in terms of area coordinates as
+\begin{equation}
+  \r' = \xi \r_1 + \eta \r_2 + \zeta \r_3
+\end{equation}
+so that
+\begin{equation}
+  \vecrho_i = \pm(\r' - \r_i) = \pm \left(
+    \xi \r_1 + \eta \r_2 + \zeta \r_3 - \r_i
+  \right).
+\end{equation}
+where the $\{ \r_i \}$ are the vertices of the source triangle $T^v$ having
+area $A^v$. Only two of the three (nonnegative)  
+coordinates can be independently specified since $\xi + \eta + \zeta = 1$ for 
+points in the triangle. 
+The area element in normalized area coordinates is $\d S' = 2 A^v \,\d\xi\,\d\eta$.
+
+The desired integral $\L_{i}$ can
+be expressed in terms of scalar integrals over normalized area coordinates 
+which are independent of $i$ in the
+following way.
+\begin{equation}
+  \L_{i} = \pm  \left[
+    \r_1 L_{\xi} + \r_2 L_{\eta} + \r_3 L_{\zeta}
+    - \r_i L
+  \right]    \label{eq:Lit}
+\end{equation}
+where
+\begin{subequations}
+  \begin{align}
+    L_{\xi} &= \int_0^1 \int_0^{1-\eta}  \!\!\!\!
+    \xi \, f(\rcu;\xi\r_1 + \eta\r_2 + \zeta\r_3)
+    \, \d\xi \, \d\eta   \\
+    L_{\eta} &= \int_0^1 \int_0^{1-\eta}  \!\!\!\!
+    \eta \, f(\r^{cu};\xi\r_1 + \eta\r_2 + \zeta\r_3)
+    \, \d\xi \, \d\eta   \\
+    L_{\zeta} &= \int_0^1 \int_0^{1-\eta}  \!\!\!\!
+    \zeta \, f(\r^{cu};\xi\r_1 + \eta\r_2 + \zeta\r_3)
+    \, \d\xi \, \d\eta   \\
+    L &=  \int_0^1 \int_0^{1-\eta}  \!\!\!\!
+    f(\r^{cu};\xi\r_1 + \eta\r_2 + \zeta\r_3)
+    \, \d\xi \, \d\eta.   \label{eq:L}
+  \end{align}
+\end{subequations}
+It is important to note
+that the above integrals are not all independent.  We also have that
+\begin{equation}
+  L = L_{\xi} + L_{\eta} + L_{\zeta}
+\end{equation}
+so that in general there are three integrals to be numerically evaluated for
+each observation point / source triangle pair.  These integrals,
+when weighted according to Equation~\eqref{eq:Lit} contribute
+to as many as nine entries of $\mat{Z}$, depending on the number of basis 
+functions defined in each triangle.  They are computed using the seven-point
+cubature formula found in, e.g., \cite{zien:71} or \cite{bali:84}.
+\begin{equation}
+    \int_0^1 \int_0^{1-\eta} \!\!\!
+  f(\xi, \eta) \; \d\xi \; \d\eta \approx \sum_{k=1}^7 w_k f(\xi_k, \eta_k).
+  \label{eq:cubtri}
+\end{equation}
+The sample points and weights are given in Table~\ref{tab:tri}.
+\begin{table}
+  \begin{center}
+    \begin{tabular}{|c|c|c|c|}  \hline
+      {\boldmath $k$\unboldmath\rule[-.5ex]{0ex}{3ex}} &  
+      {\boldmath $\xi_k$} \unboldmath  & 
+      {\boldmath $\eta_k$ \unboldmath} & {\boldmath $w_k$ \unboldmath} 
+      \\ \hline
+      1 & 0.33333333333333333 & 0.33333333333333333 & 0.11250000000000000 \\
+      2 & 0.10128650732345633 & 0.79742698535308730 & 0.06296959027241358 \\
+      3 & 0.79742698535308730 & 0.10128650732345633 & 0.06296959027241358 \\
+      4 & 0.10128650732345633 & 0.10128650732345633 & 0.06296959027241358 \\
+      5 & 0.47014206410511505 & 0.05971587178976989 & 0.06619707639425308 \\
+      6 & 0.05971587178976989 & 0.47014206410511505 & 0.06619707639425308 \\
+      7 & 0.47014206410511505 & 0.47014206410511505 & 0.06619707639425308 \\
+      \hline 
+    \end{tabular}
+  \end{center}
+  \caption{Sample points and weights for seven point triangular cubature.}
+  \label{tab:tri}
+\end{table}
+
+\paragraph{Scalar Potential Contributions}
+In addition to the vector integrals just discussed, it is also 
+necessary to calculate scalar integrals of the form
+\begin{equation}
+  \Phi_i^{uv} = \pm \frac{je^{j\theta^{\pm}_i}}{\omega A^v} \!
+  \iint_{T^v} \!\!
+  \GPhi(\r^{cu};\r') \; \d S'.  \label{eq:Phiiuv}
+\end{equation}
+$\Phi_i^{uv}$ is the electric scalar potential at the centroid of
+triangle $T^u$ due to the surface electric charge density associated with
+the $i$th basis function defined on triangle $T^v$.  As before, the
+sign is taken to be positive if the basis function in question defines
+positive reference current to flow {\em out} of $T^v$ through the 
+$i$th edge. 
+We proceed as before, using the results in Chapter~\ref{chap:gfstratified} for the
+electric scalar potential Green's function to write the above integral
+as 
+\begin{equation}
+  \Phi_i^{uv} = \frac{\pm
+    je^{j\theta^{\pm}_i}}{2\pi\omega\bar{\epsilon}} 
+  \left[
+     4\pi I_{2}^{uv} + 
+     \frac{1}{2A^v}  \iint_{T^v}  \!
+     \frac{\d S'}{\rhocu_{00}} +
+     u J^{uv} +
+     \frac{d_3(\scriptstyle\mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1})}{u} 
+     K^{uv}
+   \right] \label{eq:Phiiuv2}
+\end{equation}
+where
+\begin{subequations}
+  \begin{align}
+    I_{2}^{uv} &=
+    \frac{1}{2A^v}  \iint_{T^v}  \!\!\!
+    \Sigma_{M2}(\rcu;\r')
+    \, \d S', \\
+                                %
+    \Sigma_{M2}(\rcu;\r') & =
+    \frac{1}{2A} \summn 
+    \left[
+      \frac{2j\omega\bar{\epsilon}(\Vi\TM-\Vi\TE)}{\beta_{mn}^2} 
+      - \frac{1}{\kappa_{mn}} -
+      \frac{d_3({\scriptstyle\mu_s,\epsilon_s,\mu_{s+1},\epsilon_{s+1}})}
+      {\kappa_{mn}^3}
+    \right]  e^{-j\vecbeta_{mn}\bdot(\rcu-\r')}, \\
+                                %
+    J^{uv} &=
+    \frac{1}{2A^v}  \iint_{T^v}  \!
+    \summn  \frac{e^{-u\rhocu_{mn}}-\delta_{m0}\delta_{n0}}{u\rhocu_{mn}}  
+    e^{-j(m\psi_1+n\psi_2)} \; \d S', \\
+    K^{uv} &=
+    \frac{1}{2A^v}  \iint_{T^v}  \!
+    \summn  e^{-u\rhocu_{mn}}
+    e^{-j(m\psi_1+n\psi_2)} \; \d S'.
+  \end{align}
+\end{subequations}
+Note that $J^{uv}$ and $K^{uv}$ have already been computed as
+scalar portions of the corresponding vector integrals 
+$\J_{i}^{uv}$ and $\K_{i}^{uv}$, respectively (see Equation~\ref{eq:L}).
+The only new quantities to be computed are $I_{2}^{uv}$ and the singular
+integral. The integral $I_{2}^{uv}$ can be computed in exactly
+the same manner as $I_{1}^{uv}$ using the FFT. Evaluation of the singular 
+integral is discussed in Appendix~\ref{app:singint}.
+ Note that the
+only frequency dependence in \eqref{eq:Phiiuv2} occurs in the 
+factor $\omega$ and the terms $I_{2}^{uv}$ and $d_3$. 
+
+\paragraph{Surface Impedance Contributions}
+The contribution to the generalized impedance matrix due to finite
+surface impedance of the conducting layer is given by the inner
+product
+\begin{equation}
+  \innerprod{Z_s \f_n/l_n,\f_m/l_m}.
+\end{equation}
+Note that in most cases basis functions $m$ and $n$ do not share any
+common support and the inner product yields zero.  
+Otherwise, two cases remain. Either
+$n=m$, or $n \neq m$ with edges $n$ and $m$  common to a single
+triangle. The formulas for the inner product in these cases, assuming that the 
+surface impedance is constant on each triangle face,  
+are derived in 
+Appendix \ref{ap:ip}.  For $n=m$ the result is
+\begin{equation}
+\innerprod{Z_s \f_n/l_n,\f_n/l_m} = \frac{Z_s^+}{48A_n^+}(3{l_a^+}^2 + 
+                     3{l_b^+}^2 - l_n^2)
+            + \frac{Z_s^-}{48A_n^-}(3{l_a^-}^2 + 3{l_b^-}^2 - l_n^2)
+\end{equation}
+where the plus and minus signs refer to triangles $T_n^+$ and $T_n^-$, 
+respectively, and $l_a^{\pm}$ and $l_b^{\pm}$ are the lengths of the 
+two other edges on these triangles.  For $n \neq m$ the result is
+\begin{equation}
+\innerprod{Z_s \f_n/l_n,\f_m/l_m} = \pm
+e^{j(\theta_n-\theta_m)}
+\frac{Z_s^{mn}}{48A^{mn}}
+                    (l_m^2 + l_n^2 - 3 l_{p}^2)
+\end{equation}
+where the double superscript $mn$ refers to the triangle common 
+to basis functions $m$ and 
+$n$ and $l_{p}$ is the length of the third edge.  The minus sign is taken if 
+one of the basis functions $\f_m$ and $\f_n$ define positive current flow out 
+of the triangle while the other basis function defines positive current flow 
+into the triangle.  If the two basis functions agree in this respect the plus 
+sign is used.
+  
+\subsection{\label{subsec:gvm}Generalized Voltage Vector}
+The elements of the generalized voltage vector are defined as 
+\begin{equation}
+ \matel{V}_m =  \innerprod{\E\inc, \f_m/l_m} = \frac{1}{l_m} 
+ \iint \! \E\inc \! \bdot \f_m^* \, \d S, \quad
+      m = 1, 2, \ldots,  N_J.  \label{eq:Vm}
+\end{equation}
+The incident field $\E\inc$ is the field that would exist in the
+absence of the FSS metalization due to an incoming, normalized
+Floquet mode from Region~$1$ or~$N$ with unit amplitude coefficient.
+This scenario was treated in Chapter~\ref{chap:incgsm} and we use the results
+derived there.  Let $i \in \{1,N\}$ be the region index designating
+the source of the incoming Floquet mode.  The mode index is $q =
+(p_q,m_q,n_q)$ where $p_q=1$ for TE modes and $p_q=2$ for TM modes.  The
+transverse portion of the incident electric field evaluated in the
+$z=z_s$ plane is:
+\begin{equation}
+  \Idemfactor_z \bdot \E\inc(\vecrho) = V(z_s) \e_q\eye(\vecrho)
+  = V(z_s) c_q\eye \t_q e^{-j\vecbeta_{m_q n_q} \bdot
+  \vecrho} \label{eq:Eincmom}
+\end{equation}
+where the modal polarization vector $\t_q$ is defined as
+\begin{equation}
+  \label{eq:tdef}
+  \t_q = 
+  \begin{cases}
+    \z\cross\betahat_{mn} & p_q = 1 \; \text{(TE modes),} \\
+    \betahat_{mn}  & p_q = 2 \; \text{(TM modes),}
+  \end{cases}
+\end{equation}
+and $V(z_s)$ is the equivalent transmission line voltage evaluated at
+$z=z_s$ using the formulas presented in Chapter~\ref{chap:incgsm}.
+
+Upon substituting the incident field of \eqref{eq:Eincmom} into
+\eqref{eq:Vm} we find that
+\begin{align}
+  \matel{V}_m &=  
+  \frac{V(z_s) c_q\eye}{l_m}   \t_q \bdot 
+  \iint \! \! \f_m^*(\vecrho) e^{-j\vecbeta_{m_q n_q}\bdot\vecrho} \, \d S 
+  \nonumber \\
+  &= 
+  \frac{V(z_s) c_q\eye}{l_m}   \t_q \bdot 
+  \ftf_m^*(\vecbeta_{m_q n_q}), \quad
+  m = 1, 2, \ldots,  N_J,  
+\end{align}
+where
+\begin{equation}
+    \ftf_m(\k) = \iint \!\!
+    \f_m(\vecrho) \, e^{j\k \bdot \vecrho} \, \d S 
+\end{equation}
+is the Fourier transform of the $m$th basis function evaluated at $\k
+= \x k_x + \y k_y.$  The Fourier transform is numerically
+evaluated using the formulas of \cite{mcsi:91}.
+
+
+
+\section{Magnetic Current Mixed Potential Integral Equation}
+In this section we consider an FSS that is modeled using equivalent
+magnetic surface current.  This choice is convenient when more than
+half of the unit cell area is occupied by perfectly conducting metal.
+
+We assume that the primary excitation is an 
+incoming Floquet mode with unit amplitude, incident
+upon the multilayered structure from either Region~$1$ or $N.$
+
+Using the equivalence principle, the FSS aperture $S$ is filled in with PEC
+and an unknown magnetic surface current ($\M$ on the incident side,
+and $-\M$ on the far side) is impressed just
+outside the metal surface, so as to reproduce the scattered
+field exactly in all regions.  The incident field is thus the field
+that would exist in the structure with an unperforated ground plane at
+$z=z_s$.  It includes reflections from the ground plane on the
+incident side of $z_s$ and is zero on the far or transmitted side.
+
+In the case where the incoming wave is incident from Region~$1$, the
+boundary value problem to be solved is 
+\begin{equation}
+  \Idemfactor_z \bdot [\H\inc(x,y,z_s) + \H\ess\{\M\}(x,y,z_s)]
+  =   \Idemfactor_z \bdot \H\spw\{-\M\}(x,y,z_s), 
+    \quad (\vecrho \in S)
+\end{equation}
+where 
+$H\inc$ is the total ``incident'' magnetic field in the presence of
+the unperforated PEC plane at $z=0$,
+$\H\ess\{\M\}(\r)$ is the magnetic field evaluated at point $\r \in \{z<z_s\}$ that
+would be radiated by the periodic magnetic surface current 
+$\M$ impressed on the groundplane at $z=z_s-0$, and 
+$\H\spw\{\M\}(\r)$ is the magnetic field evaluated at point $\r \in \{z>z_s\}$ that
+would be radiated by the periodic magnetic surface current 
+$\M$ impressed on the groundplane at $z=z_s+0.$
+In the case where the incoming wave is incident from Region~$N$, the
+boundary value problem to be solved is 
+\begin{equation}
+  \Idemfactor_z \bdot \H\ess\{-\M\}(x,y,z_s)
+  =   \Idemfactor_z \bdot [\H\inc(x,y,z_s) + \H\spw\{\M\}(x,y,z_s)], 
+    \quad (\vecrho \in S)
+\end{equation}
+
+Using the linearity of the magnetic field operator allows
+us to rewrite the both integral equations in a unified form:
+\begin{equation}
+-\Idemfactor_z \bdot [\H\ess\{\M\}(\vecrho) + 
+\H\spw\{\M\}(\vecrho)] = 
+\Idemfactor_z \bdot \H\inc(\vecrho), \quad (\vecrho \in S)
+  \label{eq:MFIE}
+\end{equation}
+where it is to be understood that $\vecrho$ represents a point in the
+plane $z=z_s.$
+%continue here
+In terms of potentials the boundary value problem becomes
+\begin{equation}
+  [-j\omega \F(\vecrho) + \gradient\Psi(\vecrho)] \bdot \Idemfactor_z = 
+  \H\inc(\vecrho) \bdot \Idemfactor_z, \quad (\vecrho \in S)
+  \label{eq:HMPIE}
+\end{equation}
+where the potentials can be expressed as superposition integrals
+ \begin{gather}
+   \Idemfactor_z \bdot \F(\vecrho) = 
+   \iint \GFxx(\vecrho-\vecrho') \cdot \M(\vecrho') \, \d S',
+   \label{eq:Fsup}\\
+   \Psi(\vecrho) = \iint \GPsi(\vecrho-\vecrho') \cdot \qm(\vecrho') \, \d S'.
+   \label{eq:Psisup}
+ \end{gather}
+In \eqref{eq:Fsup} and \eqref{eq:Psisup}, $\M$ and $\qm$ are the unknown
+induced magnetic surface current and surface charge densities,
+respectively, which will be determined
+by enforcing
+Equation~\eqref{eq:HMPIE} in an approximate manner using the method of
+moments. The functions $\GFxx$ and $\GPsi$ are the sum of the
+left-looking and right-looking Green's functions as defined in 
+Chapter~\ref{chap:gfstratified}:
+\begin{subequations}
+  \begin{align}
+    \GFxx(\vecrho-\vecrho') &=
+    \GlFxx(\vecrho-\vecrho',z_s,z_s) +
+    \GrFxx(\vecrho-\vecrho',z_s,z_s) \\
+    \GPsi(\vecrho-\vecrho') &=
+    \GlPsi(\vecrho-\vecrho',z_s,z_s) +
+    \GrPsi(\vecrho-\vecrho',z_s,z_s).
+  \end{align}
+\end{subequations}
+
+
+ We again employ the triangle subdomain basis functions that
+were described in Section~\ref{sec:bf}.
+
+We now expand the unknown magnetic surface current density 
+in a series of triangle-pair basis functions:
+\begin{equation}
+  \label{eq:Mexpand}
+  \M(\vecrho) =  \sum_{n=1}^{N_M} \frac{\Vcoef_n}{l_n} \f_n(\vecrho).
+\end{equation}
+The number of basis functions
+$N_M$ is equal to the number of interior edges of the triangulated aperture in the
+$z=0$ plane of the unit cell plus the number of edges along the $\xi=0$ and $\eta=0$
+borders of the unit cell.  Note that $\Vcoef_n$ has units of \si{V}.
+
+
+\subsection{Admittance Matrix}
+\subsubsection{Reduction to Matrix Equation}
+Having expanded the unknown magnetic surface 
+current in a series of suitable basis functions, 
+it is now desired to determine the coefficients in a way that satisfies 
+Equation~\eqref{eq:HMPIE} as closely as possible.  
+
+We choose our testing functions to be the same as our basis functions 
+(Galerkin's method).  Then taking the inner product of \eqref{eq:HMPIE}
+with each of the functions $\f_m/l_m$  for $m = 1,2,\ldots, N_M$ yields
+\begin{equation}
+  -j\omega \innerprod{\F,\f_m/l_m} + \innerprod{\gradient\Psi,\f_m/l_m}
+  = \innerprod{\H\inc, \f_m/l_m}, \qquad
+  m = 1, 2, \ldots,  N_M.   \label{eq:Hmom}
+\end{equation}  
+We approximate the inner products in the same manner as was done for
+the case of electric sources:
+\begin{equation}
+  \innerprod{\gradient\Psi, \f_m/l_m} \approx 
+         e^{-j\theta_m^-} \Psi(\rcm_m) - e^{-j\theta_m^+} \Psi(\rcp_m)  
+         \label{eq:Psimom}
+\end{equation}
+where $\rcpm_m$ is the centroid of triangle $T_m^{\pm}$. Also, we use
+\begin{equation}
+  \innerprod{\F, \f_m/l_m} \approx \frac{1}{2} 
+      \left[ \F(\rcp_m) \bdot \vecrhocp_m e^{-j\theta_m^+} +  
+             \F(\rcm_m) \bdot \vecrhocm_m  e^{-j\theta_m^-}
+      \right].      \label{eq:Fmom}
+\end{equation}  
+$\vecrhocpm_m$ is the vector $\vecrho_m^{\pm}$ evaluated at the centroid
+of the corresponding triangle.
+
+
+Substituting the expansion of the current \eqref{eq:Mexpand} into \eqref{eq:Hmom}
+yields the desired matrix equation.
+\begin{equation}
+  \mat{Y} \mat{V} =  \mat{I},  \label{eq:Hmatrix}
+\end{equation}
+where $\mat{Y} = [\matel{Y}_{mn}]$ is the so-called {\em generalized admittance
+matrix}, a square matrix of order $N_M$ with units of \si{S}.  
+$\mat{V} = [\Vcoef_m]$ is the column matrix of unknown magnetic current
+coefficients with units of \si{V}. 
+$\mat{I}= [\matel{I}_m]$ is the excitation vector (or {\em generalized
+current vector}) with units of \si{A}.
+ The elements of the generalized admittance matrix are
+\begin{equation}
+  \matel{Y}_{mn} = 
+ -j\omega \left(
+    \F_{mn}^+ \bdot \frac{\vecrhocp_m}{2} e^{-j\theta_m^+}
+    +
+    \F_{mn}^- \bdot \frac{\vecrhocm_m}{2} e^{-j\theta_m^-}
+  \right)
+  + \Psi_{mn}^- e^{-j\theta_m^-} - \Psi_{mn}^+ e^{-j\theta_m^+}
+\end{equation}
+where
+ \begin{align}
+   \F_{mn}^{\pm} & \equiv 
+   \frac{1}{l_n} \iint  
+   \GFxx(\rcpm_m;\r') \, \f_n(\r') \; \d S'  \notag \\
+   &= 
+     \frac{e^{j\theta_n^+}}{2A_n^+} \iint_{T_n^+}  \!\!\!
+     \GFxx(\rcpm_m;\r') \, \vecrho_n^+ \; \d S'
+     +
+     \frac{e^{j\theta_n^-}}{2A_n^-} \iint_{T_n^-}  \!\!\!
+     \GFxx(\rcpm_m;\r')  \, \vecrho_n^- \; \d S'
+     \label{eq:Fmnpm}
+ \end{align}
+and
+\begin{align}
+  \Psi_{mn}^{\pm} &\equiv \frac{j}{\omega l_n} \iint
+  \GPsi(\rcpm_m;\r')
+  \gradient'_s \bdot \f_n(\r')  
+  \; \d S'
+  \notag \\
+  &= \frac{j}{\omega}
+  \left[
+    \frac{e^{j\theta_n^+}}{A_n^+} \iint_{T_n^+}  \!\!\!
+    \GPsi(\rcpm_m;\r') \; \d S'
+    -
+    \frac{e^{j\theta_n^-}}{A_n^-} \iint_{T_n^-}{}  \!\!\!
+    \GPsi(\rcpm_m;\r') \; \d S'
+  \right]    \label{eq:Psimnpm}
+\end{align}
+
+\subsubsection{Efficient Evaluation of the Generalized Admittance Matrix}
+\paragraph{Vector Potential Contributions}
+Consider first a typical vector integral needed
+to evaluate $\matel{Y}_{mn}$.  
+The quantity
+\begin{equation}
+  \F_i^{uv} =   \frac{e^{j\theta_i^\pm}}{2A^v}  \iint_{T^v}  \!\!\!
+  \GFxx(\rcu;\r') \, \vecrho_i \; \d S' \label{eq:Fiuv}
+\end{equation}
+represents the electric vector potential at the centroid $\rcu$ of triangle
+$T^u$ due to the $i\text{th}$ basis function defined on triangle $T^v$.
+In \eqref{eq:Fiuv} we have temporarily assumed a local numbering scheme
+on the source triangle, with vertices at $\r_1$, $\r_2$, and $\r_3$,
+and where $\vecrho_i$ is defined in Equation~\eqref{eq:vecrhosubi}.
+Using the expressions for the electric vector potential Green's
+function given in Chapter~\ref{chap:gfstratified},  Equation~\eqref{eq:Fiuv} can 
+be written as 
+the sum of a frequency dependent term arising from the modal
+difference series, added to several contributions arising from the
+spatial series:
+\begin{equation}
+  \F_i^{uv} = -\frac{\bar{\epsilon}}{\pi} e^{j\theta^{\pm}_i}
+  \Biggl[
+    \frac{\pi\epsilon_0}{\bar{\epsilon}}  \I_{1i}^{'uv} + 
+    \frac{1}{2A^v} \! \iint_{T^v}  \!
+    \frac{\vecrho_i}{\rhocu_{00}} \, \d S' +
+       u \J_i^{uv} +
+    \frac{c_3\ess \epsilon_s + c_3\spw \epsilon_{s+1}}{2\bar{\epsilon}u}
+     \K_i^{uv}
+  \Biggr] \label{eq:Fiuv2}
+\end{equation}
+where
+\begin{equation}
+     \I_{1i}^{'uv} =
+     \frac{1}{2A^v}  \iint_{T^v}  \!\!\!
+     \Sigma'_{M1}(\rcu;\r')
+     \, \vecrho_i \; \d S' 
+\end{equation}
+and $\Sigma'_{M1}$ is defined in Equation~\eqref{eq:finalmodalmagnetic}.
+Note that the
+only frequency dependence in \eqref{eq:Fiuv2} occurs in the terms
+$\I_{1i}^{uv}$ and $c_3$.  Therefore, the contrubutions due to the
+singular integral, $\J_i^{uv}$ and $\K_i^{uv}$ can be computed once,
+stored, and combined appropriately at each new analysis frequency.
+Although the value of $\I_{1i}^{'uv}$ must be computed anew 
+at each frequency, the modal
+difference series occurring in its integrand can be very rapidly evaluated by
+simple interpolation into a two-dimensional table obtained from the
+FFT (Section~\ref{sec:modalFFT}).
+
+
+\paragraph{Scalar Potential Contributions}
+In addition to the vector integrals just discussed, it is also 
+necessary to calculate scalar integrals of the form
+\begin{equation}
+  \Psi_i^{uv} = \pm \frac{je^{j\theta^{\pm}_i}}{\omega A^v} \!
+  \iint_{T^v} \!\!
+  \GPsi(\r^{cu};\r') \; \d S'.  \label{eq:Psiiuv}
+\end{equation}
+$\Psi_i^{uv}$ is the 
+magnetic scalar potential evaluated at the centroid of
+triangle $T^u$ due to the surface magnetic charge density associated with
+the $i$th basis function defined on triangle $T^v$.  As before, the
+sign is taken to be positive if the basis function in question defines
+positive reference current to flow {\em out} of $T^v$ through the 
+$i$th edge. 
+We proceed as before, using the results of Chapter~\ref{chap:gfstratified} for the
+magnetic scalar potential Green's function to write the above integral
+as 
+\begin{equation}
+  \Psi_i^{uv} = \frac{\pm 2 j e^{j\theta^{\pm}_i}}{\pi\omega\tilde{\mu}} 
+  \Biggl[
+  \frac{\pi\tilde{\mu}}{\mu_0}  
+  I_{2}^{'uv} + 
+  \frac{1}{2A^v}  \! \iint_{T^v}  \!
+      \frac{\d S'}{\rhocu_{00}} +
+      u J_i^{uv} +
+      \frac{\tilde{\mu}}{2u} 
+      \left(
+        \frac{d_3\ess}{\mu_s} + \frac{d_3\spw}{\mu_{s+1}}
+      \right)
+      K_i^{uv}
+    \Biggr] \label{eq:Psiiuv2}
+ \end{equation}
+where
+\begin{equation}
+     I_{2}^{'uv} =
+     \frac{1}{2A^v}  \iint_{T^v}  \!\!\!
+     \Sigma'_{M2}(\rcu;\r')
+     \; \d S' 
+\end{equation}
+and $\Sigma'_{M2}$ is defined in Equation~\eqref{eq:finalmodalmagnetic}.
+
+All of the integrals in \eqref{eq:Psiiuv2} have been previously
+discussed.  Note that the only frequency dependence (apart from the leading factor of
+$1/\omega$) occurs in the terms $I_{2}^{'uv}$ and $d_3$. 
+
+  
+\subsection{\label{subsec:gcm}Generalized Current Vector}
+The elements of the generalized current vector are defined as 
+\begin{equation}
+  \matel{I}_m =  \innerprod{\H\inc, \f_m/l_m} = \frac{1}{l_m} 
+  \iint \H\inc \bdot \f_m^* \, \d S, \quad
+  m = 1, 2, \ldots,  N_J.  
+  \label{eq:Im}
+\end{equation}
+The incident field $\H\inc$ is the field that would exist in the
+presence of the unperforated FSS metalization due to an incoming, normalized
+Floquet mode from Region~$1$ or~$N$ with unit amplitude coefficient.
+This scenario was treated in Chapter~\ref{chap:incgsm} and we use the results
+derived there.  Let $i \in \{1,N\}$ be the region index designating
+the source of the incoming Floquet mode.  The mode index is $q =
+(p_q,m_q,n_q)$ where $p_q=1$ for TE modes and $p_q=2$ for TM modes.  The
+transverse portion of the incident magnetic field evaluated in the
+$z=z_s$ plane is:
+\begin{equation}
+  \Idemfactor_z \bdot \H\inc(\vecrho) = I(z_s) \h_q\eye(\vecrho)
+  = I(z_s) Y_q\eye c_q\eye \z\cross\t_q e^{-j\vecbeta_{m_q n_q} \bdot
+  \vecrho} \label{eq:Hincmom}
+\end{equation}
+where the modal polarization vector $\t_q$ was defined in \eqref{eq:tdef}
+and $I(z_s)$ is the equivalent transmission line current evaluated at
+$z=z_s$ using the formulas presented in Chapter~\ref{chap:incgsm}.
+
+Upon substituting the incident field of \eqref{eq:Hincmom} into
+\eqref{eq:Im} we find that
+\begin{align}
+  \matel{I}_m &=  
+  \frac{I(z_s) Y_q\eye c_q\eye}{l_m} \z \cross \t_q \bdot 
+  \iint \! \! \f_m^*(\vecrho) e^{-j\vecbeta_{m_q n_q}\bdot\vecrho} \, \d S 
+  \nonumber \\
+  &= 
+  \frac{I(z_s) Y_q\eye c_q\eye}{l_m} \z \cross  \t_q \bdot 
+  \ftf_m^*(\vecbeta_{m_q n_q}), \quad
+  m = 1, 2, \ldots,  N_M,  
+\end{align}
+where
+\begin{equation}
+    \ftf_m(\k) = \iint \!\!
+    \f_m(\vecrho) \, e^{j\k \bdot \vecrho} \, \d S 
+\end{equation}
+is the Fourier transform of the $m$th basis function evaluated at $\k
+= \x k_x + \y k_y.$  The Fourier transform is numerically
+evaluated using the formulas of \cite{mcsi:91}.

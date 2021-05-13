@@ -1,0 +1,942 @@
+\documentclass[11pt]{article}
+\usepackage{sslmemo}
+\usepackage{units}
+\usepackage{amsmath,amsfonts} % For DeclareMathOperator and blackboard
+                              % bold
+\usepackage[LY1]{fontenc}               % tell TeX about LY1 encoding
+%\usepackage[mtbold,mtplusscr,subscriptcorrection,LY1]{mathtime}
+\usepackage[heavybold,mtpluscal,subscriptcorrection,LY1]{mathtime}
+
+\usepackage{url}
+\usepackage[small,bf]{caption}
+\usepackage[dvips]{graphicx}
+\usepackage{pstricks}
+\usepackage[dvips,letterpaper]{hyperref}
+
+\organization{Antenna RF Design}
+\subject{Calculation of performance parameters for PSS}
+\addressee{File}
+\from{P. Simon\rlap{\kern20pt\raisebox{-8pt}[0pt][0pt]{\includegraphics{petersimonsig.eps}}}}
+\distribution{%
+  L. Ersoy \\
+  B. Lee \\
+  P. Nanavati \\
+  E. Nygren \\
+  M. Suarez-Barnes
+  }
+\date{June 18, 2001\rlap{\;\;(rev 1/15/2003)}}
+\filename{performance.tex}
+\memonumber{AAS/01/0020/IRAD}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Revision History
+%% 1/15/2003: Corrected several typos on page 3.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\allowdisplaybreaks
+\hyphenation{mode}
+
+\input{macro.tex}
+\renewcommand{\inc}{^{\text{i}}}
+\renewcommand{\refl}{^{\text{r}}}
+\renewcommand{\abs}[1]{\bigl\lvert#1\bigr\rvert}
+\newcommand{\piotwo}{{\textstyle\frac{\pi}{2}}}
+
+
+\begin{document}
+\section{Introduction}
+A set of previous notes has detailed the analytical formulation for
+calculating the generalized scattering matrix (GSM) of a frequency
+selective surface (FSS). 
+Although knowledge of the magnitude and phase
+of the GSM elements provides a complete description of the FSS, it is
+often more convenient for the user to examine other performance
+parameters. This memorandum defines a number of user-oriented
+performance parameters and describes how they are calculated from
+elements of the GSM.
+The latest version of this document can be found at the following URL: 
+\url{http://mogh/~simonp/spaf}.
+
+We assume henceforth that there are exactly two propagating modes in
+layers~1 and $N$: the principal ($m=n=0$) TE and TM modes.  We also
+assume that these two regions are lossless, so that their wavenumbers 
+$k_1$ and $k_N$ and intrinsic impedances $\eta_1$ and $\eta_N$ are
+all positive numbers. The
+scattering relation for the incident and reflected components of the
+dominant TE/TM modes is determined from the GSM:
+  \begin{align}
+    \colvec{b\one_{100} \\ b\one_{200} \\ b\enn_{100} \\ b\enn_{200}} 
+    %
+    &= 
+    %
+    \begin{bmatrix}
+      \mat{S}^{11} & \mat{S}^{12}    \\
+      \mat{S}^{21} & \mat{S}^{22}    
+    \end{bmatrix}
+    %
+    \colvec{a\one_{100} \\ a\one_{200} \\ a\enn_{100} \\ a\enn_{200}} 
+    %
+    %
+    =
+    %
+    \begin{bmatrix}
+      \matel{S}^{11}_{11} & \matel{S}^{11}_{12} & \matel{S}^{12}_{11}
+      & \matel{S}^{12}_{12} \\ 
+      \matel{S}^{11}_{21} & \matel{S}^{11}_{22} & \matel{S}^{12}_{21}
+      & \matel{S}^{12}_{22} \\ 
+      \matel{S}^{21}_{11} & \matel{S}^{21}_{12} & \matel{S}^{22}_{11}
+      & \matel{S}^{22}_{12} \\ 
+      \matel{S}^{21}_{21} & \matel{S}^{21}_{22} & \matel{S}^{22}_{21}
+      & \matel{S}^{22}_{22} 
+    \end{bmatrix}
+    \colvec{a\one_{100} \\ a\one_{200} \\ a\enn_{100} \\ a\enn_{200}}.
+    \label{eq:fssscat}
+  \end{align}
+The notation and definitions of \cite{simo:98}, \cite{simo:00}, and \cite{simo:00a} are
+adopted for use throughout these notes.
+
+\section{Definition of Horizontal and Vertical Polarization}  The GSM
+relates the incident and scattered fields using a TE/TM plane wave
+decomposition. It is sometimes more convenient (say, when analyzing a
+meanderline polarizer in other than the principal planes) to consider
+scattering and reflection using a basis consisting of vertical and
+horizontal polarization. 
+
+We need to define four sets of horizontal and vertical unit vectors.
+These are $(\hhat\inc_1,\vhat\inc_1),$ $(\hhat\refl_1,\vhat\refl_1),$
+$(\hhat\inc_N,\vhat\inc_N),$ and $(\hhat\refl_N,\vhat\refl_N),$ which
+correspond respectively to Region~$1$ incident and reflected waves and
+Region~$N$ incident and reflected waves.  These vectors should be
+defined so that the following conditions hold:
+\begin{enumerate}
+\item The horizontal and vertical unit vectors are perdendicular to
+  each other and to their associated wave vector. \label{firstitem}
+\item The horizontal unit vectors revert to $\x$ for wave vectors
+  lying in the principal $y$--$z$ plane. 
+\item The vertical unit vectors revert to $\y$ for wave vectors lying
+  in the $x$--$z$ plane.
+\item The $x$ and $y$ components of the Region~$1$ horizontal unit
+  vectors for incident and reflected waves should be equal.
+\item The $x$ and $y$ components of the Region~$N$ horizontal unit
+  vectors for incident and reflected waves should be equal.
+\item The $x$ and $y$ components of the Region~$1$ vertical unit
+  vectors for incident and reflected waves should be equal.
+\item The $x$ and $y$ components of the Region~$N$ vertical unit
+  vectors for incident and reflected waves should be equal.
+\item Whenever the wave numbers in the input and output regions are
+  identical ($k_1 = k_N$), then the corresponding $\hhat$ vectors
+  should also be (as should the corresponding $\vhat$ vectors).
+  \label{lastitem}
+\end{enumerate}
+These conditions can be met by employing the so-called ``Ludwig~3''
+unit vectors.
+We define the horizontal and vertical unit vectors $\hhat$ and $\vhat$ using
+the Ludwig~3 definition \cite{ludw:73} as
+\begin{subequations}
+  \begin{align}
+    \hhat(\theta,\phi) &= 
+    \x [1- \cos^2\phi (1 - \cos\theta)] 
+    - \y (1-\cos\theta)\sin\phi\cos\phi 
+    - \z \sin\theta \cos\phi \\
+    \vhat(\theta,\phi) &= 
+    - \x (1-\cos\theta)\sin\phi\cos\phi 
+    + \y [1- \sin^2\phi (1 - \cos\theta)] 
+    - \z \sin\theta \sin\phi.
+  \end{align}
+\end{subequations}
+\begin{figure}[tbph]
+  \begin{center} 
+    \leavevmode 
+    \pspicture(-4.2,-2.5)(4.2,2)
+    %
+    \rput(0,0){FSS}  % FSS title
+                                % Region 1 labels
+    \rput[r](-2.8,0){
+      \begin{tabular}{@{}c@{}}
+        Region~$1$ \\
+        $k_1$, $\eta_1$
+      \end{tabular}}
+                                % Interface 1
+    \psline[linewidth=1pt](-1,-2)(-1,2)  \uput[d](-1,-2){$z=z_1$}
+                                % Begin Interface N-1:
+    \psline[linewidth=1pt](1,-2)(1,2)    \uput[d](1,-2){$z=z_{N-1}$}    
+                                % Region 1 labels
+    \rput[l](2.5,0){
+      \begin{tabular}{@{}c@{}}
+        Region~$N$ \\
+        $k_N$, $\eta_N$
+      \end{tabular}}
+                                % Positive z axis:
+    \psline{->}(1,0)(2,0)  \rput[l](2,0){$\;z$}
+                                % Negative z axis:
+    \psline{->}(-1,0)(-2,0)  \rput[r](-2,0){$-z\;$}
+                                % Region N incident wave vector
+    \psline[linewidth=2pt]{->}(2.5,-1.5)(1,0) 
+    \rput[l](2.5,-1.5){$\;\k_N\inc$}
+                                % Region N reflected wave vector
+    \psline[linewidth=2pt]{<-}(2.5,1.5)(1,0)
+    \rput[l](2.5,1.5){$\;\k_N\refl$}
+                                % Region 1 incident wave vector
+    \psline[linewidth=2pt]{->}(-2,-1.5)(-1,0)
+    \rput[r](-2,-1.5){$\k_1\inc\;$}
+                                % Region 1 reflected wave vector
+    \psline[linewidth=2pt]{<-}(-2,1.5)(-1,0)
+    \rput[r](-2,1.5){$\k_1\refl\;$}
+                                % Theta_1^inc arc and label:
+    \psarc[linewidth=0.6pt]{<->}(-1,0){.6}{181}{233}
+    \rput[r](-1.6,-0.4){$\theta_1\inc$}
+                                % Theta_1^ref arc and label:
+    \psarc[linewidth=0.6pt]{<->}(-1,0){.6}{127}{178}
+    \rput[r](-1.6,.4){$\theta_1\refl$}
+                                % Theta_N^inc arc and label:
+    \psarc[linewidth=0.6pt]{<->}(1,0){.6}{1}{42}
+    \rput[l](1.6,-0.4){$\theta_N\inc$}
+                                % Theta_N^ref arc and label:
+    \psarc[linewidth=0.6pt]{<->}(1,0){.6}{-42}{-1}
+    \rput[l](1.6,.4){$\theta_N\refl$}
+    \endpspicture
+    \caption{Incident and reflected wave vectors in Regions~$1$
+    and~$N$.}
+  \label{fig:wavevec}
+  \end{center}
+\end{figure}
+Note that the direction of the horizontal and vertical unit vectors
+depends on the ``look angles'' $\theta$ and $\phi$.  We now define
+appropriate look angles for Regions~1 and~$N$ for both the incident
+and reflected waves.  We begin by defining incident and reflected wave
+vectors in both regions as shown in Figure~\ref{fig:wavevec}.
+\begin{subequations}
+\begin{gather}
+  \k\inc_1 = \vecbeta_{00} - \z j \gamma\one_{00}, \quad 
+  \k\refl_1 = \vecbeta_{00} + \z j \gamma\one_{00} \\
+  \k\inc_N = \vecbeta_{00} -\z j \gamma\enn_{00}, \quad
+  \k\refl_N = \vecbeta_{00} + \z j \gamma\enn_{00} 
+\end{gather}
+\end{subequations}
+The look angles are now defined via
+\begin{subequations}
+  \begin{alignat}{2}
+    \cos\theta_1\inc &= \frac{\z \bdot \k_1\inc}{k_1} 
+    = \frac{-j\gamma\one_{00}}{k_1}, & \qquad
+    \sin\theta_1\inc &= \frac{\beta_{00}}{k_1} \\
+    \cos\phi_1\inc &= \x \bdot \frac{\vecbeta_{00}}{\beta_{00}}
+    = \frac{\beta_{00x}}{\beta_{00}}, & 
+    \sin\phi_1\inc &= \y \bdot \frac{\vecbeta_{00}}{\beta_{00}} 
+    = \frac{\beta_{00y}}{\beta_{00}} \\
+    \theta_1\refl &= \theta_1\inc, & \qquad
+    \phi_1\refl &= \phi_1\inc + \pi \\
+    \cos\theta_N\refl &= \frac{\z \bdot \k_N\refl}{k_N} 
+    = \frac{-j\gamma\enn_{00}}{k_N}, & \qquad
+    \sin\theta_N\refl &= \frac{\beta_{00}}{k_N} \\
+    \phi_N\refl &= \phi_1\inc, &  & \\
+    \theta_N\inc &= \theta_N\refl, & \qquad
+    \phi_N\inc &= \phi_N\refl + \pi  = \phi_1\refl
+  \end{alignat} 
+\end{subequations}
+It is straightforward to show that
+criteria~\ref{firstitem}--\ref{lastitem} listed above are satisfied by
+choosing
+\begin{gather}
+  (\hhat\inc_1,\vhat\inc_1) = 
+  (\hhat(\theta\inc_1,\phi\inc_1),\vhat(\theta\inc_1,\phi\inc_1)), \quad
+  (\hhat\refl_1,\vhat\refl_1) = 
+  (\hhat(\theta\refl_1,\phi\refl_1),\vhat(\theta\refl_1,\phi\refl_1)), \\
+  (\hhat\inc_N,\vhat\inc_N) = 
+  (\hhat(\theta\inc_N,\phi\inc_N),\vhat(\theta\inc_N,\phi\inc_N)), \quad
+  (\hhat\refl_N,\vhat\refl_N) = 
+  (\hhat(\theta\refl_N,\phi\refl_N),\vhat(\theta\refl_N,\phi\refl_N)).
+\end{gather}
+
+
+\section{Arbitrary polarization}
+In order to treat linearly polarized electric fields with an arbitrary
+tilt angle, we define the $\tauhat$ direction as 
+\begin{equation}
+  \tauhat(\tau) = \hhat \cos \tau + \vhat \sin \tau
+\end{equation}
+where $\tau$ is the angle of $\tauhat$ with respect to the horizontal
+direction. 
+
+\subsection{Region~1 Incidence}
+
+Consider a plane wave incident upon the FSS from Region~$1$:
+\begin{equation}
+  \E\inc = \tauhat_1\inc e^{-j\k_1\inc \bdot (\r - \z z_1)}, \quad z<z_1
+  \label{eq:Einc1}
+\end{equation}
+where
+\begin{equation}
+  \tauhat_1\inc = \hhat_1\inc \cos \tau_1\inc + \vhat_1\inc \sin \tau_1\inc.
+\end{equation}
+In order to find the fields scattered from the FSS by the incident
+field in \eqref{eq:Einc1}, we express the incident field as the sum of
+a TE and TM wave:
+\begin{equation}
+  (\x\x+\y\y) \bdot \E\inc = a_1\one \e\one_{100} + a_2\one \e\one_{200}
+  \label{eq:Einc1expand}
+\end{equation}
+where it will be recalled that a subscript of $(100)$ denotes the
+principal TE mode and $(200)$ denotes the principal TM mode.
+The expansion coefficients in \eqref{eq:Einc1expand} are determined
+by equating \eqref{eq:Einc1} and \eqref{eq:Einc1expand} and
+invoking the orthogonality of the Floquet modes: 
+\begin{gather}
+  \iint_{U'} \bigl(a_1\one \e\one_{100} + a_2\one \e\one_{200}\bigr) \cross
+  (\h\one_{100})^* \bdot \z \, \d A 
+  =
+  \iint_{U'} \tauhat_1\inc e^{-j\k_1\inc \bdot \vecrho} \cross
+  \bigl(\h\one_{100}\bigr)^* \bdot \z \, \d A \nonumber \\
+                                %
+  P\one_{100} a\one_{100} =
+  \iint_{U'} \tauhat_1\inc \cross 
+  \bigl[
+    \bigl(Y\one_{100}\bigr)^* 
+    \z \cross \bigl(c\one_{100}\bigr)^* \t_{100})
+  \bigr] \bdot \z \, \d A 
+  =\bigl(Y\one_{100}\bigr)^* \bigl(c\one_{100}\bigr)^* A
+  \tauhat_1\inc \bdot \t_{100}
+\end{gather}
+so that 
+\begin{align}
+  a\one_{100} &= \frac{\bigl(Y\one_{100}\bigr)^* %
+    \bigl(c\one_{100}\bigr)^* A   \tauhat_1\inc \bdot \t_{100}}%
+  {P_{100}}
+  = 
+  \frac{\bigl(Y\one_{100}\bigr)^* %
+    \bigl(c\one_{100}\bigr)^* A   \tauhat_1\inc \bdot \t_{100}}%
+  {\abs{c\one_{100}}^2 \bigl(Y\one_{100}\bigr)^* A} 
+  = \frac{\tauhat_1\inc \bdot \t_{100}}{c\one_{100}}
+\end{align}
+A similar derivation shows that
+\begin{equation}
+  a\one_{200} = \frac{\tauhat_1\inc \bdot \t_{200}}{c\one_{100}}
+\end{equation}
+
+\subsubsection{Region~1 Scattered Fields}
+
+The fields scattered by the FSS into Region~$1$ can now be written as
+\begin{align}
+  \E\scat(0,0,z_1)
+  &=
+  b\one_{100} \e\one_{100} + b\one_{200} \bigl(\e\one_{200} +
+   j \z c_{200}\one \beta_{00} / \gamma_{00}\one  \bigr)
+   \label{eq:escat11}
+\end{align}
+where $b\one_{100}$ and $b\one_{200}$ are determined from the
+scattering relation \eqref{eq:fssscat}.  
+
+Suppose now that we wish to determine the components of the Region~1
+scattered electric field along the two unit vectors 
+\begin{subequations}
+\begin{align}
+  \tauhat_1\refl 
+  & = \hhat_1\refl \cos \tau_1\refl + \vhat_1\refl \sin \tau_1\refl, \\
+  \sigmahat_1\refl 
+  & = - \hhat_1\refl \sin \tau_1\refl + 
+  \vhat_1\refl \cos \tau_1\refl,
+\end{align}
+\end{subequations}
+so that we may write
+\begin{equation}
+  \E\refl = b_\tau\one \tauhat_1\refl + b_\sigma\one \sigmahat_1\refl.
+\end{equation}
+The coefficients are easily found by dotting the corresponding unit
+vectors with the scattered field from \eqref{eq:escat11}:
+\begin{equation}
+  b_\tau\one = \tauhat_1\refl \bdot   \E\scat(0,0,z_1), \quad
+  b_\sigma\one = \sigmahat_1\refl \bdot   \E\scat(0,0,z_1).
+\end{equation}
+We will refer to these coeffcients as partial polarization reflection
+coefficients and use the notation
+\begin{equation}
+  R^{11}(\tau_1\refl,\tau_1\inc) \equiv b_\tau\one, \quad
+  R^{11}\left(\tau_1\refl+\piotwo,\tau_1\inc\right) \equiv b_\sigma\one.
+\end{equation}
+
+
+
+\subsubsection[Region~\textit{N}~Scattered Fields]{Region~\boldmath$N$\unboldmath~Scattered Fields}
+
+The fields scattered by the FSS into Region~$N$ can now be written as
+\begin{align}
+  \E\scat(0,0,z_{N-1})
+  &=
+  b\enn_{100} \e\enn_{100} + b\enn_{200} \bigl(\e\enn_{200} -
+   j \z c_{200}\enn \beta_{00} / \gamma_{00}\enn  \bigr)
+   \label{eq:escatN1}
+\end{align}
+where $b\enn_{100}$ and $b\enn_{200}$ are determined from the
+scattering relation \eqref{eq:fssscat}.  
+
+Suppose that we wish to determine the components of the Region~$N$
+scattered electric field along the two unit vectors 
+\begin{subequations}
+\begin{align}
+  \tauhat_N\refl 
+  & = \hhat_N\refl \cos \tau_N\refl + \vhat_N\refl \sin \tau_N\refl, \\
+  \sigmahat_N\refl 
+  & = - \hhat_N\refl \sin \tau_N\refl + 
+  \vhat_N\refl \cos \tau_N\refl,
+\end{align}
+\end{subequations}
+so that we may write
+\begin{equation}
+  \E\refl = b_\tau\enn \tauhat_N\refl + b_\sigma\enn \sigmahat_N\refl.
+\end{equation}
+The coefficients are easily found by dotting the corresponding unit
+vectors with the scattered field from \eqref{eq:escatN1}:
+\begin{equation}
+  b_\tau\enn = \tauhat_N\refl \bdot   \E\scat(0,0,z_{N-1}), \quad
+  b_\sigma\enn = \sigmahat_N\refl \bdot   \E\scat(0,0,z_{N-1}).
+\end{equation}
+We will refer to these coeffcients (after renormalization)
+as partial polarization transmission coefficients and use the notation
+\begin{equation}
+  T^{21}(\tau_N\refl,\tau_1\inc) \equiv 
+  \sqrt{\frac{\eta_1\cos\theta_N}{\eta_N\cos\theta_1}} b_\tau\enn, \quad
+  T^{21}\left(\tau_N\refl+\piotwo,\tau_1\inc\right) \equiv 
+    \sqrt{\frac{\eta_1\cos\theta_N}{\eta_N\cos\theta_1}} b_\sigma\enn.
+\end{equation}
+With this normalization the power conservation equation becomes:
+\begin{equation}
+  \abs{R^{11}(\tau_1\refl,\tau_1\inc)}^2 +
+  \abs{R^{11}\left(\tau_1\refl+\piotwo,\tau_1\inc\right)}^2 +
+  \abs{T^{21}(\tau_N\refl,\tau_1\inc)}^2 +
+  \abs{T^{21}\left(\tau_N\refl+\piotwo,\tau_1\inc\right)}^2
+  \leq 1
+\end{equation}
+
+\subsection[Region \textit{N} Incidence]{Region~$\boldsymbol{N}$ Incidence}
+
+Consider a plane wave incident upon the FSS from Region~$N$:
+\begin{equation}
+  \E\inc = \tauhat_N\inc e^{-j\k_N\inc \bdot (\r - \z z_{N-1})}, 
+  \quad z>z_{N-1}
+  \label{eq:EincN}
+\end{equation}
+where
+\begin{equation}
+  \tauhat_N\inc = \hhat_N\inc \cos \tau_N\inc + \vhat_N\inc \sin \tau_N\inc.
+\end{equation}
+In order to find the fields scattered from the FSS by the incident
+field in \eqref{eq:EincN}, we express the incident field as the sum of
+a TE and TM wave:
+\begin{equation}
+  (\x\x+\y\y) \bdot \E\inc = a_1\enn \e\enn_{100} + a_2\enn \e\enn_{200}
+  \label{eq:EincNexpand}
+\end{equation}
+where it will be recalled that a subscript of $(100)$ denotes the
+principal TE mode and $(200)$ denotes the principal TM mode.
+The expansion coefficients in \eqref{eq:EincNexpand} are determined
+by equating \eqref{eq:EincN} and \eqref{eq:EincNexpand} in the
+$z=z_{N-1}$ plane and
+invoking the orthogonality of the Floquet modes: 
+\begin{gather}
+  \iint_{U'} \bigl(a_1\enn \e\enn_{100} + a_2\enn \e\enn_{200}\bigr) \cross
+  (\h\enn_{100})^* \bdot \z \, \d A 
+  =
+  \iint_{U'} \tauhat_N\inc e^{-j\k_N\inc \bdot \vecrho} \cross
+  \bigl(\h\enn_{100}\bigr)^* \bdot \z \, \d A \nonumber \\
+                                %
+  P\enn_{100} a\enn_{100} =
+  \iint_{U'} \tauhat_N\inc \cross 
+  \bigl[
+    \bigl(Y\enn_{100}\bigr)^* 
+    \z \cross \bigl(c\enn_{100}\bigr)^* \t_{100})
+  \bigr] \bdot \z \, \d A 
+  =\bigl(Y\enn_{100}\bigr)^* \bigl(c\enn_{100}\bigr)^* A
+  \tauhat_N\inc \bdot \t_{100}
+\end{gather}
+so that 
+\begin{align}
+  a\enn_{100} &= \frac{\bigl(Y\enn_{100}\bigr)^* %
+    \bigl(c\enn_{100}\bigr)^* A   \tauhat_N\inc \bdot \t_{100}}%
+  {P\enn_{100}}
+  = 
+  \frac{\bigl(Y\enn_{100}\bigr)^* %
+    \bigl(c\enn_{100}\bigr)^* A   \tauhat_N\inc \bdot \t_{100}}%
+  {\abs{c\enn_{100}}^2 \bigl(Y\enn_{100}\bigr)^* A} 
+  = \frac{\tauhat_N\inc \bdot \t_{100}}{c\enn_{100}}
+\end{align}
+A similar derivation shows that
+\begin{equation}
+  a\enn_{200} = \frac{\tauhat_N\inc \bdot \t_{200}}{c\enn_{100}}
+\end{equation}
+
+\subsubsection[Region~\textit{N} Scattered Fields]%
+{Region~$\boldsymbol{N}$ Scattered Fields}
+
+The fields scattered by the FSS into Region~$N$ can now be written as
+\begin{align}
+  \E\scat(0,0,z_{N-1})
+  &=
+  b\enn_{100} \e\enn_{100} + b\enn_{200} \bigl(\e\enn_{200} -
+   j \z c_{200}\enn \beta_{00} / \gamma_{00}\enn  \bigr)
+   \label{eq:escatNN}
+\end{align}
+where $b\enn_{100}$ and $b\enn_{200}$ are determined from the
+scattering relation \eqref{eq:fssscat}.  
+
+Suppose now that we wish to determine the components of the Region~$N$
+scattered electric field along the two unit vectors 
+\begin{subequations}
+\begin{align}
+  \tauhat_N\refl 
+  & = \hhat_N\refl \cos \tau_N\refl + \vhat_N\refl \sin \tau_N\refl, \\
+  \sigmahat_N\refl 
+  & = - \hhat_N\refl \sin \tau_N\refl + 
+  \vhat_N\refl \cos \tau_N\refl,
+\end{align}
+\end{subequations}
+so that we may write
+\begin{equation}
+  \E\refl = b_\tau\enn \tauhat_N\refl + b_\sigma\enn \sigmahat_N\refl.
+\end{equation}
+The coefficients are easily found by dotting the corresponding unit
+vectors with the scattered field from \eqref{eq:escatNN}:
+\begin{equation}
+  b_\tau\enn = \tauhat_N\refl \bdot   \E\scat(0,0,z_{N-1}), \quad
+  b_\sigma\enn = \sigmahat_N\refl \bdot   \E\scat(0,0,z_{N-1}).
+\end{equation}
+We will refer to these coeffcients as partial polarization reflection
+coefficients and use the notation
+\begin{equation}
+  R^{22}(\tau_N\refl,\tau_N\inc) \equiv b_\tau\enn, \quad
+  R^{22}\left(\tau_N\refl+\piotwo,\tau_N\inc\right) \equiv b_\sigma\enn.
+\end{equation}
+
+
+
+\subsubsection{Region~1 Scattered Fields}
+
+The fields scattered by the FSS into Region~$1$ can now be written as
+\begin{align}
+  \E\scat(0,0,z_{1})
+  &=
+  b\one_{100} \e\one_{100} + b\one_{200} \bigl(\e\one_{200} +
+   j \z c_{200}\one \beta_{00} / \gamma_{00}\one  \bigr)
+   \label{eq:escat1N}
+\end{align}
+where $b\one_{100}$ and $b\one_{200}$ are determined from the
+scattering relation \eqref{eq:fssscat}.  
+
+Suppose that we wish to determine the components of the Region~$1$
+scattered electric field along the two unit vectors 
+\begin{subequations}
+\begin{align}
+  \tauhat_1\refl 
+  & = \hhat_1\refl \cos \tau_1\refl + \vhat_1\refl \sin \tau_1\refl, \\
+  \sigmahat_1\refl 
+  & = - \hhat_1\refl \sin \tau_1\refl + 
+  \vhat_1\refl \cos \tau_1\refl,
+\end{align}
+\end{subequations}
+so that we may write
+\begin{equation}
+  \E\refl = b_\tau\one \tauhat_1\refl + b_\sigma\one \sigmahat_1\refl.
+\end{equation}
+The coefficients are easily found by dotting the corresponding unit
+vectors with the scattered field from \eqref{eq:escat1N}:
+\begin{equation}
+  b_\tau\one = \tauhat_1\refl \bdot   \E\scat(0,0,z_{1}), \quad
+  b_\sigma\one = \sigmahat_1\refl \bdot   \E\scat(0,0,z_1).
+\end{equation}
+We will refer to these coeffcients (after renormalization)
+as partial polarization transmission coefficients and use the notation
+\begin{equation}
+  T^{12}(\tau_1\refl,\tau_N\inc) \equiv 
+  \sqrt{\frac{\eta_N\cos\theta_1}{\eta_1\cos\theta_N}} b_\tau\one, \quad
+  T^{12}\left(\tau_1\refl+\piotwo,\tau_N\inc\right) \equiv 
+    \sqrt{\frac{\eta_N\cos\theta_1}{\eta_1\cos\theta_N}} b_\sigma\one.
+\end{equation}
+With this normalization the power conservation equation 
+becomes:
+\begin{equation}
+  \abs{R^{22}(\tau_N\refl,\tau_N\inc)}^2 +
+  \abs{R^{22}\left(\tau_N\refl+\piotwo,\tau_N\inc\right)}^2 +
+  \abs{T^{12}(\tau_1\refl,\tau_N\inc)}^2 +
+  \abs{T^{12}\left(\tau_1\refl+\piotwo,\tau_N\inc\right)}^2
+  \leq 1
+\end{equation}
+
+\subsection{Scattered Field Axial Ratio}
+Let us assume that for either Region~1 or Region~$N$, the scattered
+travelling wave coefficients $b_1$ and $b_2$ for the principal TE and
+TM modes have been determined.  In order to compute the axial ratio,
+we need to define two orthogonal directions $\uhat$ and $\what$, both
+of which are orthogonal to the direction of propagation $\khat$.  
+The scattered electric field vector will be expressed as components along
+the $\uhat$ and $\what$ unit vectors:
+\begin{equation}
+  \E\refl = b_1 \e_1 + b_2 (\e_2 + \z e_{2z}) =
+  \uhat E_u + \what E_w.
+  \label{eq:Edecompose}
+\end{equation}
+Once the latter decomposition is found, we can calculate the linear
+polarization rato
+\begin{equation}
+  P = E_w / E_u
+  \label{eq:Pdef}
+\end{equation}
+and then the circular polarization ratio
+\begin{equation}
+  Q = \frac{1 - jP}{1 + jP}.
+\end{equation}
+The axial ratio is found from $Q$ using
+\begin{equation}
+  A = \frac{1+ \abs{Q}}{\left\lvert 1 - \abs{Q}\right\rvert}
+\end{equation}
+We choose $\uhat = \t_1 = \z \cross \vecbeta_{00}$ and 
+\begin{align}
+  \what &= \khat \cross \uhat \nonumber \\
+  &= \frac{\beta_{00} \betahat_{00} \pm j \gamma_{00}\z}{k}
+  \cross (\z\cross \betahat_{00}) \nonumber \\
+  &= \frac{1}{k} 
+  \left[
+    \beta_{00} \betahat_{00} \cross (\z\cross \betahat_{00})
+    \pm j \gamma_{00}\z
+  \cross (\z\cross \betahat_{00}) 
+  \right] \nonumber \\
+  &= \frac{1}{k} 
+  \left[
+    \beta_{00} \z
+    \mp j \gamma_{00} \betahat_{00}) 
+  \right] 
+  =
+  \frac{1}{k} 
+  \left[
+    \beta_{00} \z
+    \mp j \gamma_{00} \t_2) 
+  \right] 
+\end{align}
+where we have dispensed with the region designators, the top sign
+is selected for Region~$1$, and the bottom sign for Region~$N$.
+With these explicit expressions for $\uhat$ and $\what$ in hand, we
+may determine $E_u$ and $E_w$ from \eqref{eq:Edecompose}:
+\begin{align}
+  E_u 
+  &= \uhat \bdot 
+  \left[b_1 \e_1 + b_2 
+    \left(
+      \e_2 \pm \z \frac{jc_2\beta_{00}}{\gamma_{00}}
+    \right)
+  \right] 
+  = \t_1 \bdot 
+  \left[b_1 \e_1 + b_2 
+    \left(
+      \e_2 \pm \z \frac{jc_2\beta_{00}}{\gamma_{00}}
+    \right)
+  \right] \nonumber \\
+  &= b_1 c_1  \\
+  E_w
+  &= \what \bdot \left[b_1 \e_1 + b_2 
+    \left(
+      \e_2 \pm \z \frac{jc_2\beta_{00}}{\gamma_{00}}
+    \right)
+  \right]
+  = 
+  \frac{b_2}{k} 
+  \left[
+    \beta_{00} \z
+    \mp j \gamma_{00} \t_2) 
+  \right] 
+  \bdot 
+  \left(
+    \e_2 \pm \z \frac{jc_2\beta_{00}}{\gamma_{00}}
+  \right) \nonumber \\
+  &=
+  \frac{b_2}{k} 
+  \left[
+    \pm \frac{jc_2\beta_{00}^2}{\gamma_{00}}
+    \mp j c_2 \gamma_{00} 
+  \right]
+  =
+  \pm \frac{j c_2 b_2}{k\gamma_{00}}
+  \left[
+    \beta_{00}^2 - \gamma_{00}^2
+  \right]
+  =
+  \pm \frac{jk c_2 b_2}{\gamma_{00}}.
+\end{align}
+The linear polarization ratio is then calculated 
+from \eqref{eq:Pdef} as
+\begin{equation}
+  P = \frac{E_w}{E_u}
+  =   \pm \frac{jk c_2 b_2}{b_1 c_1 \gamma_{00}}
+  = \pm \frac{b_2}{b_1} \frac{\sqrt{Y_1}}{\sqrt{Y_2}} \frac{jk}{\gamma_{00}}
+  = \pm \frac{b_2}{b_1} 
+  \frac{\sqrt{\frac{\gamma_{00}}{jk\eta}}}%
+  {\sqrt{\frac{jk}{\eta\gamma_{00}}}} 
+  \frac{jk}{\gamma_{00}}
+  = \pm \frac{b_2}{b_1}
+\end{equation}
+Thus, the linear polarization ratio is just the ratio of the TE/TM
+scattered mode coefficients found directly from the GSM.
+
+
+\newpage
+\section{Performance Parameters Provided by PSS}
+
+\subsection{Reflection Coefficients}
+
+Various reflection quantities are available for the user to examine.
+These are shown in Table~\ref{tab:refl}.
+\begin{table}[htbp]
+  \begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|c|l|} \hline
+      \bfseries Quantity & \bfseries User Input \\ \hline \hline
+      $\abs{\matel{S}^{11}_{m,n}}$ & \verb_S11MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{11}_{m,n}}^2$ & \verb_S11MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{11}_{m,n}}$ & \verb_S11DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg{\matel{S}^{11}_{m,n}}$ & \verb_S11DEG(m,n)_
+      \\ \hline
+      $\abs{\matel{S}^{22}_{m,n}}$ & \verb_S22MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{22}_{m,n}}^2$ & \verb_S22MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{22}_{m,n}}$ & \verb_S22DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg{\matel{S}^{22}_{m,n}}$ & \verb_S22DEG(m,n)_
+      \\ \hline
+      $\abs{R^{11}(\tau_1\refl,\tau_1\inc)}$ & 
+        \verb_R11MAG(_$\tau_1\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $\abs{R^{11}(\tau_1\refl,\tau_1\inc)}^2$ & 
+        \verb_R11MSQ(_$\tau_1\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $20\log_{10}\abs{R^{11}(\tau_1\refl,\tau_1\inc)}$ & 
+        \verb_R11DB(_$\tau_1\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg{R^{11}(\tau_1\refl,\tau_1\inc)}$ & 
+        \verb_R11DEG(_$\tau_1\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $\abs{R^{22}(\tau_N\refl,\tau_N\inc)}$ & 
+        \verb_R22MAG(_$\tau_N\refl,\tau_N\inc$\verb_)_ \\ \hline
+      $\abs{R^{22}(\tau_N\refl,\tau_N\inc)}^2$ & 
+        \verb_R22MSQ(_$\tau_N\refl,\tau_N\inc$\verb_)_ \\ \hline
+      $20\log_{10}\abs{R^{22}(\tau_N\refl,\tau_N\inc)}$ & 
+        \verb_R22DB(_$\tau_N\refl,\tau_N\inc$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg{R^{22}(\tau_N\refl,\tau_N\inc)}$ & 
+        \verb_R22DEG(_$\tau_N\refl,\tau_N\inc$\verb_)_ \\ \hline
+    \end{tabular}
+    \caption[Reflection quantities available in the PSS program]%
+    {Reflection quantities available in the PSS program and
+      the nomenclature used in the input script to specify them. 
+      $m$ and $n$ are integer mode indices, where $1$ and $2$ always
+      denote the principal TE and TM modes, respectively. All
+      tilt angles are specified in degrees, and the symbols
+      \textsf{H} and \textsf{V} are available as synonyms
+      for \textsf{0}  and \textsf{90} respectively.} 
+    \label{tab:refl}
+  \end{center}
+\end{table}
+\cleardoublepage
+\newpage
+\subsection{Transmission Coefficients}
+
+Various transmission quantities are available for the user to examine.
+These are shown in Table~\ref{tab:trans}.
+\begin{table}[htbp]
+  \begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|c|l|} \hline
+      \bfseries Quantity & \bfseries User Input \\ \hline \hline
+      $\abs{\matel{S}^{21}_{m,n}}$ & \verb_S21MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{21}_{m,n}}^2$ & \verb_S21MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{21}_{m,n}}$ & \verb_S21DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg{\matel{S}^{21}_{m,n}}$ & \verb_S21DEG(m,n)_
+      \\ \hline
+      $\abs{\matel{S}^{12}_{m,n}}$ & \verb_S12MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{12}_{m,n}}^2$ & \verb_S12MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{12}_{m,n}}$ & \verb_S12DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg{\matel{S}^{12}_{m,n}}$ & \verb_S12DEG(m,n)_
+      \\ \hline
+      $\abs{T^{21}(\tau_N\refl,\tau_1\inc)}$ & 
+        \verb_T21MAG(_$\tau_N\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $\abs{T^{21}(\tau_N\refl,\tau_1\inc)}^2$ & 
+        \verb_T21MSQ(_$\tau_N\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $20\log_{10}\abs{T^{21}(\tau_N\refl,\tau_1\inc)}$ & 
+        \verb_T21DB(_$\tau_N\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg{T^{21}(\tau_N\refl,\tau_1\inc)}$ & 
+        \verb_T21DEG(_$\tau_N\refl,\tau_1\inc$\verb_)_ \\ \hline
+      $\abs{T^{12}(\tau_1\refl,\tau_N\inc)}$ & 
+        \verb_T12MAG(_$\tau_1\refl,\tau_N\inc$\verb_)_ \\ \hline
+      $\abs{T^{12}(\tau_1\refl,\tau_N\inc)}^2$ & 
+        \verb_T12MSQ(_$\tau_1\refl,\tau_N\inc$\verb_)_ \\ \hline
+      $20\log_{10}\abs{T^{12}(\tau_1\refl,\tau_N\inc)}$ & 
+        \verb_T12DB(_$\tau_1\refl,\tau_N\inc$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg{T^{12}(\tau_N\refl,\tau_N\inc)}$ & 
+        \verb_T12DEG(_$\tau_1\refl,\tau_N\inc$\verb_)_ \\ \hline
+    \end{tabular}
+    \caption[Transmission quantities available in the PSS program]%
+    {Transmission quantities available in the PSS program and
+      the nomenclature used in the input script to specify them. 
+      $m$ and $n$ are integer mode indices, where $1$ and $2$ always
+      denote the principal TE and TM modes, respectively. All
+      tilt angles are specified in degrees, and the symbols
+      \textsf{H} and \textsf{V} are available as synonyms
+      for \textsf{0}  and \textsf{90} respectively.} 
+    \label{tab:trans}
+  \end{center}
+\end{table}
+
+\cleardoublepage
+\newpage
+
+
+\subsection{Differential Reflection Coefficients}
+
+Various ratios and differences of reflection quantities are
+available for the user to examine. These are shown in Table~\ref{tab:drefl}.
+\begin{table}[htbp]
+  \begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|c|l|} \hline
+      \bfseries Quantity & \bfseries User Input \\ \hline \hline
+      $\abs{\matel{S}^{11}_{m,m} / \matel{S}^{11}_{n,n}}$ & 
+      \verb_DS11MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{11}_{m,m} / \matel{S}^{11}_{n,n}}^2$ & 
+      \verb_DS11MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{11}_{m,m}/\matel{S}^{11}_{n,n}}$ & 
+      \verb_DS11DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{\matel{S}^{11}_{m,m} /
+        \matel{S}^{11}_{n,n}\right\}$
+      & \verb_DS11DEG(m,n)_   \\ \hline
+      $\abs{\matel{S}^{22}_{m,m}/\matel{S}^{22}_{n,n}}$ & 
+      \verb_DS22MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{22}_{m,m}/\matel{S}^{22}_{n,n}}^2$ & 
+      \verb_DS22MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{22}_{m,m}/\matel{S}^{22}_{n,n}}$ & 
+      \verb_DS22DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{\matel{S}^{22}_{m,m} / 
+        \matel{S}^{22}_{n,n}\right\}$
+      & \verb_DS22DEG(m,n)_   \\ \hline
+      $\abs{R^{11}(\tau_1,\tau_1) / 
+        R^{11}(\tau_2,\tau_2)}$ & 
+      \verb_DR11MAG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\abs{R^{11}(\tau_1,\tau_1) /
+        R^{11}(\tau_2,\tau_2)}^2$ & 
+      \verb_DR11MSQ(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $20\log_{10}\abs{R^{11}(\tau_1,\tau_1) / 
+        R^{11}(\tau_2,\tau_2)}$ & 
+      \verb_DR11DB(_$\tau_1\tau_2$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{R^{11}(\tau_1,\tau_1) / 
+        R^{11}(\tau_2,\tau_2)\right\}$ & 
+        \verb_DR11DEG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\abs{R^{22}(\tau_1,\tau_1) / 
+        R^{22}(\tau_2,\tau_2)}$ & 
+        \verb_DR22MAG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+        $\abs{R^{22}(\tau_1,\tau_1) / 
+          R^{22}(\tau_2,\tau_2)}^2$ & 
+        \verb_DT22MSQ(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $20\log_{10}\abs{R^{22}(\tau_1,\tau_1) / 
+        R^{22}(\tau_2,\tau_2)}$ & 
+        \verb_DT22DB(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{R^{22}(\tau_1,\tau_1) / 
+        R^{22}(\tau_2,\tau_2)\right\}$ & 
+        \verb_DT22DEG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+        Region $1$ scattered field axial ratio & 
+        \verb_AR11DB(_$\tau_1\inc$\verb_)_ \\ \hline
+        Region $N$ scattered field axial ratio & 
+        \verb_AR22DB(_$\tau_N\inc$\verb_)_ \\ \hline
+    \end{tabular}
+    \caption[Differential reflection quantities available in the PSS
+      program]%
+    {Differential reflection quantities available in the PSS program
+      and the nomenclature used in the input script to specify them. 
+      $m$ and $n$ are integer mode indices, where $1$ and $2$ always
+      denote the principal TE and TM modes, respectively. All
+      tilt angles are specified in degrees, and the symbols
+      \textsf{H} and \textsf{V} are available as synonyms
+      for \textsf{0}  and \textsf{90} respectively.} 
+    \label{tab:drefl}
+  \end{center}
+\end{table}
+
+\cleardoublepage
+\newpage
+
+
+\subsection{Differential Transmission Coefficients}
+
+Various ratios and differences of transmission quantities are
+available for the user to examine. These are shown in Table~\ref{tab:dtrans}.
+\begin{table}[h]
+  \begin{center}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{|c|l|} \hline
+      \bfseries Quantity & \bfseries User Input \\ \hline \hline
+      $\abs{\matel{S}^{21}_{m,m} / \matel{S}^{21}_{n,n}}$ & 
+      \verb_DS21MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{21}_{m,m} / \matel{S}^{21}_{n,n}}^2$ & 
+      \verb_DS21MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{21}_{m,m}/\matel{S}^{21}_{n,n}}$ & 
+      \verb_DS21DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{\matel{S}^{21}_{m,m} /
+        \matel{S}^{21}_{n,n}\right\}$
+      & 
+      \verb_DS21DEG(m,n)_   \\ \hline
+      $\abs{\matel{S}^{12}_{m,m}/\matel{S}^{12}_{n,n}}$ & 
+      \verb_DS12MAG(m,n)_ \\ \hline
+      $\abs{\matel{S}^{12}_{m,m}/\matel{S}^{12}_{n,n}}^2$ & 
+      \verb_DS12MSQ(m,n)_ \\ \hline
+      $20\log_{10}\abs{\matel{S}^{12}_{m,m}/\matel{S}^{12}_{n,n}}$ & 
+      \verb_DS12DB(m,n)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{\matel{S}^{12}_{m,m} / 
+        \matel{S}^{12}_{n,n}\right\}$
+      & 
+      \verb_S12DEG(m,n)_   \\ \hline
+      $\abs{T^{21}(\tau_1,\tau_1) / 
+        T^{21}(\tau_2,\tau_2)}$ & 
+      \verb_DT21MAG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\abs{T^{21}(\tau_1,\tau_1) /
+        T^{21}(\tau_2,\tau_2)}^2$ & 
+      \verb_DT21MSQ(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $20\log_{10}\abs{T^{21}(\tau_1,\tau_1) / 
+        T^{21}(\tau_2,\tau_2)}$ & 
+      \verb_DT21DB(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{T^{21}(\tau_1,\tau_1) / 
+        T^{21}(\tau_2,\tau_2)\right\}$ & 
+        \verb_DT21DEG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\abs{T^{12}(\tau_1,\tau_1) / 
+        T^{12}(\tau_2,\tau_2)}$ & 
+        \verb_DT12MAG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+        $\abs{T^{12}(\tau_1,\tau_1) / 
+          T^{12}(\tau_2,\tau_2)}^2$ & 
+        \verb_DT12MSQ(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $20\log_{10}\abs{T^{12}(\tau_1,\tau_1) / 
+        T^{12}(\tau_2,\tau_2)}$ & 
+        \verb_DT12DB(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+      $\frac{180}{\pi}\arg\left\{T^{12}(\tau_1,\tau_1) / 
+        T^{12}(\tau_2,\tau_2)\right\}$ & 
+        \verb_DT12DEG(_$\tau_1,\tau_2$\verb_)_ \\ \hline
+        Region $N$ scattered field axial ratio & 
+        \verb_AR21DB(_$\tau_1\inc$\verb_)_ \\ \hline
+        Region $1$ scattered field axial ratio & 
+        \verb_AR12DB(_$\tau_N\inc$\verb_)_ \\ \hline
+    \end{tabular}
+    \caption[Differential transmission quantities available in the PSS
+      program]%
+    {Differential transmission quantities available in the PSS program
+       and the nomenclature used in the input script to specify them. 
+       $m$ and $n$ are integer mode indices, where $1$ and $2$ always
+       denote the principal TE and TM modes, respectively. All
+       tilt angles are specified in degrees, and the symbols
+       \textsf{H} and \textsf{V} are available as synonyms
+      for \textsf{0}  and \textsf{90} respectively.} 
+    \label{tab:dtrans}
+  \end{center}
+\end{table}
+
+\cleardoublepage
+\newpage
+
+
+
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{ieeetr}
+%\bibliography{/analysis0/s/simonp/bibtex/antcad}
+\bibliography{e:/TeX/texmf-local/bibtex/bib/antcad.bib}
+
+\end{document}
+
+
+
+
+
+
+
