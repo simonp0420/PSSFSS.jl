@@ -53,16 +53,20 @@ performed in the same analysis script using the immensely powerful Julia program
 
 
 ## Installation
-PSSFSS is not yet registered, so it must currently be installed by the Julia package manager with an explicit URL:
+You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character of the command prompt):
 
-```Julia
-julia> ]
-(v1.6) pkg> add add https://github.com/simonp0420/PSSFSS.jl
+```julia
+(v1.6) pkg> add PSSFSS
 ```
+
+or with `using Pkg; Pkg.add("PSSFSS")`.
+
 
 ## Documentation
 - The theory documentation is [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/TheoryDocs/theorydoc.pdf)
 - The user manual is [here](https://simonp0420.github.io/PSSFSS.jl/stable)
+- If you prefer to explore the documentation more interactively, Jupyter notebooks containing documentation can be found
+  [here](https://github.com/simonp0420/PSSFSS.jl/tree/main/docs/notebooks) 
 
 ## Community
 Help from the community is actively sought and greatly appreciated!  There are several open issues which you might

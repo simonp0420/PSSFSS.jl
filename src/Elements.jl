@@ -516,8 +516,10 @@ Geometrical parameters are shown in the following diagram:
  
 `a` and `b` are unit cell dimensions.  `w1` and `w2` are the widths
    of the vertical and horizontal strips, resp. `h` is the total
-   height of the meander.
+   height of the meander. 
 
+A nicer diagram:
+![https://simonp0420.github.io/PSSFSS.jl/stable/assets/meanderdef.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/meanderdef.png)
 
 # Arguments:
 

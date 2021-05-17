@@ -18,7 +18,7 @@ permeability ``\mu_k``, and width ``h_k`` (except for outer layers ``1`` and ``N
 which are assumed to be semi-infinite).  There are ``N-1`` junction planes
 separating the layers. At some of these junction planes there may exist
 frequency selective surfaces (FSSs) or polarization selective surfaces (PSSs)
-consisting of zero-thickness periodic patterns of metallization.
+consisting of zero-thickness periodic patterns of metalization.
 PSSFSS will determine the generalized scattering matrix (GSM) for this structure
 which fully characterizes it in terms of illumination by an incoming plane wave
 of arbitrary polarization incident from either Region ``1`` or Region ``N``.
@@ -171,6 +171,13 @@ of dimensions 0.5 cm in the x and y directions, lying in a square unit cell of d
 1 cm.  The triangulation uses 10 edges in the x and y directions (`Nx` and `Ny`).
 
 You can get documentation for `rectstrip` by typing `?rectstrip` at the Julia prompt.
+`rectstrip` can be used to model dipoles, strip grids, ground planes, rectangular reflectarray elements, and rectangular
+patch elements.
+A call to `rectstrip` generates a rectangular strip, which by default (i.e. when `rot=0`) is oriented with its sides parallel
+to the x and y axes.  It should be noted that it is permissible for either or both strip side lengths to be equal to
+the corresponding unit cell dimension (i.e. `Lx==Px` and/or `Ly==Py`).  Currently, this is the only way to model an
+imperfectly conducting ground plane (`Rsheet` > 0) that completely fills the unit cell.
+
 Other FSS/PSS element types: `pecsheet`, `pmcsheet`, `polyring`, `meander`, `loadedcross`,
 `jerusalemcross`.
 

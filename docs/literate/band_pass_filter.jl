@@ -19,7 +19,7 @@
 # constant 1.9.  Outboard of each sheet is a 1.1 cm layer of dielectric constant 1.3.
 # The closely spaced sheets are a good test of the generalized scattering formulation
 # implemented in PSSFSS.  The sheet geometry is shown below.  Remember that the entire
-# sheet is metallized *except* for the region of the triangulation.
+# sheet is metalized *except* for the region of the triangulation.
 
 #md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS
