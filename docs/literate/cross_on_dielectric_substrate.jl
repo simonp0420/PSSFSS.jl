@@ -8,7 +8,7 @@
 # were digitized.
 #
 # We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
-# is "unloaded", i.e. the center section is filled in with metallization:
+# is "unloaded", i.e. the center section is filled in with metalization:
 
 #md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS, DelimitedFiles

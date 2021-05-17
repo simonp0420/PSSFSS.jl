@@ -1,7 +1,7 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
 # ## Resistive Square Patch
 # This example will demonstrate the ability of PSSFSS to accurately model finite
-# conductivity of FSS metallization.  It consists of a square finitely conducting 
+# conductivity of FSS metalization.  It consists of a square finitely conducting 
 # patch in a square lattice.  It is taken from a paper by Alon S. Barlevy and 
 # Yahya Rahmat-Samii, 
 # "Fundamental Constraints on the Electrical Characteristics of Frequency Selective 

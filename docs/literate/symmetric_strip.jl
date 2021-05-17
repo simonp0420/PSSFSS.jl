@@ -82,7 +82,7 @@ plot(ptitle, p1, p2, layout = @layout([A{0.09h}; [B C]]))
 # conditions, so that currents are free to flow across these unit cell boundaries.
 
 # We can also analyze the same structure using magnetic currents in the areas free of 
-# metallization as the unknowns:
+# metalization as the unknowns:
 sheet = rectstrip(;class='M', Px, Py, Lx, Ly, Nx, Ny, units=inch)
 strata = [Layer()
           sheet

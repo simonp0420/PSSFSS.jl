@@ -96,7 +96,7 @@ cell boundaries define basis functions that satisfy the Floquet (phase shift) bo
 conditions, so that currents are free to flow across these unit cell boundaries.
 
 We can also analyze the same structure using magnetic currents in the areas free of
-metallization as the unknowns:
+metalization as the unknowns:
 
 ```@example symmetric_strip
 sheet = rectstrip(;class='M', Px, Py, Lx, Ly, Nx, Ny, units=inch)
@@ -230,7 +230,7 @@ EditURL = "https://github.com/simonp0420/PSSFSS.jl/tree/main/docs/literate/resis
 
 ## Resistive Square Patch
 This example will demonstrate the ability of PSSFSS to accurately model finite
-conductivity of FSS metallization.  It consists of a square finitely conducting
+conductivity of FSS metalization.  It consists of a square finitely conducting
 patch in a square lattice.  It is taken from a paper by Alon S. Barlevy and
 Yahya Rahmat-Samii,
 "Fundamental Constraints on the Electrical Characteristics of Frequency Selective
@@ -301,7 +301,7 @@ higher resolution in Barlevy's PhD dissertation from which the comparison curves
 were digitized.
 
 We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
-is "unloaded", i.e. the center section is filled in with metallization:
+is "unloaded", i.e. the center section is filled in with metalization:
 
 ```@example cross_on_dielectric_substrate
 ENV["GKSwstype"] = "100" # hide
@@ -487,7 +487,7 @@ Two identical loaded cross slot-type elements are separated by a 6 mm layer of d
 constant 1.9.  Outboard of each sheet is a 1.1 cm layer of dielectric constant 1.3.
 The closely spaced sheets are a good test of the generalized scattering formulation
 implemented in PSSFSS.  The sheet geometry is shown below.  Remember that the entire
-sheet is metallized *except* for the region of the triangulation.
+sheet is metalized *except* for the region of the triangulation.
 
 ```@example band_pass_filter
 ENV["GKSwstype"] = "100" # hide
