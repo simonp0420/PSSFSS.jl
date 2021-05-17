@@ -470,7 +470,23 @@ end
     yguide --> "y ($(sh.units))"
     aspect_ratio := :equal
 
-    for m in 1:rep[1], n in 1:rep[2]
+    if isa(rep[1], Int)
+        mrange = 1:rep[1]
+    elseif isa(rep[1], UnitRange)
+        mrange = rep[1]
+    else
+        error("Illegal type for rep[1]")
+    end
+    if isa(rep[2], Int)
+        nrange = 1:rep[2]
+    elseif isa(rep[2], UnitRange)
+        nrange = rep[2]
+    else
+        error("Illegal type for rep[2]")
+    end
+        
+
+    for m in mrange, n in nrange
         x0, y0 = (m-1)*sh.s₁ + (n-1)*sh.s₂
 
         # Add series for faces
