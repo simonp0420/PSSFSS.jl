@@ -1,10 +1,9 @@
 # PSSFSS - analysis of polarization and frequency selective surfaces in Julia
 
-**Author: Peter S. Simon (@simonp0420)**
 
 | **Documentation**   |  **Tests**     | **CodeCov**  |
 |:--------:|:---------------:|:-------:|
-|[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/stable)[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/dev)| [![CI](https://github.com/simonp0420/PSSFSS.jl/workflows/CI/badge.svg?branch=main)](https://github.com/simonp0420/PSSFSS.jl/actions) | [![codecov.io](https://codecov.io/github/simonp0420/PSSFSS.jl/coverage.svg?branch=main)](https://codecov.io/github/simonp0420/PSSFSS.jl?branch=main) |
+|[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/stable)  [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/dev)| [![CI](https://github.com/simonp0420/PSSFSS.jl/workflows/CI/badge.svg?branch=main)](https://github.com/simonp0420/PSSFSS.jl/actions) | [![codecov.io](https://codecov.io/github/simonp0420/PSSFSS.jl/coverage.svg?branch=main)](https://codecov.io/github/simonp0420/PSSFSS.jl?branch=main) |
 
 `PSSFSS` is a Julia package for analyzing 
 [polarization selective surfaces](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=polarization+selective+surface&btnG=) (PSSs), [frequency selective surfaces](https://en.wikipedia.org/wiki/Frequency_selective_surface) (FSSs), 
@@ -63,6 +62,8 @@ julia> ]
 ## Documentation
 - The theory documentation is [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/TheoryDocs/theorydoc.pdf)
 - The user manual is [here](https://simonp0420.github.io/PSSFSS.jl/stable)
+- If you prefer interactive documentation using Jupyter notebooks, the user documentation in the form of notebooks is
+  available [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/notebooks)
 
 ## Community
 Help from the community is actively sought and greatly appreciated!  There are several open issues which you might
