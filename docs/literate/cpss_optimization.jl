@@ -21,13 +21,11 @@ using PSSFSS
 outer(rot) = meander(a=3.97, b=3.97, w1=0.13, w2=0.13, h=2.53+0.13, units=mm, ntri=600, rot=rot)
 inner(rot) = meander(a=3.97*√2, b=3.97/√2, w1=0.1, w2=0.1, h=0.14+0.1, units=mm, ntri=600, rot=rot)
 center(rot) = meander(a=3.97, b=3.97, w1=0.34, w2=0.34, h=2.51+0.34, units=mm, ntri=600, rot=rot)
-# Note our definition of `h` differs from that of the reference by the width of the strip.
-
+## Note our definition of `h` differs from that of the reference by the width of the strip.
 t1 = 4mm # Outer layers thickness
 t2 = 2.45mm # Inner layers thickness
 substrate = Layer(width=0.1mm, epsr=2.6)
 foam(w) = Layer(width=w, epsr=1.05) # Foam layer convenience function
-
 rot0 = 0 # rotation of first sheet
 strata = [
     Layer()
@@ -48,10 +46,18 @@ strata = [
     Layer() ]
 steering = (θ=0, ϕ=0)
 flist = 10:0.1:20
-
+##
 results = analyze(strata, flist, steering, showprogress=false, 
                   resultfile=devnull, logfile=devnull); 
- 
+
+# Here are plots of the three distinct meanderline designs:
+using Plots
+plot(outer(0), unitcell=true, title="Outer Meanderline")
+#-
+plot(inner(0), unitcell=true, title="Inner Meanderline")
+#-
+plot(center(0), unitcell=true, title="Center Meanderline")
+
 # Here is the script that compares PSSFSS predicted performance with very
 # high accuracy predictions from CST and COMSOL that were digitized from figures in the paper.
 
@@ -63,25 +69,29 @@ IL21L = -extract_result(results, @outputs s21db(L,L))
 AR21L = extract_result(results, @outputs ar21db(L))
 
 default(lw=2, xlim=(10,20), xtick=10:20, ylim=(0,3), ytick=0:0.5:3, gridalpha=0.3)
-p = plot(flist,RL11rr,title="RHCP → RHCP Return Loss", label="PSSFSS")
+p = plot(flist,RL11rr,title="RHCP → RHCP Return Loss", 
+         xlabel="Frequency (GHz)", ylabel="Return Loss (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_rl.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_rl.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
 #-
-p = plot(flist,AR11r,title="RHCP → RHCP Reflected Axial Ratio", label="PSSFSS")
+p = plot(flist,AR11r,title="RHCP → RHCP Reflected Axial Ratio", 
+         xlabel="Frequency (GHz)", ylabel="Axial Ratio (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_ar_reflected.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_ar_reflected.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
 #-          
-p = plot(flist,IL21L,title="LHCP → LHCP Insertion Loss", label="PSSFSS")
+p = plot(flist,IL21L,title="LHCP → LHCP Insertion Loss",
+         xlabel="Frequency (GHz)", ylabel="Insertion Loss (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_il.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_il.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
 #-
-p = plot(flist,AR21L,title="LHCP → LHCP Transmitted Axial Ratio", label="PSSFSS")
+p = plot(flist,AR21L,title="LHCP → LHCP Transmitted Axial Ratio",
+         xlabel="Frequency (GHz)", ylabel="Axial Ratio (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_ar_transmitted.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_ar_transmitted.csv", ',')
@@ -202,7 +212,7 @@ plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
 
 # Note that I set the population size to twice the normal default value.  Based
 # on previous experience, using 2 to 3 times the default population size helps the 
-# optimizer better on tough objective functions like the present one.
+# optimizer to do better on tough objective functions like the present one.
 # I let the optimizer run for 6 hours, during which time it reduced the objective function
 # value from 11.88 dB to 0.86 dB.  It was then interrupted due to a file system error.  I
 # restarted it after setting the starting value to the current best and reducing the 

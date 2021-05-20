@@ -381,7 +381,7 @@ e.g. `S21ang(te,tm)`.  Again, case is not significant, and "1" and "te" can be f
 
 It is often desired to use a set of polarization basis vectors other than TE/TM to define field
 coefficients.  PSSFSS supports in addition to TE/TM the use of H/V for horizontal/vertical components
-(in the [Ludwig 3](https://ieeexplore.ieee.org/document/1140406)) sense, and L/R for left-hand circular
+(in the [Ludwig 3](https://ieeexplore.ieee.org/document/1140406) sense), and L/R for left-hand circular
 and right-hand circular polarization (in the
 [IEEE sense](https://en.wikipedia.org/wiki/Circular_polarization#Uses_of_the_two_conventions)).
 
