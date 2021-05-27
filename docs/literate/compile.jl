@@ -16,7 +16,7 @@ end
 examples_list = ["symmetric_strip.jl", "resistive_square_patch.jl", 
                  "cross_on_dielectric_substrate.jl", 
                  "square_loop_absorber.jl", "band_pass_filter.jl",
-                 "cpss_optimization.jl"]
+                 "cpss_optimization.jl", "cpss2.jl"]
 
 # Adds examples as subsections to the Examples page:
 function replace_unknowns(str)

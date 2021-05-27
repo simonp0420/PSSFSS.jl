@@ -1,13 +1,14 @@
 module Sheets
 
 export RWGSheet, read_sheet_data, write_sheet_data, find_unique_periods
-export rotate!, combine, recttri, SV2, MV2
+export rotate!, translate!, combine, recttri, SV2, MV2
 
 using StaticArrays: SVector, MVector, SMatrix
 using ..PSSFSSLen
 using JLD2
 using LinearAlgebra: norm
 using RecipesBase
+
 
 const MV2 = MVector{2,Float64}
 const SV2 = SVector{2,Float64}
@@ -185,6 +186,22 @@ function rotate!(sh::RWGSheet, rot::Real)
         sh.ρ[n] = rotmat * sh.ρ[n]
     end
     sh.rot = rot
+    return sh
+end
+
+
+"""
+    translate!(sh::RWGSheet, dx, dy)
+
+Translate a sheet by dx in x and dy in y.
+"""
+function translate!(sh::RWGSheet, dx::Real, dy::Real)
+    dx == dy == 0 && (return sh)
+    tvec = [dx,dy]
+    for n in eachindex(sh.ρ)
+        sh.ρ[n] = tvec + sh.ρ[n]
+    end
+    return sh
 end
 
 
@@ -462,6 +479,8 @@ function recttri(rhobl::SV2, rhotr::SV2, nx::Int, ny::Int)
     return sh
 end
 
+
+"Plot recipe for RWGSheet"
 @recipe function f(sh::RWGSheet; edges=true, faces=false, nodes=false, 
                     edgenumbers=false, facenumbers=false, nodenumbers=false,
                     unitcell=false, rep=(1,1), fontsize=9)

@@ -50,13 +50,85 @@ flist = 10:0.1:20
 results = analyze(strata, flist, steering, showprogress=false, 
                   resultfile=devnull, logfile=devnull); 
 
-# Here are plots of the three distinct meanderline designs:
+# Here are plots of the five meanderline sheets:
+#md ENV["GKSwstype"] = "100" # hide
 using Plots
-plot(outer(0), unitcell=true, title="Outer Meanderline")
+plot(outer(rot0), unitcell=true, title="Sheet1")
 #-
-plot(inner(0), unitcell=true, title="Inner Meanderline")
+plot(inner(rot0-45), unitcell=true, title="Sheet2")
 #-
-plot(center(0), unitcell=true, title="Center Meanderline")
+plot(center(rot0-2*45), unitcell=true, title="Sheet3 (Center)")
+#-
+plot(inner(rot0-3*45), unitcell=true, title="Sheet4")
+#-
+plot(outer(rot0-4*45), unitcell=true, title="Sheet5")
+
+# Notice that not only are the meanders rotated, but so too are the unit cell rectangles.
+# This is because we used the generic `rot` keyword argument that rotates the entire unit
+# cell and its contents. `rot` can be used for any FSS or PSS element type.  As a consequence of
+# the different rotations applied to each unit cell, interactions between sheets due to higher-order
+# modes cannot be accounted for; only the dominant ``m=n=0`` TE and TM modes are used in cascading
+# the individual sheet scattering matrices.  This approximation is adequate for sheets that are 
+# sufficiently separated.  We can see from the log file (saved from a previous run where it was not
+# disabled) that only 2 modes are used to model the interactions between sheets:
+#
+# ```
+# Starting PSSFSS analysis on 2021-05-09 at 04:16:07.871
+# 
+# 
+# ******************* Warning ***********************
+#    Unequal unit cells in sheets 1 and 2
+#    Setting #modes in dividing layer 3 to 2
+# ******************* Warning ***********************
+#                                   
+# 
+# ******************* Warning ***********************
+#    Unequal unit cells in sheets 2 and 3
+#    Setting #modes in dividing layer 5 to 2
+# ******************* Warning ***********************
+#                                   
+# 
+# ******************* Warning ***********************
+#    Unequal unit cells in sheets 3 and 4
+#    Setting #modes in dividing layer 7 to 2
+# ******************* Warning ***********************
+#                                   
+# 
+# ******************* Warning ***********************
+#    Unequal unit cells in sheets 4 and 5
+#    Setting #modes in dividing layer 9 to 2
+# ******************* Warning ***********************
+#                                   
+# 
+# Dielectric layer information... 
+# 
+#  Layer  Width  units  epsr   tandel   mur  mtandel modes  beta1x  beta1y  beta2x  beta2y
+#  ----- ------------- ------- ------ ------- ------ ----- ------- ------- ------- -------
+#      1    0.0000  mm    1.00 0.0000    1.00 0.0000     2  1582.7     0.0     0.0  1582.7
+#  ==================  Sheet   1  ========================  1582.7     0.0     0.0  1582.7
+#      2    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+#      3    4.0000  mm    1.05 0.0000    1.00 0.0000     2  1582.7     0.0     0.0  1582.7
+#  ==================  Sheet   2  ========================   791.3  -791.3  1582.7  1582.7
+#      4    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+#      5    2.4500  mm    1.05 0.0000    1.00 0.0000     2   791.3  -791.3  1582.7  1582.7
+#  ==================  Sheet   3  ========================     0.0 -1582.7  1582.7     0.0
+#      6    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+#      7    2.4500  mm    1.05 0.0000    1.00 0.0000     2     0.0 -1582.7  1582.7     0.0
+#  ==================  Sheet   4  ========================  -791.3  -791.3  1582.7 -1582.7
+#      8    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+#      9    4.0000  mm    1.05 0.0000    1.00 0.0000     2  -791.3  -791.3  1582.7 -1582.7
+#  ==================  Sheet   5  ======================== -1582.7    -0.0     0.0 -1582.7
+#     10    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+#     11    0.0000  mm    1.00 0.0000    1.00 0.0000     2 -1582.7    -0.0     0.0 -1582.7
+# ...
+# ```
+# 
+# Note that PSSFSS prints warnings to the log file where it is forced to set the number of layer
+# modes to 2 because of unequal unit cells.  Also, in the dielectric layer list it can be seen
+# that these layers are assigned 2 modes each.  The thin layers adjacent to sheets are assigned 0
+# modes because these sheets are incorporated into so-called "GSM blocks" or "Gblocks" wherein
+# the presence of the thin layer is accounted for using the stratified medium Green's functions.
+
 
 # Here is the script that compares PSSFSS predicted performance with very
 # high accuracy predictions from CST and COMSOL that were digitized from figures in the paper.
@@ -68,7 +140,8 @@ AR11r = extract_result(results, @outputs ar11db(r))
 IL21L = -extract_result(results, @outputs s21db(L,L))
 AR21L = extract_result(results, @outputs ar21db(L))
 
-default(lw=2, xlim=(10,20), xtick=10:20, ylim=(0,3), ytick=0:0.5:3, gridalpha=0.3)
+default(lw=2, xlim=(10,20), xtick=10:20, ylim=(0,3), ytick=0:0.5:3, gridalpha=0.3,
+        framestyle=:box)
 p = plot(flist,RL11rr,title="RHCP → RHCP Return Loss", 
          xlabel="Frequency (GHz)", ylabel="Return Loss (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_rl.csv", ',')
@@ -100,13 +173,14 @@ plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
 
 # The PSSFSS results generally track well with the high-accuracy solutions, but are less accurate
 # especially at the high end of the band, presumably because cascading is performed in PSSFSS
-# for this structure using only the two principal Floquet modes.  This is necessary because the 
+# for this structure using only the two principal Floquet modes.  As previosly discussed, 
+# this is necessary because the 
 # rotated meanderlines are achieved by rotating the entire unit cell, and the unit cell for sheets
 # 2 and 4 are not square.  Since the periodicity of the sheets in the structure varies from sheet
 # to sheet, higher order Floquet modes common to neighboring sheets cannot be defined, so we are forced
-# to use only the dominant (0,0) modes which are independent of the periodicity.  This is a limitation
-# which could be removed in the future using the same technique employed in the paper to enable full-wave
-# analysis with the commercial tools.  Meanwhile, it is of interest to note that their high-accuracy runs
+# to use only the dominant (0,0) modes which are independent of the periodicity.  This limitation is removed
+# in a later example.
+# Meanwhile, it is of interest to note that their high-accuracy runs
 # required 10 hours for CST and 19 hours for COMSOL on large engineering workstations.  The PSSFSS run 
 # took about 60 seconds on my desktop machine.
 
@@ -251,6 +325,7 @@ plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
 # ![](./assets/cpss_cmaesopt_rl_refl.png)
 
 
-# It would probably be possible to do improve the performance somewhat over the 12-18 GHz band by tapering the 
+# It would probably be possible to do improve the performance somewhat over the 12-18 GHz band by weighting the
+# various contributions to the objective function and/or tapering the 
 # requirements of the objective function at the band edges.  Also, in a serious design effort, several additional
 # runs of the optimizer should be attempted, since results vary for stochastic algorithms like CMAES.
