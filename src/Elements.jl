@@ -1,12 +1,13 @@
 module Elements
 
-export rectstrip, polyring, meander, loadedcross, jerusalemcross, pecsheet, pmcsheet
+export rectstrip, diagstrip, polyring, meander, loadedcross, jerusalemcross, pecsheet, pmcsheet
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
-using ..Sheets: RWGSheet, rotate!, combine, recttri, SV2
+using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2
 using ..Meshsub: meshsub
 using StaticArrays: SA
 using LinearAlgebra: ×, norm, ⋅
+using Printf: @sprintf
 
 macro testpos(var)
   return:($(esc(var)) > 0 || error($(esc(string(var))) * " must be positive!"))
@@ -21,7 +22,7 @@ zhatcross(t::SV2) = SV2(-t[2], t[1])
     s₁s₂2β₁β₂(s₁,s₂) -> (β₁, β₂)
 
 Compute the reciprocal lattice vectors from the direct lattice vectors.
-Inputs and outputs are mutable 2-vectors from StaticArrays.
+Inputs and outputs are static 2-vectors from StaticArrays.
 """
 function s₁s₂2β₁β₂(s₁,s₂)
     s1 = [s₁...,0.0] # 3-vector
@@ -152,7 +153,12 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     check_optional_kw_arguments!(kwargs)
     @testpos(Lx); @testpos(Ly); @testpos(Nx); @testpos(Ny); @testpos(Px); @testpos(Py)
 
-    sheet = RWGSheet()
+    # Setup triangulation:
+    x0 = 0.5 * (Px - Lx)  # Center strip in unit cell
+    y0 = 0.5 * (Py - Ly)  # Center strip in unit cell
+    rhobl = SV2([x0,y0])    
+    rhotr = SV2([x0+Lx,y0+Ly])
+    sheet = recttri(rhobl, rhotr, Nx, Ny)
     sheet.style = "rectstrip"
     sheet.units = units
 
@@ -160,88 +166,9 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     sheet.s₂ = SV2([0.0,Py])
     sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
         
-    nodecount = (Nx+1) * (Ny+1)  # Number of nodes.
-    edgecount = 3*Nx*Ny + Nx + Ny  # Number of edges.
-    facecount = 2*Nx*Ny  # Number of faces.
-
-    # Setup nodes
-    sheet.ρ = SV2.([zeros(2) for i in 1:nodecount])
-    x0 = 0.5 * (Px - Lx)  # Center strip in unit cell
-    y0 = 0.5 * (Py - Ly)  # Center strip in unit cell
-    n = 0  # Initialize node index.
-    for j in 0:Ny
-        yj = j * (Ly / Ny)
-        for i in 0:Nx
-            n += 1  # Bump node index.
-            sheet.ρ[n] = SV2([x0 + i * (Lx / Nx), y0 + yj])
-        end
-    end
-    
-    # Set up the edge matrices:
-    sheet.e1 = zeros(Int, edgecount)
-    sheet.e2 = zeros(Int, edgecount)
-    e = 0  # Initialize edge index.
-    # Do the horizontal edges:
-    for j in 0:Ny
-        kadd = j * (Nx+1)
-        for i in 1:Nx
-            e += 1
-            sheet.e1[e] = i + kadd
-            sheet.e2[e] = i + kadd + 1
-        end
-    end
-    # Do the vertical edges:
-    for j in 1:Ny
-        kadd = (j-1) * (Nx+1) + 1
-        for i in 0:Nx
-            e += 1 
-            sheet.e1[e] = i + kadd
-            sheet.e2[e] = i + kadd + (Nx+1)
-        end
-    end
-    # Do the diagonal edges:
-    for j in 1:Ny
-        kadd1 = (j-1) * (Nx+1)
-        kadd2 = 1 + j * (Nx+1)
-        for i in 1:Nx
-            e += 1
-            sheet.e1[e] = i + kadd1
-            sheet.e2[e] = i + kadd2
-        end
-    end
-
-    # Done with edges.  Begin setting up faces
-    sheet.fv = zeros(Int, (3,facecount))
-    sheet.fe = zeros(Int, (3,facecount))
-    sheet.fr = zeros(Float64, facecount)
-    Nhe = Nx*Ny + Nx  # Number of horizontal edges.
-    Nve = Nx*Ny + Ny  # Number of vertical edges.
-    Nde = Nx*Ny       # Number of diagonal edges
-    f = 0  # Initialize face index.
-    for j in 1:Ny
-        nadd1 = (j-1) * (Nx+1)
-        nadd2 = 1 + j * (Nx+1)
-        for i in 1:Nx
-            f += 1  # Bump face index (upper left face).
-            sheet.fv[1,f] = i + nadd1  # Lower Left vertex.
-            sheet.fv[2,f] = i + nadd2  # Upper right vertex.
-            sheet.fv[3,f] = i + nadd2 - 1 # Upper left vertex.
-            sheet.fe[1,f] = i + j*Nx  # Upper edge.
-            sheet.fe[2,f] = i + (Nhe + nadd1)  # Left edge
-            sheet.fe[3,f] = i + (Nhe + Nve + (j-1)*Nx) # Diagonal edge
-            f += 1  # Bump face index (lower right face).
-            sheet.fv[1,f] = sheet.fv[1,f-1]  # Lower Left vertex.
-            sheet.fv[2,f] = 1 + sheet.fv[1,f]  # Lower right vertex.
-            sheet.fv[3,f] = sheet.fv[2,f-1] # Upper right vertex.
-            sheet.fe[1,f] = 1 + sheet.fe[2,f-1]  # Right edge.
-            sheet.fe[2,f] = sheet.fe[3,f-1]  # Diagonal edge.
-            sheet.fe[3,f] = sheet.fe[1,f-1] - Nx # Bottom edge
-        end
-    end
-    
-    # Done with faces.  Set the face sheet resistance values.
-    Rsheet = kwargs[:Rsheet]
-    sheet.fr .= Rsheet           # Broadcast value to entire array.
+    facecount = size(sheet.fv, 2)
+    Rsheet = float(kwargs[:Rsheet])
+    sheet.fr = fill(Rsheet, facecount)
 
     # Handle remaining optional arguments
     sheet.fufp = kwargs[:fufp]
@@ -258,6 +185,155 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
 
 end # function
 
+
+
+
+"""
+    diagstrip(;P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PSSFSSLength, kwargs...)
+
+Return a variable of type `RWGSheet` that contains the triangulation for a rectangular strip inside
+a square unit cell, with the strip centerline coincident with one of the diagonals of the cell.  The strip
+runs the full length of the diagonal.
+
+# Arguments:
+
+All arguments are keyword arguments which can be entered in any order.
+
+## Required arguments:
+- `P`: The period (i.e. side length) of the square unit cell. Note that the center-center spacing of the strips
+  is `P/√2`.
+- `w`: The width of the strip.
+- `orient`: The orientation of the strip within the unrotated unit cell in degrees.  The only valid values
+  are `45` for a strip running from lower left to upper right and `-45` for a strip running from lower 
+  right to upper left.
+- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `Nl` and `Nw`:  Number of line segments along the length and width of the strip, for dividing up the strip into
+  rectangles, which are  triangulated by adding a diagonal to each rectangle. These arguments are actually used for 
+  triangulating the central, rectangular portion of the strip.  The ends of the strip are tapered in the form of 
+  right, isosceles triangles, to conform to the boundaries of the square unit cell.  These triangular "end-caps" 
+  are triangulated using an unstructured mesh.
+    
+$(optional_kwargs)
+"""
+function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PSSFSSLength, kwarg...)::RWGSheet
+    kwargs = Dict{Symbol,Any}(kwarg)
+    haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
+    check_optional_kw_arguments!(kwargs)
+    @testpos(P); @testpos(w); @testpos(Nl); @testpos(Nw)
+    dxdy = [kwargs[:dx], kwargs[:dy]]
+    if dxdy ≠ [0,0]
+        error("Translation not allowed for this style of sheet")
+    end
+
+    abs(orient) == 45 || error("orient must be 45 or -45")
+
+    # Setup structured triangulation for central part:
+    Lx = √2*P - w # Length of rectangular portion
+    xbl = w/2 
+    orient < 0 && (xbl -= √2*P)
+    rhobl = SV2([xbl, -w/2])
+    rhotr = rhobl + SV2([√2*P-w, w])
+    sh1 = recttri(rhobl, rhotr, Nl, Nw)
+
+    # Right triangular region:
+    sh2 = translate!(rotate!(tritri(w, Nw), 180.0), rhotr[1] + w/2, 0)
+    sh3 = combine(sh1, sh2, 'x', rhotr[1])
+    # Left triangular region:
+    sh2 = translate!(tritri(w, Nw), xbl - w/2, 0)
+    sh1 = combine(sh3, sh2, 'x', xbl)
+    # Final rotation:
+    rotate!(sh1, orient)
+    orient < 0 && translate!(sh1, P, 0)
+    # Corner pieces:
+    if orient > 0
+        # top left patch:
+        sh2 = translate!(rotate!(tritri(w, Nw), -45.0), 0, P)
+        sh3 = combine(sh1, sh2, ' ', 0.0)
+        # bottom right patch:
+        sh1 = translate!(rotate!(tritri(w, Nw), 135.0), P, 0)
+        sheet = combine(sh3, sh1, ' ', 0.0)
+    else
+        # top right patch:
+        sh2 = translate!(rotate!(tritri(w, Nw), -135.0), P, P)
+        sh3 = combine(sh1, sh2, ' ', 0.0)
+        # bottom left patch:
+        sh1 = translate!(rotate!(tritri(w, Nw), 45.0), 0, 0)
+        sheet = combine(sh3, sh1, ' ', 0.0)
+    end
+
+    
+    sheet.style = "diagstrip"
+    sheet.units = units
+
+    sheet.s₁ = SV2([P,0.0])
+    sheet.s₂ = SV2([0.0,P])
+    sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
+        
+    facecount = size(sheet.fv, 2)
+    Rsheet = float(kwargs[:Rsheet])
+    sheet.fr = fill(Rsheet, facecount)
+
+    # Handle remaining optional arguments
+    sheet.fufp = kwargs[:fufp]
+    sheet.class = kwargs[:class]
+    rotate!(sheet, kwargs[:rot])
+
+    sheet.ξη_check = true
+
+    return sheet
+
+end # function
+
+"""
+    tritri(w::Real, nw::Int) -> sh::RWGSheet
+
+Create a variable of type `RWGSheet` that contains the triangulation for 
+a isosceles right triangle.  The apex is located at the origin and the base is bisected by the positive x-axis.
+The base length is w and the triangulation is generated by dividing up the triangular region into squares and adding 
+a diagonal edge across each square (an exception is the triangle adjacent to the vertex of the large triangle in the case
+where nw is odd). The fields `ρ`, `e1`, `e2`, `fv`, and `fe` are properly initialized upon return.
+"""
+function tritri(w::Real, nw::Int)::RWGSheet
+    even = mod(nw,2) == 0
+    if even
+        k = nw÷2
+        nodecount = (k + 1)^2
+        facecount = k*(k+1)
+    else
+        k = (nw+1)÷2
+        nodecount = k * (k + 1) + 1
+        facecount = k*k
+    end
+    sh = RWGSheet()
+    dxy = w/nw
+    points = zeros(2,nodecount)
+    # Set the node coordinates:
+    node = 0
+    if even
+        for (i,x) in enumerate(range(0.0, w/2, step=dxy))
+            for y in range(-(i-1)*dxy, (i-1)*dxy, step=dxy)
+                node +=1
+                points[1:2,node] .= x,y
+            end
+        end   
+    else
+        for mx in 0:k
+            x = max(0.0, (2mx-1)/2*dxy)
+            for y in range(-x, x, step=dxy)
+                node += 1
+                points[1:2,node] .= x,y
+            end
+        end
+    end
+    node == nodecount || error("Node miscount")
+    area = dxy^2
+    astr = @sprintf("%.14f", area)
+    switches = "Da$(astr)q30.0QeYY"
+    switches = "Da$(astr)q30.0QeYY"
+    seglist = Array{Int, 2}(undef, 2,0)
+    sh = meshsub(;points, seglist, area, ntri=facecount, switches)::RWGSheet
+    return sh
+end
 
 
 """
@@ -483,7 +559,7 @@ end # function polyring
 
 """
     meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
-                  units::PSSFSSLength, kwarg...) --> sheet::RWGSheet
+                  units::PSSFSSLength, orient=0, kwarg...) --> sheet::RWGSheet
 
 # Description:
 Return a variable of type `RWGSheet` that contains the triangulation for 
@@ -532,14 +608,22 @@ All arguments are keyword arguments which can be entered in any order.
            This is a guide, the actual number will likely be different.
     
 $(optional_kwargs)
+- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to rotate the 
+           meanderline orientation within the unrotated unit cell.  Nonzero values are
+           allowed only when the unit cell is a square (i.e. `a` == `b`).  The only allowable
+           values are positive or negative multiples of 90.
+
  """
 function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
-                  units::PSSFSSLength, kwarg...)::RWGSheet
+                  units::PSSFSSLength, orient::Real=0.0, kwarg...)::RWGSheet
                  
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
     check_optional_kw_arguments!(kwargs)
     @testpos(a); @testpos(b); @testpos(h); @testpos(w1); @testpos(w2); @testpos(ntri) 
+    orient ≠ 0 && a ≠ b && error("Nonzero orient only allowed for square unit cell")
+    morient = mod(orient, 360) 
+    morient ∈ [0, 90, 180, 270] || error("orient must be a multiple of 90")
 
     ρ = Array{SV2}(undef, 0)
     e1 = Array{Cint}(undef, 0)
@@ -547,7 +631,7 @@ function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     segmarkers = Array{Cint}(undef, 0)
     node = 0
 
-    # Calculate chopping increment using formulas from notes dated
+    # Calculate chopping increment
     t1 = w2 * (a + 2w1) / (2 * (h - 2w2)^2)
     t2 = w1 / (h - 2w2)
     fny2 = sqrt(ntri/(4*(t1+t2)))
@@ -609,8 +693,16 @@ function meander(;a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     ρtr = ρbl + SV2([Lx, w2])
     sh1 = recttri(ρbl, ρtr, nx1, ny1)
     sheet = combine(sh3, sh1, 'x', ρbl[1])
-
-
+    if morient == 90
+        xform = (x,y) -> (b-y, x)
+    elseif morient == 180
+        xform = (x,y) -> (a-x, b-y)
+    elseif morient == 270
+        xform = (x,y) -> (y, a-x)
+    end
+    if morient ≠ 0
+        sheet.ρ = [SV2(xform(ρ...)) for ρ in sheet.ρ]
+    end
     # Set the face sheet resistance values.
     sheet.fr = zeros(size(sheet.fv,2))
     Rsheet = kwargs[:Rsheet]
@@ -696,7 +788,7 @@ All arguments are keyword arguments which can be entered in any order.
     
 $(optional_kwargs)
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
-           vertex of the polygonal rings.  The default is to locate the vertex on the
+           vertex of the loaded cross.  The default is to locate the vertex on the
            positive x-axis.
 """
 function loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,

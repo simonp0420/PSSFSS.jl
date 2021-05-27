@@ -3,6 +3,7 @@
 
 ```@docs
 analyze
+diagstrip
 extract_result
 extract_result_file
 jerusalemcross
