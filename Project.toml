@@ -34,7 +34,7 @@ ProgressMeter = "1.6"
 RecipesBase = "1.1"
 Reexport = "^1.0.0"
 StaticArrays = "1.1"
-Triangulate = "1.0"
+Triangulate = "1.0, 2"
 Unitful = "1.7"
 julia = "1"
 
