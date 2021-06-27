@@ -26,7 +26,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 FFTW = "1.4"
 FileIO = "1.8"
-JLD2 = "0.4.9"
+JLD2 = "0.4.11"
 LoggingExtras = "0.4"
 NearestNeighbors = "0.4"
 OffsetArrays = "1.8"
