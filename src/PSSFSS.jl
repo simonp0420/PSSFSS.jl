@@ -15,6 +15,8 @@ if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optle
 end
 
 using Reexport
+using PkgVersion
+using InteractiveUtils: versioninfo
 using Dates: now
 using DelimitedFiles: writedlm
 using Printf: @sprintf
@@ -203,7 +205,11 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     showprogress && update!(progress, 0)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()),'T')
-    @logfile "\n\nStarting PSSFSS analysis on $(date) at $(clock)\n\n"
+    pssfssv = PkgVersion.Version(PSSFSS)
+    io=IOBuffer(); versioninfo(io); juliainfo = String(take!(io))
+    i = findfirst("Environment", juliainfo); juliainfo = juliainfo[1:first(i)-1]
+    juliainfo = juliainfo * "  Threads.nthreads() = $(Threads.nthreads())\n"
+    @logfile "\n\nStarting PSSFSS $(pssfssv) analysis on $(date) at $(clock)\n$(juliainfo)\n\n"
     check_inputs(layers, sheets, junc, freqs, stkeys, stvalues, outlist)
     k0min, k0max = twopi*1e9/c₀ .* extrema(freqs)
     gbls = choose_gblocks(layers, sheets, junc, k0min)
