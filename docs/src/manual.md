@@ -192,7 +192,6 @@ patch, capacitive, etc. elements, while `'M'`-class is used for slot, aperture, 
 We can visualize the triangulation using the `plot` function of the `Plots` package.
 
 ```@repl manual
-ENV["GKSwstype"] = "100" # hide
 using Plots
 plot(patch)
 ```

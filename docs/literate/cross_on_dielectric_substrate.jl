@@ -10,11 +10,13 @@
 # We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
 # is "unloaded", i.e. the center section is filled in with metalization:
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS, DelimitedFiles
 sheet = loadedcross(w=1.0, L1=0.6875, L2=0.0625, s1=[1.0,0.0], 
                     s2=[0.0,1.0], ntri=600, units=cm)
 plot(sheet, unitcell=true)
+#md savefig("cross1.png"); nothing  # hide
+#-
+#md # ![](cross1.png)
 
 # A few things to note. First, the mesh is **unstructured**.  So there are no redundant 
 # triangle face-pairs that PSSFSS can exploit to reduce execution time.  Second, the 
@@ -64,6 +66,9 @@ for (i,eps) in enumerate([1,2,4])
     plot!(p, data[:,1], data[:,2], label="Barlevy ϵᵣ = $eps", lc=col[i], ls=:dot)
 end
 p
+#md savefig("cross2.png"); nothing  # hide
+#-
+#md # ![](cross2.png)
 
 
 # ### Conclusion

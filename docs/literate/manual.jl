@@ -208,7 +208,6 @@ patch = rectstrip(Nx=10, Ny=10, Px=1, Py=1, Lx=0.5, Ly=0.5, units=cm)
 # We can visualize the triangulation using the `plot` function of the `Plots` package.
 
 #nb %% A slide [code] {"slideshow": {"slide_type": "fragment"}}
-#md ENV["GKSwstype"] = "100" # hide
 using Plots 
 plot(patch)
 #-

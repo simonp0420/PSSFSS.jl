@@ -11,10 +11,12 @@
 #
 # We start by defining a function that creates a patch of the desired sheet resistance:
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS
 patch(R) = rectstrip(Nx=10, Ny=10, Px=1, Py=1, Lx=0.5, Ly=0.5, units=cm, Rsheet=R)
 plot(patch(0), unitcell=true)
+#md savefig("resistive1.png"); nothing  # hide
+#-
+#md # ![](resistive1.png)
 
 # The patches measure 0.5 cm on a side and lie in a square lattice of period 1 cm.
 # Now we perform the analysis, looping over the desired values of sheet resistance.
@@ -49,6 +51,9 @@ for (i,R) in pairs(Rs)
     plot!(p, data[:,1], data[:,2], label="Barlevy $R Ω", ls=:dash, color=colors[i])
 end
 p
+#md savefig("resistive2.png"); nothing  # hide
+#-
+#md # ![](resistive2.png)
 
 # ### Conclusion
 # PSSFSS results are indistinguishable from those reported in the cited paper.

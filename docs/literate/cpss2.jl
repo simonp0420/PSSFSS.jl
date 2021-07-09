@@ -78,7 +78,6 @@ results = analyze(strata, flist, steering, logfile=devnull,
 
 # The PSSFSS run took about 85 seconds on my machine.  Here are plots of the five sheets:
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots
 default()
 ps = []
@@ -86,7 +85,9 @@ for k in 1:5
     push!(ps, plot(sheets[k], unitcell=true, title="Sheet $k", linecolor=:red))
 end
 plot(ps..., layout=5)
-
+#md savefig("cpssb1.png"); nothing  # hide
+#-
+#md # ![](cpssb1.png)
 #-
 # Notice that for all 5 sheets, the unit cell is a square of constant side length and is unrotated. 
 # We can see from the log file (of a previous run where it was not suppressed) that this allows
@@ -126,7 +127,6 @@ plot(ps..., layout=5)
 # Here are comparison plots of PSSFSS versus highly converged CST predictions digitized from 
 # plots presented in the paper:
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, DelimitedFiles
 RLl = -extract_result(results, @outputs s11db(l,l))
 AR11l = extract_result(results, @outputs ar11db(l))
@@ -140,21 +140,33 @@ plot(flist,RLl,title="LHCP → LHCP Return Loss", label="PSSFSS",
          ylabel="Return Loss (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_rllhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
+#md savefig("cpssb2.png"); nothing  # hide
+#-
+#md # ![](cpssb2.png)
 #-
 plot(flist,AR11l,title="LHCP → LHCP Reflected Axial Ratio", label="PSSFSS",
          ylabel="Axial Ratio (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_arlhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
+#md savefig("cpssb3.png"); nothing  # hide
+#-
+#md # ![](cpssb3.png)
 #-
 plot(flist,AR21r,title="RHCP → RHCP Transmitted Axial Ratio", label="PSSFSS",
      ylabel="Axial Ratio (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_arrhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
+#md savefig("cpssb4.png"); nothing  # hide
+#-
+#md # ![](cpssb4.png)
 #-
 plot(flist,IL21r,title="RHCP → RHCP Insertion Loss", label="PSSFSS",
          ylabel="Insertion Loss (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_ilrhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
+#md savefig("cpssb5.png"); nothing  # hide
+#-
+#md # ![](cpssb5.png)
 #-
 
 # Differences between the PSSFSS and CST predictions are attributed to the fact that the 

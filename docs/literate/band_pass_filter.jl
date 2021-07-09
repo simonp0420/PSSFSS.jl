@@ -21,13 +21,13 @@
 # implemented in PSSFSS.  The sheet geometry is shown below.  Remember that the entire
 # sheet is metalized *except* for the region of the triangulation.
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS
 sheet = loadedcross(class='M', w=0.023, L1=0.8, L2=0.14, 
             s1=[0.861,0.0], s2=[0.0,0.861], ntri=600, units=cm)
 plot(sheet, unitcell=true)
-
+#md savefig("bpf1.png"); nothing  # hide
 #-
+#md # ![](bpf1.png)
 
 steering = (ϕ=0, θ=0)
 strata = [  Layer()
@@ -48,14 +48,18 @@ p = plot(xlabel="Frequency (GHz)", ylabel="Reflection Coefficient (dB)",
          xlim=(-0.1,20.1), ylim=(-35,0.1))
 plot!(p, data[:,1], data[:,3], label="PSSFSS", color=:red)
 plot!(p, dat[:,1], dat[:,2], label="CST", color=:blue)
-p
+#md savefig("bpf2.png"); nothing  # hide
+#-
+#md # ![](bpf2.png)
 #-
 p2 = plot(xlabel="Frequency (GHz)", ylabel="Transmission Coefficient (dB)",
           legend=:bottom, title="Loaded Cross Band-Pass Filter", xtick=0:2:20, ytick=-80:10:0,
          xlim=(-0.1,20.1), ylim=(-80,0.1))
 plot!(p2, data[:,1], data[:,2], label="PSSFSS", color=:red)
 plot!(p2, dat[:,1], dat[:,4], label="CST", color=:blue)
-p2
+#md savefig("bpf3.png"); nothing  # hide
+#-
+#md # ![](bpf3.png)
 
 # This analysis takes about 90 seconds for 191 frequencies on my machine.  Note that
 # rather than including two separate invocations of the `loadedcross` function when
@@ -64,7 +68,7 @@ p2
 # this fact in making the analysis more efficient.  In fact, if both sheets had been embedded
 # in similar dielectric claddings (in the same order), then the GSM (generalized scattering matrix)
 # computed for the sheet in its first location could be reused without additional computation for its
-# second location.  In this case, though, only the spatial integrals are re-used.  For a oblique
+# second location.  In this case, though, only the spatial integrals are re-used.  For an oblique
 # incidence case, computing the spatial integrals is often the most expensive part of the analysis,
 # so the savings from reusing the same sheet definition can be substantial.
 

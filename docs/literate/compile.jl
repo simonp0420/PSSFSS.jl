@@ -6,13 +6,6 @@ function notebook_filter(str)
   str |> x -> replace(x, re1 => "\$") |> x -> replace(x, re2 => s"$^\1$")
 end
 
-#=
-function md_filter(str)
-    re = r"(^using .+Plots)"  # using at start of line followed by Plots later on line
-    str |> x -> replace(x, re => s"""#md ENV["GKSwstype"] = "100" # hide\n\1""")
-end
-=#
-
 examples_list = ["symmetric_strip.jl", "resistive_square_patch.jl", 
                  "cross_on_dielectric_substrate.jl", 
                  "square_loop_absorber.jl", "band_pass_filter.jl",
@@ -31,9 +24,11 @@ for file in flist
     Literate.notebook(file, "../notebooks", preprocess=notebook_filter, execute=false)
 end
 
-for file in examples_list
-  Literate.markdown(file, ".", credit=false)
-  Literate.notebook(file, "../notebooks", preprocess=notebook_filter, execute=false)
+for (i,file) in enumerate(examples_list)
+    fnpre = splitext(file)[1]
+    Literate.markdown(file, ".", credit=false)
+    #Literate.markdown(file, ".", codefence=("```@example $i" => "```"), credit=false)
+    Literate.notebook(file, "../notebooks", preprocess=notebook_filter, execute=false)
 end
 
 function postinclude(str)
@@ -41,7 +36,7 @@ function postinclude(str)
   for file in examples_list
     mdfile = splitext(file)[1] * ".md"
     str *= replace_unknowns(read(mdfile, String))
-    rm(mdfile)
+    #rm(mdfile)
   end
   str
 end

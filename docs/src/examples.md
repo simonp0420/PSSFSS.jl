@@ -24,7 +24,7 @@ but for a more recent reference one can find the solution in Problem 10.6 of R. 
 *Field Theory of Guided Waves, Second Ed.*,
 IEEE Press, 1991.  Here is the code for computing the exact solution:
 
-```@example symmetric_strip
+````@example symmetric_strip
 """
     grating(kP, nterms=30) -> (Γ, T)
 
@@ -53,7 +53,7 @@ function grating(kP; nterms=30)
     T = 1 + Γ
     return (Γ, T)
 end
-```
+````
 
  Note that using the extension of
 [Babinet's Principle for electromagnetic fields](http://kirkmcd.princeton.edu/examples/babinet.pdf)
@@ -64,8 +64,7 @@ Here is the PSSFSS code to analyze this structure using electric currents as the
 scale the geometry so that the frequency in GHz is numerically equal to the period of the strips
 measured in wavelengths.
 
-```@example symmetric_strip
-ENV["GKSwstype"] = "100" # hide
+````@example symmetric_strip
 using Plots, PSSFSS
 c = 11.802852677165355 # light speed [inch*GHz]
 period = c  # so the period/wavelength = freq in GHz
@@ -88,7 +87,10 @@ ptitle = plot(title = "Symmetric Strip Triangulation",
              grid = false, showaxis = false, xtick=[], ytick=[],
              bottom_margin = -50Plots.px)
 plot(ptitle, p1, p2, layout = @layout([A{0.09h}; [B C]]))
-```
+savefig("symstrip1.png"); nothing  # hide
+````
+
+![](symstrip1.png)
 
 Note that setting `Lx = Px` causes the strip to fully occupy the x-extent
 of the unit cell.  PSSFSS automatically ensures that the triangle edges at these unit
@@ -98,7 +100,7 @@ conditions, so that currents are free to flow across these unit cell boundaries.
 We can also analyze the same structure using magnetic currents in the areas free of
 metalization as the unknowns:
 
-```@example symmetric_strip
+````@example symmetric_strip
 sheet = rectstrip(;class='M', Px, Py, Lx, Ly, Nx, Ny, units=inch)
 strata = [Layer()
           sheet
@@ -106,7 +108,7 @@ strata = [Layer()
 results_m = analyze(strata, flist, steering, showprogress=false,
                     resultfile=devnull, logfile=devnull);
 nothing #hide
-```
+````
 
 Each 50-frequency run of `analyze` takes about 14 seconds
 for this geometry of 720 triangles on my machine.
@@ -115,7 +117,7 @@ More detailed timing information is available in the log file
 
 We will compare the PSSFSS results to the analytic solution:
 
-```@example symmetric_strip
+````@example symmetric_strip
 # Generate exact results:
 rt = grating.(2π*flist)
 rperp_exact = first.(rt)
@@ -123,22 +125,22 @@ tperp_exact = last.(rt)
 rpar_exact = -tperp_exact
 tpar_exact = -rperp_exact;
 nothing #hide
-```
+````
 
 Obtain PSSFSS results for electric and magnetic currents:
 
-```@example symmetric_strip
+````@example symmetric_strip
 outrequest = @outputs s11(v,v) s21(v,v) s11(h,h) s21(h,h)
 rperp_j, tperp_j, rpar_j, tpar_j =
       collect.(eachcol(extract_result(results_j, outrequest)))
 rperp_m, tperp_m, rpar_m, tpar_m =
       collect.(eachcol(extract_result(results_m, outrequest)));
 nothing #hide
-```
+````
 
 Generate the comparison plots:
 
-```@example symmetric_strip
+````@example symmetric_strip
 angdeg(z) = rad2deg(angle(z)) # Convenience function
 
 p1 = plot(title = "Perpendicular Reflection Magnitude",
@@ -148,72 +150,96 @@ p1 = plot(title = "Perpendicular Reflection Magnitude",
 plot!(p1, flist, abs.(rperp_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(rperp_j), label="PSSFSS J")
 plot!(p1, flist, abs.(rperp_m), label="PSSFSS M")
-```
+savefig("symstrip2.png"); nothing  # hide
+````
 
-```@example symmetric_strip
+![](symstrip2.png)
+
+````@example symmetric_strip
 p2 = plot(title = "Perpendicular Reflection Phase",
           xlabel = "Period (wavelengths)",
           ylabel = "Phase (deg)")
 plot!(p2, flist, angdeg.(rperp_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(rperp_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(rperp_m), label="PSSFSS M")
-```
+savefig("symstrip3.png"); nothing  # hide
+````
 
-```@example symmetric_strip
+![](symstrip3.png)
+
+````@example symmetric_strip
 p1 = plot(title = "Parallel Reflection Magnitude",
           xlabel = "Period (wavelengths)",
           ylabel = "Coefficient Magnitude")
 plot!(p1, flist, abs.(rpar_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(rpar_j), label="PSSFSS J")
 plot!(p1, flist, abs.(rpar_m), label="PSSFSS M")
-```
+savefig("symstrip4.png"); nothing  # hide
+````
 
-```@example symmetric_strip
+![](symstrip4.png)
+
+````@example symmetric_strip
 p2 = plot(title = "Parallel Reflection Phase",
           xlabel = "Period (wavelengths)",
           ylabel = "Phase (deg)")
 plot!(p2, flist, angdeg.(rpar_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(rpar_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(rpar_m), label="PSSFSS M")
-```
+savefig("symstrip5.png"); nothing  # hide
+````
+
+![](symstrip5.png)
 
 Now look at the transmission coefficients:
 
-```@example symmetric_strip
+````@example symmetric_strip
 p1 = plot(title = "Perpendicular Transmission Magnitude",
           xlabel = "Period (wavelengths)",
           ylabel = "Coefficient Magnitude")
 plot!(p1, flist, abs.(tperp_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(tperp_j), label="PSSFSS J")
 plot!(p1, flist, abs.(tperp_m), label="PSSFSS M")
-```
+savefig("symstrip6.png"); nothing  # hide
+````
 
-```@example symmetric_strip
+![](symstrip6.png)
+
+````@example symmetric_strip
 p2 = plot(title = "Perpendicular Transmission Phase",
           xlabel = "Period (wavelengths)",
           ylabel = "Phase (deg)")
 plot!(p2, flist, angdeg.(tperp_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(tperp_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(tperp_m), label="PSSFSS M")
-```
+savefig("symstrip7.png"); nothing  # hide
+````
 
-```@example symmetric_strip
+![](symstrip7.png)
+
+````@example symmetric_strip
 p1 = plot(title = "Parallel Transmission Magnitude",
           xlabel = "Period (wavelengths)",
           ylabel = "Coefficient Magnitude", legend=:topleft)
 plot!(p1, flist, abs.(tpar_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(tpar_j), label="PSSFSS J")
 plot!(p1, flist, abs.(tpar_m), label="PSSFSS M")
-```
+savefig("symstrip8.png"); nothing  # hide
+````
 
-```@example symmetric_strip
+![](symstrip8.png)
+
+````@example symmetric_strip
 p2 = plot(title = "Parallel Transmission Phase",
           xlabel = "Period (wavelengths)",
           ylabel = "Phase (deg)")
 plot!(p2, flist, angdeg.(tpar_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(tpar_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(tpar_m), label="PSSFSS M")
-```
+savefig("symstrip9.png"); nothing  # hide
+````
+
+![](symstrip9.png)
 
 ### Conclusion
 Although good agreement is obtained, as expected the best agreement between
@@ -240,17 +266,19 @@ from the cited figures.
 
 We start by defining a function that creates a patch of the desired sheet resistance:
 
-```@example resistive_square_patch
-ENV["GKSwstype"] = "100" # hide
+````@example resistive_square_patch
 using Plots, PSSFSS
 patch(R) = rectstrip(Nx=10, Ny=10, Px=1, Py=1, Lx=0.5, Ly=0.5, units=cm, Rsheet=R)
 plot(patch(0), unitcell=true)
-```
+savefig("resistive1.png"); nothing  # hide
+````
+
+![](resistive1.png)
 
 The patches measure 0.5 cm on a side and lie in a square lattice of period 1 cm.
 Now we perform the analysis, looping over the desired values of sheet resistance.
 
-```@example resistive_square_patch
+````@example resistive_square_patch
 steering = (ϕ=0, θ=0)
 flist = 1:0.5:60
 Rs = [0, 10, 30, 100]
@@ -262,14 +290,14 @@ for (i,R) in pairs(Rs)
                       logfile=devnull, resultfile=devnull)
     calculated[:,i] = extract_result(results, outputs)
 end
-```
+````
 
 Looping over the four sheet resistance values, each evaluated at 119 frequencies
 required approximately 20 seconds on my machine.
 
 We plot the results, including those digitized from the paper for comparison:
 
-```@example resistive_square_patch
+````@example resistive_square_patch
 using DelimitedFiles
 markers = (:diamond, :utriangle, :square, :xcross)
 colors = (:blue, :red, :green, :black)
@@ -283,7 +311,10 @@ for (i,R) in pairs(Rs)
     plot!(p, data[:,1], data[:,2], label="Barlevy $R Ω", ls=:dash, color=colors[i])
 end
 p
-```
+savefig("resistive2.png"); nothing  # hide
+````
+
+![](resistive2.png)
 
 ### Conclusion
 PSSFSS results are indistinguishable from those reported in the cited paper.
@@ -303,13 +334,15 @@ were digitized.
 We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
 is "unloaded", i.e. the center section is filled in with metalization:
 
-```@example cross_on_dielectric_substrate
-ENV["GKSwstype"] = "100" # hide
+````@example cross_on_dielectric_substrate
 using Plots, PSSFSS, DelimitedFiles
 sheet = loadedcross(w=1.0, L1=0.6875, L2=0.0625, s1=[1.0,0.0],
                     s2=[0.0,1.0], ntri=600, units=cm)
 plot(sheet, unitcell=true)
-```
+savefig("cross1.png"); nothing  # hide
+````
+
+![](cross1.png)
 
 A few things to note. First, the mesh is **unstructured**.  So there are no redundant
 triangle face-pairs that PSSFSS can exploit to reduce execution time.  Second, the
@@ -318,16 +351,16 @@ of 600.  This can be verified by entering the Julia variable `sheet` at the
 [REPL](https://docs.julialang.org/en/v1/manual/getting-started/#man-getting-started)
 (i.e. the Julia prompt):
 
-```@example cross_on_dielectric_substrate
+````@example cross_on_dielectric_substrate
 sheet
-```
+````
 
 The cross FSS is etched on a dielectric sheet of thickness 3 mm.  The dielectric
 constant is varied over the values 1, 2, and 4 to observe the effect on the resonant
 frequency.  Following the reference, the list of analysis frequencies is varied slightly
 depending on the value of dielectric constant:
 
-```@example cross_on_dielectric_substrate
+````@example cross_on_dielectric_substrate
 resultsstack = Any[]
 steering = (ϕ=0, θ=0)
 for eps in [1, 2, 4]
@@ -347,12 +380,12 @@ for eps in [1, 2, 4]
                       resultfile=devnull, logfile=devnull)
     push!(resultsstack, results)
 end
-```
+````
 
 The above loop requires about 80 seconds of execution time on my machine.
 Compare PSSFSS results to those digitized from the dissertation figure:
 
-```@example cross_on_dielectric_substrate
+````@example cross_on_dielectric_substrate
 col=[:red,:blue,:green]
 p = plot(xlim=(0.,30), xtick = 0:5:30, ylim=(0,1), ytick=0:0.1:1,
          xlabel="Frequency (GHz)", ylabel="Reflection Coefficient Magnitude",
@@ -364,7 +397,10 @@ for (i,eps) in enumerate([1,2,4])
     plot!(p, data[:,1], data[:,2], label="Barlevy ϵᵣ = $eps", lc=col[i], ls=:dot)
 end
 p
-```
+savefig("cross2.png"); nothing  # hide
+````
+
+![](cross2.png)
 
 ### Conclusion
 PSSFSS results agree very well with those of the cited reference, especially when
@@ -385,8 +421,7 @@ We compare the reflection coefficient magnitudes computed by PSSFSS with those d
 from the cited figure when the sheet is suspended
 5 mm above a ground plane, hence we will also make use of the `pecsheet` function.
 
-```@example square_loop_absorber
-ENV["GKSwstype"] = "100" # hide
+````@example square_loop_absorber
 using Plots, PSSFSS, DelimitedFiles
 D = 11 # Period of square lattice (mm)
 r_outer = √2/2 * D/8 * [5,6,7] # radii of square outer vertices
@@ -415,13 +450,19 @@ for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, col
     plot!(p, dat[:,1], dat[:,2], label="Costa "*label, ls=:dash, lc=color)
 end
 plot(ps..., layout=(1,3))
-```
+savefig("sqloop1.png"); nothing  # hide
+````
+
+![](sqloop1.png)
 
 This run takes about 85 seconds on my machine.
 
-```@example square_loop_absorber
+````@example square_loop_absorber
 p
-```
+savefig(p,"sqloop2.png"); nothing  # hide
+````
+
+![](sqloop2.png)
 
 It is useful to take a look at the log file created by PSSFSS for the last run above:
 ```
@@ -489,15 +530,17 @@ The closely spaced sheets are a good test of the generalized scattering formulat
 implemented in PSSFSS.  The sheet geometry is shown below.  Remember that the entire
 sheet is metalized *except* for the region of the triangulation.
 
-```@example band_pass_filter
-ENV["GKSwstype"] = "100" # hide
+````@example band_pass_filter
 using Plots, PSSFSS
 sheet = loadedcross(class='M', w=0.023, L1=0.8, L2=0.14,
             s1=[0.861,0.0], s2=[0.0,0.861], ntri=600, units=cm)
 plot(sheet, unitcell=true)
-```
+savefig("bpf1.png"); nothing  # hide
+````
 
-```@example band_pass_filter
+![](bpf1.png)
+
+````@example band_pass_filter
 steering = (ϕ=0, θ=0)
 strata = [  Layer()
             Layer(ϵᵣ=1.3, width=1.1cm)
@@ -517,17 +560,21 @@ p = plot(xlabel="Frequency (GHz)", ylabel="Reflection Coefficient (dB)",
          xlim=(-0.1,20.1), ylim=(-35,0.1))
 plot!(p, data[:,1], data[:,3], label="PSSFSS", color=:red)
 plot!(p, dat[:,1], dat[:,2], label="CST", color=:blue)
-p
-```
+savefig("bpf2.png"); nothing  # hide
+````
 
-```@example band_pass_filter
+![](bpf2.png)
+
+````@example band_pass_filter
 p2 = plot(xlabel="Frequency (GHz)", ylabel="Transmission Coefficient (dB)",
           legend=:bottom, title="Loaded Cross Band-Pass Filter", xtick=0:2:20, ytick=-80:10:0,
          xlim=(-0.1,20.1), ylim=(-80,0.1))
 plot!(p2, data[:,1], data[:,2], label="PSSFSS", color=:red)
 plot!(p2, dat[:,1], dat[:,4], label="CST", color=:blue)
-p2
-```
+savefig("bpf3.png"); nothing  # hide
+````
+
+![](bpf3.png)
 
 This analysis takes about 90 seconds for 191 frequencies on my machine.  Note that
 rather than including two separate invocations of the `loadedcross` function when
@@ -536,7 +583,7 @@ This allows PSSFSS to recognize that the triangulations are identical, and to ex
 this fact in making the analysis more efficient.  In fact, if both sheets had been embedded
 in similar dielectric claddings (in the same order), then the GSM (generalized scattering matrix)
 computed for the sheet in its first location could be reused without additional computation for its
-second location.  In this case, though, only the spatial integrals are re-used.  For a oblique
+second location.  In this case, though, only the spatial integrals are re-used.  For an oblique
 incidence case, computing the spatial integrals is often the most expensive part of the analysis,
 so the savings from reusing the same sheet definition can be substantial.
 
@@ -563,7 +610,7 @@ reflection, and reflects RHCP (without changing its sense!) almost without atten
 
 Here is the script that analyzes their design:
 
-```@example cpss_optimization
+````@example cpss_optimization
 using PSSFSS
 # Define convenience functions for sheets:
 outer(rot) = meander(a=3.97, b=3.97, w1=0.13, w2=0.13, h=2.53+0.13, units=mm, ntri=600, rot=rot)
@@ -598,31 +645,30 @@ flist = 10:0.1:20
 results = analyze(strata, flist, steering, showprogress=false,
                   resultfile=devnull, logfile=devnull);
 nothing #hide
-```
+````
 
 Here are plots of the five meanderline sheets:
 
-```@example cpss_optimization
-ENV["GKSwstype"] = "100" # hide
+````@example cpss_optimization
 using Plots
 plot(outer(rot0), unitcell=true, title="Sheet1")
-```
+````
 
-```@example cpss_optimization
+````@example cpss_optimization
 plot(inner(rot0-45), unitcell=true, title="Sheet2")
-```
+````
 
-```@example cpss_optimization
+````@example cpss_optimization
 plot(center(rot0-2*45), unitcell=true, title="Sheet3 (Center)")
-```
+````
 
-```@example cpss_optimization
+````@example cpss_optimization
 plot(inner(rot0-3*45), unitcell=true, title="Sheet4")
-```
+````
 
-```@example cpss_optimization
+````@example cpss_optimization
 plot(outer(rot0-4*45), unitcell=true, title="Sheet5")
-```
+````
 
 Notice that not only are the meanders rotated, but so too are the unit cell rectangles.
 This is because we used the generic `rot` keyword argument that rotates the entire unit
@@ -693,8 +739,7 @@ the presence of the thin layer is accounted for using the stratified medium Gree
 Here is the script that compares PSSFSS predicted performance with very
 high accuracy predictions from CST and COMSOL that were digitized from figures in the paper.
 
-```@example cpss_optimization
-ENV["GKSwstype"] = "100" # hide
+````@example cpss_optimization
 using Plots, DelimitedFiles
 RL11rr = -extract_result(results, @outputs s11db(r,r))
 AR11r = extract_result(results, @outputs ar11db(r))
@@ -709,34 +754,46 @@ cst = readdlm("../src/assets/cpss_cst_fine_digitized_rl.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_rl.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
-```
+savefig("cpssa1.png"); nothing  # hide
+````
 
-```@example cpss_optimization
+![](cpssa1.png)
+
+````@example cpss_optimization
 p = plot(flist,AR11r,title="RHCP → RHCP Reflected Axial Ratio",
          xlabel="Frequency (GHz)", ylabel="Axial Ratio (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_ar_reflected.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_ar_reflected.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
-```
+savefig("cpssa2.png"); nothing  # hide
+````
 
-```@example cpss_optimization
+![](cpssa2.png)
+
+````@example cpss_optimization
 p = plot(flist,IL21L,title="LHCP → LHCP Insertion Loss",
          xlabel="Frequency (GHz)", ylabel="Insertion Loss (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_il.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_il.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
-```
+savefig("cpssa3.png"); nothing  # hide
+````
 
-```@example cpss_optimization
+![](cpssa3.png)
+
+````@example cpss_optimization
 p = plot(flist,AR21L,title="LHCP → LHCP Transmitted Axial Ratio",
          xlabel="Frequency (GHz)", ylabel="Axial Ratio (dB)", label="PSSFSS")
 cst = readdlm("../src/assets/cpss_cst_fine_digitized_ar_transmitted.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_ar_transmitted.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
-```
+savefig("cpssa4.png"); nothing  # hide
+````
+
+![](cpssa4.png)
 
 The PSSFSS results generally track well with the high-accuracy solutions, but are less accurate
 especially at the high end of the band, presumably because cascading is performed in PSSFSS
@@ -914,7 +971,7 @@ high-order modes in the generalized scattering matrix (GSM) formulation.
 We begin by computing the skin depth and sheet resistance for the
 copper traces.  The conductivity and thickness are as stated in the paper:
 
-```@example cpss2
+````@example cpss2
 # Compute skin depth and sheet resistance:
 using PSSFSS.Constants: μ₀ # free-space permeability [H/m]
 f = (10:0.1:20) * 1e9 # frequencies in Hz
@@ -922,12 +979,12 @@ f = (10:0.1:20) * 1e9 # frequencies in Hz
 t = 18e-6 # metalization thickness [m]
 Δ = sqrt.(2 ./ (2π*f*σ*μ₀)) # skin depth [m]
 @show extrema(t./Δ)
-```
+````
 
-```@example cpss2
+````@example cpss2
 Rs = 1 ./ (σ * Δ)
 @show extrema(Rs)
-```
+````
 
 We see that the metal is many skin depths thick (effectively infinitely thick) so that we can use
 the thick metal surface sheet resistance formula.  Since the latter varies with frequency, we approximate
@@ -935,7 +992,7 @@ it over the band 10-20 GHz by a value near its mean: 0.032 Ω/□.
 
 Here is the script that analyzes the design from the referenced paper:
 
-```@example cpss2
+````@example cpss2
 using PSSFSS
 P = 5.2 # side length of unit square
 d1 = 2.61 # Inner layer thickness
@@ -979,12 +1036,11 @@ flist = 10:0.1:20
 results = analyze(strata, flist, steering, logfile=devnull,
                   resultfile=devnull, showprogress=false)
 nothing # hide
-```
+````
 
 The PSSFSS run took about 85 seconds on my machine.  Here are plots of the five sheets:
 
-```@example cpss2
-ENV["GKSwstype"] = "100" # hide
+````@example cpss2
 using Plots
 default()
 ps = []
@@ -992,7 +1048,10 @@ for k in 1:5
     push!(ps, plot(sheets[k], unitcell=true, title="Sheet $k", linecolor=:red))
 end
 plot(ps..., layout=5)
-```
+savefig("cpssb1.png"); nothing  # hide
+````
+
+![](cpssb1.png)
 
 Notice that for all 5 sheets, the unit cell is a square of constant side length and is unrotated.
 We can see from the log file (of a previous run where it was not suppressed) that this allows
@@ -1032,8 +1091,7 @@ accurate cascading.
 Here are comparison plots of PSSFSS versus highly converged CST predictions digitized from
 plots presented in the paper:
 
-```@example cpss2
-ENV["GKSwstype"] = "100" # hide
+````@example cpss2
 using Plots, DelimitedFiles
 RLl = -extract_result(results, @outputs s11db(l,l))
 AR11l = extract_result(results, @outputs ar11db(l))
@@ -1047,28 +1105,40 @@ plot(flist,RLl,title="LHCP → LHCP Return Loss", label="PSSFSS",
          ylabel="Return Loss (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_rllhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
-```
+savefig("cpssb2.png"); nothing  # hide
+````
 
-```@example cpss2
+![](cpssb2.png)
+
+````@example cpss2
 plot(flist,AR11l,title="LHCP → LHCP Reflected Axial Ratio", label="PSSFSS",
          ylabel="Axial Ratio (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_arlhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
-```
+savefig("cpssb3.png"); nothing  # hide
+````
 
-```@example cpss2
+![](cpssb3.png)
+
+````@example cpss2
 plot(flist,AR21r,title="RHCP → RHCP Transmitted Axial Ratio", label="PSSFSS",
      ylabel="Axial Ratio (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_arrhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
-```
+savefig("cpssb4.png"); nothing  # hide
+````
 
-```@example cpss2
+![](cpssb4.png)
+
+````@example cpss2
 plot(flist,IL21r,title="RHCP → RHCP Insertion Loss", label="PSSFSS",
          ylabel="Insertion Loss (dB)", ylim=(0,3), ytick=0:0.5:3)
 cst = readdlm("../src/assets/ericsson_cpss_digitized_ilrhcp.csv", ',')
 plot!(cst[:,1], cst[:,2], label="CST")
-```
+savefig("cpssb5.png"); nothing  # hide
+````
+
+![](cpssb5.png)
 
 Differences between the PSSFSS and CST predictions are attributed to the fact that the
 metalization thickness of 18 μm was included in the CST model but cannot be accommodated by PSSFSS.

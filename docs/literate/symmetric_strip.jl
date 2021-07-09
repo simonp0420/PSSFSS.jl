@@ -52,7 +52,6 @@ end
 # scale the geometry so that the frequency in GHz is numerically equal to the period of the strips
 # measured in wavelengths.
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS
 c = 11.802852677165355 # light speed [inch*GHz]
 period = c  # so the period/wavelength = freq in GHz
@@ -75,6 +74,9 @@ ptitle = plot(title = "Symmetric Strip Triangulation",
              grid = false, showaxis = false, xtick=[], ytick=[],
              bottom_margin = -50Plots.px)
 plot(ptitle, p1, p2, layout = @layout([A{0.09h}; [B C]]))
+#md savefig("symstrip1.png"); nothing  # hide
+#-
+#md # ![](symstrip1.png)
 
 # Note that setting `Lx = Px` causes the strip to fully occupy the x-extent
 # of the unit cell.  PSSFSS automatically ensures that the triangle edges at these unit
@@ -121,6 +123,9 @@ p1 = plot(title = "Perpendicular Reflection Magnitude",
 plot!(p1, flist, abs.(rperp_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(rperp_j), label="PSSFSS J")
 plot!(p1, flist, abs.(rperp_m), label="PSSFSS M")
+#md savefig("symstrip2.png"); nothing  # hide
+#-
+#md # ![](symstrip2.png)
 #-
 p2 = plot(title = "Perpendicular Reflection Phase",
           xlabel = "Period (wavelengths)",
@@ -128,6 +133,9 @@ p2 = plot(title = "Perpendicular Reflection Phase",
 plot!(p2, flist, angdeg.(rperp_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(rperp_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(rperp_m), label="PSSFSS M")
+#md savefig("symstrip3.png"); nothing  # hide
+#-
+#md # ![](symstrip3.png)
 #-
 p1 = plot(title = "Parallel Reflection Magnitude",
           xlabel = "Period (wavelengths)",
@@ -135,6 +143,9 @@ p1 = plot(title = "Parallel Reflection Magnitude",
 plot!(p1, flist, abs.(rpar_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(rpar_j), label="PSSFSS J")
 plot!(p1, flist, abs.(rpar_m), label="PSSFSS M")
+#md savefig("symstrip4.png"); nothing  # hide
+#-
+#md # ![](symstrip4.png)
 #-
 p2 = plot(title = "Parallel Reflection Phase",
           xlabel = "Period (wavelengths)",
@@ -142,6 +153,9 @@ p2 = plot(title = "Parallel Reflection Phase",
 plot!(p2, flist, angdeg.(rpar_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(rpar_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(rpar_m), label="PSSFSS M")
+#md savefig("symstrip5.png"); nothing  # hide
+#-
+#md # ![](symstrip5.png)
 
 # Now look at the transmission coefficients:
 p1 = plot(title = "Perpendicular Transmission Magnitude",
@@ -150,6 +164,9 @@ p1 = plot(title = "Perpendicular Transmission Magnitude",
 plot!(p1, flist, abs.(tperp_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(tperp_j), label="PSSFSS J")
 plot!(p1, flist, abs.(tperp_m), label="PSSFSS M")
+#md savefig("symstrip6.png"); nothing  # hide
+#-
+#md # ![](symstrip6.png)
 #-
 p2 = plot(title = "Perpendicular Transmission Phase",
           xlabel = "Period (wavelengths)",
@@ -157,6 +174,9 @@ p2 = plot(title = "Perpendicular Transmission Phase",
 plot!(p2, flist, angdeg.(tperp_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(tperp_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(tperp_m), label="PSSFSS M")
+#md savefig("symstrip7.png"); nothing  # hide
+#-
+#md # ![](symstrip7.png)
 #-
 p1 = plot(title = "Parallel Transmission Magnitude",
           xlabel = "Period (wavelengths)",
@@ -164,6 +184,9 @@ p1 = plot(title = "Parallel Transmission Magnitude",
 plot!(p1, flist, abs.(tpar_exact), ls=:dash, label="Exact")
 plot!(p1, flist, abs.(tpar_j), label="PSSFSS J")
 plot!(p1, flist, abs.(tpar_m), label="PSSFSS M")
+#md savefig("symstrip8.png"); nothing  # hide
+#-
+#md # ![](symstrip8.png)
 #-
 p2 = plot(title = "Parallel Transmission Phase",
           xlabel = "Period (wavelengths)",
@@ -171,6 +194,9 @@ p2 = plot(title = "Parallel Transmission Phase",
 plot!(p2, flist, angdeg.(tpar_exact), ls=:dash, label="Exact")
 plot!(p2, flist, angdeg.(tpar_j), label="PSSFSS J")
 plot!(p2, flist, angdeg.(tpar_m), label="PSSFSS M")
+#md savefig("symstrip9.png"); nothing  # hide
+#-
+#md # ![](symstrip9.png)
 
 # ### Conclusion
 # Although good agreement is obtained, as expected the best agreement between 

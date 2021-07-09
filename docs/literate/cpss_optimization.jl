@@ -51,7 +51,7 @@ results = analyze(strata, flist, steering, showprogress=false,
                   resultfile=devnull, logfile=devnull); 
 
 # Here are plots of the five meanderline sheets:
-#md ENV["GKSwstype"] = "100" # hide
+
 using Plots
 plot(outer(rot0), unitcell=true, title="Sheet1")
 #-
@@ -133,7 +133,6 @@ plot(outer(rot0-4*45), unitcell=true, title="Sheet5")
 # Here is the script that compares PSSFSS predicted performance with very
 # high accuracy predictions from CST and COMSOL that were digitized from figures in the paper.
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, DelimitedFiles
 RL11rr = -extract_result(results, @outputs s11db(r,r))
 AR11r = extract_result(results, @outputs ar11db(r))
@@ -148,6 +147,9 @@ cst = readdlm("../src/assets/cpss_cst_fine_digitized_rl.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_rl.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
+#md savefig("cpssa1.png"); nothing  # hide
+#-
+#md # ![](cpssa1.png)
 #-
 p = plot(flist,AR11r,title="RHCP → RHCP Reflected Axial Ratio", 
          xlabel="Frequency (GHz)", ylabel="Axial Ratio (dB)", label="PSSFSS")
@@ -155,6 +157,9 @@ cst = readdlm("../src/assets/cpss_cst_fine_digitized_ar_reflected.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_ar_reflected.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
+#md savefig("cpssa2.png"); nothing  # hide
+#-
+#md # ![](cpssa2.png)
 #-          
 p = plot(flist,IL21L,title="LHCP → LHCP Insertion Loss",
          xlabel="Frequency (GHz)", ylabel="Insertion Loss (dB)", label="PSSFSS")
@@ -162,6 +167,9 @@ cst = readdlm("../src/assets/cpss_cst_fine_digitized_il.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_il.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
+#md savefig("cpssa3.png"); nothing  # hide
+#-
+#md # ![](cpssa3.png)
 #-
 p = plot(flist,AR21L,title="LHCP → LHCP Transmitted Axial Ratio",
          xlabel="Frequency (GHz)", ylabel="Axial Ratio (dB)", label="PSSFSS")
@@ -169,6 +177,9 @@ cst = readdlm("../src/assets/cpss_cst_fine_digitized_ar_transmitted.csv", ',')
 plot!(p, cst[:,1], cst[:,2], label="CST")
 comsol = readdlm("../src/assets/cpss_comsol_fine_digitized_ar_transmitted.csv", ',')
 plot!(p, comsol[:,1], comsol[:,2], label="COMSOL")
+#md savefig("cpssa4.png"); nothing  # hide
+#-
+#md # ![](cpssa4.png)
 
 
 # The PSSFSS results generally track well with the high-accuracy solutions, but are less accurate

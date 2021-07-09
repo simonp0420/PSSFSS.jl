@@ -9,7 +9,6 @@
 # from the cited figure when the sheet is suspended
 # 5 mm above a ground plane, hence we will also make use of the `pecsheet` function.
 
-#md ENV["GKSwstype"] = "100" # hide
 using Plots, PSSFSS, DelimitedFiles
 D = 11 # Period of square lattice (mm)
 r_outer = √2/2 * D/8 * [5,6,7] # radii of square outer vertices
@@ -38,8 +37,15 @@ for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, col
     plot!(p, dat[:,1], dat[:,2], label="Costa "*label, ls=:dash, lc=color)
 end
 plot(ps..., layout=(1,3))
+#md savefig("sqloop1.png"); nothing  # hide
+#-
+#md # ![](sqloop1.png)
+#-
 # This run takes about 85 seconds on my machine.
 p
+#md savefig(p,"sqloop2.png"); nothing  # hide
+#-
+#md # ![](sqloop2.png)
 
 # It is useful to take a look at the log file created by PSSFSS for the last run above:
 # ```
