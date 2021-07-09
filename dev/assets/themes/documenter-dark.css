@@ -1,3 +1,9 @@
+@font-face {
+	font-family: JuliaMono-Regular;
+	font-display: fallback;	/* allow 100 milliseconds then display fallback */
+	src: url("https://cdn.jsdelivr.net/gh/cormullion/juliamono/webfonts/JuliaMono-Regular.woff2");
+}
+
 @charset "UTF-8";
 /* Font Awesome 5 mixin. Can be included in any rule that should render Font Awesome icons. */
 @keyframes spinAround {
@@ -762,10 +768,10 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
 
 .is-family-monospace {
-  font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
+  font-family: "JuliaMono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
 
 .is-family-code {
-  font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
+  font-family: "JuliaMono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
 
 .is-block {
   display: block !important; }
@@ -1108,7 +1114,7 @@ html.theme--documenter-dark {
   html.theme--documenter-dark pre {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto;
-    font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace; }
+    font-family: "JuliaMono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace; }
   html.theme--documenter-dark body {
     color: #fff;
     font-size: 1em;
