@@ -50,6 +50,11 @@ jobs:
           version: '1'
       - run: |
           julia --project=docs -e 'import Pkg; Pkg.instantiate()'
+      - run: julia --project=docs -e '
+               import Pkg; 
+               using Pkg; 
+               Pkg.develop(PackageSpec(path=pwd())); 
+               Pkg.instantiate()'
       - run: julia --project=docs --color=yes docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
