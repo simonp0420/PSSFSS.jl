@@ -16,6 +16,9 @@ macro testpos(var)
     return :(all($(esc(var)) .> 0) || error($(esc(string(var))) * " must be positive!"))
 end
 
+
+include("structuredtri.jl") # Code for structured meshes for loadedcross, jerusalemcross
+
 mutable struct MeshsubData
     ρ::Vector{SV2}
     e1::Vector{Cint}
@@ -130,7 +133,8 @@ function check_optional_kw_arguments!(kwargs::AbstractDict{Symbol,T} where {T})
 
 
     defaults = Dict(:class => 'J', :dx => 0.0, :dy => 0.0, :rot => 0.0, 
-    :Zsheet => 0.0, :σ => -Inf, :Rq => 0.0, :disttype => :normal, :save => "", :fufp => false)
+    :Zsheet => 0.0, :σ => -Inf, :Rq => 0.0, :disttype => :normal, :save => "", 
+    :fufp => false, :structuredtri => true)
     validkws = keys(defaults)
 
     badkws = setdiff(keys(kwargs), validkws)
@@ -313,8 +317,94 @@ end # function
  
 # Description:
 
-Create a variable of type `RWGSheet` that
-contains the triangulation for a "Jerusalem cross" type of geometry.
+Create a variable of type `RWGSheet` that contains the triangulation for a 
+"Jerusalem cross" type of geometry.
+The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+and `fr` properly initialized.
+
+
+The following "ascii art" attempts to show
+the definitions of the geometrical parameters `P`, `L1`, `L2`, `A`, `B`, and `w`.
+Note that the structure is supposed to be symmetrical wrt reflections
+about its horizontal and vertical centerlines, and wrt reflections through a line oriented
+at a 45 degree angle wrt the x-axis.
+
+
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+    ┃                                                       ┃ _______
+    ┃               ┌────────────────────────┐              ┃    ↑
+    ┃               │ ┌───────────────────┐  │              ┃    │
+    ┃               │ └───────┐    ┌──────┘  │              ┃    │
+    ┃               └──────┐  │    │ ┌───────┘              ┃    │
+    ┃                      │  │    │ │                      ┃    │
+    ┃  ┌───────┐           │  │    │ │            ┌──────┐  ┃    │
+    ┃  │  ┌─┐  │           │  │    │ │            │ ┌──┐ │  ┃    │
+    ┃  │  │ │  │           │  │   →│ │← w         │ │  │ │  ┃    │
+    ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
+    ┃  │  │ │  └───────────┘  │    │ └────────────┘ │  │ │  ┃    │
+    ┃  │  │ └─────────────────┘    └────────────────┘  │ │  ┃    
+    ┃  │  │                                            │ │  ┃   L1 
+    ┃  │  │ ┌─────────────────┐    ┌────────────────┐  │ │  ┃  
+    ┃  │  │ │  ┌───────────┐  │    │ ┌────────────┐ │  │ │  ┃    │
+    ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
+    ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
+    ┃  │  └─┘  │          →│  │    │ │← L2     B →│ └──┘ │← ┃    │
+    ┃  └───────┘           │  │    │ │            └──────┘  ┃    │
+    ┃                      │  │    │ │                      ┃    │
+    ┃               ┌──────┘  │    │ └───────┐              ┃    │
+    ┃               │ ┌───────┘    └──────┐  │              ┃    │
+    ┃               │ └───────────────────┘  │              ┃    │
+    ┃               └────────────────────────┘              ┃ ___↓___
+    ┃               |<───────── A ──────────>|              ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+    |<─────────────────────── P ───────────────────────────>|
+                        
+    
+    
+# Arguments:
+
+All arguments are keyword arguments which can be entered in any order.
+
+## Required arguments:
+- `P`: The period, i.e. the side length of the square unit cell.
+- `L1`,`L2`, `A`, `B`, `w`: Geometrical parameters as defined above.  Note that it is permissible
+   to specify `w ≥ L2/2` and/or `w ≥ B/2` in which case the respective region will
+   be filled in solidly with triangles.  If both conditions hold, then the entire structure will be
+   filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used 
+   for the respective widths of the arms, and `w` will not be used.
+- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+           the actual number will likely be different.
+    
+$(optional_kwargs)
+- `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
+  mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
+"""
+function jerusalemcross(; P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
+    ntri::Int, units::PSSFSSLength, kwarg...)
+    kwargs = Dict{Symbol,Any}(kwarg)
+    structuredtri = haskey(kwargs, :structuredtri) ? kwargs[:structuredtri] : true
+    fufp = haskey(kwargs, :fufp) ? kwargs[:fufp] : structuredtri
+
+    if structuredtri
+        return jerusalemcross_structured(; fufp, P, L1, L2, A, B, w, ntri, units, kwargs...)
+    else
+        return jerusalemcross_unstructured(; fufp, P, L1, L2, A, B, w, ntri, units, kwargs...)
+    end
+
+end
+
+
+"""
+    jerusalemcross_unstructured(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real, 
+                 ntri::Int, units::PSSFSSLength, kwargs...)
+ 
+# Description:
+
+Create a variable of type `RWGSheet` that contains the triangulation for a 
+"Jerusalem cross" type of geometry, using an unstructured mesh.
 The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
 and `fr` properly initialized.
 
@@ -374,7 +464,7 @@ All arguments are keyword arguments which can be entered in any order.
     
 $(optional_kwargs)
 """
-function jerusalemcross(; P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
+function jerusalemcross_unstructured(; P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
     ntri::Int, units::PSSFSSLength, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = false)
@@ -531,6 +621,7 @@ function jerusalemcross(; P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real
 
 end # function
 
+
 """
     loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real, 
                  ntri::Int, units::PSSFSSLength, kwargs...)
@@ -592,8 +683,88 @@ $(optional_kwargs)
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
            vertex of the loaded cross.  The default is to locate the vertex on the
            positive x-axis.
+- `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
+  mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
 """
 function loadedcross(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
+    ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
+    kwargs = Dict{Symbol,Any}(kwarg)
+    structuredtri = haskey(kwargs, :structuredtri) ? kwargs[:structuredtri] : true
+    fufp = haskey(kwargs, :fufp) ? kwargs[:fufp] : structuredtri
+
+    if structuredtri
+        return loadedcross_structured(; fufp, s1, s2, L1, L2, w, ntri, orient, units, kwarg...)
+    else
+        return loadedcross_unstructured(; fufp, s1, s2, L1, L2, w, ntri, orient, units, kwarg...)
+    end
+end
+
+
+"""
+    loadedcross_unstructured(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real, 
+                 ntri::Int, units::PSSFSSLength, kwargs...)
+ 
+# Description:
+
+Create a variable of type `RWGSheet` that
+contains the triangulation for a "loaded cross" type of geometry, using an unstructured 
+triangulation.  The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+and `fr` properly initialized.
+
+
+The following (very poor) "ascii art" attempts to show
+the definitions of the geometrical parameters `L1`, `L2` and `w`.
+Note that the structure is supposed to be symmetrical wrt reflections
+about its horizontal and vertical centerlines, and wrt reflections through a line oriented
+at a 45 degree angle wrt the x-axis.
+
+
+     ^                 ----------------
+     |                 |  _________   |
+     |                 |  |       |   |
+     |                 |  |       |   |
+     |                 |  |    -->|   |<--- W
+     |                 |  |       |   |
+     |                 |  |       |   |
+     |     ------------   |       |   -------------
+     |     |  |-----------|       |------------|  |
+     |     |  |                                |  |
+     L1    |  |                                |  |
+     |     |  |                                |  |
+     |     |  |                                |  |
+     |     |  ------------          ------------  |
+     |     |-----------   |        |  ------------|
+     |                 |  |        |  |
+     |                 |  |        |  |
+     |                 |  |        |  |
+     |                 |  |        |  |
+     |                 |  |________|  |
+     |                 |              |
+     V                 ----------------
+    
+                       <---- L2 ------>
+    
+# Arguments:
+
+All arguments are keyword arguments which can be entered in any order.
+
+## Required arguments:
+- `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
+- `L1`,`L2`,`w`: Geometrical parameters as defined above.  Note that it is permissible
+   to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be 
+   generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
+- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+           the actual number will likely be different.
+    
+$(optional_kwargs)
+- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
+           vertex of the loaded cross.  The default is to locate the vertex on the
+           positive x-axis.
+"""
+function loadedcross_unstructured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
     ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = false)
