@@ -16,9 +16,6 @@ macro testpos(var)
     return :(all($(esc(var)) .> 0) || error($(esc(string(var))) * " must be positive!"))
 end
 
-
-include("structuredtri.jl") # Code for structured meshes for loadedcross, jerusalemcross
-
 mutable struct MeshsubData
     ρ::Vector{SV2}
     e1::Vector{Cint}
@@ -1655,5 +1652,7 @@ function rotationmat(θ)
     s, c = sincosd(θ)
     return SA[c -s; s c]
 end
+
+include("structuredtri.jl") # Code for structured meshes for loadedcross, jerusalemcross
 
 end # module
