@@ -1,5 +1,6 @@
 using PSSFSS
 using Test
+using LinearAlgebra: norm
 
 sh1 = rectstrip(Lx=1, Ly=1.0, Nx=1, Ny=1, Px=1, Py=1, units=inch)
 
@@ -38,4 +39,52 @@ end
 
 @testset "badZsheet" begin
     @test_throws ErrorException rectstrip(Lx=1, Ly=1.0, Nx=1, Ny=1, Px=1, Py=1, units=inch, Zsheet=-0.2+0.2im)
+end
+
+@testset "StructuredPolyring" begin
+    s = 0.4; ntri = 100
+    s1 = [s, 0]; s2 = [0, s]; units = cm; orient = 45; a=[0.0]; b=[0.5*s/sqrt(2)]; sides = 4
+    showprogress = false; logfile = resultfile = devnull
+
+    sheet_structured = polyring(; ntri, units, s1, s2, sides, a, b, orient, structuredtri=true)
+    sheet_unstructured = polyring(; ntri, units, s1, s2, sides, a, b, orient, structuredtri=false)
+    
+    FGHz = 30
+    gsm_s = analyze([Layer(), sheet_structured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
+    gsm_u = analyze([Layer(), sheet_unstructured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
+    for i in 1:2, j in 1:2
+        @test norm(gsm_s[i,j] - gsm_u[i,j], Inf) < 5e-3
+    end
+end
+
+@testset "StructuredLoadedcross" begin
+    s = 0.4; ntri = 400
+    s1 = [s, 0]; s2 = [0, s]; units = cm; L1 = 0.8s; L2 = 0.3L1; w = 0.6L2
+    showprogress = false; logfile = resultfile = devnull
+
+    sheet_structured = loadedcross(; ntri, units, s1, s2, L1, L2, w, structuredtri=true)
+    sheet_unstructured = loadedcross(; ntri, units, s1, s2, L1, L2, w, structuredtri=false)
+    
+    FGHz = 30
+    gsm_s = analyze([Layer(), sheet_structured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
+    gsm_u = analyze([Layer(), sheet_unstructured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
+    for i in 1:2, j in 1:2
+        @test norm(gsm_s[i,j] - gsm_u[i,j], Inf) < 5e-3
+    end
+end
+
+@testset "StructuredJerusalemcross" begin
+    s = 0.4; ntri = 600
+    P = s; units = cm; L1 = 0.6s; L2 = 0.1L1; w = 0.6L2; A = 0.5L1; B = 0.12L1
+    showprogress = false; logfile = resultfile = devnull
+
+    sheet_structured = jerusalemcross(; ntri, units, A, B, P, L1, L2, w, structuredtri=true)
+    sheet_unstructured = jerusalemcross(; ntri, units, A, B, P, L1, L2, w, structuredtri=false)
+    
+    FGHz = 30
+    gsm_s = analyze([Layer(), sheet_structured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
+    gsm_u = analyze([Layer(), sheet_unstructured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
+    for i in 1:2, j in 1:2
+        @test norm(gsm_s[i,j] - gsm_u[i,j], Inf) < 5e-3
+    end
 end
