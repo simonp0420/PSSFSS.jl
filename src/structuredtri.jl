@@ -1,64 +1,3 @@
-"""
-    loadedcross_structured(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real, 
-                 ntri::Int, units::PSSFSSLength, kwargs...)
- 
-# Description:
-
-Create a variable of type `RWGSheet` that contains the triangulation for a "loaded cross" 
-type of geometry, using a structured mesh. The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, 
-`ρ`, `e1`, `e2`, `fv`, `fe`, and `fr` properly initialized.
-
-
-The following (very poor) "ascii art" attempts to show
-the definitions of the geometrical parameters `L1`, `L2` and `w`.
-Note that the structure is supposed to be symmetrical wrt reflections
-about its horizontal and vertical centerlines, and wrt reflections through a line oriented
-at a 45 degree angle wrt the x-axis.
-
-
-     ^                 ----------------
-     |                 |  _________   |
-     |                 |  |       |   |
-     |                 |  |       |   |
-     |                 |  |    -->|   |<--- W
-     |                 |  |       |   |
-     |                 |  |       |   |
-     |     ------------   |       |   -------------
-     |     |  |-----------|       |------------|  |
-     |     |  |                                |  |
-     L1    |  |                                |  |
-     |     |  |                                |  |
-     |     |  |                                |  |
-     |     |  ------------          ------------  |
-     |     |-----------   |        |  ------------|
-     |                 |  |        |  |
-     |                 |  |        |  |
-     |                 |  |        |  |
-     |                 |  |        |  |
-     |                 |  |________|  |
-     |                 |              |
-     V                 ----------------
-    
-                       <---- L2 ------>
-    
-# Arguments:
-
-All arguments are keyword arguments which can be entered in any order.
-
-## Required arguments:
-- `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
-- `L1`,`L2`,`w`: Geometrical parameters as defined above.  Note that it is permissible
-   to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be 
-   generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request, 
-           the actual number will likely be different.
-    
-$(optional_kwargs)
-- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
-           vertex of the loaded cross.  The default is to locate the vertex on the
-           positive x-axis.
-"""
 function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
     ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)
@@ -74,13 +13,13 @@ function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Re
     ρ₀ = 0.5 * (s1 + s2) # Calculate center of polygon.
     L1o2, L2o2 = (L1, L2) ./ 2
     if 2w > L2
-        xunique = [-L1o2, -L2o2, L2o2, L1o2]
+        xrequired = [-L1o2, -L2o2, L2o2, L1o2]
         areat = (2L1 - L2) * L2 # total area for solid cross
     else
-        xunique = [-L1o2, -L1o2 + w, -L2o2, -L2o2 + w, L2o2 - w, L2o2, L1o2 - w, L1o2]
+        xrequired = [-L1o2, -L1o2 + w, -L2o2, -L2o2 + w, L2o2 - w, L2o2, L1o2 - w, L1o2]
         areat = (2L1 - L2) * L2  - (2*(L1-2w) - (L2-2w)) * (L2-2w) # total area for loaded cross
     end
-    yunique = copy(xunique)
+    yrequired = copy(xrequired)
 
     function is_inside(x::Real, y::Real)
         # predicate to determine if a point is within the region to be triangulated
@@ -96,7 +35,7 @@ function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Re
     end
 
     # Triangulate prior to rotating the orientation
-    sheet = make_plaid_mesh(xunique, yunique, areat, ntri, is_inside)
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
 
     # Rotate, then center sheet on unit cell center
     s, c = sincosd(orient)
@@ -132,73 +71,6 @@ function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Re
 end # function
 
 
-"""
-    jerusalemcross_structured(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real, 
-                 ntri::Int, units::PSSFSSLength, kwargs...)
- 
-# Description:
-
-Create a variable of type `RWGSheet` that contains the triangulation for a 
-"Jerusalem cross" type of geometry, using a structured mesh.
-The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
-and `fr` properly initialized.
-
-
-The following "ascii art" attempts to show
-the definitions of the geometrical parameters `P`, `L1`, `L2`, `A`, `B`, and `w`.
-Note that the structure is supposed to be symmetrical wrt reflections
-about its horizontal and vertical centerlines, and wrt reflections through a line oriented
-at a 45 degree angle wrt the x-axis.
-
-
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
-    ┃                                                       ┃ _______
-    ┃               ┌────────────────────────┐              ┃    ↑
-    ┃               │ ┌───────────────────┐  │              ┃    │
-    ┃               │ └───────┐    ┌──────┘  │              ┃    │
-    ┃               └──────┐  │    │ ┌───────┘              ┃    │
-    ┃                      │  │    │ │                      ┃    │
-    ┃  ┌───────┐           │  │    │ │            ┌──────┐  ┃    │
-    ┃  │  ┌─┐  │           │  │    │ │            │ ┌──┐ │  ┃    │
-    ┃  │  │ │  │           │  │   →│ │← w         │ │  │ │  ┃    │
-    ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
-    ┃  │  │ │  └───────────┘  │    │ └────────────┘ │  │ │  ┃    │
-    ┃  │  │ └─────────────────┘    └────────────────┘  │ │  ┃    
-    ┃  │  │                                            │ │  ┃   L1 
-    ┃  │  │ ┌─────────────────┐    ┌────────────────┐  │ │  ┃  
-    ┃  │  │ │  ┌───────────┐  │    │ ┌────────────┐ │  │ │  ┃    │
-    ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
-    ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
-    ┃  │  └─┘  │          →│  │    │ │← L2     B →│ └──┘ │← ┃    │
-    ┃  └───────┘           │  │    │ │            └──────┘  ┃    │
-    ┃                      │  │    │ │                      ┃    │
-    ┃               ┌──────┘  │    │ └───────┐              ┃    │
-    ┃               │ ┌───────┘    └──────┐  │              ┃    │
-    ┃               │ └───────────────────┘  │              ┃    │
-    ┃               └────────────────────────┘              ┃ ___↓___
-    ┃               |<───────── A ──────────>|              ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
-    |<─────────────────────── P ───────────────────────────>|
-                        
-    
-    
-# Arguments:
-
-All arguments are keyword arguments which can be entered in any order.
-
-## Required arguments:
-- `P`: The period, i.e. the side length of the square unit cell.
-- `L1`,`L2`, `A`, `B`, `w`: Geometrical parameters as defined above.  Note that it is permissible
-   to specify `w ≥ L2/2` and/or `w ≥ B/2` in which case the respective region will
-   be filled in solidly with triangles.  If both conditions hold, then the entire structure will be
-   filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used 
-   for the respective widths of the arms, and `w` will not be used.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request, 
-           the actual number will likely be different.
-    
-$(optional_kwargs)
-"""
 function jerusalemcross_structured(; P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
     ntri::Int, units::PSSFSSLength, orient::Real=0.0, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)
@@ -226,23 +98,23 @@ function jerusalemcross_structured(; P::Real, L1::Real, L2::Real, A::Real, B::Re
     allloaded = armsloaded && endsloaded
     # unique x vertices and total area:
     if allloaded
-        xunique = [L2o2-w, L2o2, Ao2-w, Ao2, L1o2-B, L1o2-B+w, L1o2-w, L1o2]
-        xunique = vcat(-1*reverse(xunique), xunique)
+        xrequired = [L2o2-w, L2o2, Ao2-w, Ao2, L1o2-B, L1o2-B+w, L1o2-w, L1o2]
+        xrequired = vcat(-1*reverse(xrequired), xrequired)
         areat = areaouter - 4 * ((A - 2w) * (B - 2w) + (L2 - 2w) * ((L1 - L2) / 2 - B)) - (L2 - 2w)^2
     elseif allfilled
-        xunique = [L2o2, Ao2, L1o2-B, L1o2]
-        xunique = vcat(-1*reverse(xunique), xunique)
+        xrequired = [L2o2, Ao2, L1o2-B, L1o2]
+        xrequired = vcat(-1*reverse(xrequired), xrequired)
         areat = areaouter
     elseif armsloaded && endsfilled
-        xunique = [L2o2-w, L2o2, Ao2, L1o2-B, L1o2]
-        xunique = vcat(-1*reverse(xunique), xunique)
+        xrequired = [L2o2-w, L2o2, Ao2, L1o2-B, L1o2]
+        xrequired = vcat(-1*reverse(xrequired), xrequired)
         areat = areaouter - 4 * (L2 - 2w) * ((L1 - L2) / 2 - B) - (L2 - 2w)^2
     elseif armsfilled && endsloaded
-        xunique = [L2o2, Ao2-w, Ao2, L1o2-B, L1o2-B+w, L1o2-w, L1o2]
-        xunique = vcat(-1*reverse(xunique), xunique)
+        xrequired = [L2o2, Ao2-w, Ao2, L1o2-B, L1o2-B+w, L1o2-w, L1o2]
+        xrequired = vcat(-1*reverse(xrequired), xrequired)
         areat = areaouter - 4 * (A - 2w) * (B - 2w) - (L2 - 2w)^2
     end
-    yunique = copy(xunique)
+    yrequired = copy(xrequired)
 
     function is_inside(x::Real, y::Real)
         # predicate to determine if a point is within the region to be triangulated
@@ -277,7 +149,7 @@ function jerusalemcross_structured(; P::Real, L1::Real, L2::Real, A::Real, B::Re
     end
 
     # Triangulate prior to rotating the orientation
-    sheet = make_plaid_mesh(xunique, yunique, areat, ntri, is_inside)
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
 
     # Rotate, then center sheet on unit cell center
     s, c = sincosd(orient)
@@ -312,37 +184,143 @@ function jerusalemcross_structured(; P::Real, L1::Real, L2::Real, A::Real, B::Re
 end # function
 
 
-"""
-    make_plaid_mesh(xu, yu, area, ntri, is_inside) -> sheet::RWGSheet
+function polyring_structured(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
+    sides::Int, ntri::Int, units::PSSFSSLength,
+    orient::Real=0.0, kwarg...)::RWGSheet
+    kwargs = Dict{Symbol,Any}(kwarg)
+    haskey(kwargs, :fufp) || (kwargs[:fufp] = false)
+    check_optional_kw_arguments!(kwargs)
+    @testpos(sides)
+    @testpos(ntri)
+    (length(s1) == length(s2) == 2) || throw(ArgumentError("s1 and s2 must have length 2"))
+    sides == 4 || throw(ArgumentError("Structured mesh requires exactly 4 sides"))
 
-Generate a structured, plaid triangular mesh from list of unique coordinates and predicate function
+    length(a) ≠ length(b) && throw(ArgumentError("length(a) !== length(b)"))
+    nring = length(a)
+    for i in 1:nring
+        if i < nring || (i == nring && b[nring] > 0)
+            a[i] ≥ b[i] && throw(ArgumentError("a[$i] ≥ b[$i]"))
+        end
+    end
+    for i in 1:nring-1
+        b[i] ≥ a[i+1] && throw(ArgumentError("b[$i] ≥ a[$(i+1)]"))
+        a[i+1] - a[i] ≤ 0 && throw(ArgumentError("Elements of a must be strictly increasing"))
+        b[i+1] - b[i] ≤ 0 && i < nring - 1 &&
+            throw(ArgumentError("All but final element of b must be strictly increasing"))
+    end
+
+    fillin = iszero(a[begin])
+    if b[nring] < 0
+        fillcell = true  # outer ring extends all the way to unit cell boundaries.
+        iszero(s1 ⋅ s2) || throw(ArgumentError("structured mesh not possible for nonrectangular unit cell with b[end]<0"))
+        testit = (orient - 45) / 90
+        round(Int, testit) == testit || error("b[end]<0 requires orient=±45 for structured mesh")
+    else
+        fillcell = false # outer ring has finite width.
+    end
+
+    ρ₀ = 0.5 * (s1 + s2) # calculate center of polygon.
+
+    # compute area of each ring and total area of all rings:
+    area = [(b[i]^2 - a[i]^2) * 2 for i in 1:nring]
+    if fillcell  # need to recompute outer ring's area:
+        area[nring] = norm(s1) * norm(s2) - 2 * a[nring]^2
+    end
+    areat = sum(area) # total area of all rings.
+
+    xrequired = vec([transpose(a) ; transpose(b)]) * inv(sqrt(2))
+    fillin && deleteat!(xrequired, firstindex(xrequired))
+    fillcell && (xrequired[end] = 0.5 * norm(s1))
+    yrequired = copy(xrequired)
+    fillcell && (yrequired[end] = 0.5 * norm(s2))
+    xrequired = vcat(-1*reverse(xrequired), xrequired)
+    yrequired = vcat(-1*reverse(yrequired), yrequired)
+
+    function is_inside(x::Real, y::Real)
+        # predicate to determine if a point is within the region to be triangulated
+        x, y = abs.((x,y)) # Due to left/right and up/down symmetry
+        y > x && ((x, y) = (y, x)) # Due to symmetry about line x = y
+        # (x,y) is now in the region 0 ≤ ϕ ≤ π/4
+
+        xroot2 = √2 * x
+
+        for i in eachindex(a, b)
+            a[i] ≤ xroot2 ≤ b[i] && return true
+        end
+        fillcell && xroot2 ≥ a[end] && return true
+        return false
+    end
+
+
+    # Triangulate prior to rotating the orientation
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
+
+    # Rotate, then center sheet on unit cell center
+    s, c = sincosd(orient + 45)
+    rotmat = SA[c -s; s c]
+    for n in eachindex(sheet.ρ)
+        sheet.ρ[n] = rotmat * sheet.ρ[n] + ρ₀
+    end
+
+    sheet.Zs = kwargs[:Zsheet]
+    sheet.σ = kwargs[:σ]
+    sheet.Rq = kwargs[:Rq]
+    sheet.disttype = kwargs[:disttype]
+
+    # Handle remaining optional arguments
+    sheet.fufp = kwargs[:fufp]
+    sheet.class = kwargs[:class]
+    rotate!(sheet, kwargs[:rot])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
+    if dxdy ≠ [0.0, 0.0]
+        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
+    end
+
+    sheet.style = "polyring"
+    sheet.ξη_check = fillcell
+    sheet.units = units
+    sheet.s₁ = SV2(s1)
+    sheet.s₂ = SV2(s2)
+    sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
+
+    return sheet
+
+end # function polyring_structured
+
+"""
+    make_plaid_mesh(xr, yr, area, ntri, is_inside) -> sheet::RWGSheet
+
+Generate a structured, plaid triangular mesh from list of required coordinates and predicate function
 
 # Input Arguments
-- `xu`, `yu`: Vectors of unique x and y coordinates for vertices of the geometry to be meshed.
+- `xr`, `yr`: Vectors of required x and y coordinates for vertices of the geometry to be meshed.
 - `area`:  The area of the geometry to be meshed.
 - `ntri`:  The desired number of triangles for the area to be meshed.
 - `is_inside`: A predicate function where `is_inside(x,y) -> tf::Bool` determines whether a point (x,y)
   is within the region to be meshed.
 
 #  Return value:
-sheet      A variable of type RWGSheet with fields ρ, e1, e2, fe, and fv properly initialized.
+- `sheet`: A variable of type RWGSheet with fields ρ, e1, e2, fe, and fv properly initialized. The
+  mesh results from a plaid rectangular tesselation containing at least the vertices in the Cartesian
+  product of `xr` and `yr`, the latter supplemented with additional points to refine the mesh, and then
+  converted to a triangular tesselation by adding a diagonal to each rectangle.
 """
-function make_plaid_mesh(xu::AbstractVector, yu::AbstractVector, area, ntri, is_inside)::RWGSheet
-    length(xu) == length(yu) || error("xu and yu not same length")
-    xu, yu = sort.((xu, yu))
-    bigarea = (xu[end] - xu[1]) * (yu[end] - yu[1]) # area of circumscribing rectangle
+function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_inside)::RWGSheet
+    length(xr) == length(yr) || error("xr and yu not same length")
+    xr, yr = sort.((xr, yr))
+    bigarea = (xr[end] - xr[1]) * (yr[end] - yr[1]) # area of circumscribing rectangle
     bignsq = ceil(Int, bigarea / area * ntri/2) # desired number of squares to form in circumscribing rectangle
     s = sqrt(bigarea / bignsq) # ideal side length for squares used to tesselate the big area
 
     facevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}, Tuple{Int,Int}}[]
     edgevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}}[]
-    xn = xu[begin:begin]
-    yn = yu[begin:begin]
-    for (tu, tn) in ((xu, xn), (yu, yn)), i in eachindex(tu)[begin+1:end]
-        dt = tu[i] - tu[i-1]
+    xn = xr[begin:begin]
+    yn = yr[begin:begin]
+    for (tr, tn) in ((xr, xn), (yr, yn)), i in eachindex(tr)[begin+1:end]
+        dt = tr[i] - tr[i-1]
         nt = max(1, round(Int, dt / s))
-        append!(tn, tu[i-1] .+ collect((1:nt) * (dt / nt)))
-        tn[end] = tu[i] # correct rounding errors
+        append!(tn, tr[i-1] .+ collect((1:nt) * (dt / nt)))
+        tn[end] = tr[i] # correct rounding errors
     end
     
     # xn and yn now contain the plaid vertex coordinates
@@ -395,6 +373,3 @@ function make_plaid_mesh(xu::AbstractVector, yu::AbstractVector, area, ntri, is_
     sh.fe = fe
     return sh
 end
-
-
-

@@ -1080,12 +1080,12 @@ All arguments are keyword arguments which can be entered in any order.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
-               Entries in `a` and `b` must be strictly increasing, except for possibly `b[end]` as discussed 
-               below. `b[i] > a[i]` ∀ `i ∈ 1:n`, except possibly `b[end]` as discussed below. 
-               `a[1]` may be zero to denote a solid (non-annular) polygon as the first "ring".
-                It is possible to let the outermost ring to extend completely to the unit cell boundary.  
-                This is specified by setting `b[end]` < 0, in which case `-b[end]` is interpreted as the 
-                number of edges along the shorter of the `s1` and `s2` lattice vectors.
+  Entries in `a` and `b` must be strictly increasing, except for possibly `b[end]` as discussed 
+  below. `b[i] > a[i]` ∀ `i ∈ 1:n`, except possibly `b[end]` as discussed below. 
+  `a[1]` may be zero to denote a solid (non-annular) polygon as the first "ring".
+  It is possible to let the outermost ring to extend completely to the unit cell boundary.  
+  This is specified by setting `b[end]` < 0, in which case for unstructured meshes,
+  `-b[end]` is interpreted as the number of edges along the shorter of the `s1` and `s2` lattice vectors.
 - `sides`:  The number (>= 3) of polygon sides.
 - `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number 
            will likely be different.
@@ -1094,9 +1094,37 @@ $(optional_kwargs)
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
            vertex of the polygonal rings.  The default is to locate the vertex on the
            positive x-axis.
-
+- `structuredtri::Bool`: Defaults to `true` when `sides==4` and false otherwise. A `true` value is only
+  allowed when `sides==4` and `s1` ⟂ `s2`.  If true, use a structured mesh for the triangulation.  If false,
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
+  mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
 """
 function polyring(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
+    sides::Int, ntri::Int, units::PSSFSSLength,
+    orient::Real=0.0, kwarg...)::RWGSheet
+    kwargs = Dict{Symbol,Any}(kwarg)
+
+    if sides == 4
+        structuredtri = haskey(kwargs, :structuredtri) ? kwargs[:structuredtri] : true
+    else
+        structuredtri = haskey(kwargs, :structuredtri) ? kwargs[:structuredtri] : false
+        structuredtri && b[end] < 0 &&
+            throw(ArgumentError("structuredtri=true not not compatible for polyring with sides≠4 and b[end]<0"))
+    end
+
+    structuredtri && b[end] < 0 && !iszero(s1 ⋅ s2) && 
+        throw(ArgumentError("structuredtri=true not not possible for nonrectangular unit cell with b[end]<0"))
+    fufp = haskey(kwargs, :fufp) ? kwargs[:fufp] : structuredtri
+
+    if structuredtri
+        return polyring_structured(; fufp, s1, s2, a, b, sides, ntri, units, orient, kwarg...)
+    else
+        return polyring_unstructured(; fufp, s1, s2, a, b, sides, ntri, units, orient, kwarg...)
+    end
+end
+
+function polyring_unstructured(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     sides::Int, ntri::Int, units::PSSFSSLength,
     orient::Real=0.0, kwarg...)::RWGSheet
     kwargs = Dict{Symbol,Any}(kwarg)
@@ -1286,7 +1314,7 @@ function polyring(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real}
 
     return sheet
 
-end # function polyring
+end # function polyring_unstructured
 
 """
     rectstrip(;Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, units::PSSFSSLength, kwargs...)
