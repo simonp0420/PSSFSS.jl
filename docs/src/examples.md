@@ -340,15 +340,15 @@ is "unloaded", i.e. the center section is filled in with metalization:
 using Plots, PSSFSS, DelimitedFiles
 sheet = loadedcross(w=1.0, L1=0.6875, L2=0.0625, s1=[1.0,0.0],
                     s2=[0.0,1.0], ntri=600, units=cm)
-plot(sheet, unitcell=true)
+plot(sheet, unitcell=true, linecolor=:red)
 savefig("cross1.png"); nothing  # hide
 ````
 
 ![](cross1.png)
 
-A few things to note. First, the mesh is **unstructured**.  So there are no redundant
-triangle face-pairs that PSSFSS can exploit to reduce execution time.  Second, the
-number of triangle faces generated is only approximately equal to the requested value
+A few things to note. First, as of PSSFSS version 1.3, the mesh is *unstructured*.
+So there are redundant triangle face-pairs that PSSFSS can exploit to reduce execution time.
+Second, the number of triangle faces generated is only approximately equal to the requested value
 of 600.  This can be verified by entering the Julia variable `sheet` at the
 [REPL](https://docs.julialang.org/en/v1/manual/getting-started/#man-getting-started)
 (i.e. the Julia prompt):
@@ -390,7 +390,7 @@ for eps in [1, 2, 4]
 end
 ````
 
-The above loop requires about 25 seconds of execution time on my machine.
+The above loop requires about 18 seconds of execution time on my machine.
 Compare PSSFSS results to those digitized from the dissertation figure:
 
 ````@example cross_on_dielectric_substrate
@@ -441,8 +441,8 @@ colors = [:green, :blue, :red]
 p = plot(title="Costa Absorber", xlim=(0,25),ylim=(-35,0),xtick=0:5:25,ytick=-35:5:0,
          xlabel="Frequency (GHz)", ylabel="Reflection Magnitude (dB)", legend=:bottomleft)
 ps = []
-for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, colors, Rs))
-    sheet = polyring(sides=4, s1=[D, 0], s2=[0, D], ntri=700, orient=45,
+for (ri, ro, label, color, R) in zip(r_inner, r_outer, labels, colors, Rs)
+    sheet = polyring(sides=4, s1=[D, 0], s2=[0, D], ntri=750, orient=45,
                      a=[ri], b=[ro], Zsheet=R, units=mm)
     push!(ps, plot(sheet, unitcell=true, title=label, lc=color))
     strata = [Layer()
@@ -457,13 +457,13 @@ for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, col
     dat = readdlm("../src/assets/costa_2014_" * lowercase(label) * "_reflection.csv", ',')
     plot!(p, dat[:,1], dat[:,2], label="Costa "*label, ls=:dash, lc=color)
 end
-plot(ps..., layout=(1,3))
+plot(ps..., layout=(1,3), size=(600,220), margin=3Plots.mm)
 savefig("sqloop1.png"); nothing  # hide
 ````
 
 ![](sqloop1.png)
 
-This PSSFSS run of three geometries takes about 20 seconds on my machine.
+This PSSFSS run of three geometries takes about 15 seconds on my machine.
 
 ````@example square_loop_absorber
 p
@@ -472,19 +472,20 @@ savefig(p,"sqloop2.png"); nothing  # hide
 
 ![](sqloop2.png)
 
-It is useful to take a look at the log file created by PSSFSS for the last run above:
+It is useful to take a look at the log file created by PSSFSS for the last run above
+(from a previous run where the log file was not discarded):
 ```
-Starting PSSFSS 1.0.0 analysis on 2022-09-14 at 14:31:14.261
-Julia Version 1.8.1
-Commit afb6c60d69a (2022-09-06 15:09 UTC)
+Starting PSSFSS 1.2.2 analysis on 2023-03-04 at 19:44:10.800
+Julia Version 1.8.5
+Commit 17cfb8e65e (2023-01-08 06:45 UTC)
 Platform Info:
-  OS: Linux (x86_64-linux-gnu)
+  OS: Windows (x86_64-w64-mingw32)
   CPU: 8 × Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
   LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
   Threads: 8 on 8 virtual cores
-  BLAS: LBTConfig([ILP64] libopenblas64_.so)
+  BLAS: LBTConfig([ILP64] libopenblas64_.dll)
 
 
 
@@ -504,10 +505,9 @@ PSS/FSS sheet information...
 
 Sheet  Loc         Style      Rot  J/M Faces Edges Nodes Unknowns  NUFP
 -----  ---  ---------------- ----- --- ----- ----- ----- -------- ------
-   1     1          polyring   0.0  J    753  1201   448    1058  567009
+   1     1          polyring   0.0  J    720  1152   432    1008  199676
    2     2              NULL   0.0  E      0     0     0       0       0
-
-...
+⋮
 ```
 
 Note from the dielectric layer report that there are 42 modes defined in the region between the
@@ -515,13 +515,14 @@ ground plane and the FSS sheet.  This is the number of modes selected by the cod
 in the generalized scattering matrix formulation to properly account for electromagnetic coupling
 between the two surfaces. If the 5 mm spacing were increased to, say, 7 mm then fewer modes
 would be needed.  Also note in the FSS sheet information that `NUFP` (the number of unique face pairs)
-is exactly equal to the number of faces squared (``567009 = 753^2``), a consequence of the unstructured
-triangulation used for a `polyring`.
+199676, is less than the number of faces squared (``567009 = 753^2``), a consequence of the structured
+triangulation used for a 4-sided `polyring`.
 
 ### Conclusion
 PSSFSS results agree very well with those of the paper, except for the medium
-width loop, where the agreement is not quite as good.  The reason for this is
-not known.
+width loop, where the agreement is not quite as good.  It was found empirically that
+using a slightly different value of `Rs = 37` for this ring results in nearly perfect agreement
+with the digitized results.
 
 ```@meta
 EditURL = "https://github.com/simonp0420/PSSFSS.jl/tree/main/docs/literate/splitringexample.jl"
@@ -622,7 +623,7 @@ Here is a plot of the two elements at the size extremes to be examined:
 
 ````@example reflectarray_example
 using PSSFSS, Plots
-p1 = plot(element(2, 450), title="L2 = 2mm", unitcell=true, linecolor=:red)
+p1 = plot(element(2, 675), title="L2 = 2mm", unitcell=true, linecolor=:red)
 p2 = plot(element(16.5, 3416), title="L2 = 16.5mm", unitcell=true, linecolor=:red)
 p = plot(p1,p2)
 savefig(p, "reflectarray_elements.png"); nothing  # hide
@@ -707,7 +708,7 @@ println()
 record
 ```
 
-![](./assets/li2009_comparison.png)
+![](./assets/li2009_comparison.svg)
 
 It can be seen that the PSSFSS phases compare well with the HFSS phases, better than the CST and HFSS phases compare
 to each other.  The authors of the paper do not discuss checking the convergence of their results or even any details of
@@ -715,74 +716,76 @@ how they set up their HFSS and CST models.
 
 The console output from the above script is shown below:
 ```Julia
-L2 = 2.0; ntri = 450, 675; Δphase = 0.0°
-L2 = 2.5; ntri = 450, 675; Δphase = 0.02°
-L2 = 3.0; ntri = 450, 675; Δphase = 0.23°
-L2 = 3.5; ntri = 450, 675; Δphase = 0.06°
-L2 = 4.0; ntri = 450, 675; Δphase = 0.16°
-L2 = 4.5; ntri = 450, 675; Δphase = 0.08°
-L2 = 5.0; ntri = 450, 675; Δphase = 0.17°
-L2 = 5.5; ntri = 450, 675; Δphase = 0.04°
-L2 = 6.0; ntri = 450, 675; Δphase = 0.03°
-L2 = 6.5; ntri = 450, 675; Δphase = 0.5°
-L2 = 7.0; ntri = 450, 675; Δphase = 0.73°
-L2 = 7.5; ntri = 450, 675; Δphase = 0.77°
-L2 = 8.0; ntri = 450, 675, 1012; Δphase = 0.68°
-L2 = 8.5; ntri = 675, 1012, 1518, 2277; Δphase = 0.5°
-L2 = 9.0; ntri = 1518, 2277; Δphase = 0.73°
-L2 = 9.5; ntri = 1518, 2277; Δphase = 0.96°
-L2 = 10.0; ntri = 1518, 2277; Δphase = 0.14°
-L2 = 10.5; ntri = 1518, 2277; Δphase = 0.79°
-L2 = 11.0; ntri = 1518, 2277; Δphase = 0.12°
-L2 = 11.5; ntri = 1518, 2277; Δphase = 0.05°
-L2 = 12.0; ntri = 1518, 2277; Δphase = 0.69°
-L2 = 12.5; ntri = 1518, 2277, 3416; Δphase = 0.3°
-L2 = 13.0; ntri = 2277, 3416; Δphase = 0.64°
-L2 = 13.5; ntri = 2277, 3416; Δphase = 0.42°
-L2 = 14.0; ntri = 2277, 3416; Δphase = 0.1°
-L2 = 14.5; ntri = 2277, 3416; Δphase = 0.49°
-L2 = 15.0; ntri = 2277, 3416; Δphase = 0.57°
-L2 = 15.5; ntri = 2277, 3416; Δphase = 0.84°
-L2 = 16.0; ntri = 2277, 3416; Δphase = 0.62°
-L2 = 16.5; ntri = 2277, 3416; Δphase = 0.44°
+julia> include("li2009_convergence.jl")
+
+L2 = 2.0; ntri = 450, 675; Δphase = 0.02°
+L2 = 2.5; ntri = 450, 675; Δphase = 0.04°
+L2 = 3.0; ntri = 450, 675; Δphase = 0.06°
+L2 = 3.5; ntri = 450, 675; Δphase = 0.1°
+L2 = 4.0; ntri = 450, 675; Δphase = 0.14°
+L2 = 4.5; ntri = 450, 675; Δphase = 0.18°
+L2 = 5.0; ntri = 450, 675; Δphase = 0.19°
+L2 = 5.5; ntri = 450, 675; Δphase = 0.15°
+L2 = 6.0; ntri = 450, 675; Δphase = 0.02°
+L2 = 6.5; ntri = 450, 675; Δphase = 0.41°
+L2 = 7.0; ntri = 450, 675, 1012; Δphase = 0.12°
+L2 = 7.5; ntri = 675, 1012; Δphase = 0.23°
+L2 = 8.0; ntri = 675, 1012; Δphase = 0.38°
+L2 = 8.5; ntri = 675, 1012; Δphase = 0.55°
+L2 = 9.0; ntri = 675, 1012; Δphase = 0.73°
+L2 = 9.5; ntri = 675, 1012; Δphase = 0.93°
+L2 = 10.0; ntri = 675, 1012, 1518, 2277, 3416; Δphase = 0.67°
+L2 = 10.5; ntri = 2277, 3416; Δphase = 0.54°
+L2 = 11.0; ntri = 2277, 3416; Δphase = 0.35°
+L2 = 11.5; ntri = 2277, 3416; Δphase = 0.1°
+L2 = 12.0; ntri = 2277, 3416; Δphase = 0.17°
+L2 = 12.5; ntri = 2277, 3416; Δphase = 0.41°
+L2 = 13.0; ntri = 2277, 3416; Δphase = 0.59°
+L2 = 13.5; ntri = 2277, 3416; Δphase = 0.69°
+L2 = 14.0; ntri = 2277, 3416; Δphase = 0.73°
+L2 = 14.5; ntri = 2277, 3416; Δphase = 0.72°
+L2 = 15.0; ntri = 2277, 3416; Δphase = 0.69°
+L2 = 15.5; ntri = 2277, 3416; Δphase = 0.65°
+L2 = 16.0; ntri = 2277, 3416; Δphase = 0.61°
+L2 = 16.5; ntri = 2277, 3416; Δphase = 0.59°
 
 30-element Vector{Tuple{Float64, Int64, Int64}}:
- (2.0, 675, 861)
- (2.5, 675, 734)
- (3.0, 675, 790)
+ (2.0, 675, 722)
+ (2.5, 675, 722)
+ (3.0, 675, 722)
  (3.5, 675, 722)
- (4.0, 675, 739)
- (4.5, 675, 731)
- (5.0, 675, 735)
- (5.5, 675, 739)
- (6.0, 675, 738)
- (6.5, 675, 741)
- (7.0, 675, 735)
- (7.5, 675, 676)
- (8.0, 1012, 1090)
- (8.5, 2277, 2402)
- (9.0, 2277, 2465)
- (9.5, 2277, 2420)
- (10.0, 2277, 2466)
- (10.5, 2277, 2431)
- (11.0, 2277, 2360)
- (11.5, 2277, 2446)
- (12.0, 2277, 2473)
- (12.5, 3416, 3690)
- (13.0, 3416, 3728)
- (13.5, 3416, 3747)
- (14.0, 3416, 3756)
- (14.5, 3416, 3588)
- (15.0, 3416, 3696)
- (15.5, 3416, 3624)
- (16.0, 3416, 3728)
- (16.5, 3416, 3740)
+ (4.0, 675, 722)
+ (4.5, 675, 722)
+ (5.0, 675, 722)
+ (5.5, 675, 722)
+ (6.0, 675, 722)
+ (6.5, 675, 722)
+ (7.0, 1012, 944)
+ (7.5, 1012, 944)
+ (8.0, 1012, 944)
+ (8.5, 1012, 944)
+ (9.0, 1012, 944)
+ (9.5, 1012, 944)
+ (10.0, 3416, 3314)
+ (10.5, 3416, 3314)
+ (11.0, 3416, 3314)
+ (11.5, 3416, 3314)
+ (12.0, 3416, 3314)
+ (12.5, 3416, 3314)
+ (13.0, 3416, 3314)
+ (13.5, 3416, 3314)
+ (14.0, 3416, 3314)
+ (14.5, 3416, 3314)
+ (15.0, 3416, 3314)
+ (15.5, 3416, 3314)
+ (16.0, 3416, 3314)
+ (16.5, 3416, 3314)
 ```
 
 The first list shows how the script increases the number of triangles requested for each geometry
 until the reflection phase is sufficiently converged.  The printout of the `record` array shows
 both the final requested value of `ntri` and actual number of triangle faces generated by the mesher for each
-`L2` value.  The final cases with `ntri=3416` required about 27 seconds each of execution time.
+`L2` value.  The final cases with `ntri=3416` required about 21 seconds each of execution time.
 
 ```@meta
 EditURL = "https://github.com/simonp0420/PSSFSS.jl/tree/main/docs/literate/band_pass_filter.jl"
@@ -813,7 +816,7 @@ sheet is metalized *except* for the region of the triangulation.
 ````@example band_pass_filter
 using Plots, PSSFSS
 sheet = loadedcross(class='M', w=0.023, L1=0.8, L2=0.14,
-            s1=[0.861,0.0], s2=[0.0,0.861], ntri=600, units=cm)
+            s1=[0.861,0.0], s2=[0.0,0.861], ntri=800, units=cm)
 plot(sheet, unitcell=true)
 savefig("bpf1.png"); nothing  # hide
 ````
@@ -856,7 +859,7 @@ savefig("bpf3.png"); nothing  # hide
 
 ![](bpf3.png)
 
-This analysis takes about 18 seconds for 191 frequencies on my machine.  Note that
+This analysis takes about 15 seconds for 191 frequencies on my machine.  Note that
 rather than including two separate invocations of the `loadedcross` function when
 defining the strata, I referenced the same sheet object in the two different locations.
 This allows PSSFSS to recognize that the triangulations are identical, and to exploit
@@ -868,7 +871,7 @@ incidence case, computing the spatial integrals is often the most expensive part
 so the savings from reusing the same sheet definition can be substantial.
 
 ### Conclusion
-Very good agreement is obtained versus CST over a large dynamic range.
+Good agreement is obtained versus CST over a large dynamic range.
 
 ```@meta
 EditURL = "https://github.com/simonp0420/PSSFSS.jl/tree/main/docs/literate/cpss1.jl"

@@ -33,7 +33,7 @@ Here is a plot of the two elements at the size extremes to be examined:
 
 ````@example reflectarray_example
 using PSSFSS, Plots
-p1 = plot(element(2, 450), title="L2 = 2mm", unitcell=true, linecolor=:red)
+p1 = plot(element(2, 675), title="L2 = 2mm", unitcell=true, linecolor=:red)
 p2 = plot(element(16.5, 3416), title="L2 = 16.5mm", unitcell=true, linecolor=:red)
 p = plot(p1,p2)
 savefig(p, "reflectarray_elements.png"); nothing  # hide
@@ -118,7 +118,7 @@ println()
 record
 ```
 
-![](./assets/li2009_comparison.png)
+![](./assets/li2009_comparison.svg)
 
 It can be seen that the PSSFSS phases compare well with the HFSS phases, better than the CST and HFSS phases compare
 to each other.  The authors of the paper do not discuss checking the convergence of their results or even any details of
@@ -126,72 +126,74 @@ how they set up their HFSS and CST models.
 
 The console output from the above script is shown below:
 ```Julia
-L2 = 2.0; ntri = 450, 675; Δphase = 0.0°
-L2 = 2.5; ntri = 450, 675; Δphase = 0.02°
-L2 = 3.0; ntri = 450, 675; Δphase = 0.23°
-L2 = 3.5; ntri = 450, 675; Δphase = 0.06°
-L2 = 4.0; ntri = 450, 675; Δphase = 0.16°
-L2 = 4.5; ntri = 450, 675; Δphase = 0.08°
-L2 = 5.0; ntri = 450, 675; Δphase = 0.17°
-L2 = 5.5; ntri = 450, 675; Δphase = 0.04°
-L2 = 6.0; ntri = 450, 675; Δphase = 0.03°
-L2 = 6.5; ntri = 450, 675; Δphase = 0.5°
-L2 = 7.0; ntri = 450, 675; Δphase = 0.73°
-L2 = 7.5; ntri = 450, 675; Δphase = 0.77°
-L2 = 8.0; ntri = 450, 675, 1012; Δphase = 0.68°
-L2 = 8.5; ntri = 675, 1012, 1518, 2277; Δphase = 0.5°
-L2 = 9.0; ntri = 1518, 2277; Δphase = 0.73°
-L2 = 9.5; ntri = 1518, 2277; Δphase = 0.96°
-L2 = 10.0; ntri = 1518, 2277; Δphase = 0.14°
-L2 = 10.5; ntri = 1518, 2277; Δphase = 0.79°
-L2 = 11.0; ntri = 1518, 2277; Δphase = 0.12°
-L2 = 11.5; ntri = 1518, 2277; Δphase = 0.05°
-L2 = 12.0; ntri = 1518, 2277; Δphase = 0.69°
-L2 = 12.5; ntri = 1518, 2277, 3416; Δphase = 0.3°
-L2 = 13.0; ntri = 2277, 3416; Δphase = 0.64°
-L2 = 13.5; ntri = 2277, 3416; Δphase = 0.42°
-L2 = 14.0; ntri = 2277, 3416; Δphase = 0.1°
-L2 = 14.5; ntri = 2277, 3416; Δphase = 0.49°
-L2 = 15.0; ntri = 2277, 3416; Δphase = 0.57°
-L2 = 15.5; ntri = 2277, 3416; Δphase = 0.84°
-L2 = 16.0; ntri = 2277, 3416; Δphase = 0.62°
-L2 = 16.5; ntri = 2277, 3416; Δphase = 0.44°
+julia> include("li2009_convergence.jl")
+
+L2 = 2.0; ntri = 450, 675; Δphase = 0.02°
+L2 = 2.5; ntri = 450, 675; Δphase = 0.04°
+L2 = 3.0; ntri = 450, 675; Δphase = 0.06°
+L2 = 3.5; ntri = 450, 675; Δphase = 0.1°
+L2 = 4.0; ntri = 450, 675; Δphase = 0.14°
+L2 = 4.5; ntri = 450, 675; Δphase = 0.18°
+L2 = 5.0; ntri = 450, 675; Δphase = 0.19°
+L2 = 5.5; ntri = 450, 675; Δphase = 0.15°
+L2 = 6.0; ntri = 450, 675; Δphase = 0.02°
+L2 = 6.5; ntri = 450, 675; Δphase = 0.41°
+L2 = 7.0; ntri = 450, 675, 1012; Δphase = 0.12°
+L2 = 7.5; ntri = 675, 1012; Δphase = 0.23°
+L2 = 8.0; ntri = 675, 1012; Δphase = 0.38°
+L2 = 8.5; ntri = 675, 1012; Δphase = 0.55°
+L2 = 9.0; ntri = 675, 1012; Δphase = 0.73°
+L2 = 9.5; ntri = 675, 1012; Δphase = 0.93°
+L2 = 10.0; ntri = 675, 1012, 1518, 2277, 3416; Δphase = 0.67°
+L2 = 10.5; ntri = 2277, 3416; Δphase = 0.54°
+L2 = 11.0; ntri = 2277, 3416; Δphase = 0.35°
+L2 = 11.5; ntri = 2277, 3416; Δphase = 0.1°
+L2 = 12.0; ntri = 2277, 3416; Δphase = 0.17°
+L2 = 12.5; ntri = 2277, 3416; Δphase = 0.41°
+L2 = 13.0; ntri = 2277, 3416; Δphase = 0.59°
+L2 = 13.5; ntri = 2277, 3416; Δphase = 0.69°
+L2 = 14.0; ntri = 2277, 3416; Δphase = 0.73°
+L2 = 14.5; ntri = 2277, 3416; Δphase = 0.72°
+L2 = 15.0; ntri = 2277, 3416; Δphase = 0.69°
+L2 = 15.5; ntri = 2277, 3416; Δphase = 0.65°
+L2 = 16.0; ntri = 2277, 3416; Δphase = 0.61°
+L2 = 16.5; ntri = 2277, 3416; Δphase = 0.59°
 
 30-element Vector{Tuple{Float64, Int64, Int64}}:
- (2.0, 675, 861)
- (2.5, 675, 734)
- (3.0, 675, 790)
+ (2.0, 675, 722)
+ (2.5, 675, 722)
+ (3.0, 675, 722)
  (3.5, 675, 722)
- (4.0, 675, 739)
- (4.5, 675, 731)
- (5.0, 675, 735)
- (5.5, 675, 739)
- (6.0, 675, 738)
- (6.5, 675, 741)
- (7.0, 675, 735)
- (7.5, 675, 676)
- (8.0, 1012, 1090)
- (8.5, 2277, 2402)
- (9.0, 2277, 2465)
- (9.5, 2277, 2420)
- (10.0, 2277, 2466)
- (10.5, 2277, 2431)
- (11.0, 2277, 2360)
- (11.5, 2277, 2446)
- (12.0, 2277, 2473)
- (12.5, 3416, 3690)
- (13.0, 3416, 3728)
- (13.5, 3416, 3747)
- (14.0, 3416, 3756)
- (14.5, 3416, 3588)
- (15.0, 3416, 3696)
- (15.5, 3416, 3624)
- (16.0, 3416, 3728)
- (16.5, 3416, 3740)
+ (4.0, 675, 722)
+ (4.5, 675, 722)
+ (5.0, 675, 722)
+ (5.5, 675, 722)
+ (6.0, 675, 722)
+ (6.5, 675, 722)
+ (7.0, 1012, 944)
+ (7.5, 1012, 944)
+ (8.0, 1012, 944)
+ (8.5, 1012, 944)
+ (9.0, 1012, 944)
+ (9.5, 1012, 944)
+ (10.0, 3416, 3314)
+ (10.5, 3416, 3314)
+ (11.0, 3416, 3314)
+ (11.5, 3416, 3314)
+ (12.0, 3416, 3314)
+ (12.5, 3416, 3314)
+ (13.0, 3416, 3314)
+ (13.5, 3416, 3314)
+ (14.0, 3416, 3314)
+ (14.5, 3416, 3314)
+ (15.0, 3416, 3314)
+ (15.5, 3416, 3314)
+ (16.0, 3416, 3314)
+ (16.5, 3416, 3314)
 ```
 
 The first list shows how the script increases the number of triangles requested for each geometry
 until the reflection phase is sufficiently converged.  The printout of the `record` array shows
 both the final requested value of `ntri` and actual number of triangle faces generated by the mesher for each
-`L2` value.  The final cases with `ntri=3416` required about 27 seconds each of execution time.
+`L2` value.  The final cases with `ntri=3416` required about 21 seconds each of execution time.
 

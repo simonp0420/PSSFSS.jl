@@ -24,8 +24,8 @@ colors = [:green, :blue, :red]
 p = plot(title="Costa Absorber", xlim=(0,25),ylim=(-35,0),xtick=0:5:25,ytick=-35:5:0,
          xlabel="Frequency (GHz)", ylabel="Reflection Magnitude (dB)", legend=:bottomleft)
 ps = []
-for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, colors, Rs))
-    sheet = polyring(sides=4, s1=[D, 0], s2=[0, D], ntri=700, orient=45,
+for (ri, ro, label, color, R) in zip(r_inner, r_outer, labels, colors, Rs)
+    sheet = polyring(sides=4, s1=[D, 0], s2=[0, D], ntri=750, orient=45,
                      a=[ri], b=[ro], Zsheet=R, units=mm)
     push!(ps, plot(sheet, unitcell=true, title=label, lc=color))
     strata = [Layer()
@@ -40,13 +40,13 @@ for (i,(ri, ro, label, color, R)) in enumerate(zip(r_inner, r_outer, labels, col
     dat = readdlm("../src/assets/costa_2014_" * lowercase(label) * "_reflection.csv", ',')
     plot!(p, dat[:,1], dat[:,2], label="Costa "*label, ls=:dash, lc=color)
 end
-plot(ps..., layout=(1,3))
+plot(ps..., layout=(1,3), size=(600,220), margin=3Plots.mm)
 savefig("sqloop1.png"); nothing  # hide
 ````
 
 ![](sqloop1.png)
 
-This PSSFSS run of three geometries takes about 20 seconds on my machine.
+This PSSFSS run of three geometries takes about 15 seconds on my machine.
 
 ````@example square_loop_absorber
 p
@@ -55,19 +55,20 @@ savefig(p,"sqloop2.png"); nothing  # hide
 
 ![](sqloop2.png)
 
-It is useful to take a look at the log file created by PSSFSS for the last run above:
+It is useful to take a look at the log file created by PSSFSS for the last run above
+(from a previous run where the log file was not discarded):
 ```
-Starting PSSFSS 1.0.0 analysis on 2022-09-14 at 14:31:14.261
-Julia Version 1.8.1
-Commit afb6c60d69a (2022-09-06 15:09 UTC)
+Starting PSSFSS 1.2.2 analysis on 2023-03-04 at 19:44:10.800
+Julia Version 1.8.5
+Commit 17cfb8e65e (2023-01-08 06:45 UTC)
 Platform Info:
-  OS: Linux (x86_64-linux-gnu)
+  OS: Windows (x86_64-w64-mingw32)
   CPU: 8 × Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
   LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
   Threads: 8 on 8 virtual cores
-  BLAS: LBTConfig([ILP64] libopenblas64_.so)
+  BLAS: LBTConfig([ILP64] libopenblas64_.dll)
 
 
 
@@ -87,10 +88,9 @@ PSS/FSS sheet information...
 
 Sheet  Loc         Style      Rot  J/M Faces Edges Nodes Unknowns  NUFP
 -----  ---  ---------------- ----- --- ----- ----- ----- -------- ------
-   1     1          polyring   0.0  J    753  1201   448    1058  567009
+   1     1          polyring   0.0  J    720  1152   432    1008  199676
    2     2              NULL   0.0  E      0     0     0       0       0
-
-...
+⋮
 ```
 
 Note from the dielectric layer report that there are 42 modes defined in the region between the
@@ -98,11 +98,12 @@ ground plane and the FSS sheet.  This is the number of modes selected by the cod
 in the generalized scattering matrix formulation to properly account for electromagnetic coupling
 between the two surfaces. If the 5 mm spacing were increased to, say, 7 mm then fewer modes
 would be needed.  Also note in the FSS sheet information that `NUFP` (the number of unique face pairs)
-is exactly equal to the number of faces squared (``567009 = 753^2``), a consequence of the unstructured
-triangulation used for a `polyring`.
+199676, is less than the number of faces squared (``567009 = 753^2``), a consequence of the structured
+triangulation used for a 4-sided `polyring`.
 
 ### Conclusion
 PSSFSS results agree very well with those of the paper, except for the medium
-width loop, where the agreement is not quite as good.  The reason for this is
-not known.
+width loop, where the agreement is not quite as good.  It was found empirically that
+using a slightly different value of `Rs = 37` for this ring results in nearly perfect agreement
+with the digitized results.
 

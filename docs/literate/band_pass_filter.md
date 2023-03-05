@@ -27,7 +27,7 @@ sheet is metalized *except* for the region of the triangulation.
 ````@example band_pass_filter
 using Plots, PSSFSS
 sheet = loadedcross(class='M', w=0.023, L1=0.8, L2=0.14,
-            s1=[0.861,0.0], s2=[0.0,0.861], ntri=600, units=cm)
+            s1=[0.861,0.0], s2=[0.0,0.861], ntri=800, units=cm)
 plot(sheet, unitcell=true)
 savefig("bpf1.png"); nothing  # hide
 ````
@@ -70,7 +70,7 @@ savefig("bpf3.png"); nothing  # hide
 
 ![](bpf3.png)
 
-This analysis takes about 18 seconds for 191 frequencies on my machine.  Note that
+This analysis takes about 15 seconds for 191 frequencies on my machine.  Note that
 rather than including two separate invocations of the `loadedcross` function when
 defining the strata, I referenced the same sheet object in the two different locations.
 This allows PSSFSS to recognize that the triangulations are identical, and to exploit
@@ -82,5 +82,5 @@ incidence case, computing the spatial integrals is often the most expensive part
 so the savings from reusing the same sheet definition can be substantial.
 
 ### Conclusion
-Very good agreement is obtained versus CST over a large dynamic range.
+Good agreement is obtained versus CST over a large dynamic range.
 

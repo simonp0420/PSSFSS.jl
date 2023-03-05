@@ -198,9 +198,9 @@ const optional_kwargs = """
                                         to the same equivalence class,  the six vertices in the pair (A,B) can be made to coincide 
                                         with those of pair (C,D) by a simple translation. If there are many such equivalent pairs, 
                                         a significant decrease in matrix fill time ensues by exploiting the equivalence.  The tradeoff
-                                        is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`, and 
-                                        `meander` styles (those employing structured meshes) and `false` for the remaining styles 
-                                         (those employing unstructured meshes).
+                                        is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`,  
+                                        `meander`, `loadedcross`, `jerusalemcross`, and 4-sided `polyring` styles (those employing 
+                                        structured meshes) and `false` for the remaining styles (those employing unstructured meshes).
                         - `save::String=""` Specifies a file name to which the sheet triangulation and unit cell data is to be written,
                                            typically to be plotted later.
                                 

@@ -23,7 +23,7 @@
 
 using Plots, PSSFSS
 sheet = loadedcross(class='M', w=0.023, L1=0.8, L2=0.14, 
-            s1=[0.861,0.0], s2=[0.0,0.861], ntri=600, units=cm)
+            s1=[0.861,0.0], s2=[0.0,0.861], ntri=800, units=cm)
 plot(sheet, unitcell=true)
 #md savefig("bpf1.png"); nothing  # hide
 #-
@@ -61,7 +61,7 @@ plot!(p2, dat[:,1], dat[:,4], label="CST", color=:blue)
 #-
 #md # ![](bpf3.png)
 
-# This analysis takes about 18 seconds for 191 frequencies on my machine.  Note that
+# This analysis takes about 15 seconds for 191 frequencies on my machine.  Note that
 # rather than including two separate invocations of the `loadedcross` function when
 # defining the strata, I referenced the same sheet object in the two different locations.
 # This allows PSSFSS to recognize that the triangulations are identical, and to exploit
@@ -73,4 +73,4 @@ plot!(p2, dat[:,1], dat[:,4], label="CST", color=:blue)
 # so the savings from reusing the same sheet definition can be substantial.
 
 # ### Conclusion
-# Very good agreement is obtained versus CST over a large dynamic range.
+# Good agreement is obtained versus CST over a large dynamic range.

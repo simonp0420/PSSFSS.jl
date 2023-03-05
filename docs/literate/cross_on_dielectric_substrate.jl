@@ -13,14 +13,14 @@
 using Plots, PSSFSS, DelimitedFiles
 sheet = loadedcross(w=1.0, L1=0.6875, L2=0.0625, s1=[1.0,0.0], 
                     s2=[0.0,1.0], ntri=600, units=cm)
-plot(sheet, unitcell=true)
+plot(sheet, unitcell=true, linecolor=:red)
 #md savefig("cross1.png"); nothing  # hide
 #-
 #md # ![](cross1.png)
 
-# A few things to note. First, the mesh is **unstructured**.  So there are no redundant 
-# triangle face-pairs that PSSFSS can exploit to reduce execution time.  Second, the 
-# number of triangle faces generated is only approximately equal to the requested value
+# A few things to note. First, as of PSSFSS version 1.3, the mesh is *unstructured*.  
+# So there are redundant triangle face-pairs that PSSFSS can exploit to reduce execution time.
+# Second, the number of triangle faces generated is only approximately equal to the requested value
 # of 600.  This can be verified by entering the Julia variable `sheet` at the 
 # [REPL](https://docs.julialang.org/en/v1/manual/getting-started/#man-getting-started) 
 # (i.e. the Julia prompt):
@@ -56,7 +56,7 @@ for eps in [1, 2, 4]
     push!(resultsstack, results)
 end
 
-# The above loop requires about 25 seconds of execution time on my machine.
+# The above loop requires about 18 seconds of execution time on my machine.
 # Compare PSSFSS results to those digitized from the dissertation figure:
 
 col=[:red,:blue,:green]

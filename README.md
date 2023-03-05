@@ -56,6 +56,9 @@ performed in the same analysis script using the immensely powerful Julia program
 - Version 1.1: A highly reliable fast sweep is now the default, resulting in order-of-magnitude speedups.
 - Version 1.2: Sheet resistance has been replaced by a possibly complex sheet impedance.  Also, sheet
   conductivity and surface roughness may now be specified.
+- Version 1.3: `loadedcross`, `jerusalemcross`, and 4-sided `polyring` elements are now triangulated 
+  using a structured mesh, by default, resulting in reduced execution times.  To obtain the old, 
+  unstructured mesh on these elements, specify `structuredtri = false` in the constructor argument list.
   
 ## Installation
 You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character of the command prompt):
