@@ -1,6 +1,6 @@
 module Elements
 
-export diagstrip, jerusalemcross, loadedcross, meander, pecsheet, pmcsheet, polyring, rectstrip, splitring
+export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet, pmcsheet, polyring, rectstrip, splitring
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
 using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2

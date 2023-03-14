@@ -288,6 +288,182 @@ function polyring_structured(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vec
 end # function polyring_structured
 
 """
+    function manji(; L1, L2, L3, a=0, w, w2=0, s1, s2, CCW=false, ntri, units, orient, kwargs...)
+ 
+# Description:
+
+Create a variable of type `RWGSheet` that
+contains the triangulation for a "manji" (Japanese for swastica shape) type of geometry.
+The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+and `fr` properly initialized.
+
+
+# Arguments:
+
+All arguments are keyword arguments which can be entered in any order.
+
+## Required arguments:
+- `L1`, `L2`, `L3`, `w`: Geometrical parameters defined in the diagram at
+  ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/manjidef.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/manjidef.png)
+  Note that if `a` ≤ `w` then the center square shown in the figure will not be present.  Similarly, if 
+  `L3` ≤ `2*w` then the bent portions of the arms will consist of a single strip of width `L3` 
+  (without any gap in the middle).
+- `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
+- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+  the actual number will likely be different.
+    
+$(optional_kwargs)
+- `CCW::Bool=false`: By default, the chiral structure has a clockwise sense.  If 
+  `CCW` is `true`, the structure will be counter-clockwise.
+- `a::Real=0`: A geometrical parameter defined in the above referenced diagram.  If `a` ≤ `w`
+  then the center square shown in that figure will be absent, and the arms will continue uninterrupted
+  to the center of the structure.
+- `w2::Real=0`: The width of the square ring border between adjacent unit cells, as shown in 
+  the above-referenced diagram.  If `w2` ≤ 0 the square ring will not be included in the triangulation.
+  Note that `w2 > 0` is only allowed for square unit cells.
+- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the structure within the
+  unrotated unit cell.  Note that the outer square ring present when `w2 > 0` will not be rotated by
+  use of a nonzero `orient` value.
+- `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
+  mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
+"""
+function manji(; L1::Real, L2::Real, L3::Real, a::Real=0, w::Real, w2::Real=0,
+    s1::AbstractVector{<:Real}, s2=AbstractVector{<:Real}, CCW::Bool=false, 
+    ntri::Int, units::PSSFSSLength, orient::Real=0, kwarg...)
+    kwargs = Dict{Symbol,Any}(kwarg)
+    haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
+    check_optional_kw_arguments!(kwargs)
+    @testpos(L1)
+    @testpos(L2)
+    @testpos(L3)
+    @testpos(w)
+    @testpos(ntri)
+    length(s1) == length(s2) == 2 || error("s1 and s2 must be 2-vectors")
+    w2half = w2 / 2
+    if w2 > 0 
+        s1norm, s2norm = norm.((s1, s2))
+        squnitcell = abs(s1 ⋅ s2) / (s1norm * s2norm) < 1e-10 && s1norm ≈ s2norm
+        squnitcell || error("w2 > 0 not allowed unless unit cell is square")
+        P = s1norm
+        Po2 = P / 2
+    end
+    a < 2L2 || error("a must be less than 2*L2")
+    ρ₀ = 0.5 * (s1 + s2) # Calculate center of polygon.
+    wo2, ao2 = (w, a) ./ 2
+    armsfolded = 2w < L3
+    centersquare = a > w
+    !centersquare && (a = w)
+    # unique x vertices and total area:
+    if armsfolded
+        xrequired = [wo2, L2, L2+w, L2+L3-w, L2+L3, L1-3wo2, L1-wo2]
+        areat = 4 * (L2-ao2 + 2L1 + (L3-2w)) * w + a^2
+    else
+        xrequired = [wo2, L2, L2+L3, L1-wo2]
+        centersquare && push!(xrequired, ao2)
+        areat = 4 * ((L2-ao2) * w + L1 *L3) + a^2
+    end
+    centersquare && push!(xrequired, ao2)
+    if w2 > 0 
+        push!(xrequired, Po2-w2half, Po2)
+        areat += 4 * (P - w2half) * w2half
+    end
+    sort!(xrequired)
+    xrequired = vcat(-1*reverse(xrequired), xrequired)
+    lmax = maximum(xrequired[i] - xrequired[i-1] for i in eachindex(xrequired)[2:end])
+    for i in eachindex(xrequired)[2:end]
+        # eliminate sliver rectangles
+        xrequired[i] - xrequired[i-1] > 0.05 * lmax && continue
+        xrequired[i-1:i] .= 0.5 * (xrequired[i-1] + xrequired[i])
+    end
+    unique!(xrequired)
+    yrequired = copy(xrequired)
+
+    function is_inside(x::Real, y::Real)
+        # predicate to determine if a point is within the region to be triangulated
+        if y < 0
+            (x, y) = (-x, -y)
+        end
+        if x < 0
+            (x, y) = (y, -x)
+        end
+        # (x,y) is now in the first quadrant
+
+        if w2 > 0
+            Po2 - w2half < x < Po2 && return true
+            Po2 - w2half < y < Po2 && return true
+        end
+
+        centersquare && x < ao2 && y < ao2 && return true
+        if y < wo2
+            if armsfolded
+                x < L2 + w && return true
+                L2 + L3  - w < x < L2 + L3 && return true
+            else
+                x < L2 + L3 && return true
+            end
+        elseif wo2 < y < L2
+            x < wo2 && return true
+        elseif L2 ≤ y < L2 + L3
+            x > L1 - wo2 && return false
+            !armsfolded && return true
+            L2 < y < L2 + w && return true
+            L2 + L3 - w < y < L2 + L3 && return true
+            L1 - 3wo2 < x < L1 - wo2 && return true
+        end
+        return false
+    end
+
+    # Triangulate prior to rotating the orientation
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
+
+    if CCW
+        flipmat = SA[-1.0 0.0; 0.0 1.0]
+        for n in eachindex(sheet.ρ)
+            sheet.ρ[n] = flipmat * sheet.ρ[n]
+        end
+    end
+
+    # Rotate, then center sheet on unit cell center
+    s, c = sincosd(orient)
+    rotmat = SA[c -s; s c]
+    for n in eachindex(sheet.ρ)
+        x, y = sheet.ρ[n]
+        if w2 > 0 && Po2 - w2half ≤ abs(x) ≤ Po2 || Po2 - w2half ≤ abs(y) ≤ Po2
+                sheet.ρ[n] = sheet.ρ[n] + ρ₀ # Don't rotate points in outer loop
+        else
+            sheet.ρ[n] = rotmat * sheet.ρ[n] + ρ₀
+        end
+    end
+
+    sheet.Zs = kwargs[:Zsheet]
+    sheet.σ = kwargs[:σ]
+    sheet.Rq = kwargs[:Rq]
+    sheet.disttype = kwargs[:disttype]
+
+    # Handle remaining optional arguments
+    sheet.fufp = kwargs[:fufp]
+    sheet.class = kwargs[:class]
+    rotate!(sheet, kwargs[:rot])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
+    if dxdy ≠ [0.0, 0.0]
+        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
+    end
+
+    sheet.style = "manji"
+    sheet.ξη_check = w2 > 0
+    sheet.units = units
+    sheet.s₁ = s1
+    sheet.s₂ = s2
+    sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
+
+    return sheet
+
+end # function manji
+
+"""
     make_plaid_mesh(xr, yr, area, ntri, is_inside) -> sheet::RWGSheet
 
 Generate a structured, plaid triangular mesh from list of required coordinates and predicate function
@@ -306,7 +482,7 @@ Generate a structured, plaid triangular mesh from list of required coordinates a
   converted to a triangular tesselation by adding a diagonal to each rectangle.
 """
 function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_inside)::RWGSheet
-    length(xr) == length(yr) || error("xr and yu not same length")
+    length(xr) == length(yr) || error("xr and yr not same length")
     xr, yr = sort.((xr, yr))
     bigarea = (xr[end] - xr[1]) * (yr[end] - yr[1]) # area of circumscribing rectangle
     bignsq = ceil(Int, bigarea / area * ntri/2) # desired number of squares to form in circumscribing rectangle
