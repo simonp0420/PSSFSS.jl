@@ -59,9 +59,10 @@ performed in the same analysis script using the immensely powerful Julia program
 - Version 1.3: `loadedcross`, `jerusalemcross`, and 4-sided `polyring` elements are now triangulated 
   using a structured mesh, by default, resulting in reduced execution times.  To obtain the old, 
   unstructured mesh on these elements, specify `structuredtri = false` in the constructor argument list.
+- Version 1.4: New, chiral `manji` element added.
   
 ## Installation
-You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character of the command prompt):
+You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
 
 ```julia
 (@v1.8) pkg> add PSSFSS
