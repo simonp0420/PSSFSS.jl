@@ -172,7 +172,6 @@ function check_optional_kw_arguments!(kwargs::AbstractDict{Symbol,T} where {T})
 end
 
 const optional_kwargs = """
-                        ## Optional arguments:
                         - `class::Char='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface 
                                    currents, as used to model a wire or metallic patch-type FSS.  If `'M'`,  the unknowns are
                                    magnetic surface currents, as used to model a slot or aperture in a perfectly conducting plane.
@@ -192,17 +191,17 @@ const optional_kwargs = """
                         - `disttype::Symbol=:normal`: Probability distrubution type for surface roughness.  defaults
                           to `:normal`.  The other legal value is `:rayleigh`.
                         - `fufp::Bool`:  This keyword is not usually required. 
-                                        `fufp` is mnemonic for "Find Unique Face Pairs".  If true, the code will search the 
-                                        triangulation for classes of triangle
-                                        pairs that are the equivalent in the toeplitz sense.  I.e., if triangle pairs (A,B) and (C,D) belong
-                                        to the same equivalence class,  the six vertices in the pair (A,B) can be made to coincide 
-                                        with those of pair (C,D) by a simple translation. If there are many such equivalent pairs, 
-                                        a significant decrease in matrix fill time ensues by exploiting the equivalence.  The tradeoff
-                                        is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`,  
-                                        `meander`, `loadedcross`, `jerusalemcross`, and 4-sided `polyring` styles (those employing 
-                                        structured meshes) and `false` for the remaining styles (those employing unstructured meshes).
+                          `fufp` is mnemonic for "Find Unique Face Pairs".  If true, the code will search the 
+                          triangulation for classes of triangle
+                          pairs that are the equivalent in the toeplitz sense.  I.e., if triangle pairs (A,B) and (C,D) belong
+                          to the same equivalence class,  the six vertices in the pair (A,B) can be made to coincide 
+                          with those of pair (C,D) by a simple translation. If there are many such equivalent pairs, 
+                          a significant decrease in matrix fill time ensues by exploiting the equivalence.  The tradeoff
+                          is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`,  
+                          `meander`, `manji`, `loadedcross`, `jerusalemcross`, and 4-sided `polyring` styles (those employing 
+                          structured meshes) and `false` for the remaining styles (those employing unstructured meshes).
                         - `save::String=""` Specifies a file name to which the sheet triangulation and unit cell data is to be written,
-                                           typically to be plotted later.
+                          typically to be plotted later.
                                 
                         """
 
@@ -233,6 +232,7 @@ All arguments are keyword arguments which can be entered in any order.
   right, isosceles triangles, to conform to the boundaries of the square unit cell.  These triangular "end-caps" 
   are triangulated using an unstructured mesh.
     
+## Optional arguments:
 $(optional_kwargs)
 """
 function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PSSFSSLength, kwarg...)::RWGSheet
@@ -371,8 +371,9 @@ All arguments are keyword arguments which can be entered in any order.
    for the respective widths of the arms, and `w` will not be used.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `ntri`:  The desired total number of triangles.  This is a guide/request, 
-           the actual number will likely be different.
+  the actual number will likely be different.
     
+## Optional arguments:
 $(optional_kwargs)
 - `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
   the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
@@ -457,8 +458,9 @@ All arguments are keyword arguments which can be entered in any order.
    for the respective widths of the arms, and `w` will not be used.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `ntri`:  The desired total number of triangles.  This is a guide/request, 
-           the actual number will likely be different.
+  the actual number will likely be different.
     
+## Optional arguments:
 $(optional_kwargs)
 """
 function jerusalemcross_unstructured(; P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
@@ -674,12 +676,14 @@ All arguments are keyword arguments which can be entered in any order.
    generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `ntri`:  The desired total number of triangles.  This is a guide/request, 
-           the actual number will likely be different.
+  the actual number will likely be different.
     
-$(optional_kwargs)
+
+## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
            vertex of the loaded cross.  The default is to locate the vertex on the
            positive x-axis.
+$(optional_kwargs)
 - `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
   the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
   mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
@@ -754,12 +758,13 @@ All arguments are keyword arguments which can be entered in any order.
    generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `ntri`:  The desired total number of triangles.  This is a guide/request, 
-           the actual number will likely be different.
+  the actual number will likely be different.
     
-$(optional_kwargs)
+## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
-           vertex of the loaded cross.  The default is to locate the vertex on the
-           positive x-axis.
+  vertex of the loaded cross.  The default is to locate the vertex on the
+  positive x-axis.
+$(optional_kwargs)           
 """
 function loadedcross_unstructured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
     ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
@@ -912,15 +917,15 @@ All arguments are keyword arguments which can be entered in any order.
 - `a`,`b`,`h`,`w1`, `w2`: Geometrical parameters as defined above.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `ntri`:  The desired total number of triangles. 
-           This is a guide, the actual number will likely be different.
+  This is a guide, the actual number will likely be different.
     
-$(optional_kwargs)
+## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to rotate the 
-           meanderline orientation within the unrotated unit cell.  Nonzero values are
-           allowed only when the unit cell is a square (i.e. `a` == `b`).  The only allowable
-           values are positive or negative multiples of 90.
-
- """
+  meanderline orientation within the unrotated unit cell.  Nonzero values are
+  allowed only when the unit cell is a square (i.e. `a` == `b`).  The only allowable
+  values are positive or negative multiples of 90.
+$(optional_kwargs)
+"""
 function meander(; a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     units::PSSFSSLength, orient::Real=0.0, kwarg...)::RWGSheet
 
@@ -1088,9 +1093,9 @@ All arguments are keyword arguments which can be entered in any order.
   `-b[end]` is interpreted as the number of edges along the shorter of the `s1` and `s2` lattice vectors.
 - `sides`:  The number (>= 3) of polygon sides.
 - `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number 
-           will likely be different.
+  will likely be different.
     
-$(optional_kwargs)
+## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
            vertex of the polygonal rings.  The default is to locate the vertex on the
            positive x-axis.
@@ -1099,6 +1104,7 @@ $(optional_kwargs)
   the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
   mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
   mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
+$(optional_kwargs)
 """
 function polyring(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real},
     sides::Int, ntri::Int, units::PSSFSSLength,
@@ -1330,8 +1336,9 @@ All arguments are keyword arguments which can be entered in any order.
 - `Lx` and `Ly`:  Lengths of the strip in the x and y directions.
 - `Px` and `Py`:  Lengths (periods) of the rectangular unit cell in the x and y directions.
 - `Nx` and `Ny`:  Number of line segments in the x and y directions, for dividing up the strip into
-                  rectangles, which are  triangulated by adding a diagonal to each rectangle.
+  rectangles, which are  triangulated by adding a diagonal to each rectangle.
     
+## Optional arguments:
 $(optional_kwargs)
 """
 function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, units::PSSFSSLength,
@@ -1481,33 +1488,35 @@ All arguments are keyword arguments which can be entered in any order.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
-               Entries in `a` and `b` must be positive and strictly increasing. `b[i] > a[i]` ∀ `i ∈ 1:n`.
+  Entries in `a` and `b` must be positive and strictly increasing. `b[i] > a[i]` ∀ `i ∈ 1:n`.
 - `sides`:  The number (>= 4) of polygon sides for the background regular annular polygon(s) from which the gaps are removed.
 - `gapcenter`: A scalar or vector of angles in degrees that define the gap center angular location(s), measured counterclockwise.  
-             A scalar implies that all rings have a gap in that same angular location.  If a vector, then it must have the 
-             same length as `a` and `b`, with `gapcenter[m]` denoting the gap center location for the `m`th ring.
-             However `gapcenter[m]` can be either a scalar (denoting a single gap) or an n-tuple (denoting n gaps 
-             in the `m`th ring).
+  A scalar implies that all rings have a gap in that same angular location.  If a vector, then it must have the 
+  same length as `a` and `b`, with `gapcenter[m]` denoting the gap center location for the `m`th ring.
+  However `gapcenter[m]` can be either a scalar (denoting a single gap) or an n-tuple (denoting n gaps 
+  in the `m`th ring).
 - `gapwidth`: A scalar or a vector of the same length as `a` and `b` containing the gap width(s) for each ring.
-            A width of zero implies that the ring is not split (i.e. there is no gap).  If the `gapwidth` of all rings
-            is zero, then the resulting geometry is similar to a `polyring`. If a ring is to have multiple gaps, then
-            the widths of the gaps for that ring should be passed as a tuple.  For example, suppose there are three
-            rings and the second ring has 2 gaps, with the others having a single gap.  Then `gapwidth = [0.5, (0.4, 0.6), 0.3]`
-            would be an appropriately formatted input in this case. When `gapwidth` is specified, the gaps are
-            implemented as if a rectangular region is removed from the annular polygonal rings. Note that only 
-            one of `gapwidth` and `gapangle` can be specified.
+  A width of zero implies that the ring is not split (i.e. there is no gap).  If the `gapwidth` of all rings
+  is zero, then the resulting geometry is similar to a `polyring`. If a ring is to have multiple gaps, then
+  the widths of the gaps for that ring should be passed as a tuple.  For example, suppose there are three
+  rings and the second ring has 2 gaps, with the others having a single gap.  Then `gapwidth = [0.5, (0.4, 0.6), 0.3]`
+  would be an appropriately formatted input in this case. When `gapwidth` is specified, the gaps are
+  implemented as if a rectangular region is removed from the annular polygonal rings. Note that only 
+  one of `gapwidth` and `gapangle` can be specified.
 - `gapangle`: A scalar or vector of the same length as `a` and `b` containing the angular widths of the gaps in degrees.
-            As with `gapwidth`, for any rings with multiple gaps, the corresponding entry in `gapangle` should be a 
-            tuple of the same length as the number of gaps for that ring. When `gapangle` is specified, the gap(s) 
-            in the `m`th ring is/are formed as if pie-shaped wedge(s) with wedge angle(s) `gapangle[m]`, are 
-            removed from the ring(s). The locations and sizes of the tuples in `gapangle` must agree with those 
-            in `gapcenter`.  Note that only one of `gapangle` and `gapwidth` can be specified.
+  As with `gapwidth`, for any rings with multiple gaps, the corresponding entry in `gapangle` should be a 
+  tuple of the same length as the number of gaps for that ring. When `gapangle` is specified, the gap(s) 
+  in the `m`th ring is/are formed as if pie-shaped wedge(s) with wedge angle(s) `gapangle[m]`, are 
+  removed from the ring(s). The locations and sizes of the tuples in `gapangle` must agree with those 
+  in `gapcenter`.  Note that only one of `gapangle` and `gapwidth` can be specified.
 - `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number 
-           will likely be different.
-$(optional_kwargs)
+  will likely be different.
+
+## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
-           vertex of the polygonal rings.  The default is to locate the vertex on the
-           ray from the center parallel to the positive x-axis.
+  vertex of the polygonal rings.  The default is to locate the vertex on the
+  ray from the center parallel to the positive x-axis.
+$(optional_kwargs)
 """
 function splitring(;
     s1::Vector{<:Real},
