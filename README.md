@@ -62,6 +62,7 @@ performed in the same analysis script using the immensely powerful Julia program
 - Version 1.4: New, chiral `manji` element added.
 - Version 1.5: `sinuous` element added.
 - Version 1.6: Added [`export_sheet`](@ref) for exporting `RWGSheet` triangulations to STL-format CAD files.
+- Version 1.7: Function `extract_result` is deprecated in favor of a new method for [`extract_result`](@ref).
   
 ## Installation
 You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
