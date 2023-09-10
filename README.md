@@ -10,8 +10,8 @@
 [reflectarray](https://en.wikipedia.org/wiki/Reflectarray_antennahttps://en.wikipedia.org/wiki/Reflectarray_antenna) elements, 
 [radomes](https://en.wikipedia.org/wiki/Radome), and similar structures.  It is intended to be useful to antenna design engineers and others who work in applied electromagnetic engineering.
 
-The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric [`Layer`](@ref)s 
-and zero or more [`Sheet`](@ref) objects that define the PSS/FSS surfaces.  Due to the included plot recipes, the surfaces 
+The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric `Layer`s 
+and zero or more `Sheet` objects that define the PSS/FSS surfaces.  Due to the included plot recipes, the surfaces 
 and their associated triangulations can be conveniently visualized using Julia's standard 
 [`Plots`](https://github.com/JuliaPlots/Plots.jl) package. After also specifying the scan angles or
 unit cell incremental phasings, frequencies to be analyzed, and optionally selecting performance parameters to be written
@@ -61,7 +61,8 @@ performed in the same analysis script using the immensely powerful Julia program
   unstructured mesh on these elements, specify `structuredtri = false` in the constructor argument list.
 - Version 1.4: New, chiral `manji` element added.
 - Version 1.5: `sinuous` element added.
-- Version 1.6: Added [`export_sheet`](@ref) for exporting `RWGSheet` triangulations to STL-format CAD files.
+- Version 1.6: Added `export_sheet` for exporting `RWGSheet` triangulations to STL-format CAD files.
+- Version 1.7: Function `extract_result` is deprecated in favor of a new method for `extract_result`.
   
 ## Installation
 You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
