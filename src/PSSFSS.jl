@@ -879,13 +879,19 @@ end
     flist = 10
 
     @compile_workload begin
+        resultfile = tempname()
+        logfile = tempname()
         results = redirect_stdout(devnull) do
-            results = analyze(strata, flist, steering; resultfile=tempname(), logfile=tempname())
+            results = analyze(strata, flist, steering; resultfile, logfile)
         end
         RL11rr = -extract_result(results, @outputs s11db(r,r))
         AR11r = extract_result(results, @outputs ar11db(r))
         IL21L = -extract_result(results, @outputs s21db(L,L))
         AR21L = extract_result(results, @outputs ar21db(L))
+        RL11rr = -extract_result(resultfile, @outputs s11db(r,r))
+        AR11r = extract_result(resultfile, @outputs ar11db(r))
+        IL21L = -extract_result(resultfile, @outputs s21db(L,L))
+        AR21L = extract_result(resultfile, @outputs ar21db(L))
     end
 end
 

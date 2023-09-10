@@ -422,16 +422,7 @@ function read_result_file(fname::AbstractString)::Vector{Result}
     Result[dat[k] for k in ks]
 end
 
-"""
-    extract_result_file(fname::AbstractString, ops::Tuple) --> Matrix
 
-Return a matrix of outputs extracted from a results file.  `ops` is a 
-Tuple returned by the `@outputs` macro.
-
-### Example
-    ops = @outputs FGHz S11DB(H,H) S11ANG(H,H)
-    data = extract_result_file("pssfss.res", ops)
-"""
 function extract_result_file(fname::AbstractString, ops::Tuple)
     results = read_result_file(fname)
     [o(r) for r in results, o in ops]
@@ -457,5 +448,17 @@ end
 function extract_result(results::Result, ops::Tuple)
     permutedims([o(results) for o in ops])
 end
+
+"""
+    extract_result(fname::AbstractString, ops::Tuple) --> Matrix
+
+Return a matrix of outputs extracted from a results file.  `ops` is a 
+Tuple returned by the `@outputs` macro.
+
+### Example
+    ops = @outputs FGHz S11DB(H,H) S11ANG(H,H)
+    data = extract_result_file("pssfss.res", ops)
+"""
+extract_result(fname::AbstractString, ops::Tuple) = extract_result_file(fname, ops)
 
 end # module

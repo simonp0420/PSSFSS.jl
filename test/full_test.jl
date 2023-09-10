@@ -122,9 +122,12 @@ end
     s11_expected = (1 - Ynorm) / (1 + Ynorm)
     steering = (θ=0, ϕ=0)
     sheet = rectstrip(; Px, Py, Lx, Ly, Nx, Ny, units=inch, σ, Rq, disttype)
-    results = analyze([Layer(), sheet, Layer()], FGHz, steering, logfile=devnull,
-        resultfile=devnull, showprogress=false)
+    resultfile = tempname()
+    results = analyze([Layer(), sheet, Layer()], FGHz, steering; logfile=devnull,
+                      resultfile, showprogress=false)
     s11 = extract_result(results, @outputs s11(te,te))[1]
+    s11_file = extract_result(resultfile, @outputs s11(te,te))[1]
+    @test s11 == s11_file
     @test s11 ≈ s11_expected atol=1e-5
 end
 
