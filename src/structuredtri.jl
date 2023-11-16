@@ -1,3 +1,261 @@
+# This file is included by Elements.jl
+
+function csloop(; P::Real, w::Real, g::Real, ntri::Int, units::PSSFSSLength, kwarg...)
+    kwargs = Dict{Symbol,Any}(kwarg)
+    haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
+    check_optional_kw_arguments!(kwargs)
+    @testpos(P)
+    @testpos(w)
+    @testpos(g)
+    @testpos(ntri)
+
+    L = 8w + 7g
+    P > 2L + g || error("P must exceed 2L+g")
+    
+    s1 = SV2(P,0)
+    s2 = SV2(0,P)
+    ρ₀ = 0.5 * (s1 + s2) # Calculate center of polygon.
+
+    # Initialization for upper right quadrant, local origin at center of unit cell:
+    x1 = y1 = g / 2
+    x2 = y2 = x1 + w
+    x3 = y3 = x2 + g
+    x4 = y4 = x3 + w
+    x5 = y5 = x4 + g
+    x6 = y6 = x5 + w
+    x7 = y7 = x6 + g
+    x8 = y8 = x7 + w
+    y9 = y8 + g
+    y10 = y9 + w
+    y11 = x9 = y10 + g
+    y12 = x10 = y11 + w
+    y13 = x11 = y12 + g
+    y14 = x12 = y13 + w
+    y15 = x13 = y14 + g
+    y16 = x14 = y15 + w
+
+    q1ob = SV2.([  # Quadrant I outer boundary (CCW order)
+        (x4, 0.0), # node 1
+        (x4, y1), # node 2
+        (x14, y1), # node 3
+        (x14, y12), # node 4
+        (x11, y12), # node 5
+        (x11, y4), # node 6
+        (x4, y4), # node 7
+        (x4, y5), # node 8
+        (x10, y5), # node 9
+        (x10, y8), # node 10
+        (x8, y8), # node 11
+        (x8, y9), # node 12
+        (x10, y9), # node 13
+        (x10, y12), # node 14
+        (x5, y12), # node 15
+        (x5, y8), # node 16
+        (x4, y8), # node 17
+        (x4, y13), # node 18
+        (x14, y13), # node 19
+        (x14, y16), # node 20
+        (x1, y16), # node 21
+        (x1, y4)]) # node 22
+
+    q1ib = SV2.([  # Quadrant I inner boundary (CW order)
+        (0.0, y3), # node 24
+        (x2, y3), # node 25
+        (x2, y15), # node 26
+        (x13, y15), # node 27
+        (x13, y14), # node 28
+        (x3, y14), # node 29
+        (x3, y7), # node 30
+        (x6, y7), # node 31
+        (x6, y11), # node 32
+        (x9, y11), # node 33
+        (x9, y10), # node 34
+        (x7, y10), # node 35
+        (x7, y7), # node 36
+        (x9, y7), # node 37
+        (x9, y6), # node 38
+        (x3, y6), # node 39
+        (x3, y3), # node 40
+        (x12, y3), # node 41
+        (x12, y11), # node 42
+        (x13, y11), # node 43
+        (x13, y2), # node 44
+        (x3, y2)]) # node 45
+
+    ob = vcat(q1ob, rotate(q1ob, 90), rotate(q1ob, 180), rotate(q1ob, 270), q1ob[1:1])
+    ib = vcat(q1ib, rotate(q1ib, -90), rotate(q1ib, -180), rotate(q1ib, -270), q1ib[1:1])
+
+    # Move origin to LL corner of unit cell:
+    ob .+= (ρ₀,)
+    ib .+= (ρ₀,)
+
+    xrequired = first.(vcat(ob,ib)) |> sort! |> unique!
+    yrequired = last.(vcat(ob,ib)) |> sort! |> unique!
+
+    function is_inside(x::Real, y::Real)
+        # predicate to determine if a point is within the region to be triangulated
+        return PolygonOps.inpolygon(SV2(x,y), ob; in = true, on = true, out = false) && 
+               PolygonOps.inpolygon(SV2(x,y), ib; in = false, on = false, out = true)
+    end
+
+    areat = PolygonOps.area(ob) + PolygonOps.area(ib) # ib will contribute a negative area
+
+    # Triangulate 
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
+
+    sheet.Zs = kwargs[:Zsheet]
+    sheet.σ = kwargs[:σ]
+    sheet.Rq = kwargs[:Rq]
+    sheet.disttype = kwargs[:disttype]
+
+    # Handle remaining optional arguments
+    sheet.fufp = kwargs[:fufp]
+    sheet.class = kwargs[:class]
+    rotate!(sheet, kwargs[:rot])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
+    if dxdy ≠ [0.0, 0.0]
+        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
+    end
+
+    sheet.style = "csloop"
+    sheet.ξη_check = false
+    sheet.units = units
+    sheet.s₁ = s1
+    sheet.s₂ = s2
+    sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
+
+    return sheet
+
+end # function
+
+function csloop_original(; P::Real, L::Real, w::Real, g::Real, ntri::Int, units::PSSFSSLength, kwarg...)
+    kwargs = Dict{Symbol,Any}(kwarg)
+    haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
+    check_optional_kw_arguments!(kwargs)
+    @testpos(P)
+    @testpos(L)
+    @testpos(w)
+    @testpos(g)
+    @testpos(ntri)
+ 
+    P > 2L + g || error("P must exceed 2L+g")
+    round(L / w) > 12 || error("L/w must exceed 12")
+    
+    s1 = SV2(P,0)
+    s2 = SV2(0,P)
+    ρ₀ = 0.5 * (s1 + s2) # Calculate center of polygon.
+
+    # Initialization for upper right quadrant, local origin at center of quadrant:
+    x9 = y9 = P / 4
+    x8 = y8 = L + g / 2 - P / 4
+    x7 = y7 = x8 - w
+    x6 = y6 = x7 - g
+    x5 = y5 = x6 - w
+    x4 = y4 = x5 - g
+    x3 = y3 = x4 - w
+    y1 = g / 2
+    y2 = y1 + w
+    x1 = -x3 + g
+    x2 = x1 + w
+
+    q1ob = SV2.([  # Quadrant I outer boundary (CCW order)
+        (-x5, -y9), # node 1
+        (-x5, -y8), # node 2
+        (x8, -y8), # node 3
+        (x8, y4), # node 4
+        (x5, y4), # node 5
+        (x5, -y5), # node 6
+        (-x5, -y5), # node 7
+        (-x5, -y4), # node 8
+        (x4, -y4), # node 9
+        (x4, -y1), # node 10
+        (x2, -y1), # node 11
+        (x2, y1), # node 12
+        (x4, y1), # node 13
+        (x4, y4), # node 14
+        (-x4, y4), # node 15
+        (-x4, -y1), # node 16
+        (-x5, -y1), # node 17
+        (-x5, y5), # node 18
+        (x8, y5), # node 19
+        (x8, y8), # node 20
+        (-x8, y8), # node 21
+        (-x8, -y5)]) # node 22
+
+    q1ib = SV2.([  # Quadrant I inner boundary (CW order)
+        (-x9, -y6), # node 24
+        (-x7, -y6), # node 25
+        (-x7, y7), # node 26
+        (x7, y7), # node 27
+        (x7, y6), # node 28
+        (-x6, y6), # node 29
+        (-x6, -y2), # node 30
+        (-x3, -y2), # node 31
+        (-x3, y3), # node 32
+        (x3, y3), # node 33
+        (x3, y2), # node 34
+        (x1, y2), # node 35
+        (x1, -y2), # node 36
+        (x3, -y2), # node 37
+        (x3, -y3), # node 38
+        (-x6, -y3), # node 39
+        (-x6, -y6), # node 40
+        (x6, -y6), # node 41
+        (x6, y3), # node 42
+        (x7, y3), # node 43
+        (x7, -y7), # node 44
+        (-x6, -y7)]) # node 45
+
+    q1ob .+= (SV2(x9, y9),) # Move local origin to center of unit cell
+    q1ib .+= (SV2(x9, y9),) # Move local origin to center of unit cell
+
+    ob = vcat(q1ob, rotate(q1ob, 90), rotate(q1ob, 180), rotate(q1ob, 270), q1ob[1:1])
+    ib = vcat(q1ib, rotate(q1ib, -90), rotate(q1ib, -180), rotate(q1ib, -270), q1ib[1:1])
+
+    # Move origin to LL corner of unit cell:
+    ob .+= (ρ₀,)
+    ib .+= (ρ₀,)
+
+    xrequired = first.(vcat(ob,ib)) |> sort! |> unique!
+    yrequired = last.(vcat(ob,ib)) |> sort! |> unique!
+
+    function is_inside(x::Real, y::Real)
+        # predicate to determine if a point is within the region to be triangulated
+        return PolygonOps.inpolygon(SV2(x,y), ob; in = true, on = true, out = false) && 
+               PolygonOps.inpolygon(SV2(x,y), ib; in = false, on = false, out = true)
+    end
+
+    areat = PolygonOps.area(ob) + PolygonOps.area(ib) # ib will contribute a negative area
+
+    # Triangulate 
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
+
+    sheet.Zs = kwargs[:Zsheet]
+    sheet.σ = kwargs[:σ]
+    sheet.Rq = kwargs[:Rq]
+    sheet.disttype = kwargs[:disttype]
+
+    # Handle remaining optional arguments
+    sheet.fufp = kwargs[:fufp]
+    sheet.class = kwargs[:class]
+    rotate!(sheet, kwargs[:rot])
+    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
+    if dxdy ≠ [0.0, 0.0]
+        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
+    end
+
+    sheet.style = "csloop"
+    sheet.ξη_check = false
+    sheet.units = units
+    sheet.s₁ = s1
+    sheet.s₂ = s2
+    sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
+
+    return sheet
+
+end # function
+
+
 function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
     ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)

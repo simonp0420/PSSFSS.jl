@@ -281,6 +281,32 @@ end
 
 
 """
+    rotate!(pts::Vector{SV2}, rot::Real)
+
+Rotate a vector of 2D points by rot degrees (counter-clockwise).
+"""
+function rotate!(pts::Vector{SV2}, rot::Real)
+    rot == 0 && return
+    s, c = sincosd(rot)
+    rotmat = SMatrix{2,2}([c -s; s c])
+    for n in eachindex(pts)
+        pts[n] = rotmat * pts[n]
+    end
+    return pts
+end
+
+"""
+    rotate(pts::Vector{SV2}, rot::Real) -> ptsnew::Vector{SV2}
+
+Rotate a vector of 2D points by rot degrees (counter-clockwise).
+"""
+function rotate(pts::Vector{SV2}, rot::Real)
+    ptsnew = rotate!(copy(pts), rot)
+    return ptsnew
+end
+
+
+"""
     translate!(sh::RWGSheet, dx, dy)
 
 Translate a sheet by dx in x and dy in y.
