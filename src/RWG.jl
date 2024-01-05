@@ -277,11 +277,9 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     #  classes). Each element of ufp2fp contains a pointer to an allocated 
     #  array of face/pair indices.  Row i contains a list of the face/pairs 
     #  that are members of equivalence class i.  Two face pairs belong to 
-    #  the same equivalence class if the source triangles can be overlaid
-    #  using a rigid translation, the source triangle nodes are listed
-    #  in the same order, and if the observation point (centroid 
-    #  of the match triangle) is in the same relative position wrt the 
-    #  source triangle.  This version uses the NearestNeighbors package:
+    #  the same equivalence class if the triangle pairs can be overlaid
+    #  using a rigid translation, and the triangle nodes are listed
+    #  in the same order. This version uses the NearestNeighbors package.
 
     #  Allocate the unique face pairs matrix and some scratch arrays.
     ufpm = zeros(Int, (nface, nface))
@@ -290,7 +288,7 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     r2 = @view sheet.ρ[sheet.fv[2, :]]
     r3 = @view sheet.ρ[sheet.fv[3, :]]
     centroid = [(r1[n] + r2[n] + r3[n]) / 3 for n in eachindex(r1)]
-    data = Array{SVector{6,Float64}}(undef, nface^2)
+    data = Array{SVector{12,Float64}}(undef, nface^2)
     #  Characterize each face pair:
     mn = 0
     for n in 1:nface, m in 1:nface
@@ -299,7 +297,11 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
         rmn1 = centroid[m] - r1[n]
         rmn2 = centroid[m] - r2[n]
         rmn3 = centroid[m] - r3[n]
-        data[mn] = SVector{6,Float64}(rmn1[1], rmn1[2], rmn2[1], rmn2[2], rmn3[1], rmn3[2])
+        rnm1 = centroid[n] - r1[m]
+        rnm2 = centroid[n] - r2[m]
+        rnm3 = centroid[n] - r3[m]
+        data[mn] = SVector{12,Float64}(rmn1[1], rmn1[2], rmn2[1], rmn2[2], rmn3[1], rmn3[2],
+        rnm1[1], rnm1[2], rnm2[1], rnm2[2], rnm3[1], rnm3[2])
     end
 
     kdtree = KDTree(data, leafsize=leafsize)
