@@ -225,7 +225,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     showprogress && println("Beginning PSSFSS Analysis")
     ncount = 0 # Number of analyses performed
     ntotal = length(freqs) * length(stvalues[1]) * length(stvalues[2])
-    showprogress && (progress = Progress(ntotal, 1))
+    showprogress && (progress = Progress(ntotal; dt = 1))
     showprogress && update!(progress, 0)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()), 'T')
