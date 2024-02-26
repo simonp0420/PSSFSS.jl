@@ -34,3 +34,8 @@ end
 @safetestset "Full Tests" begin
     include("full_test.jl")
 end
+
+
+if get(ENV, "BENCHMARK", "false") == "true"
+    include("benchmark.jl")
+end
