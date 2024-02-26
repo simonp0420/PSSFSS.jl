@@ -1,4 +1,5 @@
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 HCubature = "19dc6840-f33b-545b-b366-655c7e3ffd49"
@@ -7,6 +8,7 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 LoggingExtras = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 MeshIO = "7269a6da-0436-5bbc-96c2-40638cbb6118"
 MetalSurfaceImpedance = "d1286fa9-018f-4163-8b95-1473a4173f0d"
+PkgBenchmark = "32113eaa-f34f-5b0d-bd6c-c81e245fc73d"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
