@@ -16,7 +16,7 @@ using ..PGF: c3_calc, d3_calc
 using ..Zint: zint, filljk!, vtxcrd
 using ..PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
 using ..Log: @logfile
-using OhMyThreads: tforeach, DynamicScheduler, StaticScheduler, TaskLocalValue
+using OhMyThreads: tforeach, DynamicScheduler, StaticScheduler, GreedyScheduler, TaskLocalValue
 
 const next = (2, 3, 1)
 const prev = (3, 1, 2)
@@ -120,10 +120,6 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
     nchunks = 2 * nthr
     tlv = TaskLocalValue{Tuple{MVector{9,ComplexF64}, MVector{9,Int64}, MVector{9,Int64}}}(() ->
             (MVector{9,ComplexF64}(undef), MVector{9,Int}(undef), MVector{9,Int}(undef)))
-    #zcontribs = [MVector{9,ComplexF64}(0im,0im,0im,0im,0im,0im,0im,0im,0im) for _ in 1:nthr]    
-    #mbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
-    #sbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
-    #Threads.@threads :static for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
     tforeach(1:rwgdat.nufp, scheduler=(DynamicScheduler(; nchunks))) do iufp   # Loop over each unique face pair
         zcontrib, mbfsave, sbfsave = tlv[]
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
@@ -347,14 +343,11 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
 
     t1 = time_ns()
     nthr = Threads.nthreads()
-    ycontribs = [MVector{9,ComplexF64}(0im,0im,0im,0im,0im,0im,0im,0im,0im) for _ in 1:nthr]    
-    mbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
-    sbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
-    Threads.@threads :static for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
-        thrid = Threads.threadid()
-        ycontrib = ycontribs[thrid]
-        mbfsave = mbfsaves[thrid]
-        sbfsave = sbfsaves[thrid]
+    nchunks = 2*nthr
+    tlv = TaskLocalValue{Tuple{MVector{9,ComplexF64}, MVector{9,Int64}, MVector{9,Int64}}}(() ->
+            (MVector{9,ComplexF64}(undef), MVector{9,Int}(undef), MVector{9,Int}(undef)))
+    tforeach(1:rwgdat.nufp, scheduler=(DynamicScheduler(; nchunks))) do iufp   # Loop over each unique face pair
+        ycontrib, mbfsave, sbfsave = tlv[]
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix.
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
