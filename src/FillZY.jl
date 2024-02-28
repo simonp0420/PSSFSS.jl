@@ -116,8 +116,8 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
     end
 
     t1 = time_ns()
-    nthr = 2 * Threads.nthreads()
-    nchunks = nthr
+    nthr = Threads.nthreads()
+    nchunks = 2 * nthr
     tlv = TaskLocalValue{Tuple{MVector{9,ComplexF64}, MVector{9,Int64}, MVector{9,Int64}}}(() ->
             (MVector{9,ComplexF64}(undef), MVector{9,Int}(undef), MVector{9,Int}(undef)))
     #zcontribs = [MVector{9,ComplexF64}(0im,0im,0im,0im,0im,0im,0im,0im,0im) for _ in 1:nthr]    
