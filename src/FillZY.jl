@@ -16,6 +16,7 @@ using ..PGF: c3_calc, d3_calc
 using ..Zint: zint, filljk!, vtxcrd
 using ..PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
 using ..Log: @logfile
+using OhMyThreads: tforeach, DynamicScheduler, StaticScheduler, TaskLocalValue
 
 const next = (2, 3, 1)
 const prev = (3, 1, 2)
@@ -115,15 +116,16 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
     end
 
     t1 = time_ns()
-    nthr = Threads.nthreads()
-    zcontribs = [MVector{9,ComplexF64}(0im,0im,0im,0im,0im,0im,0im,0im,0im) for _ in 1:nthr]    
-    mbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
-    sbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
-    Threads.@threads :static for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
-        thrid = Threads.threadid()
-        zcontrib = zcontribs[thrid]
-        mbfsave = mbfsaves[thrid]
-        sbfsave = sbfsaves[thrid]
+    nthr = 2 * Threads.nthreads()
+    nchunks = nthr
+    tlv = TaskLocalValue{Tuple{MVector{9,ComplexF64}, MVector{9,Int64}, MVector{9,Int64}}}(() ->
+            (MVector{9,ComplexF64}(undef), MVector{9,Int}(undef), MVector{9,Int}(undef)))
+    #zcontribs = [MVector{9,ComplexF64}(0im,0im,0im,0im,0im,0im,0im,0im,0im) for _ in 1:nthr]    
+    #mbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
+    #sbfsaves =  [MVector{9,Int}(0,0,0,0,0,0,0,0,0) for _ in 1:nthr]
+    #Threads.@threads :static for iufp in 1:rwgdat.nufp  # Loop over each unique face pair
+    tforeach(1:rwgdat.nufp, scheduler=(DynamicScheduler(; nchunks))) do iufp   # Loop over each unique face pair
+        zcontrib, mbfsave, sbfsave = tlv[]
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
@@ -143,8 +145,6 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
             # triangle. To be used later in surface loading calculation.
             ls = (norm(rs32), norm(rs[1] - rs[3]), norm(rs12))
         end
-
-        clsflg = self_tri || closed  # Extract if self or if always.
 
         i_m = @view metal.fe[:, ifm]   # Obtain the three edges of the match triangle.
         rm = vtxcrd(ifm, metal) ./ units_per_meter # Coordinates (m) of the match tri. vertices.
