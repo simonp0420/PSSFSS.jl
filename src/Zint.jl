@@ -4,9 +4,10 @@ using StaticArrays: SVector, MVector, @SVector
 using ..Sheets: SV2, RWGSheet
 using ..Layers: Layer
 using ..RWG: RWGData
-using ..PGF: jksums
+using ..PGF: jksums, jkringmax
 using LinearAlgebra: ⋅, norm
 using Statistics: mean
+using OhMyThreads: tforeach, DynamicScheduler, StaticScheduler, GreedyScheduler
 
 export filljk!, zint
 
@@ -66,14 +67,14 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
     nface = size(metal.fe, 2) # Number of faces in triangulated sheet.
     nedge = length(metal.e1) # Number of edges in triangulated sheet.
     nufp = rwgdat.nufp # Number of unique face pairs
-    J = zeros(ComplexF64, nufp)
-    J_ξ = zeros(ComplexF64, nufp)
-    J_η = zeros(ComplexF64, nufp)
-    K = zeros(ComplexF64, nufp)
-    K_ξ = zeros(ComplexF64, nufp)
-    K_η = zeros(ComplexF64, nufp)
-    ρ_r = zeros(typeof(SV2(0.0, 0.0)), nufp)
-    rinv = zeros(Float64, nufp)
+    J = nufp == length(metal.J) ? metal.J : zeros(ComplexF64, nufp)
+    J_ξ = nufp == length(metal.J_ξ) ? metal.J_ξ : zeros(ComplexF64, nufp)
+    J_η = nufp == length(metal.J_η) ? metal.J_η : zeros(ComplexF64, nufp)
+    K = nufp == length(metal.K) ? metal.K : zeros(ComplexF64, nufp)
+    K_ξ = nufp == length(metal.K_ξ) ? metal.K_ξ : zeros(ComplexF64, nufp)
+    K_η = nufp == length(metal.K_η) ? metal.K_η : zeros(ComplexF64, nufp)
+    ρ_r = length(metal.ρ_r) == nufp ? metal.ρ_r : zeros(typeof(SV2(0.0, 0.0)), nufp)
+    rinv = length(metal.rinv) == nufp ? metal.rinv : zeros(Float64, nufp)
 
     i2s = CartesianIndices((nface, nface))
 
@@ -82,7 +83,10 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
     us1 = ulocal * metal.s₁
     us2 = ulocal * metal.s₂
 
-    Threads.@threads for iufp ∈ 1:rwgdat.nufp  # Loop over each unique face pair
+    nthr = Threads.nthreads()
+    nchunks = 2 * nthr
+    #Threads.@threads for iufp ∈ 1:rwgdat.nufp  # Loop over each unique face pair
+    tforeach(1:rwgdat.nufp, scheduler=(DynamicScheduler(; nchunks))) do iufp   # Loop over each unique face pair
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
