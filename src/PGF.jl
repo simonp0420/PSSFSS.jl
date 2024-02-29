@@ -11,15 +11,12 @@ using ..Layers: Layer
 using FFTW: fft!
 using ..Constants: tdigits
 using ..Log: @logfile
-using OhMyThreads: TaskLocalValue
+using OhMyThreads: StaticScheduler, DynamicScheduler, GreedyScheduler, TaskLocalValue, tforeach
 
 # Variables used by the spatial routines:
 const jkringmax = 65 # Max. number of rings to sum over
 const tlv = TaskLocalValue{Tuple{Vector{Float64},Vector{Float64}}}(
     () -> (zeros(8jkringmax), zeros(8jkringmax)))
-
-#const ringphs = zeros(8jkringmax, Sys.CPU_THREADS)
-#const ringuρₘₙ = zeros(8jkringmax, Sys.CPU_THREADS)
 
 # Variables used by the spectral routines:
 const mmax_list = (32, 2048)
@@ -289,7 +286,9 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         mmaxo2 = mmax ÷ 2
         mmax_oldo2 = mmax_old ÷ 2
         # Fill the tables:
-        Threads.@threads for r in (mmax_oldo2+1):mmaxo2
+        nthr = Threads.nthreads()
+        nchunks = min(2*nthr, length((mmax_oldo2+1):mmaxo2))
+        tforeach((mmax_oldo2+1):mmaxo2, scheduler=(DynamicScheduler(; nchunks))) do r
             ringsum1 = zero(eltype(table1g))
             ringsum2 = zero(eltype(table2g))
             for (m, n) in Ring(r)
@@ -566,7 +565,9 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         mmaxo2 = mmax ÷ 2
         mmax_oldo2 = mmax_old ÷ 2
         # Fill the tables:
-        Threads.@threads for r in (mmax_oldo2+1):mmaxo2
+        nthr = Threads.nthreads()
+        nchunks = min(2*nthr, length((mmax_oldo2+1):mmaxo2))
+        tforeach((mmax_oldo2+1):mmaxo2; scheduler=(DynamicScheduler(; nchunks))) do r
             ringsum1 = zero(eltype(table1g))
             ringsum2 = zero(eltype(table1g))
             for (m, n) in Ring(r)

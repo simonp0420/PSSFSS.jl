@@ -85,7 +85,6 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
 
     nthr = Threads.nthreads()
     nchunks = 2 * nthr
-    #Threads.@threads for iufp ∈ 1:rwgdat.nufp  # Loop over each unique face pair
     tforeach(1:rwgdat.nufp, scheduler=(DynamicScheduler(; nchunks))) do iufp   # Loop over each unique face pair
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
         rowcol = i2s[ifmifs]
