@@ -4,6 +4,7 @@ using Unitful: ustrip, @u_str
 using LinearAlgebra: norm, ⋅, ×
 using StaticArrays: SVector
 using ..Constants: twopi, η₀, dbmin
+using ..ZhatCross: ẑ
 using ..Layers: Layer, TEorTM, TE, TM
 using ..Sheets: RWGSheet, find_unique_periods
 using ..GSMs: Gblock
@@ -309,7 +310,7 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
         layer.γ[mode] = γ = mysqrt(β² - ksq)
         if p == TE
             Y = γ / (im * (k0 * η₀) * layer.μᵣ)
-            tvec = zhatcross(β̂)
+            tvec = ẑ × β̂
         else
             Y = im * (k0 / η₀) * layer.ϵᵣ / γ
             tvec = β̂
@@ -319,10 +320,6 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
         layer.c[mode] = mysqrt(1 / (area * Y))
     end
     return nothing
-end
-
-function zhatcross(x::T) where {T}
-    T([-x[2], x[1]])
 end
 
 

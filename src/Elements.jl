@@ -6,11 +6,12 @@ using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
 using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2
 using ..Meshsub: meshsub
 using StaticArrays: SA
-using LinearAlgebra: norm, ⋅
+using LinearAlgebra: norm, ⋅, ×
 using Printf: @sprintf
 import LibGEOS # difference, readgeom, Polygon, MultiPolygon
 import GeoInterface # nhole, ngeom, coordinates, getexterior, gethole
 import PolygonOps
+using ..ZhatCross: ẑ
 
 macro testpos(var)
     return :(all($(esc(var)) .> 0) || error($(esc(string(var))) * " must be positive!"))
@@ -90,20 +91,17 @@ function _add_libgeos_geom!(msdata::MeshsubData, obj::LibGEOS.MultiPolygon, ρ�
 end
 
 
-@inline zhatcross(t::SV2) = SV2(-t[2], t[1])
-@inline zhatcross(t::T) where {T<:AbstractVector} = [-t[2], t[1]]
-
 """
-    s₁s₂2β₁β₂(s₁,s₂) -> (β₁, β₂)
+    s₁s₂2β₁β₂(s⃗₁,s⃗₂) -> (β⃗₁, β⃗₂)
 
 Compute the reciprocal lattice vectors from the direct lattice vectors.
 Inputs and outputs are static 2-vectors from StaticArrays.
 """
-function s₁s₂2β₁β₂(s₁, s₂)
-    fact = 2π / abs(s₁[1] * s₂[2] - s₁[2] * s₂[1])
-    β₁ = -fact * zhatcross(s₂)
-    β₂ = fact * zhatcross(s₁)
-    return β₁, β₂
+function s₁s₂2β₁β₂(s⃗₁, s⃗₂)
+    fact = 2π / abs(s⃗₁[1] * s⃗₂[2] - s⃗₁[2] * s⃗₂[1])
+    β⃗₁ = -fact * (ẑ × s⃗₂)
+    β⃗₂ = fact * (ẑ × s⃗₁)
+    return β⃗₁, β⃗₂
 end
 
 function replace_kw_arg!(kwargs, badkw, goodkw)
@@ -1182,7 +1180,7 @@ function polyring_unstructured(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::V
     area_factor = sides / 2 * sind(α)
     area = [(b[i]^2 - a[i]^2) * area_factor for i in 1:nring]
     if fillcell  # need to recompute outer ring's area:
-        area[nring] = zhatcross(s1) ⋅ s2 - area_factor * a[nring]^2
+        area[nring] = (ẑ × s1) ⋅ s2 - area_factor * a[nring]^2
     end
     areat = sum(area) # total area of all rings.
     areatri = areat / ntri # Desired area of a single triangle

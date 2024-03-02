@@ -5,16 +5,12 @@ using ..Sheets: SV2, RWGSheet
 using ..Layers: Layer
 using ..RWG: RWGData
 using ..PGF: jksums, jkringmax
-using LinearAlgebra: ⋅, norm
+using LinearAlgebra: ⋅, norm, ×
+using ..ZhatCross: ẑ
 using Statistics: mean
 using OhMyThreads: tforeach, DynamicScheduler, StaticScheduler, GreedyScheduler
 
 export filljk!, zint
-
-
-
-zhatcross(t) = [-t[2], t[1]]
-zhatcross(t::SV2) = SV2(-t[2], t[1])
 
 
 
@@ -65,7 +61,6 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
     next = (2, 3, 1)
 
     nface = size(metal.fe, 2) # Number of faces in triangulated sheet.
-    nedge = length(metal.e1) # Number of edges in triangulated sheet.
     nufp = rwgdat.nufp # Number of unique face pairs
     J = nufp == length(metal.J) ? metal.J : zeros(ComplexF64, nufp)
     J_ξ = nufp == length(metal.J_ξ) ? metal.J_ξ : zeros(ComplexF64, nufp)
@@ -93,7 +88,7 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
         # Calculate twice the signed area of the source triangle
         rs32 = rs[3] - rs[2]
         rs12 = rs[1] - rs[2]
-        area2 = zhatcross(rs32) ⋅ rs12
+        area2 = (ẑ × rs32) ⋅ rs12
         unz = 1.0   # Sign of unit surface normal (in z direction)
         if area2 < 0
             area2 = abs(area2)
@@ -131,7 +126,7 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
                 lvec /= norm(lvec)  # Make into unit vector.
 
                 # Find unit outward normal to edge i, lying in plane z = 0
-                uvec = -unz * zhatcross(lvec) # so (ux,uy) = (ly * unz, -lx * unz)
+                uvec = -unz * (ẑ × lvec) # so (ux,uy) = (ly * unz, -lx * unz)
 
                 # Compute signed perp. distance from observation point to edge #i
                 p0 = uvec ⋅ (rs[i] - rmc)
