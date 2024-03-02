@@ -1,14 +1,14 @@
 module Outputs
 export @outputs, Result, append_result_data, read_result_file, extract_result_file, extract_result
 
-using LinearAlgebra: ⋅, norm
+using LinearAlgebra: ⋅, norm, ×
+using ..ZhatCross: ẑ
 using ..Constants: c₀, twopi
 using ..GSMs: GSM
 using ..Layers: TEorTM, TE, TM
 using ..Elements: s₁s₂2β₁β₂
-using ..Modes: zhatcross
 using Unitful
-using StaticArrays: @SVector
+using StaticArrays: @SVector, @SMatrix, SMatrix
 using JLD2: JLD2, jldopen
 using FileIO: load
 
@@ -76,16 +76,16 @@ end
 
 
 @inline function getsijmn(i::Int, j::Int, m::Integer, n::Union{HorV,RorL}, o::Result)
-    (view(o.gsm[i, j], 1:2, 1:2) * sourcemat(j, n, o))[m, Int(n)]
+    (SMatrix{2,2}(view(o.gsm[i, j], 1:2, 1:2)) * sourcemat(j, n, o))[m, Int(n)]
 end
 
 
 @inline function getsijmn(i::Int, j::Int, m::Union{HorV,RorL}, n::Integer, o::Result)
-    (obsmat(i, m, o) * view(o.gsm[i, j], 1:2, 1:2))[Int(m), n]
+    (obsmat(i, m, o) * SMatrix{2,2}(view(o.gsm[i, j], 1:2, 1:2)))[Int(m), n]
 end
 
 @inline function getsijmn(i::Int, j::Int, m::Union{HorV,RorL}, n::Union{HorV,RorL}, o::Result)
-    (obsmat(i, m, o) * view(o.gsm[i, j], 1:2, 1:2) * sourcemat(j, n, o))[Int(m), Int(n)]
+    (obsmat(i, m, o) * SMatrix{2,2}(view(o.gsm[i, j], 1:2, 1:2)) * sourcemat(j, n, o))[Int(m), Int(n)]
 end
 
 
@@ -111,11 +111,11 @@ function sourcemat(j::Int, n::HorV, o::Result)
     v̂ = @view v̂3[1:2]  # Only need x and y components due to dot product later
     β₀₀ = norm(o.β⃗₀₀)
     β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
-    t̂₁ = zhatcross(β̂₀₀)
+    t̂₁ = ẑ × β̂₀₀
     t̂₂ = β̂₀₀
     ct = cosd(θ)
-    mat = [ĥ⋅t̂₁ v̂⋅t̂₁
-        ĥ⋅t̂₂/ct v̂⋅t̂₂/ct]
+    mat = @SMatrix [ĥ⋅t̂₁    v̂⋅t̂₁
+                    ĥ⋅t̂₂/ct v̂⋅t̂₂/ct]
     return mat
 end
 function sourcemat(j::Int, n::RorL, o::Result)
@@ -135,11 +135,11 @@ function sourcemat(j::Int, n::RorL, o::Result)
     R̂ = view((ĥ - sgn * im * v̂) / √2, 1:2)
     β₀₀ = norm(o.β⃗₀₀)
     β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
-    t̂₁ = zhatcross(β̂₀₀)
+    t̂₁ = ẑ × β̂₀₀
     t̂₂ = β̂₀₀
     ct = cosd(θ)
-    mat = [t̂₁⋅R̂ t̂₁⋅L̂
-        t̂₂⋅R̂/ct t̂₂⋅L̂/ct] # Dot products reversed to avoid conjugation
+    mat = @SMatrix [t̂₁⋅R̂    t̂₁⋅L̂
+                    t̂₂⋅R̂/ct t̂₂⋅L̂/ct] # Dot products reversed to avoid conjugation
     return mat
 end
 
@@ -166,11 +166,11 @@ function obsmat(i::Int, n::HorV, o::Result)
     (ĥ, v̂) = ĥv̂(θ, ϕ)
     β₀₀ = norm(o.β⃗₀₀)
     β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
-    t̂₁2 = zhatcross(β̂₀₀)
+    t̂₁2 = ẑ × β̂₀₀
     t̂₁ = @SVector([t̂₁2[1], t̂₁2[2], 0.0])
     t̂₂ = @SVector([β̂₀₀[1], β̂₀₀[2], sgn * tand(θ)]) # term from Eqs. (8.20)
-    mat = [ĥ⋅t̂₁ ĥ⋅t̂₂
-        v̂⋅t̂₁ v̂⋅t̂₂]
+    mat = @SMatrix [ĥ⋅t̂₁ ĥ⋅t̂₂
+                    v̂⋅t̂₁ v̂⋅t̂₂]
     return mat
 end
 
@@ -191,11 +191,11 @@ function obsmat(i::Int, n::RorL, o::Result)
     R̂ = (ĥ + sgn * im * v̂) / √2
     β₀₀ = norm(o.β⃗₀₀)
     β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
-    t̂₁2 = zhatcross(β̂₀₀)
+    t̂₁2 = ẑ × β̂₀₀
     t̂₁ = @SVector([t̂₁2[1], t̂₁2[2], 0.0])
     t̂₂ = @SVector([β̂₀₀[1], β̂₀₀[2], sgn * tand(θ)]) # term from Eqs. (8.20)
-    mat = [R̂⋅t̂₁ R̂⋅t̂₂
-        L̂⋅t̂₁ L̂⋅t̂₂]
+    mat = @SMatrix [R̂⋅t̂₁ R̂⋅t̂₂
+                    L̂⋅t̂₁ L̂⋅t̂₂]
     return mat
 end
 
@@ -350,8 +350,8 @@ Compute Ludwig 3 unit vectors from spherical location vectors.
 function ĥv̂(θ, ϕ)
     st, ct = sincosd(θ)
     sp, cp = sincosd(ϕ)
-    θ̂ = [ct * cp, ct * sp, -st]
-    ϕ̂ = [-sp, cp, 0.0]
+    θ̂ = @SVector [ct * cp, ct * sp, -st]
+    ϕ̂ = @SVector [-sp, cp, 0.0]
     ĥ = θ̂ * cp - ϕ̂ * sp
     v̂ = θ̂ * sp + ϕ̂ * cp
     ĥ, v̂

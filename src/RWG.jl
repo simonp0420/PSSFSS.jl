@@ -18,7 +18,8 @@ export RWGData, setup_rwg, edge_current_unit_vector, rwgbfft!
 
 using ..Sheets: RWGSheet, SV2
 using StaticArrays: SVector, MVector, SArray, @SVector
-using LinearAlgebra: ⋅, norm
+using LinearAlgebra: ⋅, norm, ×
+using ..ZhatCross: ẑ
 using NearestNeighbors: KDTree, inrange
 using OffsetArrays
 using Statistics: mean
@@ -327,13 +328,6 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
 
 end # function setup_rwg
 
-
-
-zhatcross(t) = SV2([-t[2], t[1]])
-zhatcross(t::SV2) = SV2(-t[2], t[1])
-
-
-
 """
     edge_current_unit_vector(ie::Integer, rwgdat::RWGData, metal::RWGSheet)::SV2
 
@@ -343,12 +337,12 @@ the basis function associated with edge ie of the triangulated sheet.
 function edge_current_unit_vector(ie::Integer, rwgdat::RWGData, metal::RWGSheet)::SV2
     bf = rwgdat.ebf[ie]    #  Basis function index associated with edge ie
     bf == 0 && error("No basis function for edge $ie")
-    # Begin by assuming the normal is parallel to \zhat \cross (\r_2 - \r_1):
+    # Begin by assuming the normal is parallel to ẑ × (\r_2 - \r_1):
     n1 = metal.e1[ie]   # Initial node of edge ie.
     n2 = metal.e2[ie]   # Terminal node of edge ie.
     ρ21 = metal.ρ[n2] - metal.ρ[n1]
     d = norm(ρ21)
-    u = zhatcross(ρ21 / d)
+    u = ẑ × (ρ21 / d)
     # Now check that dot product of assumed unit vector with \vecrho^+ evaluated
     # at one of the edge nodes is positive:
     f = rwgdat.bff[1, bf]# Obtain the "plus" face adjacent to edge ie.
@@ -499,7 +493,7 @@ function rwgbfft!(ft, rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁
                 cjr = im * r[i]
                 csum .= complex(0.0, 0.0)
                 @inbounds for n in 1:3  # Perform sum over n as shown in Equation (2-11):
-                    ctrm3 = (zhatcross(lvec[n]) + zdotlxk[n] * (ctrm1[n] - cjr)) * j0kl2[n]
+                    ctrm3 = ((ẑ × lvec[n]) + zdotlxk[n] * (ctrm1[n] - cjr)) * j0kl2[n]
                     csum .+= cphasv[n] * (ctrm3 - rtrm2[n])
                 end
                 #csum = csum * norm(lvec(next(i))) # Needed for orig. defn. of RWG 

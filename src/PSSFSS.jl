@@ -29,6 +29,7 @@ using ProgressMeter
 using PrecompileTools
 
 include("Constants.jl")
+include("ZhatCross.jl")
 include("Log.jl")
 include("PSSFSSLen.jl")
 include("Rings.jl")
@@ -45,6 +46,7 @@ include("Modes.jl")
 include("Outputs.jl")
 include("FastSweep.jl")
 
+using .ZhatCross: ẑ
 using .Rings
 @reexport using .Sheets: Sheet, RWGSheet, read_sheet_data, nodecount, facecount, edgecount, 
                          export_sheet, STL_ASCII, STL_BINARY
@@ -52,7 +54,7 @@ using .RWG: setup_rwg, rwgbfft!, RWGData
 using .GSMs: GSM, cascade, cascade!, gsm_electric_gblock, gsm_magnetic_gblock,
     gsm_slab_interface, translate_gsm!, choose_gblocks, Gblock, pecgsm, pmcgsm
 using .FillZY: fillz, filly
-using .Modes: zhatcross, choose_layer_modes!, setup_modes!
+using .Modes: choose_layer_modes!, setup_modes!
 using .Constants: twopi, c₀, tdigits, dbmin
 using .Log: pssfss_logger, @logfile
 @reexport using .PSSFSSLen
@@ -647,7 +649,7 @@ function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
         σ *= -1 # 1 for sr == 1, and -1 for sr == 2
         for qp in 1:length(ls.P) # Loop over srce reg modes
             # Incident field for Region sr (Eq. (7.64))
-            sourcevec = iincs[qp, sr] * ls.c[qp] * ls.Y[qp] * zhatcross(ls.tvec[qp])
+            sourcevec = iincs[qp, sr] * ls.c[qp] * ls.Y[qp] * (ẑ × ls.tvec[qp])
             # Compute generalized current vector:
             @inbounds for i in firstindex(bfftstore, 1):lastindex(bfftstore,1)
                 vmat[i] = bfftstore[i, sr, qp] ⋅ sourcevec # Eq. (7.64)
@@ -664,7 +666,7 @@ function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
                 for q in 1:length(lo.P)  # Loop obs. regn. modes
                     # Extract partial scattering parameter due to scattered fields...
                     FTM = sum((vmat[n] * bfftstore[n, or, q] for n in 1:nbf)) # FT of total mag. current
-                    smat[q, qp] += (zhatcross(lo.tvec[q]) ⋅ FTM) *
+                    smat[q, qp] += ((ẑ × lo.tvec[q]) ⋅ FTM) *
                                    (σ * tlgfiv[q, or] * lo.c[q]) # Eq. (6.37)
                     i_extract += 1
                 end

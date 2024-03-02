@@ -14,10 +14,10 @@ using ..Sheets: Sheet, RWGSheet, find_unique_periods
 using FileIO: load
 
 struct GSM
-    s11::Matrix{ComplexF64}
-    s12::Matrix{ComplexF64}
-    s21::Matrix{ComplexF64}
-    s22::Matrix{ComplexF64}
+    s11::AbstractMatrix{ComplexF64}
+    s12::AbstractMatrix{ComplexF64}
+    s21::AbstractMatrix{ComplexF64}
+    s22::AbstractMatrix{ComplexF64}
 end
 
 function GSM(n1::Int, n2::Int)
@@ -28,7 +28,7 @@ function GSM(n1::Int, n2::Int)
     gsm
 end
 
-function Base.getindex(gsm::GSM, i, j)
+@inline function Base.getindex(gsm::GSM, i, j)
     (i, j) == (1, 1) && (return gsm.s11)
     (i, j) == (1, 2) && (return gsm.s12)
     (i, j) == (2, 1) && (return gsm.s21)
@@ -126,10 +126,6 @@ function cascade(a::GSM, b::GSM)
     n2a = size(a.s22, 2)
     n1b = size(b.s11, 1)
     n1b ≠ n2a && error("Non-conformable arrays")
-    n1 = size(a.s11, 1)
-    n2 = size(b.s22, 2)
-    ninner = n1b
-
     # Equation (3.35) of the theory documentation:
     gprod1 = (I - a.s22 * b.s11) \ a.s21
     s21 = b.s21 * gprod1
@@ -176,7 +172,7 @@ function cascade!(a::GSM, layer::Layer, t=NaN)
 end
 
 
-"z-component of the cross product of two 3-vectors"
+"z-component of the cross product of two 2-vectors or 3-vectors"
 zdotcross(a, b) = a[1] * b[2] - a[2] * b[1]
 
 

@@ -3,7 +3,7 @@ module PGF
 export electric_modal_sum_funcs, magnetic_modal_sum_funcs, jksums
 
 using LinearAlgebra: norm, ⋅, ×
-using OffsetArrays
+using OffsetArrays: OffsetArray
 using LoopVectorization: @turbo
 using ..Rings: Ring
 using ..Sheets: SV2
@@ -37,7 +37,7 @@ theory documentation.
 - `uρ⃗₀₀`: 2-vector containing the difference of the observation and source vectors, 
           multiplied by `u`, the smoothing parameter.
 - `ψ₁`, `ψ₂`:  The unit cell incremental phase shifts (radians).
-- `us₁`, `us₂`:  2-vectors containing unit cell direct lattice vectors multiplied 
+- `us⃗₁`, `us⃗₂`:  2-vectors containing unit cell direct lattice vectors multiplied 
                  by `u`, the smoothing parameter.
 - `extract`: If true, directs this function to perform singularity extraction 
     in the jsum calculation.
@@ -52,7 +52,7 @@ theory documentation.
 - `ksum`: The complex sum appearing in the integral of Equation (7.22d) and (7.32d) of 
               the theory documentation.
 """
-function jksums(uρ⃗₀₀, ψ₁, ψ₂, us₁, us₂, extract, convtest=1e-8)
+function jksums(uρ⃗₀₀, ψ₁, ψ₂, us⃗₁, us⃗₂, extract, convtest=1e-8)
     rmin = 5 # min number rings to sum over
     small = 1e-5  # Test value for small-argument approximation
 
@@ -75,7 +75,7 @@ function jksums(uρ⃗₀₀, ψ₁, ψ₂, us₁, us₂, extract, convtest=1e-8
     converged = false # Establish scope outside loop
     for r in 1:jkringmax
         rsave = r
-        jring, kring = _jkring(r, uρ⃗₀₀, us₁, us₂, ψ₁, ψ₂)
+        jring, kring = _jkring(r, uρ⃗₀₀, us⃗₁, us⃗₂, ψ₁, ψ₂)
         jsum += jring
         ksum += kring
         # Test for convergence if we're far enough along:
@@ -89,11 +89,11 @@ function jksums(uρ⃗₀₀, ψ₁, ψ₂, us₁, us₂, extract, convtest=1e-8
     return (jsum, ksum)
 end
 
-function _jkring(r::Int, uρ⃗₀₀::SV2, us₁::SV2, us₂::SV2, ψ₁::Float64, ψ₂::Float64)
+function _jkring(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁::Float64, ψ₂::Float64)
     ringphs, ringuρₘₙ = tlv[]
     @inbounds for (i, mn) in enumerate(Ring(r))
         (m, n) = mn
-        uρₘₙ = norm(uρ⃗₀₀ - (m * us₁ + n * us₂))
+        uρₘₙ = norm(uρ⃗₀₀ - (m * us⃗₁ + n * us⃗₂))
         ringuρₘₙ[i] = uρₘₙ
         ringphs[i] = -(m*ψ₁ + n*ψ₂)
     end
@@ -125,10 +125,10 @@ function _jkring(r::Int, uρ⃗₀₀::SV2, us₁::SV2, us₂::SV2, ψ₁::Float
     return jring, kring
 end
 
-function _jkringslow(r::Int, uρ⃗₀₀::SV2, us₁::SV2, us₂::SV2, ψ₁::Float64, ψ₂::Float64)
+function _jkringslow(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁::Float64, ψ₂::Float64)
     @inbounds for (i, mn) in enumerate(Ring(r))
         (m, n) = mn
-        uρₘₙ = norm(uρ⃗₀₀ - (m * us₁ + n * us₂))
+        uρₘₙ = norm(uρ⃗₀₀ - (m * us⃗₁ + n * us⃗₂))
         ringuρₘₙ[i] = uρₘₙ
         ringphs[i] = -(m*ψ₁ + n*ψ₂)
     end
@@ -192,6 +192,7 @@ function c3_calc(k0, u, μ₁, ϵ₁, μ₂, ϵ₂)
     w1sq = k0 * k0 * μ₁ * ϵ₁ + u * u    # Eq. (4.25)
     w2sq = k0 * k0 * μ₂ * ϵ₂ + u * u
     c3 = (μ₁ * w2sq + μ₂ * w1sq) / (2 * (μ₁ + μ₂))
+    return c3
 end
 
 
@@ -212,12 +213,13 @@ function d3_calc(k0, u, μ₁, ϵ₁, μ₂, ϵ₂)
     w2sq = k0 * k0 * μ₂ * ϵ₂ + u * u
     d3_num = μ₁ * (w2sq * (2 * ϵ₁ + ϵ₂) - w1sq * ϵ₁) + μ₂ * (w1sq * (2 * ϵ₂ + ϵ₁) - w2sq * ϵ₂)
     d3 = d3_num / (2 * (μ₁ + μ₂) * (ϵ₁ + ϵ₂))
+    return d3
 end
 
 
 
 """
-    electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀, convtest=5e-12) --> (Σm1_func, Σm2_func)
+    electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β⃗₁, β⃗₂, β⃗₀₀, convtest=5e-12) --> (Σm1_func, Σm2_func)
    
 Return a pair of functions that efficiently compute the modal series for the magnetic vector 
 potential and electric scalar potential as defined in Eqs. (5.19) of the theory documentation.
@@ -232,9 +234,9 @@ potential and electric scalar potential as defined in Eqs. (5.19) of the theory 
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β₁`, `β₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
               vectors.  Units are (1/meters).
-- `β₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet 
+- `β⃗₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet 
            vector transverse wavenumber which incorporates the intrinsic phase 
            shifts.  Units are (1/meters).
 - `convtest` Relative convergence criterion. 
@@ -242,12 +244,12 @@ potential and electric scalar potential as defined in Eqs. (5.19) of the theory 
 ##  Return Values
     
 A pair of functions that evaulate the two series defined in Eq. (5.19) of the
-theory documentation.  Each function takes a single argument `ρdif`, a 2-vector
+theory documentation.  Each function takes a single argument `ρ⃗dif`, a 2-vector
 containing the difference of the observation and source point position vectors.
 
 """
 function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{Layer},
-    s, β₁, β₂, β₀₀, convtest=5e-12)
+    s, β⃗₁, β⃗₂, β⃗₀₀, convtest=5e-12)
 
     t1 = time_ns()
     nl = length(layers) # Number of layers.
@@ -257,7 +259,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     # Compute quantities defined in Eq. (5.20):
     μ̃ = 2 * layers[s].μᵣ * layers[s+1].μᵣ / (layers[s].μᵣ + layers[s+1].μᵣ) # Normalized to μ0.
     ϵ̄ = (layers[s].ϵᵣ + layers[s+1].ϵᵣ) / 2 # Normalized to ϵ0.
-    area = 4π^2 / norm(β₁ × β₂) # unit cell area (m^2):
+    area = 4π^2 / norm(β⃗₁ × β⃗₂) # unit cell area (m^2):
     # Obtain the appropriate Green's function expansion coefficients:
     c3 = c3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
     d3 = d3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
@@ -292,8 +294,8 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
             ringsum1 = zero(eltype(table1g))
             ringsum2 = zero(eltype(table2g))
             for (m, n) in Ring(r)
-                βmn = β₀₀ + m * β₁ + n * β₂   # Modal transverse wave vector
-                β² = βmn ⋅ βmn # magnitude squared
+                β⃗mn = β⃗₀₀ + m * β⃗₁ + n * β⃗₂   # Modal transverse wave vector
+                β² = β⃗mn ⋅ β⃗mn # magnitude squared
                 β² = max(β², β²min)  # Avoid singularity
                 κmn² = β² + u * u #  Eq. (4.24)
                 κmn = sqrt(κmn²)
@@ -407,8 +409,8 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         table2[k, -1] = cis2 * table2[k, mmax-1]
     end
     # Use meaningful names:
-    Σm1_func = make_Σm_func(table1, β₁, β₂, ψ₁, ψ₂)
-    Σm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
+    Σm1_func = make_Σm_func(table1, β⃗₁, β⃗₂, ψ₁, ψ₂)
+    Σm2_func = make_Σm_func(table2, β⃗₁, β⃗₂, ψ₁, ψ₂)
     t2 = time_ns()
     tsec = round((t2 - t1) / 1e9; digits=tdigits)
     @logfile "      $tsec seconds to compute $mmax × $mmax electric modal tables"
@@ -418,7 +420,7 @@ end
 
 
 """
-    make_Σm_func(table::AbstractArray, β₁::SV2, β₂::SV2, ψ₁::Real, ψ₂::Real) -> Σm_func
+    make_Σm_func(table::AbstractArray, β⃗₁::SV2, β⃗₂::SV2, ψ₁::Real, ψ₂::Real) -> Σm_func
 
 Return a one-argument function `Σm` that evaluates one of the four modal series defined in
 Equations (5.19) and (5.26) of the theory documentation. The single argument to `Σm` is a 2-vector
@@ -429,27 +431,27 @@ using a 6-point interpolation into a precomputed table.
 
 - `table`:  An `OffsetArray` generated by the function `electric_modal_sum_funcs` or `magnetic_modal_sum_funcs`, 
             with both axes consisting of `-1:mmax`.
-- `β₁`, `β₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
               vectors.  Units are (1/meters).
 - `ψ₁`, `ψ₂`: Incremental unit cell phase shifts (radians).
 
 ## Return value:
 
-- `Σm_func`: A function that takes a single argument `ρdif`, a 2-vector containing the difference between
+- `Σm_func`: A function that takes a single argument `ρ⃗dif`, a 2-vector containing the difference between
              observation and source points, and returns the value of the modal sum via interpolation in the 
              precomputed table.
 
 """
-function make_Σm_func(table::AbstractArray, β₁::SV2, β₂::SV2, ψ₁::Real, ψ₂::Real)
+function make_Σm_func(table::AbstractArray, β⃗₁::SV2, β⃗₂::SV2, ψ₁::Real, ψ₂::Real)
     axes(table, 1) == axes(table, 2) || error("Non-square table")
     mmax = maximum(axes(table, 1))
     twopi = 2π
-    function Σm_func(ρdif)::eltype(table)
-        let table = table, β₁ = β₁, β₂ = β₂, ψ₁ = ψ₁, ψ₂ = ψ₂, mmax = mmax, twopi = twopi
+    function Σm_func(ρ⃗dif)::eltype(table)
+        let table = table, β⃗₁ = β⃗₁, β⃗₂ = β⃗₂, ψ₁ = ψ₁, ψ₂ = ψ₂, mmax = mmax, twopi = twopi
             # Obtain ξ₁ and ξ₂ using Equation (2.10) or (5.31) of the theory docs:
-            ξ₁_orig = (β₁ ⋅ ρdif) / twopi
+            ξ₁_orig = (β⃗₁ ⋅ ρ⃗dif) / twopi
             ξ₁_orig = abs(ξ₁_orig) < 1e-8 ? 0.0 : ξ₁_orig
-            ξ₂_orig = (β₂ ⋅ ρdif) / twopi
+            ξ₂_orig = (β⃗₂ ⋅ ρ⃗dif) / twopi
             ξ₂_orig = abs(ξ₂_orig) < 1e-8 ? 0.0 : ξ₂_orig
             # Adjust values to place in the interval [0,1):
             ξ₁ = mod(ξ₁_orig, 1)
@@ -489,7 +491,7 @@ end
 
 
 """
-    magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β₁, β₂, β₀₀,convtest=5e-12) --> (Σpm1_func, Σpm2_func)
+    magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β⃗₁, β⃗₂, β⃗₀₀,convtest=5e-12) --> (Σpm1_func, Σpm2_func)
    
 Return a pair of functions that efficiently compute the modal series for the electric vector 
 potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory documentation.
@@ -504,9 +506,9 @@ potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory 
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β₁`, `β₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
               vectors.  Units are (1/meters).
-- `β₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet 
+- `β⃗₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet 
            vector transverse wavenumber which incorporates the intrinsic phase 
            shifts.  Units are (1/meters).
 - `convtest` Relative convergence criterion. 
@@ -514,12 +516,12 @@ potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory 
 ##  Return Values
     
 A pair of functions that evaulate the two series defined in Eq. (5.26) of the
-theory documentation.  Each function takes a single argument `ρdif`, a 2-vector
+theory documentation.  Each function takes a single argument `ρ⃗dif`, a 2-vector
 containing the difference of the observation and source point position vectors.
 
 """
 function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{Layer},
-    s, β₁, β₂, β₀₀, convtest=5e-12)
+    s, β⃗₁, β⃗₂, β⃗₀₀, convtest=5e-12)
     t1 = time_ns()
     nl = length(layers) # Number of layers.
     nl < 2 && error("Too few layers")
@@ -528,7 +530,7 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     # Compute quantities defined in (5.20):
     μ̃ = 2 * layers[s].μᵣ * layers[s+1].μᵣ / (layers[s].μᵣ + layers[s+1].μᵣ) # Normalized to μ0.
     ϵ̄ = (layers[s].ϵᵣ + layers[s+1].ϵᵣ) / 2 # Normalized to ϵ0.
-    area = 4π^2 / norm(β₁ × β₂) # unit cell area (m^2):
+    area = 4π^2 / norm(β⃗₁ × β⃗₂) # unit cell area (m^2):
     # Obtain the appropriate Green's function expansion coefficient:
     c3s = c3_calc(k0, u, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ)
     c3sp1 = c3_calc(k0, u, layers[s+1].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ, layers[s+1].μᵣ)
@@ -571,8 +573,8 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
             ringsum1 = zero(eltype(table1g))
             ringsum2 = zero(eltype(table1g))
             for (m, n) in Ring(r)
-                βmn = β₀₀ + m * β₁ + n * β₂   # Modal transverse wave vector
-                β² = βmn ⋅ βmn # magnitude squared
+                β⃗mn = β⃗₀₀ + m * β⃗₁ + n * β⃗₂   # Modal transverse wave vector
+                β² = β⃗mn ⋅ β⃗mn # magnitude squared
                 β² = max(β², β²min)  # Avoid singularity
                 κmn² = β² + u * u #  Eq. (4.24)
                 κmn = sqrt(κmn²)
@@ -680,8 +682,8 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         table2[k, -1] = cis2 * table2[k, mmax-1]
     end
     # Use meaningful names (p for "prime"):
-    Σpm1_func = make_Σm_func(table1, β₁, β₂, ψ₁, ψ₂)
-    Σpm2_func = make_Σm_func(table2, β₁, β₂, ψ₁, ψ₂)
+    Σpm1_func = make_Σm_func(table1, β⃗₁, β⃗₂, ψ₁, ψ₂)
+    Σpm2_func = make_Σm_func(table2, β⃗₁, β⃗₂, ψ₁, ψ₂)
     t2 = time_ns()
     tsec = round((t2 - t1) / 1e9; digits=tdigits)
     @logfile "      $tsec seconds to compute $mmax × $mmax magnetic modal tables"
@@ -690,7 +692,7 @@ end
 
 
 """
-    direct_electric_modal_series(k0,u,ψ₁,ψ₂,layers,s β₁,β₂,β₀₀,ρdif) --> (Σm1,Σm2)
+    direct_electric_modal_series(k0,u,ψ₁,ψ₂,layers,s β⃗₁,β⃗₂,β⃗₀₀,ρdif) --> (Σm1,Σm2)
    
 This function uses direct, brute-force summation to calculate the electric source
 modal series needed for the potential Green's functions.  **THIS ROUTINE IS FOR
@@ -707,12 +709,12 @@ It is only used for comparison and testing purposes.
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`:  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β₁`, `β₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
               vectors.  Units are (1/meters).
-- `β₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet 
+- `β⃗₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet 
            vector transverse wavenumber which incorporates the intrinsic phase 
            shifts.  Units are (1/meters).
-- `ρdif`:  2-vector containing the difference between observation and source 
+- `ρ⃗dif`:  2-vector containing the difference between observation and source 
            points.
 
 ##  Return Values
@@ -723,7 +725,7 @@ It is only used for comparison and testing purposes.
                for `Σm2`.
 """
 function direct_electric_modal_series(k0, u, ψ₁, ψ₂,
-    layers::Vector{Layer}, s, β₁, β₂, β₀₀, ρdif)
+    layers::Vector{Layer}, s, β⃗₁, β⃗₂, β⃗₀₀, ρ⃗dif)
     max_rings = 3100 # Max number of rings for direct_modal_series.
     Σm1 = OffsetArray(zeros(ComplexF64, max_rings + 1), 0:max_rings)
     Σm2 = OffsetArray(zeros(ComplexF64, max_rings + 1), 0:max_rings)
@@ -736,16 +738,16 @@ function direct_electric_modal_series(k0, u, ψ₁, ψ₂,
     # Compute quantities defined in Eq. (5.20):
     μ̃ = 2 * layers[s].μᵣ * layers[s+1].μᵣ / (layers[s].μᵣ + layers[s+1].μᵣ) # Normalized to μ0.
     ϵ̄ = (layers[s].ϵᵣ + layers[s+1].ϵᵣ) / 2 # Normalized to ϵ0.
-    area = 4π^2 / norm(β₁ × β₂) # unit cell area (m^2):
+    area = 4π^2 / norm(β⃗₁ × β⃗₂) # unit cell area (m^2):
 
     # Obtain the appropriate Green's function expansion coefficients:
     c3 = c3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
     d3 = d3_calc(k0, u, layers[s].μᵣ, layers[s].ϵᵣ, layers[s+1].μᵣ, layers[s+1].ϵᵣ)
 
     function summands(m, n)
-        let β₀₀ = β₀₀, u = u, layers = layers, s = s, nl = nl, k0sq = k0sq, c3 = c3, d3 = d3, ϵ̄ = ϵ̄, μ̃ = μ̃, β₁ = β₁, β₂ = β₂
-            βmn = β₀₀ + m * β₁ + n * β₂
-            β² = βmn ⋅ βmn
+        let β⃗₀₀ = β⃗₀₀, u = u, layers = layers, s = s, nl = nl, k0sq = k0sq, c3 = c3, d3 = d3, ϵ̄ = ϵ̄, μ̃ = μ̃, β⃗₁ = β⃗₁, β⃗₂ = β⃗₂
+            β⃗mn = β⃗₀₀ + m * β⃗₁ + n * β⃗₂
+            β² = β⃗mn ⋅ β⃗mn
             β²min = 1e-10 * k0sq
             β² = max(β², β²min)  # Avoid singularity
             κmn² = β² + u * u
@@ -793,34 +795,30 @@ function direct_electric_modal_series(k0, u, ψ₁, ψ₂,
 
 
     Σ1, Σ2 = summands(0, 0)
-    Σm1[0] = Σ1 * cis(-(β₀₀ ⋅ ρdif))
-    Σm2[0] = Σ2 * cis(-(β₀₀ ⋅ ρdif))
+    Σm1[0] = Σ1 * cis(-(β⃗₀₀ ⋅ ρ⃗dif))
+    Σm2[0] = Σ2 * cis(-(β⃗₀₀ ⋅ ρ⃗dif))
 
     # Begin loop over summation lattice rings.
     for r in 1:max_rings
         sumring1 = zero(ComplexF64)
         sumring2 = zero(ComplexF64)
         for (m, n) in Ring(r)
-            cfact = cis(-((β₀₀ + m * β₁ + n * β₂) ⋅ ρdif))
+            cfact = cis(-((β⃗₀₀ + m * β⃗₁ + n * β⃗₂) ⋅ ρ⃗dif))
             Σ1, Σ2 = summands(m, n)
             sumring1 += Σ1 * cfact
             sumring2 += Σ2 * cfact
         end
         # Done with ring r.  Add ring contributions to sums.
-        #Σm1[r] = Σm1[r-1] + sumring1 
-        #Σm2[r] = Σm2[r-1] + sumring2 
         Σm1[r] = sumring1
         Σm2[r] = sumring2
     end
-    #    cumsum!(Σm1, Σm1)
-    #    cumsum!(Σm2, Σm2)
     Σm1 /= (2 * area)
     Σm2 /= (2 * area)
     return Σm1, Σm2
 end
 
 """
-    direct_magnetic_modal_series(k0,u,ψ₁,ψ₂,layers,s β₁,β₂,β₀₀,ρdif) --> (Σpm1,Σpm2)
+    direct_magnetic_modal_series(k0,u,ψ₁,ψ₂,layers,s β⃗₁,β⃗₂,β⃗₀₀,ρ⃗dif) --> (Σpm1,Σpm2)
    
 This function uses direct, brute-force summation to calculate the magnetic 
 source modal series needed for the potential Green's functions.  
@@ -837,12 +835,12 @@ numerically efficient. It is only used for comparison and testing purposes.
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`:  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β₁`, `β₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
               vectors.  Units are (1/meters).
-- `β₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet 
+- `β⃗₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet 
            vector transverse wavenumber which incorporates the intrinsic phase 
            shifts.  Units are (1/meters).
-- `ρdif`:  2-vector containing the difference between observation and source 
+- `ρ⃗dif`:  2-vector containing the difference between observation and source 
            points.
 
 ##  Return Values
@@ -853,7 +851,7 @@ numerically efficient. It is only used for comparison and testing purposes.
                  for `Σm2`.
 """
 function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
-    layers::Vector{Layer}, s, β₁, β₂, β₀₀, ρdif)
+    layers::Vector{Layer}, s, β⃗₁, β⃗₂, β⃗₀₀, ρ⃗dif)
     max_rings = 3100 # Max number of rings for direct_modal_series.
     Σm1 = OffsetArray(zeros(ComplexF64, max_rings + 1), 0:max_rings)
     Σm2 = OffsetArray(zeros(ComplexF64, max_rings + 1), 0:max_rings)
@@ -863,7 +861,7 @@ function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
     # Compute quantities defined in Eq. (5.20):
     μ̃ = 2 * layers[s].μᵣ * layers[s+1].μᵣ / (layers[s].μᵣ + layers[s+1].μᵣ) # Normalized to μ0.
     ϵ̄ = (layers[s].ϵᵣ + layers[s+1].ϵᵣ) / 2 # Normalized to ϵ0.
-    area = 4π^2 / norm(β₁ × β₂) # unit cell area (m^2):
+    area = 4π^2 / norm(β⃗₁ × β⃗₂) # unit cell area (m^2):
 
     # Obtain the appropriate Green's function expansion coefficients:
     c3s = c3_calc(k0, u, layers[s].ϵᵣ, layers[s].μᵣ, layers[s].ϵᵣ, layers[s].μᵣ)
@@ -879,12 +877,12 @@ function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
 
 
     function summands(m, n)
-        let β₀₀ = β₀₀, u = u, layers = layers, s = s, nl = nl, k0sq = k0sq, c3s =
+        let β⃗₀₀ = β⃗₀₀, u = u, layers = layers, s = s, nl = nl, k0sq = k0sq, c3s =
                 c3s, c3sp1 = c3sp1, d3s = d3s, d3sp1 = d3sp1, f1 = f1, f3 = f3, p1 = p1, p3 = p3,
-            β₁ = β₁, β₂ = β₂
+            β⃗₁ = β⃗₁, β⃗₂ = β⃗₂
 
-            βmn = β₀₀ + m * β₁ + n * β₂
-            β² = βmn ⋅ βmn
+            β⃗mn = β⃗₀₀ + m * β⃗₁ + n * β⃗₂
+            β² = β⃗mn ⋅ β⃗mn
             β²min = 1e-10 * k0sq
             β² = max(β², β²min)  # Avoid singularity
             κmn² = β² + u * u
@@ -927,21 +925,19 @@ function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,
 
 
     Σ1, Σ2 = summands(0, 0)
-    Σm1[0] = Σ1 * cis(-(β₀₀ ⋅ ρdif))
-    Σm2[0] = Σ2 * cis(-(β₀₀ ⋅ ρdif))
+    Σm1[0] = Σ1 * cis(-(β⃗₀₀ ⋅ ρ⃗dif))
+    Σm2[0] = Σ2 * cis(-(β⃗₀₀ ⋅ ρ⃗dif))
     # Begin loop over summation lattice rings.
     for r in 1:max_rings
         sumring1 = zero(ComplexF64)
         sumring2 = zero(ComplexF64)
         for (m, n) in Ring(r)
-            cfact = cis(-((β₀₀ + m * β₁ + n * β₂) ⋅ ρdif))
+            cfact = cis(-((β⃗₀₀ + m * β⃗₁ + n * β⃗₂) ⋅ ρ⃗dif))
             Σ1, Σ2 = summands(m, n)
             sumring1 += Σ1 * cfact
             sumring2 += Σ2 * cfact
         end
         # Done with ring r.  Add ring contributions to sums.
-        #Σm1[r] = Σm1[r-1] + sumring1 
-        #Σm2[r] = Σm2[r-1] + sumring2 
         Σm1[r] = sumring1
         Σm2[r] = sumring2
     end
