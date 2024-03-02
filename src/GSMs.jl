@@ -123,16 +123,16 @@ must be conformable, i.e., `n2a == n1b`, where `n2a` is the number of modes in R
 2 for GSM `a`, and `n1b` is the number of modes in Region 1 of GSM `b`.
 """
 function cascade(a::GSM, b::GSM)
-    n2a = size(a.s22, 2)
-    n1b = size(b.s11, 1)
+    n2a = size(a[2,2], 2)
+    n1b = size(b[1,1], 1)
     n1b ≠ n2a && error("Non-conformable arrays")
     # Equation (3.35) of the theory documentation:
-    gprod1 = (I - a.s22 * b.s11) \ a.s21
-    s21 = b.s21 * gprod1
-    s11 = a.s11 + (a.s12 * (b.s11 * gprod1))
-    gprod2 = (I - b.s11 * a.s22) \ b.s12
-    s12 = a.s12 * gprod2
-    s22 = b.s22 + (b.s21 * (a.s22 * gprod2))
+    gprod1 = (I - a[2,2] * b[1,1]) \ a[2,1]
+    s21 = b[2,1] * gprod1
+    s11 = a[1,1] + (a[1,2] * b[1,1] * gprod1)
+    gprod2 = (I - b[1,1] * a[2,2]) \ b[1,2]
+    s12 = a[1,2] * gprod2
+    s22 = b[2,2] + (b[2,1] * a[2,2] * gprod2)
     GSM(s11, s12, s21, s22)
 end
 
@@ -149,8 +149,7 @@ the modes corresponding to the side `2` ports of the GSM are already properly
 defined (i.e. normalized) consistent with the dielectric slab electrical properties.
 """
 function cascade!(a::GSM, layer::Layer, t=NaN)
-    n1 = size(a.s11, 1)
-    n2 = size(a.s22, 1)
+    n2 = size(a[2,2], 1)
     n2 ≠ length(layer.γ) && @error "# modes not consistent" n2 length(layer.γ) exception = ErrorException
     # Obtain layer thickness in meters:
     if !isnan(t)
@@ -163,10 +162,10 @@ function cascade!(a::GSM, layer::Layer, t=NaN)
     #  Loop over each of the modes:
     for i in 1:n2
         p = exp(-layer.γ[i] * d)
-        a.s12[:, i] .*= p
-        a.s21[i, :] .*= p
-        a.s22[:, i] .*= p
-        a.s22[i, :] .*= p
+        a[1,2][:, i] .*= p
+        a[2,1][i, :] .*= p
+        a[2,2][:, i] .*= p
+        a[2,2][i, :] .*= p
     end
     return nothing
 end
