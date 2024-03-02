@@ -124,10 +124,15 @@ const SUITE = @benchmarkset "PSSFSS" begin
         c22 = 0.3 * rand(ComplexF64, n4, n4)
         c = GSM(c11, c12, transpose(c12), c22)
         bc = cascade(b,c)
+        d11 = 0.3 * rand(ComplexF64, n4, n4)
+        d12 = rand(ComplexF64, n4, n1)
+        d22 = 0.3 * rand(ComplexF64, n1, n1)
+        d = GSM(d11, d12, transpose(d12), d22)
         @case "a ⋆ b" cascade($a, $b);
         @case "b ⋆ c" cascade($b, $c);
         @case "(a ⋆ b) ⋆ c" cascade($ab, $c);
         @case "a ⋆ (b ⋆ c)" cascade($a, $bc);
+        @case "d ⋆ a" cascade($d, $a);
     end
 end
 
