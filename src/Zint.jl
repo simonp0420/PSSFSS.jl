@@ -8,7 +8,7 @@ using ..PGF: jksums, jkringmax
 using LinearAlgebra: ⋅, norm, ×
 using ..ZhatCross: ẑ
 using Statistics: mean
-using OhMyThreads: tforeach, DynamicScheduler, StaticScheduler, GreedyScheduler
+using OhMyThreads: @tasks, @set, DynamicScheduler, StaticScheduler
 
 export filljk!, zint
 
@@ -80,7 +80,9 @@ function filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
 
     nthr = Threads.nthreads()
     nchunks = 2 * nthr
-    tforeach(1:rwgdat.nufp, scheduler=(DynamicScheduler(; nchunks))) do iufp   # Loop over each unique face pair
+    @tasks for iufp in 1:rwgdat.nufp   # Loop over each unique face pair
+        @set scheduler=(DynamicScheduler(; nchunks))
+
         ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
         rowcol = i2s[ifmifs]
         ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles

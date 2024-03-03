@@ -11,7 +11,7 @@ using ..Layers: Layer
 using FFTW: fft!
 using ..Constants: tdigits
 using ..Log: @logfile
-using OhMyThreads: StaticScheduler, DynamicScheduler, GreedyScheduler, TaskLocalValue, tforeach
+using OhMyThreads: @tasks, @set, StaticScheduler, DynamicScheduler, TaskLocalValue
 
 # Variables used by the spatial routines:
 const jkringmax = 65 # Max. number of rings to sum over
@@ -290,7 +290,9 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         # Fill the tables:
         nthr = Threads.nthreads()
         nchunks = min(2*nthr, length((mmax_oldo2+1):mmaxo2))
-        tforeach((mmax_oldo2+1):mmaxo2, scheduler=(DynamicScheduler(; nchunks))) do r
+        @tasks for r in (mmax_oldo2+1):mmaxo2
+            @set scheduler = DynamicScheduler(; nchunks)
+
             ringsum1 = zero(eltype(table1g))
             ringsum2 = zero(eltype(table2g))
             for (m, n) in Ring(r)
@@ -569,7 +571,9 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         # Fill the tables:
         nthr = Threads.nthreads()
         nchunks = min(2*nthr, length((mmax_oldo2+1):mmaxo2))
-        tforeach((mmax_oldo2+1):mmaxo2; scheduler=(DynamicScheduler(; nchunks))) do r
+        @tasks for r in (mmax_oldo2+1):mmaxo2
+            @set scheduler = DynamicScheduler(; nchunks)
+
             ringsum1 = zero(eltype(table1g))
             ringsum2 = zero(eltype(table1g))
             for (m, n) in Ring(r)
