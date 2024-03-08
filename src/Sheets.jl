@@ -34,6 +34,10 @@ mutable struct RWGSheet <: Sheet
     fv::Array{Int,2} #  Face/vertex list. fv[:,i] lists vertices of face i
     fe::Array{Int,2} #  Face/edge list. fe[:,i] lists edges of face i
     # The following fields are storage for face/face integrals:
+    I1::Vector{ComplexF64}
+    I1_ξ::Vector{ComplexF64}
+    I1_η::Vector{ComplexF64}
+    I2::Vector{ComplexF64}
     J::Vector{ComplexF64}
     J_ξ::Vector{ComplexF64}
     J_η::Vector{ComplexF64}
@@ -76,6 +80,10 @@ RWGSheet() = RWGSheet("", u"mm",            # style, units
     Int[], Int[],         # e1, e2
     Array{Int}(undef, 0, 0), # fv
     Array{Int}(undef, 0, 0), # fe
+    ComplexF64[],         # I1
+    ComplexF64[],         # I1_ξ
+    ComplexF64[],         # I1_η
+    ComplexF64[],         # I2
     ComplexF64[],         # J
     ComplexF64[],         # J_ξ
     ComplexF64[],         # J_η
