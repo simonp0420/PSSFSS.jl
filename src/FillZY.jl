@@ -389,25 +389,26 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
     # Fill the interaction matrix
     pm = (1, -1)
     nthr = Threads.nthreads()
-    nchunks = nthr
+    nchunks = 2 * nthr
     t1 = time_ns()
 
     @tasks for bfci in CartesianIndices((nbf,nbf))
-        @set scheduler = StaticScheduler(; nchunks)
+        @set scheduler = DynamicScheduler(; nchunks)
         
         mbf, sbf = Tuple(bfci) # match and source basis function indices
+
         sfp, sfm = @view bff[:, sbf] # plus and minus faces of source basis function
         sep, sem = @view bfe[:, sbf] # plus and minus edges of source basis function
+        mfp, mfm = @view bff[:, mbf] # plus and minus faces of match basis function
+        mep, mem = @view bfe[:, mbf] # plus and minus edges of match basis function
         for (ss, sf, se) in zip(pm, (sfp, sfm), (sep, sem)) # source sign, source face, source edge
             # Obtain the coordinates (in meters) of the source triangle's vertices:
             rs = vtxcrd(sf, apert) ./ units_per_meter
-            rs_opp = vertexcoords_opposite_edge(se, sf, apert)
+            rs_opp = vertexcoords_opposite_edge(se, sf, apert) ./ units_per_meter
             source_flag = ss * floquet_factor[eci[se]]
             F_source_flag = F_factor * source_flag
             Ψ_source_flag = Ψ_factor * source_flag
 
-            mfp, mfm = @view bff[:, mbf] # plus and minus faces of match basis function
-            mep, mem = @view bfe[:, mbf] # plus and minus edges of match basis function
             for (ms, mf, me) in zip(pm, (mfp,mfm), (mep,mem)) # match sign, match face, match edge
                 match_flag = ms * conj(floquet_factor[eci[me]])
                 rm = vtxcrd(mf, apert) ./ units_per_meter  # Coords (m) of the match tri. vertices.
@@ -426,7 +427,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
 
                 # Compute vector from active vertex to centroid of match triangle
                 # (divided by 2) as in Eq. (7.53):
-                rm_opp = vertexcoords_opposite_edge(me, mf, apert)
+                rm_opp = vertexcoords_opposite_edge(me, mf, apert) ./ units_per_meter
                 ρc2 = 0.5 * (rmc - rm_opp)
                     
                 # Compute singular contribution for this edge (the middle term in 
