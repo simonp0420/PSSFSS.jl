@@ -63,6 +63,7 @@ performed in the same analysis script using the immensely powerful Julia program
 - Version 1.5: `sinuous` element added.
 - Version 1.6: Added `export_sheet` for exporting `RWGSheet` triangulations to STL-format CAD files.
 - Version 1.7: Function `extract_result_file` is deprecated in favor of a new method for `extract_result`.
+- Version 1.8: Improved multi-threading in matrix fill functions.
   
 ## Installation
 You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
