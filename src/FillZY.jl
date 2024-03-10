@@ -71,7 +71,6 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
 
 
     closed = true              # Always use singularity extraction.
-    spinlock = Threads.SpinLock()
     nbf = size(rwgdat.bfe, 2)
     zmat = rwgdat.zorymat
     zmat .= zero(eltype(zmat))
@@ -92,12 +91,11 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
     floquet_factor = OffsetArray(SVector(1.0, 1.0, cis(-ψ₁), 1.0, cis(-ψ₂)), 0:4)
 
     # Set up aliases into data structures for more convenient reference:
-    bfe = rwgdat.bfe
     bff = rwgdat.bff
-    ebf = rwgdat.ebf
+    bfe = rwgdat.bfe
     eci = rwgdat.eci
 
-    nface = size(metal.fv, 2)
+    nface = facecount(metal)
     i2s = CartesianIndices((nface, nface))
     nbf = size(rwgdat.bfe, 2)
     ϵᵣ₁ = layers[s].ϵᵣ
@@ -133,141 +131,128 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
         @logfile "      $(round(t_spatial,digits=tdigits)) seconds for spatial face integrals"
     end
 
+    nufp = rwgdat.nufp
+    # Compute frequency-dependent face-face integrals:
+    nufp == length(metal.I1) || (metal.I1 = zeros(ComplexF64, nufp))
+    nufp == length(metal.I1_ξ) || (metal.I1_ξ = zeros(ComplexF64, nufp))
+    nufp == length(metal.I1_η) || (metal.I1_η = zeros(ComplexF64, nufp))
+    nufp == length(metal.I2) || (metal.I2 = zeros(ComplexF64, nufp))
+
     t1 = time_ns()
     nthr = Threads.nthreads()
     nchunks = 2 * nthr
     @tasks for iufp in 1:rwgdat.nufp   # Loop over each unique face pair
         @set scheduler = DynamicScheduler(; nchunks)
-        @init begin
-            zcontrib::MVector{9,ComplexF64} = MVector{9,ComplexF64}(undef)
-            mbfsave::MVector{9,Int64} = MVector{9,Int}(undef)
-            sbfsave::MVector{9,Int64} = MVector{9,Int}(undef)
-        end
-        
-        ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix
-        rowcol = i2s[ifmifs]
-        ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
-        is = @view metal.fe[:, ifs]     # Obtain the three edges of the source triangle.
+        ifmifs = rwgdat.ufp2fp[iufp][1]  # Obtain index into face/face matrix.
+        ifm, ifs = Tuple(i2s[ifmifs])  # indices of match and source triangles
         # Obtain the coordinates (in meters) of the source triangle's vertices:
         rs = vtxcrd(ifs, metal) ./ units_per_meter
-        # Calculate the signed area of the source triangle:
-        rs32 = rs[3] - rs[2]
-        rs12 = rs[1] - rs[2]
-        area = 0.5 * (rs32[1] * rs12[2] - rs32[2] * rs12[1])
-        area48 = 48 * abs(area)  # Needed for surface loading
-
-        self_tri = (ifm == ifs) # Source and match tri are the same?
-
-        if self_tri
-            # Obtain the length of each side of the source=match
-            # triangle. To be used later in surface loading calculation.
-            ls = (norm(rs32), norm(rs[1] - rs[3]), norm(rs12))
-        end
-
-        i_m = @view metal.fe[:, ifm]   # Obtain the three edges of the match triangle.
-        rm = vtxcrd(ifm, metal) ./ units_per_meter # Coordinates (m) of the match tri. vertices.
+        rm = vtxcrd(ifm, metal) ./ units_per_meter  # Coords (m) of the match tri. vertices.
         rmc = mean(rm)        # Match face centroid (meters).
-
         # Perform frequency-dependent integrals over source triangle 
-        (I1, I1_ξ, I1_η, I2) = zint(Σm1_func, Σm2_func, rs, rmc)
-        # Recall the frequency-independent spatial integrals:
-        J = metal.J[iufp]
-        J_ξ = metal.J_ξ[iufp]
-        J_η = metal.J_η[iufp]
-        K = metal.K[iufp]
-        K_ξ = metal.K_ξ[iufp]
-        K_η = metal.K_η[iufp]
-        rinv = metal.rinv[iufp]
-        ρ_r = metal.ρ_r[iufp]
-        I1_ζ = I1 - I1_ξ - I1_η
-        J_ζ = J - J_ξ - J_η
-        K_ζ = K - K_ξ - K_η
+        (metal.I1[iufp], metal.I1_ξ[iufp], metal.I1_η[iufp], metal.I2[iufp]) = zint(Σm1_func, Σm2_func, rs, rmc)
+    end
+    t2 = time_ns()
+    t_spectral = t2 - t1
+    @logfile "      $(round(t_spectral/1e9,digits=tdigits)) seconds for spectral face integrals"
 
-        # Compute vector from each vertex to centroid of match triangle
-        # (divided by 2) as in Eq. (7-15):
-        ρc2 = @SVector [0.5 * (rmc - rm[i]) for i in 1:3]
 
-        # Loop over the face pairs in this equivalence class:
-        for (i0, ifmifs2) in enumerate(rwgdat.ufp2fp[iufp])
-            zcontrib .= zero(eltype(zcontrib))
-            mbfsave .= one(eltype(mbfsave))
-            sbfsave .= one(eltype(mbfsave))
-            savecounter = 0
+    # Fill the interaction matrix
+    pm = (1, -1)
+    nthr = Threads.nthreads()
+    nchunks = 2 * nthr
+    t1 = time_ns()
+    @tasks for bfci in CartesianIndices((nbf,nbf))   # Loop over basis function pairs
+        @set scheduler = DynamicScheduler(; nchunks)
 
-            rowcol = i2s[ifmifs2]
-            ifm, ifs = rowcol[1], rowcol[2] # indices of match and source triangles
-            is = @view metal.fe[:, ifs]      # Obtain the three edges of source tri.
-            i_m = @view metal.fe[:, ifm]      # Obtain the three edges of the match tri.
-            # Loop over each edge of the source triangle.
-            for isl in 1:3   # isl is local edge index, is[isl] is global edge index.
-                sbf = ebf[is[isl]]  # Source basis function for this source edge.
-                sbf == 0 && continue  # no basis func. is defined
-                if bff[1, sbf] == ifs # "Plus" source triangle:
-                    source_flag = floquet_factor[eci[is[isl]]]
-                elseif bff[2, sbf] == ifs  # "Minus" source triangle:
-                    source_flag = -floquet_factor[eci[is[isl]]]
-                else
-                    error("Impossible situation in source edge loop")
-                end
-                A_source_flag = A_factor * source_flag
-                Φ_source_flag = Φ_factor * source_flag
+        mbf, sbf = Tuple(bfci) # match and source basis function indices
+
+        sfp, sfm = @view bff[:, sbf] # plus and minus faces of source basis function
+        sep, sem = @view bfe[:, sbf] # plus and minus edges of source basis function
+        mfp, mfm = @view bff[:, mbf] # plus and minus faces of match basis function
+        mep, mem = @view bfe[:, mbf] # plus and minus edges of match basis function
+        for (ss, sf, se) in zip(pm, (sfp, sfm), (sep, sem)) # source sign, source face, source edge
+
+            # Obtain the coordinates (in meters) of the source triangle's vertices:
+            rs = vtxcrd(sf, metal) ./ units_per_meter
+            rs_opp = vertexcoords_opposite_edge(se, sf, metal) ./ units_per_meter
+
+            rs32 = rs[3] - rs[2]; rs12 = rs[1] - rs[2]
+            area = 0.5 * (rs32[1] * rs12[2] - rs32[2] * rs12[1]) # source triangle signed area
+            area48 = 48 * abs(area)  # Needed for surface loading
+
+            source_flag = ss * floquet_factor[eci[se]]
+            A_source_flag = A_factor * source_flag
+            Φ_source_flag = Φ_factor * source_flag
+
+            for (ms, mf, me) in zip(pm, (mfp,mfm), (mep,mem)) # match sign, match face, match edge
+                match_flag = ms * conj(floquet_factor[eci[me]])
+                rm = vtxcrd(mf, metal) ./ units_per_meter  # Coords (m) of the match tri. vertices.
+                rmc = mean(rm)        # Match face centroid (meters).
+
+                # Compute vector from active vertex to centroid of match triangle
+                # (divided by 2) as in Eq. (7-15):
+                rm_opp = vertexcoords_opposite_edge(me, mf, metal) ./ units_per_meter
+                ρc2 = 0.5 * (rmc - rm_opp)
+
+                iufp = rwgdat.ufpm[mf, sf] # Obtain unique face pair index
+        
+                # Recall the spatial face integrals:
+                I1 = metal.I1[iufp]; I1_ξ = metal.I1_ξ[iufp]; I1_η = metal.I1_η[iufp]
+                I2 = metal.I2[iufp]
+                J = metal.J[iufp]; J_ξ = metal.J_ξ[iufp]; J_η = metal.J_η[iufp]
+                K = metal.K[iufp]; K_ξ = metal.K_ξ[iufp]; K_η = metal.K_η[iufp]
+                rinv = metal.rinv[iufp]; ρ_r = metal.ρ_r[iufp]
+                I1_ζ = I1 - I1_ξ - I1_η
+                J_ζ = J - J_ξ - J_η
+                K_ζ = K - K_ξ - K_η
 
                 # Compute singular contribution for this edge (the middle term in 
                 # square brackets in Equation (7-21) using (B.2):
-                Asing = ρ_r + u * rinv * (rmc - rs[isl])
+                Asing = ρ_r + u * rinv * (rmc - rs_opp)
 
                 # Compute Eq. (7-26) (but correct sign is carried in source flags):
-                I1_i = rs[1] * I1_ξ + rs[2] * I1_η + rs[3] * I1_ζ - rs[isl] * I1
-                J_i = rs[1] * J_ξ + rs[2] * J_η + rs[3] * J_ζ - rs[isl] * J
-                K_i = rs[1] * K_ξ + rs[2] * K_η + rs[3] * K_ζ - rs[isl] * K
+                I1_i = rs[1] * I1_ξ + rs[2] * I1_η + rs[3] * I1_ζ - rs_opp * I1
+                J_i = rs[1] * J_ξ + rs[2] * J_η + rs[3] * J_ζ - rs_opp * J
+                K_i = rs[1] * K_ξ + rs[2] * K_η + rs[3] * K_ζ - rs_opp * K
 
                 # Compute Equation (7-21):
                 A_i = A_source_flag * (fourpi * I1_i + Asing + u * J_i + c3 / u * K_i)
+
                 # Compute Equation (7-31):
                 Φ_i = Φ_source_flag * (fourpi * I2 + u * (rinv + J) + d3 / u * K)
 
-                # Now loop over each edge of the match triangle:
-                for iml in 1:3 # iml is local edge index, i_m[iml] is global index.
-                    savecounter += 1
-                    self_edge = i_m[iml] == is[isl] # Match edge = Source edge?
-                    mbf = ebf[i_m[iml]]  # Match basis function for this match edge.
-                    mbf == 0 && continue  # no basis function defined for this match tri edge
-                    if bff[1, mbf] == ifm   # "Plus" match triangle.
-                        match_flag = conj(floquet_factor[eci[i_m[iml]]])
-                    elseif bff[2, mbf] == ifm  # "Minus" match tri.
-                        match_flag = -conj(floquet_factor[eci[i_m[iml]]])
-                    else
-                        error("Impossible situation in match edge loop")
-                    end
+                # Compute the dot product in Eq (7-15) apart from sign:
+                dotprod = ρc2 ⋅ A_i
 
-                    # Compute one of the dot products in Eq (7-15) apart from sign:
-                    dotprod = ρc2[iml] ⋅ A_i
-                    # Add contribution to the impedance matrix
-                    mbfsave[savecounter] = mbf
-                    sbfsave[savecounter] = sbf
-                    zcontrib[savecounter] += match_flag * (jω * dotprod - Φ_i)
-                    #zmat[mbf,sbf] += match_flag * (jω*dotprod - Φ_i)
-                    # Add surface loading, if applicable:
-                    if self_tri && !iszero(Zs)
-                        if self_edge
-                            Zload = Zs / area48 *
-                                    (3 * (ls[next[isl]]^2 + ls[prev[isl]]^2) - ls[isl]^2)   # Eq. (7-34)
-                        else
-                            Zload = Zs / area48 * source_flag * match_flag *
-                                    (ls[isl]^2 + ls[iml]^2 - 3 * ls[third[isl, iml]]^2) # Eq. (7-35)
-                        end
-                        zcontrib[savecounter] += Zload
-                        #zmat[mbf,sbf] += Zload
+                # Add contribution to the impedance matrix
+                zmat[mbf, sbf] += match_flag * (jω * dotprod - Φ_i)
+
+                # Add surface loading, if applicable:
+                if sf == mf && !iszero(Zs)  
+                    ρ2s = metal.ρ[metal.e2[se]] / units_per_meter
+                    ρ1s = metal.ρ[metal.e1[se]] / units_per_meter
+                    ls = norm(ρ2s - ρ1s)
+                    if me == se # Self edge
+                        lother1 = norm(rs_opp - ρ1s)
+                        lother2 = norm(rs_opp - ρ2s)
+                        Zload = Zs / area48 *
+                                (3 * (lother1^2 + lother2^2) - ls^2)   # Eq. (7-34)
+                    else
+                        ρ2m = metal.ρ[metal.e2[me]] / units_per_meter
+                        ρ1m = metal.ρ[metal.e1[me]] / units_per_meter
+                        lm = norm(ρ2m - ρ1m)
+                        ρ1other = vertexcoords_opposite_edge(se,sf,metal)
+                        ρ2other = vertexcoords_opposite_edge(me,mf,metal)
+                        lother = norm(ρ2other - ρ1other)
+                        Zload = Zs / area48 * source_flag * match_flag *
+                                (ls^2 + lm^2 - 3 * lother^2) # Eq. (7-35)
                     end
-                end
-            end # loop over isl, source triangle edges
-            Threads.lock(spinlock)
-            @inbounds for kkk in 1:savecounter
-                zmat[mbfsave[kkk], sbfsave[kkk]] += zcontrib[kkk]
-            end
-            Threads.unlock(spinlock)
-        end # face pairs in this equivalence class
-    end # facepair loop
+                    zmat[mbf,sbf] += Zload
+                end # test for surface loading
+            end # match sign, match face, match edge
+        end # source sign, source face, source edge
+    end # # Loop over each unique basis function pairs
     t2 = time_ns()
     tsec = round((t2 - t1) / 1e9; digits=tdigits)
     @logfile "      $tsec seconds to fill $(size(zmat,1)) × $(size(zmat,2)) matrix entries"
@@ -426,7 +411,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
                 K_ζ = K - K_ξ - K_η
 
                 # Compute vector from active vertex to centroid of match triangle
-                # (divided by 2) as in Eq. (7.53):
+                # (divided by 2) as in Eq. (7-53):
                 rm_opp = vertexcoords_opposite_edge(me, mf, apert) ./ units_per_meter
                 ρc2 = 0.5 * (rmc - rm_opp)
                     
