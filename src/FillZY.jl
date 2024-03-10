@@ -242,8 +242,8 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
                         ρ2m = metal.ρ[metal.e2[me]] / units_per_meter
                         ρ1m = metal.ρ[metal.e1[me]] / units_per_meter
                         lm = norm(ρ2m - ρ1m)
-                        ρ1other = vertexcoords_opposite_edge(se,sf,metal)
-                        ρ2other = vertexcoords_opposite_edge(me,mf,metal)
+                        ρ1other = vertexcoords_opposite_edge(se,sf,metal) / units_per_meter
+                        ρ2other = vertexcoords_opposite_edge(me,mf,metal) / units_per_meter
                         lother = norm(ρ2other - ρ1other)
                         Zload = Zs / area48 * source_flag * match_flag *
                                 (ls^2 + lm^2 - 3 * lother^2) # Eq. (7-35)
