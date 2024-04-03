@@ -4,7 +4,7 @@ export electric_modal_sum_funcs, magnetic_modal_sum_funcs, jksums
 
 using LinearAlgebra: norm, ⋅, ×
 using OffsetArrays: OffsetArray
-using LoopVectorization: @turbo
+using SLEEFPirates
 using ..Rings: Ring
 using ..Sheets: SV2
 using ..Layers: Layer
@@ -89,6 +89,12 @@ function jksums(uρ⃗₀₀, ψ₁, ψ₂, us⃗₁, us⃗₂, extract, convtes
     return (jsum, ksum)
 end
 
+@inline function cexp(x, phs)
+    e = SLEEFPirates.exp(x)
+    s, c = SLEEFPirates.sincos_fast(phs)
+    return e * complex(c,s)
+end
+
 function _jkring(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁::Float64, ψ₂::Float64)
     ringphs, ringuρₘₙ = tlv[]
     @inbounds for (i, mn) in enumerate(Ring(r))
@@ -97,31 +103,23 @@ function _jkring(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁:
         ringuρₘₙ[i] = uρₘₙ
         ringphs[i] = -(m*ψ₁ + n*ψ₂)
     end
-    jring_r = kring_r = jring_i = kring_i = 0.0
     if iszero(ψ₁) && iszero(ψ₂)
-        kring_i = 0.0
-        jring_i = 0.0
-        @turbo for i in 1:8r
-            e = exp(-ringuρₘₙ[i])
-            term_r = e 
+        jring_r = kring_r = zero(Float64)
+        @inbounds @simd for i in 1:8r
+            term_r = SLEEFPirates.exp(-ringuρₘₙ[i])
             kring_r += term_r
-            jring_r += term_r / ringuρₘₙ[i] 
-        end  
+            jring_r += term_r * inv(ringuρₘₙ[i])
+        end
+        jring = complex(jring_r)
+        kring = complex(kring_r)
     else
-        @turbo for i in 1:8r
-            e = exp(-ringuρₘₙ[i])
-            c = cos(ringphs[i])
-            s = sin(ringphs[i])
-            term_r = e * c
-            term_i = e * s
-            kring_r += term_r
-            kring_i += term_i
-            jring_r += term_r / ringuρₘₙ[i] 
-            jring_i += term_i / ringuρₘₙ[i] 
+        jring = kring = zero(ComplexF64)
+        @inbounds @simd for i in 1:8r
+            term = cexp(-ringuρₘₙ[i], ringphs[i])
+            kring += term
+            jring += term * inv(ringuρₘₙ[i])
         end
     end  
-    jring = complex(jring_r, jring_i)
-    kring = complex(kring_r, kring_i)
     return jring, kring
 end
 
