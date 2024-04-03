@@ -89,12 +89,6 @@ function jksums(uρ⃗₀₀, ψ₁, ψ₂, us⃗₁, us⃗₂, extract, convtes
     return (jsum, ksum)
 end
 
-@inline function cexp(x, phs)
-    e = SLEEFPirates.exp(x)
-    s, c = SLEEFPirates.sincos_fast(phs)
-    return e * complex(c,s)
-end
-
 function _jkring(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁::Float64, ψ₂::Float64)
     ringphs, ringuρₘₙ = tlv[]
     @inbounds for (i, mn) in enumerate(Ring(r))
@@ -113,12 +107,20 @@ function _jkring(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁:
         jring = complex(jring_r)
         kring = complex(kring_r)
     else
-        jring = kring = zero(ComplexF64)
+        jring_r = kring_r = jring_i = kring_i = zero(Float64)
         @inbounds @simd for i in 1:8r
-            term = cexp(-ringuρₘₙ[i], ringphs[i])
-            kring += term
-            jring += term * inv(ringuρₘₙ[i])
+            e = SLEEFPirates.exp(-ringuρₘₙ[i])
+            s, c = SLEEFPirates.sincos_fast(ringphs[i])
+            term_r = e * c
+            term_i = e * s
+            kring_r += term_r
+            kring_i += term_i
+            uρₘₙinv = inv(ringuρₘₙ[i])
+            jring_r += term_r * uρₘₙinv
+            jring_i += term_i * uρₘₙinv
         end
+        jring = complex(jring_r, jring_i)
+        kring = complex(kring_r, kring_i)
     end  
     return jring, kring
 end
