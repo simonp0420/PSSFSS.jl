@@ -110,7 +110,7 @@ function sourcemat(j::Int, n::HorV, o::Result)
     ĥ = @view ĥ3[1:2]  # Only need x and y components due to dot product later
     v̂ = @view v̂3[1:2]  # Only need x and y components due to dot product later
     β₀₀ = norm(o.β⃗₀₀)
-    β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
+    β̂₀₀ = (β₀₀ == 0) ? @SVector([cosd(ϕ), sind(ϕ)]) : o.β⃗₀₀ / β₀₀
     t̂₁ = ẑ × β̂₀₀
     t̂₂ = β̂₀₀
     ct = cosd(θ)
@@ -134,7 +134,7 @@ function sourcemat(j::Int, n::RorL, o::Result)
     L̂ = view((ĥ + sgn * im * v̂) / √2, 1:2) # Only need x and y components due to dot product later
     R̂ = view((ĥ - sgn * im * v̂) / √2, 1:2)
     β₀₀ = norm(o.β⃗₀₀)
-    β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
+    β̂₀₀ = (β₀₀ == 0) ? @SVector([cosd(ϕ), sind(ϕ)]) : o.β⃗₀₀ / β₀₀
     t̂₁ = ẑ × β̂₀₀
     t̂₂ = β̂₀₀
     ct = cosd(θ)
@@ -165,7 +165,7 @@ function obsmat(i::Int, n::HorV, o::Result)
     end
     (ĥ, v̂) = ĥv̂(θ, ϕ)
     β₀₀ = norm(o.β⃗₀₀)
-    β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
+    β̂₀₀ = (β₀₀ == 0) ? @SVector([cosd(ϕ), sind(ϕ)]) : o.β⃗₀₀ / β₀₀
     t̂₁2 = ẑ × β̂₀₀
     t̂₁ = @SVector([t̂₁2[1], t̂₁2[2], 0.0])
     t̂₂ = @SVector([β̂₀₀[1], β̂₀₀[2], sgn * tand(θ)]) # term from Eqs. (8.20)
@@ -190,7 +190,7 @@ function obsmat(i::Int, n::RorL, o::Result)
     L̂ = (ĥ - sgn * im * v̂) / √2
     R̂ = (ĥ + sgn * im * v̂) / √2
     β₀₀ = norm(o.β⃗₀₀)
-    β̂₀₀ = (β₀₀ == 0) ? @SVector([1.0, 0.0]) : o.β⃗₀₀ / β₀₀
+    β̂₀₀ = (β₀₀ == 0) ? @SVector([cosd(ϕ), sind(ϕ)]) : o.β⃗₀₀ / β₀₀
     t̂₁2 = ẑ × β̂₀₀
     t̂₁ = @SVector([t̂₁2[1], t̂₁2[2], 0.0])
     t̂₂ = @SVector([β̂₀₀[1], β̂₀₀[2], sgn * tand(θ)]) # term from Eqs. (8.20)
