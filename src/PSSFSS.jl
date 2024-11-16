@@ -263,7 +263,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     for stout in stvalues[1], stin in stvalues[2]
         steer = getsttuple(stkeys, stout, stin)
         if keys(steer)[1] == :ψ₁
-            ψ₁, ψ₂ = deg2rad.(steer) # radians
+            ψ₁, ψ₂ = (deg2rad(x) for x in steer) # radians
             upm::Float64 = ustrip(Float64, sheets[1].units, 1u"m")
             β₁, β₂ = sheets[1].β₁ * upm, sheets[1].β₂ * upm
             β⃗₀₀k1 = (ψ₁ * β₁ + ψ₂ * β₂) / twopi # Eq. (2.13b)
@@ -337,12 +337,15 @@ function compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi, rwgd
     if keys(steer)[1] == :θ
         k1 = k0 * sqrt(real(layers[1].ϵᵣ * layers[1].μᵣ))
         β⃗₀₀ = k1 * β⃗₀₀k1
+        sϕdefault, cϕdefault = sincosd(last(steer))
+        β̂default = SVector(cϕdefault, sϕdefault) # Needed in case iszero(θ)
     else
         β⃗₀₀ = copy(β⃗₀₀k1)
+        β̂default = SVector(1.0, 0.0)  # Needed in case iszero(β⃗₀₀)
     end
 
     t_cascade = 0.0
-    setup_modes!.(layers, k0, Ref(β⃗₀₀))
+    setup_modes!.(layers, k0, Ref(β⃗₀₀), Ref(β̂default))
     if !(angle(layers[begin].γ[1]) ≈ angle(layers[end].γ[1]) ≈ π / 2)
         @logfile "  Skipping $(fghz) GHz due to cutoff principal modes in ambient medium"
         return nothing

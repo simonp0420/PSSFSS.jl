@@ -276,7 +276,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
 end
 
 """
-    setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
+    setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector, β̂default::AbstractVector)
 
 Fill the modal layer fields.  Needed for layers not contained in a Gblock.
 The arrays are assumed to have  been already allocated, and the index arrays 
@@ -290,13 +290,14 @@ The arrays are assumed to have  been already allocated, and the index arrays
 - `kvec`: A real-valued 2-vector containing the x and y components of the incident
     plane wave unit vector that defines the unit cell incremental 
     phase shifts.
+- `β̂default`: Region 1 incident unit tangential wave vector that depends correctly on ϕ in all cases.
 
 ### Outputs
 
 There is no explicit output, but the fields of `layer` will be modified, including
 `β`, `tvec`, `γ`, `c`, and `Y`. 
 """
-function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
+function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector, β̂default::AbstractVector)
     β₀₀ = SVector(kvec[1], kvec[2])
     β₁, β₂ = layer.β₁, layer.β₂
     area = twopi^2 / norm(β₁ × β₂)
@@ -305,7 +306,11 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector)
         m, n, p = layer.M[mode], layer.N[mode], layer.P[mode]
         β = β₀₀ + m * β₁ + n * β₂
         β² = β ⋅ β
-        β̂ = β² * area < 1e-14 ? SVector(1.0, 0.0) : β / norm(β)
+        if β² * area < 1e-14 
+            β̂ = copy(β̂default)
+        else
+            β̂ = β / norm(β)
+        end
         layer.β[mode] = β
         layer.γ[mode] = γ = mysqrt(β² - ksq)
         if p == TE
