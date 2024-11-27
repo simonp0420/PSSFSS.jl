@@ -3,7 +3,7 @@ using Test
 using LinearAlgebra: norm
 
 sh1 = rectstrip(Lx=1, Ly=1.0, Nx=1, Ny=1, Px=1, Py=1, units=inch)
-
+sh2 = deepcopy(sh1)
 @testset "recstrip" begin
     @test length(sh1.ρ) == 4
     @test sh1.ρ[2] - sh1.ρ[1] == [1, 0]
@@ -23,6 +23,12 @@ sh1 = rectstrip(Lx=1, Ly=1.0, Nx=1, Ny=1, Px=1, Py=1, units=inch)
     @test sh1.β₁ ≈ 2π .* [1, 0]
     @test sh1.β₂ ≈ 2π .* [0, 1]
     @test sh1.Zs == 0
+end
+
+@testset "orient!" begin
+    PSSFSS.Sheets.orient!(sh2, 45, [0,0])
+    PSSFSS.Sheets.orient!(sh2, -45, [0,0])
+    @test sh1.ρ ≈ sh2.ρ
 end
 
 Z = 0.2 + 0.3im

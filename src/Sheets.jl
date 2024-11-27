@@ -270,7 +270,8 @@ end
 """
     rotate!(sh::RWGSheet, rot::Real)
 
-Rotate a sheet by rot degrees (counter-clockwise).
+Rotate a sheet by rot degrees (counter-clockwise).  The entire unit cell and its
+contents are rotated.
 """
 function rotate!(sh::RWGSheet, rot::Real)
     rot == 0 && return
@@ -284,6 +285,22 @@ function rotate!(sh::RWGSheet, rot::Real)
         sh.ρ[n] = rotmat * sh.ρ[n]
     end
     sh.rot = rot
+    return sh
+end
+
+"""
+    orient!(sh::RWGSheet, rot::Real, center::AbstractVector)
+
+Rotate a sheet by rot degrees (counter-clockwise) about the point specified by `center`.  
+Only the content of the unit cell (the triangulation) is rotated.  The unit cell is left unchanged.
+"""
+function orient!(sh::RWGSheet, rot::Real, center::AbstractVector)
+    rot == 0 && return
+    s, c = sincosd(rot)
+    rotmat = SMatrix{2,2}([c -s; s c])
+    for n in eachindex(sh.ρ)
+        sh.ρ[n] = center + rotmat * (sh.ρ[n] - center)
+    end
     return sh
 end
 

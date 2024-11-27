@@ -3,7 +3,7 @@ module Elements
 export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet, pmcsheet, polyring, rectstrip, sinuous, splitring
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
-using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2
+using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2, orient!
 using ..Meshsub: meshsub
 using StaticArrays: SA
 using LinearAlgebra: norm, ⋅, ×
@@ -1342,9 +1342,12 @@ All arguments are keyword arguments which can be entered in any order.
   rectangles, which are  triangulated by adding a diagonal to each rectangle.
     
 ## Optional arguments:
+- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the strip within the unrotated unit cell. 
+   This rotation is applied prior to any offsets specified in `dx` and `dy` and any unit cell rotation specified
+   by `rot`.
 $(optional_kwargs)
 """
-function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, units::PSSFSSLength,
+function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, units::PSSFSSLength, orient::Real=0.0,
     kwarg...)::RWGSheet
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
@@ -1377,6 +1380,7 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     # Handle remaining optional arguments
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
+    iszero(orient) || orient!(sheet, orient, 0.5 * SV2(Px,Py))
     rotate!(sheet, kwargs[:rot])
     dxdy = SV2([kwargs[:dx], kwargs[:dy]])
     if dxdy ≠ [0.0, 0.0]
