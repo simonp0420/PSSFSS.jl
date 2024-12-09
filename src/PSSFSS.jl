@@ -1,12 +1,16 @@
 """
+    Package PSSFSS v$(pkgversion(PSSFSS))
+
 `PSSFSS` is a software package for the analysis of polarization and frequency selective surfaces (PSSs and FSSs).
 The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric [`Layer`](@ref)s 
 and zero or more [`Sheet`](@ref) objects denoting the PSS/FSS surfaces.  After also specifying the scan angles or
-unit cell incremental phasings, frequencies to be considered, and optionally some output parameters to be written
-to CSV file(s), 
-the user then invokes the [`analyze`](@refs) function to perform the analysis.  FSS/PSS triangulations
+unit cell incremental phasings, frequencies to be considered,  
+the user then invokes the [`analyze`](@refs) function to perform the analysis. Performance parameters such as 
+axial ratio, insertion loss, return loss, reflection phase, etc. are easily retrieved using the 
+[`extract_result`](@ref) function in combination with the [`@outputs`](@ref) macro. FSS/PSS sheet triangulations
 can be conveniently visualized using the `plot` command of the `Plots` package.
 
+Extensive documentation is available at https://simonp0420.github.io/PSSFSS.jl/
 """
 module PSSFSS
 
@@ -61,7 +65,7 @@ using .Log: pssfss_logger, @logfile
 @reexport using .Layers: Layer
 @reexport using .Elements: rectstrip, diagstrip, polyring, manji, meander, loadedcross,
     jerusalemcross, pecsheet, pmcsheet, sinuous, splitring
-@reexport using .Outputs: @outputs, extract_result_file, extract_result
+@reexport using .Outputs: @outputs, extract_result_file, extract_result, res2tep
 using .Outputs: Result, append_result_data
 using .FastSweep: interpolate_band
 
