@@ -508,16 +508,18 @@ end # function
     
 """
     res2tep(results::Vector{Result}; name="tep", class="res2tep") -> t::TEPperiodic
+    res2tep(resultfile::AbstractString; name="tep", class="res2tep") -> t::TEPperiodic
     res2tep(results::Vector{Result}, tepfile::AbstractString; name="tep", class="res2tep") -> t::TEPperiodic
+    res2tep(resultfile::AbstractString, tepfile::AbstractString; name="tep", class="res2tep") -> t::TEPperiodic
 
 Convert a vector of `Result` elements into a `TEPperiodic` object, as defined in the 
 [TicraUtilities](https://github.com/simonp0420/TicraUtilities.jl) package.  If positional argument
 `tepfile` is provided, the `TEPperiodic` object will be saved to this file name as a TICRA-compatible
-TEP (tabulated electrical properties) file. If this argument is not supplied, then the user can manually
-write the output of this function to a TEP file using the function `write_tepfile` of the 
-[TicraUtilities](https://github.com/simonp0420/TicraUtilities.jl) package.
+TEP (tabulated electrical properties) file. If the first positional argument is an `AbstractString`, it is 
+assumed to be the name of a PSSFSS results file, from which the vector of results will be read.
+The keyword arguments are used to provide values for the same-named fields in the TEP structure.
 
-`results` must contain the results of a PSSFSS analysis sweep over θ and ϕ (and possibly frequency) such that
+`results` (or `resultfile`) must contain the results of a PSSFSS analysis sweep over θ and ϕ (and possibly frequency) such that
 1. Incidence angles θ and ϕ rather than incremental phasings ψ₁ and ψ₂ were used.
 1. If more than one ϕ value is used, then all ϕ values in the range `0:Δϕ:(360-Δϕ)` must be present.
 1. The entire 3-dimensional Cartesian product of all angles and frequencies must be present.
@@ -526,6 +528,18 @@ function res2tep(results::Vector{Result}, tepfile::AbstractString; name="tep", c
     t = res2tep(results; name, class)
     TicraUtilities.write_tepfile(tepfile, t)
     return t
+end
+
+function res2tep(resultfile::AbstractString, tepfile::AbstractString; name="tep", class="res2tep")
+    results = read_result_file(resultfile)
+    t = res2tep(results; name, class)
+    TicraUtilities.write_tepfile(tepfile, t)
+    return t
+end
+
+function res2tep(resultfile::AbstractString; name="tep", class="res2tep")
+    results = read_result_file(resultfile)
+    return res2tep(results; name, class)
 end
 
 function res2tep(results::Vector{Result}; name="tep", class="res2tep")
