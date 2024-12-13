@@ -10,19 +10,23 @@ end
 =#
 
 demopage, postprocess_cb, demo_assets = makedemos("PSS_&_FSS_Element_Gallery")
+@show demopage
 assets = String[]
 isnothing(demo_assets) || (push!(assets, demo_assets))
 
 makedocs(;
     clean=false,
+    checkdocs = :none,
+    warnonly = :cross_references,
     modules=[PSSFSS],
     authors="Peter Simon <psimon0420@gmail.com> and contributors",
-    repo="https://github.com/simonp0420/PSSFSS.jl/blob/{commit}{path}#L{line}",
     sitename="PSSFSS.jl",
     format=Documenter.HTML(;
-        prettyurls=get(ENV, "CI", "false") == "true",
+        repolink="https://github.com/simonp0420/PSSFSS.jl/blob/{commit}{path}#L{line}",
+        prettyurls = true,
         canonical="https://simonp0420.github.io/PSSFSS.jl/stable",
         assets=assets,
+        size_threshold = nothing,
     ),
     pages=[
         "Home" => "index.md",

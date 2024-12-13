@@ -1,7 +1,7 @@
 """
     Package PSSFSS v$(pkgversion(PSSFSS))
 
-`PSSFSS` is a software package for the analysis of polarization and frequency selective surfaces (PSSs and FSSs).
+`PSSFSS` is a software package for the analysis of planar polarization and frequency selective surfaces (PSSs and FSSs).
 The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric [`Layer`](@ref)s 
 and zero or more [`Sheet`](@ref) objects denoting the PSS/FSS surfaces.  After also specifying the scan angles or
 unit cell incremental phasings, frequencies to be considered,  

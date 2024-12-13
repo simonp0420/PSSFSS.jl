@@ -563,3 +563,9 @@ flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
 #
 # As in the previous example, the value returned by [`extract_result`](@ref) is a two-dimensional array (a `Matrix`), 
 # with each column corresponding to a parameter of the [`@outputs`](@ref) macro.
+
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
+# ### Saving Analysis Results As TEP Files
+# The vector of `Result` objects returned by the [`analyze`](@ref) function (or the corresponding
+# result file) can be converted to a TICRA-compatible TEP (tabulated electrical properties) file
+# using the function [`res2tep`](@ref).  The code needed to do so is shown in [this example](@ref "TEP File Creation").

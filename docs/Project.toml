@@ -7,5 +7,5 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
 DemoCards = "0.5.2"
-Documenter = "0.27.25"
+Documenter = "1"
 Literate = "2.15.0, 2.15.1"

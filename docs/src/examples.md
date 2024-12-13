@@ -5,7 +5,7 @@ EditURL = "../literate/examples.jl"
 # [PSSFSS](https://github.com/simonp0420/PSSFSS) Examples
 
 ```@meta
-EditURL = "symmetric_strip.jl"
+EditURL = "../literate/symmetric_strip.jl"
 ```
 
 ## Symmetric Strip Grating
@@ -254,7 +254,7 @@ in terms of bandwidth, as the ratio of maximum to minimum frequency here
 is ``0.98/0.02 = 49:1``
 
 ```@meta
-EditURL = "resistive_square_patch.jl"
+EditURL = "../literate/resistive_square_patch.jl"
 ```
 
 ## Resistive Square Patch
@@ -323,7 +323,7 @@ savefig("resistive2.png"); nothing  # hide
 PSSFSS results are indistinguishable from those reported in the cited paper.
 
 ```@meta
-EditURL = "cross_on_dielectric_substrate.jl"
+EditURL = "../literate/cross_on_dielectric_substrate.jl"
 ```
 
 ## Cross on Dielectric Substrate
@@ -417,7 +417,7 @@ accounting for the fact that the reference results are obtained by digitizing a
 scanned figure.
 
 ```@meta
-EditURL = "square_loop_absorber.jl"
+EditURL = "../literate/square_loop_absorber.jl"
 ```
 
 ## Square Loop Absorber
@@ -526,7 +526,7 @@ using a slightly different value of `Rs = 37` for this ring results in nearly pe
 with the digitized results.
 
 ```@meta
-EditURL = "flexible_absorber.jl"
+EditURL = "../literate/flexible_absorber.jl"
 ```
 
 ## Flexible Absorber
@@ -589,7 +589,7 @@ This PSSFSS run takes about 44 seconds on my machine for 196 frequencies coverin
 PSSFSS results agree well with those of the paper.
 
 ```@meta
-EditURL = "splitringexample.jl"
+EditURL = "../literate/splitringexample.jl"
 ```
 
 ## Split-Ring Resonator
@@ -653,7 +653,7 @@ results, possibly because the authors may have included the finite conductivity 
 This detail was not reported in the paper.
 
 ```@meta
-EditURL = "reflectarray_example.jl"
+EditURL = "../literate/reflectarray_example.jl"
 ```
 
 ## Reflectarray Element
@@ -852,7 +852,7 @@ both the final requested value of `ntri` and actual number of triangle faces gen
 `L2` value.  The final cases with `ntri=3416` required about 21 seconds each of execution time.
 
 ```@meta
-EditURL = "band_pass_filter.jl"
+EditURL = "../literate/band_pass_filter.jl"
 ```
 
 ## Loaded Cross Band Pass Filter
@@ -941,7 +941,7 @@ Very good agreement is obtained versus HFSS over a large dynamic range of almost
 frequency bandwidth.
 
 ```@meta
-EditURL = "cpss1.jl"
+EditURL = "../literate/cpss1.jl"
 ```
 
 ## Meanderline-Based CPSS
@@ -1177,7 +1177,7 @@ required 10 hours for CST and 19 hours for COMSOL on large engineering workstati
 seconds for PSSFSS on my desktop machine.
 
 ```@meta
-EditURL = "cpss_optimization.jl"
+EditURL = "../literate/cpss_optimization.jl"
 ```
 
 ## CPSS Optimization
@@ -1344,7 +1344,7 @@ As hoped for, the performance meets the more stringent design goals over a broad
 Sjöberg and Ericsson design, presumably because of the greater design flexibility allowed here.
 
 ```@meta
-EditURL = "cpss2.jl"
+EditURL = "../literate/cpss2.jl"
 ```
 
 ## Meanderline/Strip-Based CPSS
@@ -1545,7 +1545,7 @@ Differences between the PSSFSS and CST predictions are attributed to the fact th
 metalization thickness of 18 μm was included in the CST model but cannot be accommodated by PSSFSS.
 
 ```@meta
-EditURL = "splitring_cpss.jl"
+EditURL = "../literate/splitring_cpss.jl"
 ```
 
 ## Split Ring-Based CPSS
@@ -1699,7 +1699,7 @@ amplitudes.  This is attributed to the fact that conductor thickness was include
 can not yet be accommodated by PSSFSS.
 
 ```@meta
-EditURL = "angular_ss_example.jl"
+EditURL = "../literate/angular_ss_example.jl"
 ```
 
 ## Angle Selective Surface
@@ -1808,4 +1808,37 @@ Note how the transmission amplitude rapidly rolls off beyond about 15°.  This r
 about 13.5 minutes to complete, much longer than for normal incidence. This is due to fact that
 the incremental phase shift ψ₁ is not held constant during the analysis, requiring the spatial
 integrals to be recomputed for each new incidence angle.
+
+```@meta
+EditURL = "../literate/tepfile_creation_example.jl"
+```
+
+## TEP File Creation
+Here we show how to create a TICRA-compatible TEP (tabulated electrical properties) file using PSSFSS.
+The geometry for this example is a rectangular copper strip measuring 4 cm × 0.2 cm in a 5 cm square unit cell.
+The code for analyzing this geometry and creating the TEP file is shown below:
+```Julia
+using PSSFSS
+FGHz = 3.0
+Px = Py = 5
+Lx = 4.0
+Ly = 0.2
+Nx = 130
+Ny = 6
+sheet = rectstrip(; Px, Py, Lx, Ly, Nx, Ny, units=cm, sigma=5.7e8)
+steering = (θ=0:5:70, ϕ=0:15:345)
+strata = [Layer(), sheet, Layer()]
+results = analyze(strata, FGHz, steering)
+res2tep(results, "dipole_pssfss.tep"; name = "dipole", class = "pssfss")
+```
+Note that a very fine discretization has been specified, resulting in 1560 triangles.  There are also a large
+number of steering angles requested (15 × 24 = 360).  This analysis required about 155 seconds on my machine.
+
+For comparison, the same geometry was analyzed using the QUPES program of Ticra Tools Student Edition
+2024 (hence the specification for `sigma` above, which is the default conductivity used by QUPES). For the
+QUPES analysis, basis function expansion accuracy was set to "Extreme" with the other analysis settings at their
+default values.  The maximum magnitude of the difference between QUPES and PSSFSS complex scattering coefficients
+for any of these 360 steering angles was approximately 0.0021.  Convergence studies showed that for both codes, the
+complex scattering coefficients were still varying slightly in the third decimal place for the settings used in this
+example.
 

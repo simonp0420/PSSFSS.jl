@@ -1,11 +1,11 @@
-# PSSFSS - analysis of polarization and frequency selective surfaces in Julia
+# PSSFSS - Analysis of polarization and frequency selective surfaces in Julia
 
 
 | **Documentation**   |  **Tests**     | **CodeCov**  |
 |:--------:|:---------------:|:-------:|
 |[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/stable/manual)  [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/dev/manual)| [![CI](https://github.com/simonp0420/PSSFSS.jl/workflows/CI/badge.svg?branch=main)](https://github.com/simonp0420/PSSFSS.jl/actions) | [![codecov.io](https://codecov.io/github/simonp0420/PSSFSS.jl/coverage.svg?branch=main)](https://codecov.io/github/simonp0420/PSSFSS.jl?branch=main) |
 
-`PSSFSS` is a Julia package for analyzing 
+`PSSFSS` is a Julia package for analyzing planar 
 [polarization selective surfaces](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=polarization+selective+surface&btnG=) (PSSs), [frequency selective surfaces](https://en.wikipedia.org/wiki/Frequency_selective_surface) (FSSs), 
 [reflectarray](https://en.wikipedia.org/wiki/Reflectarray_antennahttps://en.wikipedia.org/wiki/Reflectarray_antenna) elements, 
 [radomes](https://en.wikipedia.org/wiki/Radome), and similar structures.  It is intended to be useful to antenna design engineers and others who work in applied electromagnetic engineering.
@@ -16,8 +16,8 @@ and their associated triangulations can be conveniently visualized using Julia's
 [`Plots`](https://github.com/JuliaPlots/Plots.jl) package. After also specifying the scan angles or
 unit cell incremental phasings, frequencies to be analyzed, and optionally selecting performance parameters to be written
 to [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) file(s), 
-the user then invokes the `analyze` function to perform the analysis.  Post-processing and plotting of results can be
-performed in the same analysis script using the immensely powerful Julia programming language.
+the user then invokes the `analyze` function to perform the analysis.  Post-processing and plotting of results can be performed in the same analysis script using the immensely powerful 
+[Julia programming language](https://julialang.org/).
 
 
 ## Features
@@ -42,6 +42,7 @@ performed in the same analysis script using the immensely powerful Julia program
     * Delta insertion phase delay (ΔIPD)
     * Delta insertion loss (ΔIL)
     * Axial ratio 
+* Analysis results can be exported to TICRA-compatible TEP (tabulated electrical properties) files.
 
 ## Limitations
 
@@ -61,26 +62,30 @@ performed in the same analysis script using the immensely powerful Julia program
   unstructured mesh on these elements, specify `structuredtri = false` in the constructor argument list.
 - Version 1.4: New, chiral `manji` element added.
 - Version 1.5: `sinuous` element added.
-- Version 1.6: Added `export_sheet` for exporting `RWGSheet` triangulations to STL-format CAD files.
+- Version 1.6: Added `export_sheet` for exporting FSS/PSS sheets to STL-format CAD files.
 - Version 1.7: Function `extract_result_file` is deprecated in favor of a new method for `extract_result`.
 - Version 1.8: Improved multi-threading in matrix fill functions.
 - Version 1.9: Added `orient` keyword to `rectstrip`, allowing geometry rotation within the stationary unit cell.
+- Version 1.10: New `res2tep` function allows saving results in the form of a TICRA-compatible TEP 
+  (tabulated electrical properties) file.
   
 ## Installation
-You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
+You can obtain and install PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
 
 ```julia
 (@v1.8) pkg> add PSSFSS
 ```
 
-(and then hitting `<Backspace>` to return to the REPL) or with `import Pkg; Pkg.add("PSSFSS")`.
+(and then hitting `<Backspace>` to return to the REPL) or with 
+```julia
+using Pkg: Pkg
+Pkg.add("PSSFSS")
+```
 
 
 ## Documentation
 - The theory documentation is [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/TheoryDocs/theorydoc.pdf)
 - The user manual is [here](https://simonp0420.github.io/PSSFSS.jl/stable/manual)
-- If you prefer interactive documentation using Jupyter notebooks, the user documentation in the form of notebooks is
-  [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/notebooks)
 
 ## Citing PSSFSS
 If you use PSSFSS for a scientific publication, please cite the 2024
@@ -88,7 +93,7 @@ If you use PSSFSS for a scientific publication, please cite the 2024
 
 > P. S. Simon, “PSSFSS—An Open-source Code for Analysis of Polarization and Frequency Selective Surfaces”, ACES Journal, vol. 39, no. 02, pp. 139–148, Feb. 2024.
 
-BibTeX entry:
+or use this BibTeX entry:
 
 ```bib
 @article{simo:24,

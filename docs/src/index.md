@@ -2,7 +2,7 @@
 CurrentModule = PSSFSS
 ```
 
-# [PSSFSS](https://github.com/simonp0420/PSSFSS) - analysis of polarization and frequency selective surfaces in Julia
+# [PSSFSS](https://github.com/simonp0420/PSSFSS) - Analysis of polarization and frequency selective surfaces in Julia
 
 
 [PSSFSS](https://github.com/simonp0420/PSSFSS) is a Julia package for analyzing 
@@ -54,13 +54,15 @@ performed in the same analysis script using the immensely powerful Julia program
 
 ## Installation
 You can obtain PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character of the command prompt):
-
 ```julia
-(v1.8) pkg> add PSSFSS
+(v1.11) pkg> add PSSFSS
 ```
+followed by the Back key to exit Pkg mode.
 
-or with `using Pkg; Pkg.add("PSSFSS")`.
-
+or with 
+```julia
+using Pkg; Pkg.add("PSSFSS")
+```
 
 ## Documentation
 - The theory documentation is [here](https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/TheoryDocs/theorydoc.pdf)
@@ -71,5 +73,4 @@ or with `using Pkg; Pkg.add("PSSFSS")`.
 
 ## Community
 Help from the community is actively sought and greatly appreciated!  There are several open issues which you might
-want to tackle, and the documentation could always be improved. Pull requests are welcome.  Feel free to open more issues, whether for 
-basic capability, performance, examples, documentation, etc.
+want to tackle, and the documentation could always be improved. Pull requests are welcome.  Feel free to open more issues, whether for basic capability, performance, examples, documentation, etc.
