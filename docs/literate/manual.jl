@@ -570,7 +570,11 @@ flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
 # with each column corresponding to a parameter of the [`@outputs`](@ref) macro.
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
-# ### Saving Analysis Results As TEP Files
+# ### Exporting Analysis Results to TEP Files
 # The vector of `Result` objects returned by the [`analyze`](@ref) function (or the corresponding
 # result file) can be converted to a TICRA-compatible TEP (tabulated electrical properties) file
-# using the function [`res2tep`](@ref).  The code needed to do so is shown in [this example](@ref "TEP File Creation").
+# using the function [`res2tep`](@ref).  TEP files contain the equivalent of the full 
+# 4×4 scattering matrix computed by PSSFSS.  Therefore, there is no requirement/limitation for unit cell geometry
+# to exhibit any particular symmetry when results are to be exported to a TEP file.  There are, however, requirements
+# on the choice of steering angles to be analyzed.  For details, see the documentation of [`res2tep`](@ref).
+# Sample code for creating a TEP file is shown in [this example](@ref "TEP File Creation"). 

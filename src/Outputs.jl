@@ -1,5 +1,5 @@
 module Outputs
-export @outputs, Result, append_result_data, read_result_file, extract_result_file, extract_result, res2tep
+export @outputs, Result, append_result_data, read_result_file, extract_result_file, extract_result, res2fresnel, res2tep
 
 using LinearAlgebra: ⋅, norm, ×
 using ..UnitVectors: ẑ
@@ -12,6 +12,8 @@ using StaticArrays: @SVector, @SMatrix, SMatrix
 using JLD2: JLD2, jldopen
 using FileIO: load
 using TicraUtilities: TicraUtilities
+using Printf: @printf
+using Dates: now
 
 @enum HorV H = 1 V = 2
 @enum RorL R = 1 L = 2
@@ -492,7 +494,7 @@ function _check_results_for_tep!(results::Vector{Result})
     phis == phi_range || error("ϕ values must be equivalent to 0:Δϕ:(360-Δϕ)")
     dtheta = thetas[2] - thetas[1]
     theta_range = 0:dtheta:last(thetas)
-    thetas == theta_range || error("θ values must be equivalent to 0:Δθ:(360-Δθ)")
+    thetas == theta_range || error("θ values must be equivalent to 0:Δθ:θmax")
     freqs_vec = [f*u"GHz" for f in freqs]
     # Verify that full cartesian product of angles and frequencies is present:
     i = 0
@@ -518,6 +520,15 @@ Convert a vector of `Result` elements into a `TEPperiodic` object, as defined in
 TEP (tabulated electrical properties) file. If the first positional argument is an `AbstractString`, it is 
 assumed to be the name of a PSSFSS results file, from which the vector of results will be read.
 The keyword arguments are used to provide values for the same-named fields in the TEP structure.
+
+## Requirements for TEP File Compatibility
+Because a TEP file contains all of the information of the full 4×4 scattering matrix computed by PSSFSS, there are no
+limitations on the type of unit cell geometry that can be used for creating TEP files.
+
+TEP files use the concept of "front" and "rear" incidence.  When converting a PSSFSS analysis result to TEP format, Region 1 
+(the first layer in the `strata` vector) is taken as the "front" incidence region, and Region `n` (the last layer) is 
+taken to be the "rear" region.  Both of these layers should have zero width and assume vacuum electrical parameters.  I.e.,
+they should be specified as `Layer()` in the `strata` stackup.
 
 `results` (or `resultfile`) must contain the results of a PSSFSS analysis sweep over θ and ϕ (and possibly frequency) such that
 1. Incidence angles θ and ϕ rather than incremental phasings ψ₁ and ψ₂ were used.
@@ -561,6 +572,172 @@ function res2tep(results::Vector{Result}; name="tep", class="res2tep")
     return tep
 end # function
 
+
+"""
+    _prepare_results_for_fresnel(results::Vector{Result}) -> Vector{Result} -> newresults::Vector{Result}
+
+Verify that the input vector of `Result` objects is suitable for creation of an HFSS-compatible Fresnel table.
+
+The following checks are performed:
+1. Ensure that incidence angles rather than incremental phasings are used.
+2. Ensure that the θ angles begin at 0 and are uniformly spaced up to the maximum θ value present.
+3. Ensure that the increment in θ values divides evenly into 90.
+4. Ensure that if multiple frequencies are present, then they have a uniform spacing.
+
+The output vector is modified in the following ways:
+1. Results for all ϕ angles other than the minimum ϕ in absolute value are discarded.
+2. The remaining results are sorted into order of increasing θ, then increasing frequency.
+3. The vector is sorted into the appropriate order for creating a Fresnel table: frequency
+   varies most rapidly, then θ.
+4. If the input θ values do not extend all the way to 90°, then the results for the maximum supplied θ are copied and appended
+   a sufficient number of times to simulate data all the way to 90°.
+"""
+function _prepare_results_for_fresnel(results::Vector{Result})
+    kys = keys(results[1].steering)
+    kys != (:θ, :ϕ) && error("results do not use θ and ϕ for steering")
+
+    ϕmin = minimum(abs, (r.steering.ϕ for r in results))
+    results = filter(r -> r.steering.ϕ == ϕmin, results)
+
+    sort!(results, by = r -> (r.steering.θ, r.FGHz)) 
+
+    freqs = unique!([r.FGHz for r in results])
+    thetas = unique!([r.steering.θ for r in results])
+    iszero(first(thetas)) || error("First θ value is not equal to zero")
+    nf = length(freqs)
+    if nf > 1
+        df = freqs[2] - freqs[1]
+        frange = first(freqs):df:last(freqs)
+        freqs == frange || error("frequencies are not uniformly spaced")
+    end
+    nt = length(thetas)
+    nt ≤ 1 && error("Too few θ value")
+    dtheta = thetas[2] - thetas[1]
+    isinteger(90 / dtheta) || error("θ increment does not divide evenly into 90")
+    theta_range = 0:dtheta:last(thetas)
+    thetas == theta_range || error("θ values are not uniformly spaced")
+
+     # Verify that full cartesian product of angles and frequencies is present:
+    i = 0
+    for t in thetas, f in freqs
+        i += 1 
+        r = results[i]
+        if (r.steering.θ != t) || (r.FGHz != f)
+            error("Missing case (FGHz, ϕ, θ) = ($f, $phimin, $t) in input vector")
+        end
+    end
+
+    # Fill in any missing theta values
+    if last(thetas) < 90
+        newthetas = float((dtheta + last(thetas)):dtheta:90)
+        irng = (length(results) - nf + 1):length(results) # Indices in results for all frequencies of last θ input value 
+        for newtheta in newthetas, i in irng
+            r = results[i]
+            steer = (θ = newtheta, ϕ = r.steering.ϕ)
+            rnew = Result(r.gsm, steer, r.β⃗₀₀, r.FGHz, r.ϵᵣin, r.μᵣin, r.β₁in, r.β₂in, r.ϵᵣout, r.μᵣout, r.β₁out, r.β₂out)
+            push!(results, rnew)
+        end
+    end
+
+    return results, union(thetas, newthetas), freqs
+end # function
+
+
+
+"""
+    res2fresnel(results::Vector{Result}, fresnelfile::AbstractString)
+    res2fresnel(resultfile::AbstractString, fresnelfile::AbstractString)
+
+Create an HFSS-compatible "Fresnel table" file from `results`, the vector of `Result` objects returned by 
+the `analyze` function.  If the first positional argument is an `AbstractString`, it is 
+assumed to be the name of a PSSFSS results file, from which the vector of results will be read.
+
+Since Fresnel tables contain data for only a single ϕ value, if the input `result` vector contains data for multiple
+ϕ values, only the value with minimum magnitude will be used.
+
+## Requirements for Fresnel File Compatibility
+There are some limitations on the type of unit cell geometry that should be used for creating Fresnel files.  First, a Fresnel 
+file contains data for only a single ϕ value.  This means that the geometry being analyzed must be such that the scattering
+matrix of the structure is essentially independent of ϕ.  As a counterexample, a strip grid is not a suitable structure, since
+its scattering properties are strongly dependent on ϕ.  Second, a Fresnel file contains only co-polarized
+(TE → TE and TM → TM) transmission and reflection coefficients.  This means that the structure being analyzed must not 
+generate cross-polarized (TE → TM or TM → TE) transmission or reflection coefficients of significant amplitude.
+
+Fresnel files consider only incidence from a single "front" region. When creating the Fresnel file, the front region is taken 
+to be Region 1 of the PSSFSS model (i.e. the first layer present in the PSSFSS `strata` vector). 
+When used in an HFSS SBR+ model, the scattering properties read from the file are applied to a zero-thickness surface,
+so that transmitted rays are launched from the same specular point encountered by the incident ray. Because of this, 
+the phase reference plane for both input and output ports of the PSSFSS model should be located at the first interface plane
+in the `strata` vector.  This is accomplished by specifying zero width for the first `Layer` object (i.e. using `Layer()` for
+the first layer.)  The final layer's width should be the negative of the sum of all other layers in the `strata` vector, in 
+order to move the output port reference plane to coincide with that of the input port.
+
+The data in `results` must satisfy the following requirements:
+1. Incidence angles rather than incremental phasings must be used.
+2. θ angles must begin at 0 and be uniformly spaced up to the maximum θ value present.
+3. The increment in θ values must divide evenly into 90.
+4. If multiple frequencies are present, then they must have a uniform spacing.
+
+The Fresnel file format dictates that it must contain θ values equally spaced between 0 and 90, inclusive.  
+If the `results` vector provided as input does not contain θ values all the way to 90°, then the scattering matrix values 
+corresponding to the maximum provided θ value will be copied into the remaining angular "slots" as necessary to provide 
+a complete Fresnel file.
+
+"""
+function res2fresnel(results::Vector{Result}, fresnelfile::AbstractString)
+
+    results, thetas, freqs = _prepare_results_for_fresnel(results)
+    nt = length(thetas)
+    nf = length(freqs)
+    ronly = all(r -> iszero(r.gsm[2,1]), results) # reflection only
+    open(fresnelfile, "w") do fid
+        date, clock = split(string(now()), 'T')
+        if ronly
+            println(fid, "# HFSS-compatible Fresnel reflection table created by PSSFSS")
+            println(fid, "# Created on ", date, " at ", clock)
+            println(fid, "ReflTab1e")
+        else
+            println(fid, "# HFSS-compatible Fresnel reflection/transmission table created by PSSFSS")
+            println(fid, "# Created on ", date, " at ", clock)
+            println(fid, "RTTable")
+        end
+
+        println(fid, "# <num_theta_step> = <number_of_points> - 1")
+        println(fid,  nt - 1)
+        
+        if nf == 1
+            println(fid, "# Mono freq. table for ", only(freqs), " GHz")
+            println(fid, "MonoFreq")
+            println(fid, "# Data section follows.")
+        else
+            println(fid, "# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>")
+            println(fid, "MultiFreq ", first(freqs), " ", last(freqs), " ", nf-1)
+            println(fid, "# Data section follows. Frequency loops within theta")
+        end
+
+        if ronly
+            println(fid, "#<rte_rl> <rte_im> <rtm_rl> <rtm_im>")
+        else
+            println(fid, "#<rte_rl> <rte_im> <rtm_rl> <rtm_im> <tte_rl> <tte_im> <ttm_rl> <ttm_im>")
+        end
+
+        for res in results
+            r = res.gsm[1,1]; rte = r[1,1]; rtm = -r[2,2]
+            t = res.gsm[2,1]; tte = t[1,1]; ttm = t[2,2]
+            @printf(fid, "%8.5f %8.5f %8.5f %8.5f", real(rte), imag(rte), real(rtm), imag(rtm))
+            if ronly
+                println(fid)
+            else
+                @printf(fid, " %8.5f %8.5f %8.5f %8.5f\n", real(tte), imag(tte), real(ttm), imag(ttm))
+            end
+        end
+    end
+end # function
+
+function res2fresnel(resultfile::AbstractString, fresnelfile::AbstractString)
+    results = read_result_file(resultfile)
+    res2fresnel(results, fresnelfile)
+end
 
 
 end # module

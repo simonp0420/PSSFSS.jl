@@ -65,7 +65,7 @@ using .Log: pssfss_logger, @logfile
 @reexport using .Layers: Layer
 @reexport using .Elements: rectstrip, diagstrip, polyring, manji, meander, loadedcross,
     jerusalemcross, pecsheet, pmcsheet, sinuous, splitring
-@reexport using .Outputs: @outputs, extract_result_file, extract_result, res2tep
+@reexport using .Outputs: @outputs, extract_result_file, extract_result, res2fresnel, res2tep
 using .Outputs: Result, append_result_data
 using .FastSweep: interpolate_band
 
