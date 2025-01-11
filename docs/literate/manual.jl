@@ -570,6 +570,11 @@ flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
 # with each column corresponding to a parameter of the [`@outputs`](@ref) macro.
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
+# ## Exporting Analysis Results
+# Besides the ability to export results to CSV files as described [here](@ref "The `outlist` Keyword Argument to `analyze`"),
+# one can export results to TICRA-compatible TEP files or HFSS-compatible Fresnel tables, as described in the following
+# subsections.
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
 # ### Exporting Analysis Results to TEP Files
 # The vector of `Result` objects returned by the [`analyze`](@ref) function (or the corresponding
 # result file) can be converted to a TICRA-compatible TEP (tabulated electrical properties) file
@@ -578,3 +583,15 @@ flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
 # to exhibit any particular symmetry when results are to be exported to a TEP file.  There are, however, requirements
 # on the choice of steering angles to be analyzed.  For details, see the documentation of [`res2tep`](@ref).
 # Sample code for creating a TEP file is shown in [this example](@ref "TEP File Creation"). 
+
+#nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
+# ### Exporting Analysis Results to Fresnel Tables
+# The vector of `Result` objects returned by the [`analyze`](@ref) function (or the corresponding
+# result file) can be converted to an HFSS SBR+-compatible Fresnel table
+# using the function [`res2fresnel`](@ref).  Fresnel tables contain reflection
+# and transmission coefficients for only "front" surface incidence, and only for co-polarized 
+# (TE → TE and TE → TE) scattering. In addition, coefficients for only one azimuth angle ϕ are 
+# retained in such a table.  These limitations impose restrictions on the type of structure that
+# can be analyzed for use in generating a valid Fresnel table. For details, see the documentation
+# of [`res2fresnel`](@ref). Sample code for creating a Fresnel table is shown in 
+# [this example](@ref "Fresnel Table Creation"). 

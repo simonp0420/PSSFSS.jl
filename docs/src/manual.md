@@ -541,8 +541,27 @@ julia> dat = extract_result(results, @outputs FGHz ar21db(h))
 As in the previous example, the value returned by [`extract_result`](@ref) is a two-dimensional array (a `Matrix`),
 with each column corresponding to a parameter of the [`@outputs`](@ref) macro.
 
-### Saving Analysis Results As TEP Files
+## Exporting Analysis Results
+Besides the ability to export results to CSV files as described [here](@ref "The `outlist` Keyword Argument to `analyze`"),
+one can export results to TICRA-compatible TEP files or HFSS-compatible Fresnel tables, as described in the following
+subsections.
+### Exporting Analysis Results to TEP Files
 The vector of `Result` objects returned by the [`analyze`](@ref) function (or the corresponding
 result file) can be converted to a TICRA-compatible TEP (tabulated electrical properties) file
-using the function [`res2tep`](@ref).  The code needed to do so is shown in [this example](@ref "TEP File Creation").
+using the function [`res2tep`](@ref).  TEP files contain the equivalent of the full
+4×4 scattering matrix computed by PSSFSS.  Therefore, there is no requirement/limitation for unit cell geometry
+to exhibit any particular symmetry when results are to be exported to a TEP file.  There are, however, requirements
+on the choice of steering angles to be analyzed.  For details, see the documentation of [`res2tep`](@ref).
+Sample code for creating a TEP file is shown in [this example](@ref "TEP File Creation").
+
+### Exporting Analysis Results to Fresnel Tables
+The vector of `Result` objects returned by the [`analyze`](@ref) function (or the corresponding
+result file) can be converted to an HFSS SBR+-compatible Fresnel table
+using the function [`res2fresnel`](@ref).  Fresnel tables contain reflection
+and transmission coefficients for only "front" surface incidence, and only for co-polarized
+(TE → TE and TE → TE) scattering. In addition, coefficients for only one azimuth angle ϕ are
+retained in such a table.  These limitations impose restrictions on the type of structure that
+can be analyzed for use in generating a valid Fresnel table. For details, see the documentation
+of [`res2fresnel`](@ref). Sample code for creating a Fresnel table is shown in
+[this example](@ref "Fresnel Table Creation").
 

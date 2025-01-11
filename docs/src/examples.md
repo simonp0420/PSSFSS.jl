@@ -1814,9 +1814,9 @@ EditURL = "../literate/tepfile_creation_example.jl"
 ```
 
 ## TEP File Creation
-Here we show how to create a TICRA-compatible TEP (tabulated electrical properties) file using PSSFSS.
-The geometry for this example is a rectangular copper strip measuring 4 cm × 0.2 cm in a 5 cm square unit cell.
-The code for analyzing this geometry and creating the TEP file is shown below:
+Here we show how to create a TICRA-compatible TEP (tabulated electrical properties) file using the [`res2tep`](@ref)
+function included with PSSFSS. The geometry for this example is a rectangular copper strip measuring
+4 cm × 0.2 cm in a 5 cm square unit cell. The code for analyzing this geometry and creating the TEP file is shown below:
 ```Julia
 using PSSFSS
 FGHz = 3.0
@@ -1828,11 +1828,14 @@ Ny = 6
 sheet = rectstrip(; Px, Py, Lx, Ly, Nx, Ny, units=cm, sigma=5.7e8)
 steering = (θ=0:5:70, ϕ=0:15:345)
 strata = [Layer(), sheet, Layer()]
-results = analyze(strata, FGHz, steering)
+resultfile = "strip.res"
+results = analyze(strata, FGHz, steering; resultfile)
 res2tep(results, "dipole_pssfss.tep"; name = "dipole", class = "pssfss")
+# Alternatively: res2tep(resultfile, "dipole_pssfss.tep"; name = "dipole", class = "pssfss")
 ```
 Note that a very fine discretization has been specified, resulting in 1560 triangles.  There are also a large
 number of steering angles requested (15 × 24 = 360).  This analysis required about 155 seconds on my machine.
+Please see the documentation for [`res2tep`](@ref) for requirements on setting up analysis scan angles.
 
 For comparison, the same geometry was analyzed using the QUPES program of Ticra Tools Student Edition
 2024 (hence the specification for `sigma` above, which is the default conductivity used by QUPES). For the
@@ -1841,4 +1844,35 @@ default values.  The maximum magnitude of the difference between QUPES and PSSFS
 for any of these 360 steering angles was approximately 0.0021.  Convergence studies showed that for both codes, the
 complex scattering coefficients were still varying slightly in the third decimal place for the settings used in this
 example.
+
+```@meta
+EditURL = "../literate/fresneltable_creation_example.jl"
+```
+
+## Fresnel Table Creation
+Here we show how to create an HFSS-compatible Fresnel table using the [`res2fresnel`](@ref)
+function included with PSSFSS. The geometry for this example is a double square loop
+in a 5 cm square unit cell. The code for analyzing this geometry and creating the
+Fresnel table is shown below:
+```Julia
+using PSSFSS
+dwidth = 3mm
+duroid = Layer(epsr=2.2, tandel=0.0009, width=dwidth)
+a = √2 * [1, 2.125]
+b = √2 * [1.5, 3.125]
+units = mm
+sides = 4
+orient = 45
+sheet = polyring(;a, b, units, sides, orient, s1=[8,0], s2=[0,8], ntri=2000)
+strata = [Layer(), duroid, sheet, duroid, Layer(width=-2*dwidth)]
+steering = (θ=0:5:45, ϕ=0)
+FGHz = 10:2:20
+results = analyze(strata, FGHz, steering; resultfile="double_square_loop.res")
+res2fresnel(results, "double_square_loop.rttbl")
+# Alternatively: res2fresnel("double_square_loop.res", "double_square_loop.rttbl")
+```
+Note that the final layer specifies a width that is the negative of the sum of the remaining layers' widths.
+This has the effect of moving the output phase reference plane to coincide with the input phase reference plane.
+Please see the documentation for [`res2fresnel`](@ref) for discussion of the setup requirements and restrictions
+necessary for creating a valid Fresnel table.
 

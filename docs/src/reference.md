@@ -20,6 +20,7 @@ pmcsheet
 polyring
 read_sheet_data
 rectstrip
+res2fresnel
 res2tep
 sinuous
 splitring

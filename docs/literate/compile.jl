@@ -10,7 +10,7 @@ examples_list = ["symmetric_strip.jl", "resistive_square_patch.jl",
                  "cross_on_dielectric_substrate.jl", 
                  "square_loop_absorber.jl", "flexible_absorber.jl", "splitringexample.jl", "reflectarray_example.jl",
                  "band_pass_filter.jl", "cpss1.jl", "cpss_optimization.jl", "cpss2.jl", "splitring_cpss.jl",
-                 "angular_ss_example.jl", "tepfile_creation_example.jl"]
+                 "angular_ss_example.jl", "tepfile_creation_example.jl", "fresneltable_creation_example.jl"]
 
 
 flist = ["manual.jl"]
