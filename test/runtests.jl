@@ -37,6 +37,10 @@ end
 @safetestset "TEP test" begin
     include("tep_test.jl")
 end
+@safetestset "Fresnel test" begin
+    include("fresnel_test.jl")
+end
+
 
 if get(ENV, "BENCHMARK", "false") == "true"
     include("benchmark.jl")
