@@ -9,7 +9,8 @@ FGHz = 1:2
 rttbl = tempname()
 resultfile = tempname()
 logfile = devnull
-analyze(strata, FGHz, steering; logfile, resultfile)
+showprogress = false
+analyze(strata, FGHz, steering; logfile, resultfile, showprogress)
 testfile_fresnel = tempname()
 res2fresnel(resultfile, testfile_fresnel)
 testdat = readlines(testfile_fresnel)
