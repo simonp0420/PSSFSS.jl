@@ -1,3 +1,5 @@
+# Note: this file is included by Elements.jl. Thus the definitions herein are part of the Elements module.
+
 function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
     ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)

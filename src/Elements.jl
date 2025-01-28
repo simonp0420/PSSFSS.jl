@@ -1,6 +1,7 @@
 module Elements
 
-export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet, pmcsheet, polyring, rectstrip, sinuous, splitring
+export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet, 
+       pixels, pmcsheet, polyring, rectstrip, sinuous, splitring, sympixels
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
 using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2, orient!
@@ -201,8 +202,8 @@ const optional_kwargs = """
                           with those of pair (C,D) by a simple translation. If there are many such equivalent pairs, 
                           a significant decrease in matrix fill time ensues by exploiting the equivalence.  The tradeoff
                           is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`,  
-                          `meander`, `manji`, `loadedcross`, `jerusalemcross`, and 4-sided `polyring` styles (those employing 
-                          structured meshes) and `false` for the remaining styles (those employing unstructured meshes).
+                          `meander`, `manji`, `loadedcross`, `jerusalemcross`, `pixels`, 4-sided `polyring` styles (those 
+                          employing structured meshes), and `sympixels`, and `false` for the remaining styles (those employing unstructured meshes).
                         - `save::String=""` Specifies a file name to which the sheet triangulation and unit cell data is to be written,
                           typically to be plotted later.
                                 
@@ -1964,5 +1965,7 @@ function rotationmat(θ)
 end
 
 include("structuredtri.jl") # Code for structured meshes for loadedcross, jerusalemcross
+
+include("pixels.jl")  # Code for pixels and sympixels elements
 
 end # module
