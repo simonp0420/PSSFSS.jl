@@ -305,17 +305,18 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
         rnm1[1], rnm1[2], rnm2[1], rnm2[2], rnm3[1], rnm3[2])
     end
 
-    kdtree = KDTree(data, leafsize=leafsize)
+    kdtree = KDTree(data, leafsize=leafsize, reorder=false)
     ufp2fp = Vector{Int}[]
     mn = 0  # Initialize face/pair index.
     nufp = 0
     found = fill(false, nface^2)
     r = 1e-6 * norm(centroid[1] - centroid[2])
+    idxs = Int[]
     for n in 1:nface, m in 1:nface
         mn += 1  # Bump global face/pair counter.
         found[mn] && continue
         nufp += 1
-        idxs = inrange(kdtree, data[mn], r, true)
+        idxs = inrange(kdtree, data[mn], r, false)
         found[idxs] .= true
         push!(ufp2fp, idxs)
         for i in idxs
