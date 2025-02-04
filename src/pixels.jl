@@ -89,7 +89,7 @@ function sympixmat(s::SymPixels, v::AbstractVector)
     for row in 1:halfnint
         mintbot[row, :] .= @view mint[row, :]
     end
-    
+
     return mat
 end
 
@@ -191,7 +191,7 @@ All arguments are keyword arguments which can be entered in any order.
 - `P::Real > 0`: The side length of the square unit cell, specified in units defined by the `units` keyword argument.
 - `patternmat::AbstractMatrix{<:Integer}`: A square matrix, consisting solely of 1's and 0's. The matrix entries control
   the metallization pattern in the unit cell, with a 1 or `true` value denoting a metallized pixel, and a 0 or `false` value
-  indicating no metallization.  The `(i,j)` entry corresponds to the pixel centered at `(x,y) = ((i-1/2)d, (j-1/2)d)`, where
+  indicating no metallization.  The `(i,j)` entry corresponds to the pixel centered at `(x,y) = ((j-1/2)d, P-(i-1/2)d)`, where
   `d = P / size(patternmat, 1)`.
 - `units`:  Length units for `P` (either `mm`, `cm`, `inch`, or `mil`).
     
@@ -224,15 +224,21 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
     function is_inside(x::Real, y::Real)
         # predicate to determine if a point is within the region to be triangulated
         (x < 0 || x > P || y < 0 || y > P) && return false
-        if x == P
-            i = npside
-        else
-            i = 1 + trunc(Int, x / d) # column index into patternmat
-        end
-        if y == P
+        # column index into patternmat:
+        if iszero(x)
+            j = 1
+        elseif x == P
             j = npside
         else
-            j = 1 + trunc(Int, y / d) # row index into patternmat
+            j = 1 + trunc(Int, x / d) 
+        end
+        # row index into patternmat:
+        if iszero(y)
+            i = npside
+        elseif y == P
+            i = 1
+        else
+            i = 1 + trunc(Int, (P - y) / d)
         end
         return isone(patternmat[i,j]) ? true : false
     end
@@ -240,8 +246,9 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
     # Triangulate
     npixtri = count(isone, patternmat) # Number of triangulated pixels
     areat = npixtri * d^2  # Total area to triangulate
-    ntri = npixtri * pdiv^2 * 2 # Number of triangles
-    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri, is_inside)
+    ntri = npixtri * pdiv^2 * 2 # Number of triangles expected
+    ntri_requested = ntri ÷ 4 # Much smaller to ensure no extra triangles are added by make_plaid_mesh
+    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside)
 
     sheet.Zs = kwargs[:Zsheet]
     sheet.σ = kwargs[:σ]
