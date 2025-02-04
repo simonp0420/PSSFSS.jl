@@ -62,7 +62,7 @@ function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Re
     end
 
     sheet.style = "loadedcross"
-    sheet.ξη_check = false
+    sheet.ξη_check = true
     sheet.units = units
     sheet.s₁ = s1
     sheet.s₂ = s2
@@ -175,7 +175,7 @@ function jerusalemcross_structured(; P::Real, L1::Real, L2::Real, A::Real, B::Re
     end
 
     sheet.style = "jerusalemcross"
-    sheet.ξη_check = false
+    sheet.ξη_check = true
     sheet.units = units
     sheet.s₁ = SV2([P, 0])
     sheet.s₂ = SV2([0, P])
@@ -496,8 +496,7 @@ function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_
     bignsq = ceil(Int, bigarea / area * ntri/2) # desired number of squares to form in circumscribing rectangle
     s = sqrt(bigarea / bignsq) # ideal side length for squares used to tesselate the big area
 
-    facevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}, Tuple{Int,Int}}[]
-    edgevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}}[]
+    # Add new vertex locations as needed to generate at least desired number of triangles:
     xn = xr[begin:begin]
     yn = yr[begin:begin]
     for (tr, tn) in ((xr, xn), (yr, yn)), i in eachindex(tr)[begin+1:end]
