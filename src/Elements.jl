@@ -614,7 +614,7 @@ function jerusalemcross_unstructured(; P::Real, L1::Real, L2::Real, A::Real, B::
     end
 
     sheet.style = "jerusalemcross"
-    sheet.ξη_check = false
+    sheet.ξη_check = true
     sheet.units = units
     sheet.s₁ = s1
     sheet.s₂ = s2
@@ -863,7 +863,7 @@ function loadedcross_unstructured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::
     end
 
     sheet.style = "loadedcross"
-    sheet.ξη_check = false
+    sheet.ξη_check = true
     sheet.units = units
     sheet.s₁ = s1
     sheet.s₂ = s2
