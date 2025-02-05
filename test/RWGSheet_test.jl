@@ -106,7 +106,7 @@ end
     positions = [[Float32(v[1]), Float32(v[2]), 0.0f0] for v in vec(sheet.ρ[sheet.fv])]
     @test mshb.position == positions
     @test msha.position ≈ mshb.position
-    @test all(==([0,0,1]), msha.normals)
-    @test all(==([0,0,1]), mshb.normals)
+    @test all(==([0,0,1]), msha.normal)
+    @test all(==([0,0,1]), mshb.normal)
 
 end
