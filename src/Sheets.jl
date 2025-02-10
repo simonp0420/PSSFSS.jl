@@ -357,24 +357,33 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
     # Count number of vertices located at the duplicate coordinate.  
     # Save vertex indices of matching points in vcen1 and vcen2
     #
+    Nv1 = length(sh1.ρ)
+    Ne1 = length(sh1.e1)
+    Nf1 = size(sh1.fe, 2)
+    Nv2 = length(sh2.ρ)
+    Ne2 = length(sh2.e1)
+    Nf2 = size(sh2.fe, 2)
+
+    # Find coincident vertices
     Nvcen = 0
-    Necen = 0
-    vcen1 = Int[]
-    vcen2 = Int[]
+    vcen1 = Int[] # coincident vertices in sh1
+    vcen2 = Int[] # coincident vertices in sh2
+    if dup_coor == ' '
+    elseif dup_coor == 'x'
+        ρind = 1
+    elseif dup_coor == 'y'
+        ρind = 2
+    else
+        throw(ArgumentError("Illegal value for dup_coor: '$dup_coor'"))
+    end
     if dup_coor ≠ ' '
         tol = 0.5e-4 * norm(sh1.ρ[sh1.e1[1]] - sh1.ρ[sh1.e2[1]])
-        for i in 1:length(sh2.ρ)
-            if dup_coor == 'x'
-                test = sh2.ρ[i][1]
-            elseif dup_coor == 'y'
-                test = sh2.ρ[i][2]
-            else
-                test = typemax(typeof(test))
-            end
+        for i in 1:Nv2
+            test = sh2.ρ[i][ρind]
             if abs(test - dup_coor_value) < tol
                 # Test to see if there is a sh1 vertex at same coordinate:
                 n1match = 0
-                for n1 in 1:length(sh1.ρ)
+                for n1 in 1:Nv1
                     if norm(sh1.ρ[n1] - sh2.ρ[i]) < tol
                         n1match = n1
                         break
@@ -387,23 +396,25 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
                 end
             end
         end
-        Necen = Nvcen - 1 # Number of shared edges.
-        ecen1 = zeros(Int, Necen)
-        ecen2 = zeros(Int, Necen)
+
         # Locate and save indices in sh1 and sh2 of edges along the center line:
-        Necen = 0
-        for i in 1:length(sh2.e1) # Loop over sh2 edges
+        Necen = 0 # Initialize count of shared center edges
+        ecen1 = Int[] # Coincident edges in sh1
+        ecen2 = Int[] # Coincident edges in sh1
+        for i in 1:Ne2 # Loop over sh2 edges
             if (sh2.e1[i] in vcen2) && (sh2.e2[i] in vcen2)
                 # Edge i of sh2 is a shared edge.
                 Necen += 1
-                ecen2[Necen] = i
-                i1 = findfirst(x -> x == sh2.e1[i], vcen2)
-                i2 = findfirst(x -> x == sh2.e2[i], vcen2)
+                push!(ecen2, i)
+                i1 = findfirst(==(sh2.e1[i]), vcen2)
+                i2 = findfirst(==(sh2.e2[i]), vcen2)
+                # vcen1[k] and vcen2[k] refer to nodes in sh1 and sh2, resp, but at the same coordinates
+                vcen1nodes = extrema((vcen1[i1], vcen1[i2])) # Same node locations but wrt sh1
                 # Now find matching sh1 edge:
-                for j1 in 1:length(sh1.e1)
-                    if ((sh1.e1[j1] == vcen1[i1]) && (sh1.e2[j1] == vcen1[i2])) ||
-                       ((sh1.e2[j1] == vcen1[i1]) && (sh1.e1[j1] == vcen1[i2]))
-                        ecen1[Necen] = j1
+                for j1 in 1:Ne1
+                    if extrema((sh1.e1[j1], sh1.e2[j1])) == vcen1nodes
+                        push!(ecen1, j1)
+                        # ecen1[k] and ecen2[k]  refer to edges in sh1 and sh2, resp, but at the same locations
                         @goto sh2edges
                     end
                 end
@@ -417,96 +428,104 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
 
     # Allocate triangulation arrays in new sheet:
     sh3 = RWGSheet()
-    sh3.e1 = zeros(Int, length(sh1.e1) + length(sh2.e1) - Necen)
-    sh3.e2 = zeros(Int, length(sh1.e2) + length(sh2.e2) - Necen)
-    sh3.ρ = Vector{SV2}(undef, length(sh1.ρ) + length(sh2.ρ) - Nvcen)
-    sh3.fe = zeros(Int, 3, size(sh1.fe, 2) + size(sh2.fe, 2))
-    sh3.fv = zeros(Int, 3, size(sh1.fv, 2) + size(sh2.fv, 2))
+    sh3.e1 = zeros(Int, Ne1 + Ne2) # Will remove Necen of these later
+    sh3.e2 = zeros(Int, Ne1 + Ne2) # Will remove Necen of these later
+    sh3.ρ = Vector{SV2}(undef, Nv1 + Nv2 - Nvcen)
+    sh3.fe = zeros(Int, 3, Nf1 + Nf2)
+    sh3.fv = zeros(Int, 3, Nf1 + Nf2)
 
     # Copy vertex locations:
-    sh3.ρ[1:length(sh1.ρ)] = sh1.ρ
+    sh3.ρ[1:Nv1] = sh1.ρ
     if dup_coor == ' '
-        sh3.ρ[(1+length(sh1.ρ)):end] = sh2.ρ
+        sh3.ρ[(1+Nv1):end] = sh2.ρ
     else
-        i2 = 1 + length(sh1.ρ)  # Node counter 
-        for i in 1:length(sh2.ρ)
-            if !(i in vcen2[1:Nvcen])
+        i2 = 1 + Nv1  # Node counter 
+        for i in 1:Nv2
+            if !(i in vcen2)
                 sh3.ρ[i2] = sh2.ρ[i]
                 i2 += 1
             end
         end
     end
+  
     # Copy edge-node matrices
-    eoffset = length(sh1.e1)
-    voffset = length(sh1.ρ)
-    sh3.e1[1:length(sh1.e1)] = sh1.e1
-    sh3.e2[1:length(sh1.e2)] = sh1.e2
-    if dup_coor == ' '
-        sh3.e1[(eoffset+1):end] = sh2.e1 .+ voffset
-        sh3.e2[(eoffset+1):end] = sh2.e2 .+ voffset
-    else
-        for i in 1:length(sh2.e1)
-            if i in ecen2
-                # Edge i of sh2 is located on duplication line.
-                # Do not include this duplicate edge in sh3, but
-                # decrement the edge index offset:
-                eoffset -= 1
-            else
-                if sh2.e1[i] in vcen2
-                    # The initial point of edge i of sh2 is a duplicate vertex.
-                    i2 = findfirst(x -> x == sh2.e1[i], vcen2)
-                    sh3.e1[i+eoffset] = vcen1[i2]
+    eoffset = Ne1
+    voffset = Nv1
+    sh3.e1[1:Ne1] = sh1.e1
+    sh3.e2[1:Ne1] = sh1.e2
+    sh3.e1[Ne1+1:end] .= sh2.e1 .+ voffset # Offset will be corrected later if necessary
+    sh3.e2[Ne1+1:end] .= sh2.e2 .+ voffset # Offset will be corrected later if necessary
+
+    # Correct if there are duplicate edges
+    sh3e1new = @view sh3.e1[Ne1+1:end]
+    sh3e2new = @view sh3.e2[Ne1+1:end]
+    if dup_coor ≠ ' '
+        for i in eachindex(sh2.e1, sh2.e2, sh3e1new, sh3e2new)
+            if i ∉ ecen2 # Edges in ecen2 will be removed later
+                i2 = findfirst(==(sh2.e1[i]), vcen2)
+                if isnothing(i2) 
+                    # ordinary point not on shared border:
+                    sh3e1new[i] -= count(<(sh2.e1[i]), vcen2)
                 else
-                    # Ordinary point
-                    sh3.e1[i+eoffset] = sh2.e1[i] + voffset
+                    # initial point of edge i of sh2 is a duplicate vertex:
+                    sh3e1new[i] = vcen1[i2]
                 end
                 #
-                if sh2.e2[i] in vcen2
-                    # The terminal point of edge i of sh2 is on the duplication edge.
-                    i2 = findfirst(x -> x == sh2.e2[i], vcen2)
-                    sh3.e2[i+eoffset] = vcen1[i2]
+                i2 = findfirst(==(sh2.e2[i]), vcen2)
+                if isnothing(i2) 
+                    # ordinary point not on shared border:
+                    sh3e2new[i] -= count(<(sh2.e2[i]), vcen2)
                 else
-                    # Ordinary point:
-                    sh3.e2[i+eoffset] = sh2.e2[i] + voffset
+                    # initial point of edge i of sh2 is a duplicate vertex:
+                    sh3e2new[i] = vcen1[i2]
                 end
             end
         end
-        # Correct vertex indices:
-        for i in Nvcen:-1:1
-            sh3.e1[sh3.e1.>(length(sh1.ρ)+vcen2[i])] .-= 1
-            sh3.e2[sh3.e2.>(length(sh1.ρ)+vcen2[i])] .-= 1
+        # Remove duplicate edges
+        delindices = Ne1 .+ ecen2
+        deleteat!(sh3.e1, delindices)
+        deleteat!(sh3.e2, delindices)
+    end
+
+    # Copy face/vertex matrix
+    sh3.fv[:, 1:Nf1] = sh1.fv
+    sh3.fv[:, 1+Nf1:end] = sh2.fv .+ voffset # offset will be corrected later
+    if dup_coor ≠ ' '
+        #  Correct duplicate vertices from sh2:
+        sh3fvnew = @view sh3.fv[:, 1+Nf1:end]
+        for n in eachindex(sh3fvnew, sh2.fv)
+            v2 = sh2.fv[n]
+            ncen = findfirst(==(v2), vcen2)
+            if isnothing(ncen)
+                # ordinary, non-duplicate point
+                sh3fvnew[n] -= count(<(v2), vcen2) # correct offset
+            else
+                sh3fvnew[n] = vcen1[ncen] # Replace duplicate node
+            end
         end
     end
-    # Copy face/vertex matrix
-    sh3.fv[:, 1:size(sh1.fv, 2)] = sh1.fv
-    sh3.fv[:, 1+size(sh1.fv, 2):end] = sh2.fv .+ voffset # offset will be corrected later
-    #  Correct duplicate vertices from sh2:
-    for n2 in 1:Nvcen # Examine each duplicate vertex in sh2
-        n1 = vcen1[n2] # Initialize index of matching vertex in sh1
-        # Replace all references to vertex vcen2[n2] with ref to vcen1[n1]
-        sh3.fv[sh3.fv.==vcen2[n2]+voffset] .= n1
-    end
-    # Correct vertex indices:
-    for i in Nvcen:-1:1
-        sh3.fv[sh3.fv.>voffset+vcen2[i]] .-= 1
-    end
+
     # Copy face/edge matrix:
-    foffset = size(sh1.fv, 2)
     eoffset = length(sh1.e1)
-    sh3.fe[:, 1:size(sh1.fe, 2)] = sh1.fe
-    sh3.fe[:, 1+size(sh1.fe, 2):end] = sh2.fe .+ eoffset # offset will be corrected later
+    sh3.fe[:, 1:Nf1] = sh1.fe
+    sh3.fe[:, 1+Nf1:end] .= sh2.fe .+ eoffset # offset will be corrected later
     #  Correct duplicate edges from sh2:
     if dup_coor ≠ ' '
-        for n2 in 1:length(ecen2) # Examine each duplicate edge in sh2
-            e2 = ecen2[n2]  # Index of duplicate edge in sh2.
-            e1 = ecen1[n2]  # Index of duplicate edge in sh1.
-            sh3.fe[sh3.fe.==(e2+eoffset)] .= e1
-        end
-        # Correct edge indices:
-        for i in length(ecen2):-1:1
-            sh3.fe[sh3.fe.>eoffset+ecen2[i]] .-= 1
+        sh3fenew = @view sh3.fe[:, 1+Nf1:end]
+        for n in eachindex(sh2.fe, sh3fenew)
+            e2 = sh2.fe[n]
+            ncen = findfirst(==(e2), ecen2)
+            if isnothing(ncen)
+                # ordinary (non-duplicate) edge
+                sh3fenew[n] -= count(<(e2), ecen2) # correct the offset
+            else
+                sh3fenew[n] = ecen1[ncen]
+            end
         end
     end
+
+    test_fefv(sh3)
+
     return sh3
 end
 
@@ -776,5 +795,32 @@ end
         end
     end
 end
+
+function test_fefv(sheet::RWGSheet)
+    ip1 = (2, 3, 1)
+    ip2 = (3, 1, 2)
+    for iface in axes(sheet.fv, 2)
+        for ivlocal in axes(sheet.fv, 1) # local node index within current face
+            ivglobal = sheet.fv[ivlocal, iface] # Global node index
+            oppedge= sheet.fe[ivlocal, iface] # Should be global index of edge opposite this vertex
+            edgen1n2 = Set((sheet.e1[oppedge], sheet.e2[oppedge])) # global node indices of edge vertices
+            facen1n2 = Set((sheet.fv[ip1[ivlocal], iface], sheet.fv[ip2[ivlocal], iface])) # global node indices of other face vertices
+            if edgen1n2 ≠ facen1n2
+                @show edgen1n2
+                @show facen1n2
+                println("Bad triangle fe/fv matching for face #", iface, " local vertex ", ivlocal)
+                println("face edges: " )
+                for e in @view sheet.fe[:,iface]
+                    println("  edge ", e, " from node ", sheet.e1[e], " to node ", sheet.e2[e])
+                end
+                print("face nodes: ")
+                foreach(x -> print(x," "), @view sheet.fv[:,iface])
+                println()
+                error("bad")
+            end
+        end
+    end # iface loop
+end
+
 
 end # module
