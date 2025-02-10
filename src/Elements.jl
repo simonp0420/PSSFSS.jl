@@ -4,9 +4,9 @@ export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet,
        pixels, pmcsheet, polyring, rectstrip, sinuous, splitring, sympixels
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
-using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2, orient!
+using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2, orient!, test_fefv
 using ..Meshsub: meshsub
-using StaticArrays: SA
+using StaticArrays: SA, @SVector
 using LinearAlgebra: norm, ⋅, ×
 using Printf: @sprintf
 import LibGEOS # difference, readgeom, Polygon, MultiPolygon
