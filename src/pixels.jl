@@ -168,7 +168,7 @@ function sympixels(; P::Real, nrim::Integer, halfnint::Integer,
     s = SymPixels(halfnint, nrim)
     patternmat = sympixmat(s, patternvec)
 
-    sheet = pixels(; P, patternmat, units, pdiv, kwargs...)
+    sheet = pixels(; P, patternmat, units, pdiv, sym=true, kwargs...)
     return sheet
 
 end
@@ -200,9 +200,12 @@ All arguments are keyword arguments which can be entered in any order.
   A value of `1` (the default) means that the pixels are not subdivided any further, except for a single diagonal across each 
   pixel to form triangles.  A value of `2` would subdivide each pixel into 4 squares.  A diagonal edge would be added to
   each of the resulting squares to form triangles.
+- `sym::Bool = false`: If true, implies that the pixel matrix is mirror symmetrical about its center, and 
+  consists of an even number of pixels in each direction.  In that case, the triangulation will preserve the 
+  mirror symmetry.
 $(optional_kwargs)
 """
-function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=1, units, kwarg...)
+function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=1, sym::Bool=false, units, kwarg...)
 
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
@@ -248,7 +251,16 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
     areat = npixtri * d^2  # Total area to triangulate
     ntri = npixtri * pdiv^2 * 2 # Number of triangles expected
     ntri_requested = ntri ÷ 4 # Much smaller to ensure no extra triangles are added by make_plaid_mesh
-    sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside)
+    if sym
+        xrequired .-= xrequired[(length(xrequired)+1) ÷ 2]
+        yrequired .-= yrequired[(length(yrequired)+1) ÷ 2]
+        #xrequired = xrequired[((length(xrequired)+1) ÷ 2):end]
+        #yrequired = yrequired[((length(xrequired)+1) ÷ 2):end]
+        is_inside_sym(x,y) = is_inside(x + P/2, y + P/2)
+        sheet = make_sym_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside_sym)
+    else
+        sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside)
+    end
 
     sheet.Zs = kwargs[:Zsheet]
     sheet.σ = kwargs[:σ]
