@@ -128,7 +128,8 @@ end
 Create a variable of type `RWGSheet` that contains the triangulation for a symmetrically pixelated
 square unit cell. The pattern of metallic pixels has left-right and up-down mirror symmetry, as well as each 
 quadrant exhibiting antidiagonal mirror symmetry. The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, 
-`e2`, `fv`, `fe`, and `fr` properly initialized.  
+`e2`, `fv`, `fe`, and `fr` properly initialized.  The pixels included in the triangulation are determined by the 
+`patternvec` input vector as described below.
 
 
 # Arguments:
@@ -143,14 +144,16 @@ All arguments are keyword arguments which can be entered in any order.
   region of the unit cell.
 - `patternvec::AbstractVector{<:Integer}`: A vector of length `halfnint*(halfnint+1)÷2`, consisting solely of 1's and 0's.
   The elements of this vector are mapped to pixels in the irreducible zone of the unit cell as shown in the 
-  figure at 
-  ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixelsdef.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixelsdef.png)
+  figure at (to be provided later).  Within the irreducible zone, pixels corresponding to a value of `1` (or `true`)
+  are taken to be areas of metallization, while `0` or `false` values are metal-free (void) areas.  This holds for either 
+  `J` or `M` as the `class` value.  Whether the metallized region or the 
 - `units`:  Length units for `P` (either `mm`, `cm`, `inch`, or `mil`).
     
 ## Optional arguments:
-- `pdiv::Int = 1`: The number of "chops" or subdivisions applied to each square pixel side when forming the geometry triangulation.
-  A value of `1` (the default) means that the pixels are not subdivided any further, except for a single diagonal across each 
-  pixel to form triangles.
+- `pdiv::Int = 1`: The number of "chops" or subdivisions applied to each square pixel side when forming the triangulation.
+  A value of `1` (the default) means that the pixels corresponding to a `1` or `true` value in `patternvec` are not 
+  subdivided any further, except for a single diagonal across each pixel to form triangles. A value of `n>1` means that each square pixel is first divided into `n×n` square
+  subpixels, after which a single diagonal edge is added to each subpixel to form triangles. 
 $(optional_kwargs)
 """
 function sympixels(; P::Real, nrim::Integer, halfnint::Integer, 
@@ -167,7 +170,7 @@ function sympixels(; P::Real, nrim::Integer, halfnint::Integer,
 
     s = SymPixels(halfnint, nrim)
     patternmat = sympixmat(s, patternvec)
-
+    
     sheet = pixels(; P, patternmat, units, pdiv, sym=true, kwargs...)
     return sheet
 
@@ -214,6 +217,10 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
     @testpos(pdiv)
     all(x -> isone(x) || iszero(x), patternmat) || throw(ArgumentError("patternmat must consist of ones and zeros"))
     size(patternmat,1) == size(patternmat,2) || throw(ArgumentError("patternmat must be a square matrix"))
+
+    if kwargs[:class] == 'M'
+        patternmat .= (!).(patternmat) # Triangulate the non-metal regions
+    end
 
     s1 = [P, 0.0]
     s2 = [0.0, P]
