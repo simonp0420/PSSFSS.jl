@@ -154,6 +154,9 @@ All arguments are keyword arguments which can be entered in any order.
   A value of `1` (the default) means that the pixels corresponding to a `1` or `true` value in `patternvec` are not 
   subdivided any further, except for a single diagonal across each pixel to form triangles. A value of `n>1` means that each square pixel is first divided into `n×n` square
   subpixels, after which a single diagonal edge is added to each subpixel to form triangles. 
+- `sym::Bool = false`: If true, implies that the pixel matrix is mirror symmetrical about its center, and 
+  consists of an even number of pixels in each direction.  In that case, the triangulation will preserve the 
+  mirror symmetry.
 $(optional_kwargs)
 """
 function sympixels(; P::Real, nrim::Integer, halfnint::Integer, 
@@ -171,7 +174,7 @@ function sympixels(; P::Real, nrim::Integer, halfnint::Integer,
     s = SymPixels(halfnint, nrim)
     patternmat = sympixmat(s, patternvec)
     
-    sheet = pixels(; P, patternmat, units, pdiv, sym=true, kwargs...)
+    sheet = pixels(; P, patternmat, units, pdiv, kwargs...)
     return sheet
 
 end
