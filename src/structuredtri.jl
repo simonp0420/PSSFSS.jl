@@ -473,16 +473,20 @@ function manji(; L1::Real, L2::Real, L3::Real, L4::Real=0.0, a::Real=0.0, w::Rea
 end # function manji
 
 """
-    make_plaid_mesh(xr, yr, area, ntri, is_inside) -> sheet::RWGSheet
+    make_plaid_mesh(xr, yr, area, ntri, is_inside, quad=false) -> sheet::RWGSheet
 
 Generate a structured, plaid triangular mesh from list of required coordinates and predicate function
 
-# Input Arguments
+# Positional Input Arguments
 - `xr`, `yr`: Vectors of required x and y coordinates for vertices of the geometry to be meshed.
 - `area`:  The area of the geometry to be meshed.
 - `ntri`:  The desired number of triangles for the area to be meshed.
 - `is_inside`: A predicate function where `is_inside(x,y) -> tf::Bool` determines whether a point (x,y)
   is within the region to be meshed.
+- `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
+  two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
+
+
 
 #  Return value:
 - `sheet`: A variable of type RWGSheet with fields ρ, e1, e2, fe, and fv properly initialized. The
@@ -490,7 +494,7 @@ Generate a structured, plaid triangular mesh from list of required coordinates a
   product of `xr` and `yr`, the latter supplemented with additional points to refine the mesh, and then
   converted to a triangular tesselation by adding a diagonal to each rectangle.
 """
-function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_inside)::RWGSheet
+function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_inside, quad::Bool=false)::RWGSheet
     xr, yr = sort.((xr, yr))
     bigarea = (xr[end] - xr[begin]) * (yr[end] - yr[begin]) # area of circumscribing rectangle
     bignsq = ceil(Int, bigarea / area * ntri/2) # desired number of squares to form in circumscribing rectangle
@@ -507,6 +511,14 @@ function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_
     end
     
     # xn and yn now contain the plaid vertex coordinates
+    if quad
+        # Add centerpoint values
+        xnc = [0.5(xn[i] + xn[i+1]) for i in 1:(length(xn)-1)]
+        xn = sort!(append!(xn, xnc))
+        ync = [0.5(yn[i] + yn[i+1]) for i in 1:(length(yn)-1)]
+        yn = sort!(append!(yn, ync))
+    end
+
     # Initialize vectors of face and edge indices into xn and yn:
     facevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}, Tuple{Int,Int}}[]
     edgevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}}[]
@@ -514,19 +526,37 @@ function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_
     # Add triangular faces and edges within the desired geometry.  Assumes that 
     # if the center of the rectangle is inside, then so are both triangles
     # partitioning that rectangle.
-    for i in eachindex(xn)[begin+1:end]
-        xcen = 0.5 * (xn[i] + xn[i-1])
-        for j in eachindex(yn)[begin+1:end]
-            ycen = 0.5 * (yn[j] + yn[j-1])
+    irange = quad ? (3:2:length(xn)) : (2:length(xn))
+    jrange = quad ? (3:2:length(yn)) : (2:length(yn))
+    for i in irange
+        xcen = quad ? xn[i-1] : 0.5 * (xn[i] + xn[i-1])
+        for j in jrange
+            ycen = quad ? yn[j-1] : 0.5 * (yn[j] + yn[j-1])
             is_inside(xcen, ycen) || continue
-            topface = ((i,j-1), (i,j), (i-1,j))
-            botface = ((i,j-1), (i-1,j), (i-1,j-1))
-            push!(facevs, topface, botface)
-            push!(edgevs, ((i-1,j-1), (i,j-1)),
-                          ((i,j-1), (i,j)),
-                          ((i,j), (i-1,j)),
-                          ((i-1,j),(i-1,j-1)),
-                          ((i,j-1), (i-1,j)))
+            if quad
+                leftface = ((i-1, j-1), (i-2, j), (i-2, j-2))
+                rightface = ((i-1, j-1), (i, j-2), (i, j))
+                topface = ((i-1, j-1), (i,j), (i-2,j))
+                botface = ((i-1, j-1), (i-2, j-2), (i, j-2))
+                push!(facevs, leftface, rightface, topface, botface)
+                push!(edgevs, ((i-1, j-1), (i-2, j)),
+                              ((i-2, j), (i-2, j-2)),
+                              ((i-2, j-2), (i-1, j-1)),
+                              ((i-1, j-1), (i, j-2)),
+                              ((i, j-2), (i, j)),
+                              ((i, j), (i-1, j-1)),
+                              ((i-2, j), (i, j)),
+                              ((i-2, j-2), (i, j-2)))
+            else
+                topface = ((i,j-1), (i,j), (i-1,j))
+                botface = ((i,j-1), (i-1,j), (i-1,j-1))
+                push!(facevs, topface, botface)
+                push!(edgevs, ((i-1,j-1), (i,j-1)),
+                              ((i,j-1), (i,j)),
+                              ((i,j), (i-1,j)),
+                              ((i-1,j),(i-1,j-1)),
+                              ((i,j-1), (i-1,j)))
+            end
         end
     end
 
@@ -556,6 +586,8 @@ function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_
     sh.fe = fe
     return sh
 end
+
+
 
 _plain_rim_area(P, w) = 4 * (P * w - w^2)
 function _fancy_rim_area(P, w, c)

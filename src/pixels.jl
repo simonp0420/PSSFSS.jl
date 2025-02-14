@@ -157,11 +157,12 @@ All arguments are keyword arguments which can be entered in any order.
 - `sym::Bool = false`: If true, implies that the pixel matrix is mirror symmetrical about its center, and 
   consists of an even number of pixels in each direction.  In that case, the triangulation will preserve the 
   mirror symmetry.
+- `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
+  two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
 $(optional_kwargs)
 """
 function sympixels(; P::Real, nrim::Integer, halfnint::Integer, 
-    patternvec::AbstractVector{<:Integer}, 
-    units, pdiv::Integer=1, 
+    patternvec::AbstractVector{<:Integer}, units, pdiv::Integer=1, quad::Bool=false,
     kwargs...)::RWGSheet
 
     @testpos(P)
@@ -174,7 +175,7 @@ function sympixels(; P::Real, nrim::Integer, halfnint::Integer,
     s = SymPixels(halfnint, nrim)
     patternmat = sympixmat(s, patternvec)
     
-    sheet = pixels(; P, patternmat, units, pdiv, kwargs...)
+    sheet = pixels(; P, patternmat, units, pdiv, quad, kwargs...)
     return sheet
 
 end
@@ -209,9 +210,12 @@ All arguments are keyword arguments which can be entered in any order.
 - `sym::Bool = false`: If true, implies that the pixel matrix is mirror symmetrical about its center, and 
   consists of an even number of pixels in each direction.  In that case, the triangulation will preserve the 
   mirror symmetry.
+- `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
+  two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
 $(optional_kwargs)
 """
-function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=1, sym::Bool=false, units, kwarg...)
+function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=1, 
+    sym::Bool=false, quad::Bool=false, units, kwarg...)
 
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
@@ -261,7 +265,7 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
     areat = npixtri * d^2  # Total area to triangulate
     ntri = npixtri * pdiv^2 * 2 # Number of triangles expected
     ntri_requested = ntri ÷ 4 # Much smaller to ensure no extra triangles are added by make_plaid_mesh
-    if sym
+    if sym && !quad
         xrequired .-= xrequired[(length(xrequired)+1) ÷ 2]
         yrequired .-= yrequired[(length(yrequired)+1) ÷ 2]
         #xrequired = xrequired[((length(xrequired)+1) ÷ 2):end]
@@ -269,7 +273,7 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
         is_inside_sym(x,y) = is_inside(x + P/2, y + P/2)
         sheet = make_sym_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside_sym)
     else
-        sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside)
+        sheet = make_plaid_mesh(xrequired, yrequired, areat, ntri_requested, is_inside, quad)
     end
 
     sheet.Zs = kwargs[:Zsheet]
