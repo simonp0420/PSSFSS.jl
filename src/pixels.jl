@@ -115,7 +115,7 @@ elements of each row reversed. This places the elements in 1:1 correspondence wi
 mirror images in the upper left half.
 """
 function lrindices(n::Integer) 
-    n > 0 || throw(ArgumentError("uladindices requires a a positive argument"))
+    n > 0 || throw(ArgumentError("lradindices requires a a positive argument"))
     return (CartesianIndex(n-j+1, n-i+1) for (j,k) in zip(1:n, n:-1:1) for i in 1:n if i ≤ k)
 end
 
@@ -126,10 +126,10 @@ end
 # Description:
 
 Create a variable of type `RWGSheet` that contains the triangulation for a symmetrically pixelated
-square unit cell. The pattern of metallic pixels has left-right and up-down mirror symmetry, as well as each 
-quadrant exhibiting antidiagonal mirror symmetry. The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, 
-`e2`, `fv`, `fe`, and `fr` properly initialized.  The pixels included in the triangulation are determined by the 
-`patternvec` input vector as described below.
+square unit cell. The pattern of metallic pixels has C4 symmetry, as well as left-right and up-down mirror symmetry, 
+as well as each quadrant exhibiting antidiagonal mirror symmetry. The returned value has fields `s₁`, `s₂`, `β₁`,
+`β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, and `fr` properly initialized.  The pixels included in the triangulation are
+determined by the `patternvec` input vector as described below.
 
 
 # Arguments:
@@ -144,21 +144,24 @@ All arguments are keyword arguments which can be entered in any order.
   region of the unit cell.
 - `patternvec::AbstractVector{<:Integer}`: A vector of length `halfnint*(halfnint+1)÷2`, consisting solely of 1's and 0's.
   The elements of this vector are mapped to pixels in the irreducible zone of the unit cell as shown in the 
-  figure at (to be provided later).  Within the irreducible zone, pixels corresponding to a value of `1` (or `true`)
+  diagram at   ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png).
+  Within the irreducible zone, pixels corresponding to a value of `1` (or `true`)
   are taken to be areas of metallization, while `0` or `false` values are metal-free (void) areas.  This holds for either 
   `J` or `M` as the `class` value.  Whether the metallized region or the 
 - `units`:  Length units for `P` (either `mm`, `cm`, `inch`, or `mil`).
     
 ## Optional arguments:
 - `pdiv::Int = 1`: The number of "chops" or subdivisions applied to each square pixel side when forming the triangulation.
-  A value of `1` (the default) means that the pixels corresponding to a `1` or `true` value in `patternvec` are not 
-  subdivided any further, except for a single diagonal across each pixel to form triangles. A value of `n>1` means that each square pixel is first divided into `n×n` square
-  subpixels, after which a single diagonal edge is added to each subpixel to form triangles. 
-- `sym::Bool = false`: If true, implies that the pixel matrix is mirror symmetrical about its center, and 
-  consists of an even number of pixels in each direction.  In that case, the triangulation will preserve the 
-  mirror symmetry.
+  A value of `1` (the default) means that the pixels included in the triangulation (`1` or `true` values for `class='J'`,
+  `0` or `false` values for `class='M'`) are not subdivided any further, except for a single diagonal across each square
+  pixel to form triangles. A value of `n>1` means that each square pixel is first divided into `n×n` square
+  subpixels, after which a single diagonal edge (if `quad=false`) is added to each subpixel to form triangles. 
+- `sym::Bool = false`: If true, the diagonals added to the squares will exhibit the same left-right and up-down
+  mirror symmetry as the collection of `true` (`false`) pixel locations.  If `false` and `quad=false`, then all added diagonals
+  across the unit cell will have the same orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
+  in that case the two added diagonals already ensure mirror symmetry of the triangulation.
 - `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
-  two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
+  two diagonals.  If `false` (the default), only a single diagonal is added to each square to produce two triangles.
 $(optional_kwargs)
 """
 function sympixels(; P::Real, nrim::Integer, halfnint::Integer, 
@@ -207,9 +210,12 @@ All arguments are keyword arguments which can be entered in any order.
   A value of `1` (the default) means that the pixels are not subdivided any further, except for a single diagonal across each 
   pixel to form triangles.  A value of `2` would subdivide each pixel into 4 squares.  A diagonal edge would be added to
   each of the resulting squares to form triangles.
-- `sym::Bool = false`: If true, implies that the pixel matrix is mirror symmetrical about its center, and 
-  consists of an even number of pixels in each direction.  In that case, the triangulation will preserve the 
-  mirror symmetry.
+- `sym::Bool = false`: A `true` value states that the pixel matrix is mirror symmetrical about its center, and 
+  consists of an even number of pixels in each direction.  If `true`, the diagonals added to the squares to form 
+  triangles will exhibit the same left-right and up-down mirror symmetry as the collection of `true` (`false`) pixel
+  locations.  If `false` and `quad=false`, then all added diagonals across the unit cell will have the same 
+  orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
+  in that case the two added diagonals already ensure mirror symmetry of the triangulation.
 - `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
   two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
 $(optional_kwargs)
