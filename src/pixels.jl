@@ -119,6 +119,16 @@ function lrindices(n::Integer)
     return (CartesianIndex(n-j+1, n-i+1) for (j,k) in zip(1:n, n:-1:1) for i in 1:n if i ≤ k)
 end
 
+const keepstart = first(findfirst("- `dx", optional_kwargs)) - 1
+const pix_optional_kwargs =
+"""
+- `class::Char='M'`  Specify the class, either `'J'` or `'M'`. If `'J'`, the unknowns are electric surface 
+  currents in the areas corresponding to `1` values of the pixels.  If `'M'`,  the unknowns are magnetic surface
+  currents in the areas corresponding to `0` values of the pixels.  It is known that using `'J'` can result in 
+  grossly incorrect results for some geometries.  Therefore, use of only `'M'` is strongly recommended.
+""" *
+optional_kwargs[keepstart:end]
+
 
 """
     function sympixels(; P, nrim, halfnint, patternvec, units, kwargs...)
@@ -144,10 +154,11 @@ All arguments are keyword arguments which can be entered in any order.
   region of the unit cell.
 - `patternvec::AbstractVector{<:Integer}`: A vector of length `halfnint*(halfnint+1)÷2`, consisting solely of 1's and 0's.
   The elements of this vector are mapped to pixels in the irreducible zone of the unit cell as shown in the 
-  diagram at   ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png).
+  diagram at ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png]\
+  (https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png).
   Within the irreducible zone, pixels corresponding to a value of `1` (or `true`)
   are taken to be areas of metallization, while `0` or `false` values are metal-free (void) areas.  This holds for either 
-  `J` or `M` as the `class` value.  Whether the metallized region or the 
+  `J` or `M` as the `class` value (see the `class` argument below for important limitations).
 - `units`:  Length units for `P` (either `mm`, `cm`, `inch`, or `mil`).
     
 ## Optional arguments:
@@ -156,15 +167,15 @@ All arguments are keyword arguments which can be entered in any order.
   `0` or `false` values for `class='M'`) are not subdivided any further, except for a single diagonal across each square
   pixel to form triangles. A value of `n>1` means that each square pixel is first divided into `n×n` square
   subpixels, after which a single diagonal edge (if `quad=false`) is added to each subpixel to form triangles. 
+- `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
+  two diagonals.  If `false` (the default), only a single diagonal is added to each square to produce two triangles.
 - `sym::Bool = false`: If true, the diagonals added to the squares will exhibit the same left-right and up-down
   mirror symmetry as the collection of `true` (`false`) pixel locations.  If `false` and `quad=false`, then all added diagonals
   across the unit cell will have the same orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
   in that case the two added diagonals already ensure mirror symmetry of the triangulation.
-- `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
-  two diagonals.  If `false` (the default), only a single diagonal is added to each square to produce two triangles.
-$(optional_kwargs)
+$(pix_optional_kwargs)
 """
-function sympixels(; P::Real, nrim::Integer, halfnint::Integer, 
+function sympixels(; P::Real, nrim::Integer, halfnint::Integer, class::Char='M',
     patternvec::AbstractVector{<:Integer}, units, pdiv::Integer=1, quad::Bool=false,
     kwargs...)::RWGSheet
 
@@ -210,17 +221,17 @@ All arguments are keyword arguments which can be entered in any order.
   A value of `1` (the default) means that the pixels are not subdivided any further, except for a single diagonal across each 
   pixel to form triangles.  A value of `2` would subdivide each pixel into 4 squares.  A diagonal edge would be added to
   each of the resulting squares to form triangles.
-- `sym::Bool = false`: A `true` value states that the pixel matrix is mirror symmetrical about its center, and 
-  consists of an even number of pixels in each direction.  If `true`, the diagonals added to the squares to form 
-  triangles will exhibit the same left-right and up-down mirror symmetry as the collection of `true` (`false`) pixel
-  locations.  If `false` and `quad=false`, then all added diagonals across the unit cell will have the same 
-  orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
-  in that case the two added diagonals already ensure mirror symmetry of the triangulation.
 - `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
   two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
-$(optional_kwargs)
+- `sym::Bool = false`: A `true` value states that the pixel matrix has vertical and horizontal mirror symmetry, and 
+  consists of an even number of rows (and columns).  If `true`, the diagonals added to the squares to form 
+  triangles will exhibit the same left-right and up-down mirror symmetry as the collection of `true` (`false`) pixel
+  locations.  If `sym=false` and `quad=false`, then all added diagonals across the unit cell will have the same 
+  orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
+  in that case the two added diagonals already ensure mirror symmetry of the triangulation.
+$(pix_optional_kwargs)
 """
-function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=1, 
+function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=1, class::Char='M',
     sym::Bool=false, quad::Bool=false, units, kwarg...)
 
     kwargs = Dict{Symbol,Any}(kwarg)
@@ -232,7 +243,14 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
     size(patternmat,1) == size(patternmat,2) || throw(ArgumentError("patternmat must be a square matrix"))
 
     if kwargs[:class] == 'M'
-        patternmat .= (!).(patternmat) # Triangulate the non-metal regions
+        patternmat = (!).(patternmat) # Triangulate the non-metal regions
+    else
+        @warn """
+
+        `class='J'` detected for `sympixels` or `pixels` element.
+        This is is known to produce grossly incorrect results for some geometries.
+        It is recommended to always use `class='M'` for `sympixels` and `pixels` elements.
+        """
     end
 
     s1 = [P, 0.0]
