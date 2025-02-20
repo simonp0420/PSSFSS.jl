@@ -189,7 +189,7 @@ function sympixels(; P::Real, nrim::Integer, halfnint::Integer, class::Char='M',
     s = SymPixels(halfnint, nrim)
     patternmat = sympixmat(s, patternvec)
     
-    sheet = pixels(; P, patternmat, units, pdiv, quad, kwargs...)
+    sheet = pixels(; P, patternmat, units, pdiv, quad, class, kwargs...)
     return sheet
 
 end
@@ -236,6 +236,7 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
 
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
+    haskey(kwargs, :class) || (kwargs[:class] = 'M')
     check_optional_kw_arguments!(kwargs)
     @testpos(P)
     @testpos(pdiv)
