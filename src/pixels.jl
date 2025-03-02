@@ -236,7 +236,7 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
 
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
-    haskey(kwargs, :class) || (kwargs[:class] = 'M')
+    kwargs[:class] = class
     check_optional_kw_arguments!(kwargs)
     @testpos(P)
     @testpos(pdiv)
