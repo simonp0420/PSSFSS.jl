@@ -249,8 +249,8 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
         @warn """
 
         `class='J'` detected for `sympixels` or `pixels` element.
-        This is is known to produce grossly incorrect results for some geometries.
-        It is recommended to always use `class='M'` for `sympixels` and `pixels` elements.
+        This is is known to incorrect results for certain geometries containing metallic islands that intersect in a single point.
+        It is recommended to use `class='M'` for `sympixels` and `pixels` elements.
         """
     end
 
