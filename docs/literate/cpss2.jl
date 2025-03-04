@@ -1,9 +1,6 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "Slide"}}
 # ## Meanderline/Strip-Based CPSS
-# This example comes from the same authors as the previous example.  The paper is
-# A. Ericsson and D. Sjöberg, "Design and Analysis of a Multilayer Meander Line
-# Circular Polarization Selective Structure", IEEE Trans. Antennas Propagat., 
-# Vol. 65, No. 8, Aug 2017, pp. 4089-4101.
+# This example comes from [ericsson2017design](@cite), by the same authors as the previous example.
 # The design is similar to that of the previous example except that here, the two ``\pm 45^\circ``
 # rotated meanderlines are replaced with rectangular strips.  
 # This allows us to employ the `diagstrip` element and the `orient` keyword for the 
@@ -133,7 +130,7 @@ plot(ps..., layout=5)
 # ...
 # ```
 #-
-# Layers 3 and 9 were assigned 10 modes each.  Layers 5 and 7, being thinner were assigned 
+# Layers 3 and 9 were assigned 10 modes each.  Layers 5 and 7, being thinner, were assigned 
 # 18 modes each. The numbers of modes are determined automatically by PSSFSS to ensure 
 # accurate cascading.  
 #-

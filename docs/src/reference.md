@@ -1,5 +1,5 @@
 
-# [PSSFSS](https://github.com/simonp0420/PSSFSS) Function Reference
+# [PSSFSS](https://github.com/simonp0420/PSSFSS) Public API Documentation
 
 ```@docs
 analyze

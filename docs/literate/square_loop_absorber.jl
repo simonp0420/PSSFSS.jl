@@ -1,13 +1,12 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
 # ## Square Loop Absorber
-# This example is from Figure 7 of Costa and Monorchio: "A frequency selective 
-# radome with wideband absorbing properties", *IEEE Trans. AP-S*, 
-# Vol. 60, no. 6, June 2012, pp. 2740--2747.  It shows how one can use the `polyring`
+# This example, from Figure 7 of [costa2012frequency](@cite),
+# shows how one can use the [`polyring`](@ref)
 # function to model square loop elements.  Three different designs are examined
 # that employ different loop thicknesses and different values of sheet resistance.
 # We compare the reflection coefficient magnitudes computed by PSSFSS with those digitized
 # from the cited figure when the sheet is suspended
-# 5 mm above a ground plane, hence we will also make use of the `pecsheet` function.
+# 5 mm above a ground plane, hence we will also make use of the [`pecsheet`](@ref) function.
 
 using Plots, PSSFSS, DelimitedFiles
 D = 11 # Period of square lattice (mm)

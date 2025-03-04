@@ -25,9 +25,7 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "slide"}}
 # ### A Quick Example
 # Here is an example run of PSSFSS for a 4-sheet meanderline polarizer design
-# from one of the first papers on the subject: T. L. Blackney, J. R. Burnett, and 
-# S. B. Cohn, “A design method for meander-line circular polarizers” 
-# presented at 22nd Annual Antenna Symposium, Oct. 1972.
+# from [blbc:72](@cite), one of the first papers on the subject.
 # Detailed explanations of the code are omitted for now.
 #-
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
@@ -130,7 +128,7 @@
 # the [Pluto Home Page](https://plutojl.org/) for details of using Pluto.
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
-# It is almost essential that PSSFSS users also install the [Plots](https://github.com/JuliaPlots/Plots.jl)
+# It is essential that PSSFSS users also install the [Plots](https://github.com/JuliaPlots/Plots.jl)
 # package.  This will allow easy visualization of the FSS/PSS element triangulations produced by PSSFSS, in 
 # addition to providing a convenient means to plot analysis results.
 
@@ -238,8 +236,7 @@ patch = rectstrip(Nx=10, Ny=10, Px=1, Py=1, Lx=0.5, Ly=0.5, units=cm)
 # default value, suitable for the so-called "oxide side" of a planar conductor, or `:rayleigh` (suitable for the 
 # "foil side" of the conductor, i.e. the side bonded to the dielectric substrate). Together, the conductivity, 
 # surface roughness, and roughness distribution type are used by PSSFSS internally to compute a frequency-dependent surface 
-# impedance, using the so-called Gradient Model, as described in D. N. Grujić, “Simple and Accurate Approximation of 
-# Rough Conductor Surface Impedance,” IEEE Trans. Microwave Theory Tech., vol. 70, no. 4, pp. 2053-2059, April 2022. 
+# impedance, using the so-called Gradient Model, as described in [grujic2021simple](@cite).
 # Obviously, only one of `Zsheet` and `sigma` may be specified as keyword arguments for a given `RWGSheet`.
 
 # #### Perfectly Conducting Walls
@@ -445,7 +442,7 @@ flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
 # It is often desired to use a set of polarization basis vectors other than TE/TM to define field 
 # coefficients.  PSSFSS supports in addition to TE/TM the use of H/V for horizontal/vertical components 
-# (in the [Ludwig 3](https://ieeexplore.ieee.org/document/1140406) sense), and L/R for left-hand circular
+# (in the Ludwig 3 [ludw:73](@cite) sense), and L/R for left-hand circular
 # and right-hand circular polarization (in the 
 # [IEEE sense](https://en.wikipedia.org/wiki/Circular_polarization#Uses_of_the_two_conventions)).
 

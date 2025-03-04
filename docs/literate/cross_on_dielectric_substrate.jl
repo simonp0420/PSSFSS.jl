@@ -1,11 +1,9 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
 # ## Cross on Dielectric Substrate
-# This example is also taken from the paper by Alon S. Barlevy and 
-# Yahya Rahmat-Samii, "Fundamental Constraints on the Electrical Characteristics 
-# of Frequency Selective Surfaces", **Electromagnetics**, vol. 17, 1997, pp. 41-68. 
-# This particular example is from Section 3.2, Figures 7 and 8.  It also appeared at 
-# higher resolution in Barlevy's PhD dissertation from which the comparison curves 
-# were digitized.
+# This example is also taken from the paper [barlevy1997fundamental](@cite) by Barlevy and 
+# Rahmat-Samii. This particular example is from Section 3.2, Figures 7 and 8.  It also appeared at 
+# higher resolution in Barlevy's PhD dissertation [barlevy1998dissertation](@cite)
+# from which the comparison curves were digitized.
 #
 # We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
 # is "unloaded", i.e. the center section is filled in with metalization:
@@ -57,7 +55,7 @@ for eps in [1, 2, 4]
 end
 
 # The above loop requires about 18 seconds of execution time on my machine.
-# Compare PSSFSS results to those digitized from the dissertation figure:
+# Compare PSSFSS results to those digitized from the dissertation:
 
 col=[:red,:blue,:green]
 p = plot(xlim=(0.,30), xtick = 0:5:30, ylim=(0,1), ytick=0:0.1:1, 

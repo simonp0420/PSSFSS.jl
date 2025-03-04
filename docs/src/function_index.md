@@ -1,5 +1,5 @@
 
 
-# Index
+# Public API Index
 ```@index
 ```

@@ -2,10 +2,8 @@
 # ## Resistive Square Patch
 # This example will demonstrate the ability of PSSFSS to accurately model finite
 # conductivity of FSS metalization.  It consists of a square finitely conducting 
-# patch in a square lattice.  It is taken from a paper by Alon S. Barlevy and 
-# Yahya Rahmat-Samii, 
-# "Fundamental Constraints on the Electrical Characteristics of Frequency Selective 
-# Surfaces", **Electromagnetics**, vol. 17, 1997, pp. 41-68. This particular example 
+# patch in a square lattice.  It is taken from a paper by Barlevy and 
+# Rahmat-Samii [barlevy1997fundamental](@cite). This particular example 
 # is from Section 3.2, Figures 7 and 8.  We will compare PSSFSS results to those digitized
 # from the cited figures.
 #

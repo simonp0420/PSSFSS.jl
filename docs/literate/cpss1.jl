@@ -5,10 +5,7 @@
 # We'll first look at analyzing a design presented in the literature, and then proceed to optimize another 
 # design using PSSFSS as the analysis engine inside the optimization objective function.
 # ### Sjöberg and Ericsson Design
-# This example comes from the paper D. Sjöberg and A. Ericsson, "A multi layer meander line circular 
-# polarization selective structure (MLML-CPSS)," The 8th European Conference on Antennas and Propagation 
-# (EuCAP 2014), 2014, pp. 464-468, doi: 10.1109/EuCAP.2014.6901792.
-#
+# This example comes from [sjoberg2014multi](@cite).
 # The authors describe an ingenious structure consisting of 5 progressively rotated meanderline sheets, which
 # acts as a circular polarization selective surface: it passes LHCP (almost) without attenuation or 
 # reflection, and reflects RHCP (without changing its sense!) almost without attenuation or transmission.
@@ -208,7 +205,7 @@ plot!(p, foptlimits, ARgoal, color=:black, lw=4, label="Goal")
 # the entire unit cell, and the unit cell for sheets 2 and 4 are not square.  Since the periodicity of 
 # the sheets in the structure varies from sheet to sheet, higher order Floquet modes common to neighboring
 # sheets cannot be defined, so we are forced to use only the dominant (0,0) modes which are independent of
-# the periodicity.  This limitation is removed in a later example.
+# the periodicity.  This limitation is removed in the next example.
 # Meanwhile, it is of interest to note that their high-accuracy runs
 # required 10 hours for CST and 19 hours for COMSOL on large engineering workstations versus about 22 
 # seconds for PSSFSS on my desktop machine.

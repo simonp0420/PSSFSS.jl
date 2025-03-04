@@ -1,10 +1,7 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "Slide"}}
 # ## Split Ring-Based CPSS
 # This circular polarization selective surface (CPSS) example comes from the paper
-# L.-X. Wu, K. Chen, T. Jiang, J. Zhao and Y. Feng, "Circular-Polarization-Selective 
-# Metasurface and Its Applications to Transmit-Reflect-Array Antenna and Bidirectional 
-# Antenna," in IEEE Trans. Antennas and Propag., vol. 70, no. 11, pp. 10207-10217, 
-# Nov. 2022, doi: 10.1109/TAP.2022.3191213.
+# [wu2022circular](@cite) by Wu et al.
 # The design consists of three sequentially rotated split rings separated by dielectric
 # layers. Since the unit cells for all three rings are identical, PSSFSS can rigorously
 # account for multiple scattering between the individual sheets using multiple 

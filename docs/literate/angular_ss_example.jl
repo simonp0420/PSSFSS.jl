@@ -1,10 +1,6 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "Slide"}}
 # ## Angle Selective Surface
-# This example is taken from Zhenting Chen, Chao Du, Jie Liu, Di Zhou, and Zhongxiang Shen, 
-# "Design Methodology of Dual-Polarized Angle-Selective Surface Based 
-# on Three-Layer Frequency-Selective Surfaces", IEEE Trans. Antennas Propagat., Vol. 71, No. 11, November 2023, 
-# pp. 8704--8713.
-#
+# This example is taken [chen2023design](@cite).
 # A three-sheet FSS is designed that is transparent to normally incident plane waves, but strongly
 # attenuates obliquely incident waves.  All three sheets are swastika-shaped, with the outer two
 # sheets being identical.  The shapes are generated in PSSFSS using the manji element.

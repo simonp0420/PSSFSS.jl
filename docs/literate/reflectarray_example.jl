@@ -1,13 +1,9 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "Slide"}}
 # ## Reflectarray Element
-# This example is taken from Figure 6 of 
-# Li, Jiao, and Zhao: "A Novel Microstrip Rectangular-Patch/Ring-
-# Combination Reflectarray Element and Its Application", **IEEE Antennas and Wireless Propagation Letters**, 
-# VOL. 8, 2009, pp. 1119-1112.
-#
+# This example is taken from [li2009novel; Figure 6](@cite).
 # It generates the so-called "S-curve" for reflection phase of a reflectarray element. The element 
 # consists of a square patch in a square ring, separated from a ground plane by two dielectric layers.
-# Reflection phase is plotted versus the `L2` parameter as defined by Li, et al., which characterizes the 
+# Reflection phase is plotted versus the `L2` parameter as defined in [li2009novel](@cite), which characterizes the 
 # overall size of the element.
 #
 

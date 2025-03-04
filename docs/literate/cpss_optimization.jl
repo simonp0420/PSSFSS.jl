@@ -159,4 +159,4 @@
 # ![](./assets/cpss_cmaesopt_ar_trans.png)
 
 # As hoped for, the performance meets the more stringent design goals over a broader bandwidth than the 
-# Sjöberg and Ericsson design, presumably because of the greater design flexibility allowed here.
+# Sjöberg and Ericsson design of [sjoberg2014multi](@cite), presumably because of the greater design flexibility allowed here.

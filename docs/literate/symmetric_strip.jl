@@ -10,10 +10,10 @@
 # The dashed lines show two possible choices for the unit cell location: "J" for a formulation in terms of electric 
 # surface currents, and "M" for magnetic surface currents.
 #
-# For normal incidence there is a closed-form solution due to Weinstein, 
-# but for a more recent reference one can find the solution in Problem 10.6 of R. E. Collin, 
-# *Field Theory of Guided Waves, Second Ed.*, 
-# IEEE Press, 1991.  Here is the code for computing the exact solution:
+# For normal incidence there is a closed-form solution due to Weinstein [weinstein1969theory](@cite), 
+# but there are more recent (and accessible) references in which one can also find the
+# solution.  For example [collin1991field; Problem 10.6](@cite) and [daniele1990diffraction](@cite).
+# Here is the code for computing the exact solution, based on [collin1991field](@cite):
 """
     grating(kP, nterms=30) -> (Γ, T)
 
@@ -43,8 +43,8 @@ function grating(kP; nterms=30)
     return (Γ, T)
 end
 
-#  Note that using the extension of 
-# [Babinet's Principle for electromagnetic fields](http://kirkmcd.princeton.edu/examples/babinet.pdf)
+# Note that using the extension of 
+# Babinet's Principle for electromagnetic fields [tan2012babinet](@cite), [nakata2013plane](@cite),
 # this also provides the solution (upon appropriate interchange and sign change of the coefficients) for 
 # the case where the incident wave polarization is parallel to the direction of the strips.
 

@@ -1,8 +1,6 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
 # ## Flexible Absorber
-# This example is from Yize Li, et al., "Ultra-wideband, polarization-insensitive flexible metamaterial 
-# absorber base on laser printed graphene using equivalent circuit design method," Carbon, Vol 212, 2023,
-# available for free download from [here](https://doi.org/10.1016/j.carbon.2023.118166).
+# This example is from [li2023ultra](@cite).
 # It uses square and circular resistive FSS elements sandwiched between layers of flexible dielectrics to 
 # realize a reflective absorber (i.e. a "rabsorber").
 # We compare the reflection coefficient magnitude computed by PSSFSS to that digitized
@@ -38,13 +36,13 @@ scan = (θ=0, ϕ=0)
 results = analyze(strata, FGHz, scan, showprogress=false, resultfile=devnull, logfile=devnull)
 
 s11db = extract_result(results, @outputs s11db(te,te))
-yize = readdlm("../src/assets/yize2023_fig2a_s11db_digitized.csv", ',', Float64, '\n')
+li = readdlm("../src/assets/li2023_fig2a_s11db_digitized.csv", ',', Float64, '\n')
 
 ps11 = plot(title="Normal Incidence Reflection Magnitude", 
             xlabel="Frequency (GHz)", ylabel="20log₁₀|s₁₁|", xlim=(0,20),
             ylim=(-18,0), xtick=0:2:20, ytick=-20:2:0, framestyle=:box)
 plot!(ps11, FGHz, s11db, color=:blue, label="PSSFSS", lw=2)
-plot!(ps11, yize[:,1], yize[:,2], color=:red, label="Yize et al.", lw=2)
+plot!(ps11, li[:,1], li[:,2], color=:red, label="Li et al.", lw=2)
 #md savefig(ps11, "flexibleabsorbers11.png"); nothing  # hide
 #-
 #md # ![](flexibleabsorbers11.png)

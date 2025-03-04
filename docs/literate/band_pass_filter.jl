@@ -1,19 +1,16 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "subslide"}}
 # ## Loaded Cross Band Pass Filter
-# This example is originally from Fig. 7.9 of B. Munk, *Frequency Selective Surfaces,
-# Theory and Design,* John Wiley and Sons, 2000.  The same case was analyzed in L. Li,
-# D. H. Werner et al, "A Model-Based Parameter Estimation Technique for
-# Wide-Band Interpolation of Periodic Moment Method Impedance Matrices With Application to
-# Genetic Algorithm Optimization of Frequency Selective Surfaces", *IEEE Trans. AP-S*,
-# vol. 54, no. 3, March 2006, pp. 908-924, Fig. 6.  Unfortunately, in neither reference 
+# This example is originally from [munk2000fss; Fig. 7.9](@cite).
+# The same case was analyzed in [li2006model](@cite).  Unfortunately, in neither reference 
 # are the dimensions of the loaded cross stated, except for the square unit cell
 # period of 8.61 mm.  I estimated the dimensions from the sketch in Fig. 6 of the second
 # reference.  To provide a reliable comparison, I analyzed one-eighth of the structure
-# in HFSS, a commercial finite element solver, using all three planes of symmetry 
-# (using symmetry in the z = constant centerline plane
+# in HFSS, a commercial finite element solver, using all three planes of symmetry. 
+# Exploiting the symmetry in the z = constant centerline plane
 # required two analyses, once for an H-wall boundary condition, and once for an E-wall. Those
-# results were then combined using the method of Reed and Wheeler (even/odd symmetry)). With
-# a much reduced computational domain, it was then possible to drive HFSS well into convergence.
+# results were then combined using the method of Reed and Wheeler [reed1956method](@cite), i.e.
+# using even/odd symmetry. With a much reduced computational domain, it was then possible to 
+# drive HFSS well into convergence.
 # 
 # Two identical loaded cross slot-type elements are separated by a 6 mm layer of dielectric
 # constant 1.9.  Outboard of each sheet is a 1.1 cm layer of dielectric constant 1.3.

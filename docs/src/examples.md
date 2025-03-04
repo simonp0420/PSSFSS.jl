@@ -19,10 +19,10 @@ The grating lies in the ``z=0`` plane with free space on both sides. The shaded 
 The dashed lines show two possible choices for the unit cell location: "J" for a formulation in terms of electric
 surface currents, and "M" for magnetic surface currents.
 
-For normal incidence there is a closed-form solution due to Weinstein,
-but for a more recent reference one can find the solution in Problem 10.6 of R. E. Collin,
-*Field Theory of Guided Waves, Second Ed.*,
-IEEE Press, 1991.  Here is the code for computing the exact solution:
+For normal incidence there is a closed-form solution due to Weinstein [weinstein1969theory](@cite),
+but there are more recent (and accessible) references in which one can also find the
+solution.  For example [collin1991field; Problem 10.6](@cite) and [daniele1990diffraction](@cite).
+Here is the code for computing the exact solution, based on [collin1991field](@cite):
 
 ````@example symmetric_strip
 """
@@ -55,8 +55,8 @@ function grating(kP; nterms=30)
 end
 ````
 
- Note that using the extension of
-[Babinet's Principle for electromagnetic fields](http://kirkmcd.princeton.edu/examples/babinet.pdf)
+Note that using the extension of
+Babinet's Principle for electromagnetic fields [tan2012babinet](@cite), [nakata2013plane](@cite),
 this also provides the solution (upon appropriate interchange and sign change of the coefficients) for
 the case where the incident wave polarization is parallel to the direction of the strips.
 
@@ -260,10 +260,8 @@ EditURL = "../literate/resistive_square_patch.jl"
 ## Resistive Square Patch
 This example will demonstrate the ability of PSSFSS to accurately model finite
 conductivity of FSS metalization.  It consists of a square finitely conducting
-patch in a square lattice.  It is taken from a paper by Alon S. Barlevy and
-Yahya Rahmat-Samii,
-"Fundamental Constraints on the Electrical Characteristics of Frequency Selective
-Surfaces", **Electromagnetics**, vol. 17, 1997, pp. 41-68. This particular example
+patch in a square lattice.  It is taken from a paper by Barlevy and
+Rahmat-Samii [barlevy1997fundamental](@cite). This particular example
 is from Section 3.2, Figures 7 and 8.  We will compare PSSFSS results to those digitized
 from the cited figures.
 
@@ -327,12 +325,10 @@ EditURL = "../literate/cross_on_dielectric_substrate.jl"
 ```
 
 ## Cross on Dielectric Substrate
-This example is also taken from the paper by Alon S. Barlevy and
-Yahya Rahmat-Samii, "Fundamental Constraints on the Electrical Characteristics
-of Frequency Selective Surfaces", **Electromagnetics**, vol. 17, 1997, pp. 41-68.
-This particular example is from Section 3.2, Figures 7 and 8.  It also appeared at
-higher resolution in Barlevy's PhD dissertation from which the comparison curves
-were digitized.
+This example is also taken from the paper [barlevy1997fundamental](@cite) by Barlevy and
+Rahmat-Samii. This particular example is from Section 3.2, Figures 7 and 8.  It also appeared at
+higher resolution in Barlevy's PhD dissertation [barlevy1998dissertation](@cite)
+from which the comparison curves were digitized.
 
 We use the `loadedcross` element where we choose `w > L2/2`, so that the Cross
 is "unloaded", i.e. the center section is filled in with metalization:
@@ -392,7 +388,7 @@ end
 ````
 
 The above loop requires about 18 seconds of execution time on my machine.
-Compare PSSFSS results to those digitized from the dissertation figure:
+Compare PSSFSS results to those digitized from the dissertation:
 
 ````@example cross_on_dielectric_substrate
 col=[:red,:blue,:green]
@@ -421,14 +417,13 @@ EditURL = "../literate/square_loop_absorber.jl"
 ```
 
 ## Square Loop Absorber
-This example is from Figure 7 of Costa and Monorchio: "A frequency selective
-radome with wideband absorbing properties", *IEEE Trans. AP-S*,
-Vol. 60, no. 6, June 2012, pp. 2740--2747.  It shows how one can use the `polyring`
+This example, from Figure 7 of [costa2012frequency](@cite),
+shows how one can use the [`polyring`](@ref)
 function to model square loop elements.  Three different designs are examined
 that employ different loop thicknesses and different values of sheet resistance.
 We compare the reflection coefficient magnitudes computed by PSSFSS with those digitized
 from the cited figure when the sheet is suspended
-5 mm above a ground plane, hence we will also make use of the `pecsheet` function.
+5 mm above a ground plane, hence we will also make use of the [`pecsheet`](@ref) function.
 
 ````@example square_loop_absorber
 using Plots, PSSFSS, DelimitedFiles
@@ -530,9 +525,7 @@ EditURL = "../literate/flexible_absorber.jl"
 ```
 
 ## Flexible Absorber
-This example is from Yize Li, et al., "Ultra-wideband, polarization-insensitive flexible metamaterial
-absorber base on laser printed graphene using equivalent circuit design method," Carbon, Vol 212, 2023,
-available for free download from [here](https://doi.org/10.1016/j.carbon.2023.118166).
+This example is from [li2023ultra](@cite).
 It uses square and circular resistive FSS elements sandwiched between layers of flexible dielectrics to
 realize a reflective absorber (i.e. a "rabsorber").
 We compare the reflection coefficient magnitude computed by PSSFSS to that digitized
@@ -571,13 +564,13 @@ scan = (θ=0, ϕ=0)
 results = analyze(strata, FGHz, scan, showprogress=false, resultfile=devnull, logfile=devnull)
 
 s11db = extract_result(results, @outputs s11db(te,te))
-yize = readdlm("../src/assets/yize2023_fig2a_s11db_digitized.csv", ',', Float64, '\n')
+li = readdlm("../src/assets/li2023_fig2a_s11db_digitized.csv", ',', Float64, '\n')
 
 ps11 = plot(title="Normal Incidence Reflection Magnitude",
             xlabel="Frequency (GHz)", ylabel="20log₁₀|s₁₁|", xlim=(0,20),
             ylim=(-18,0), xtick=0:2:20, ytick=-20:2:0, framestyle=:box)
 plot!(ps11, FGHz, s11db, color=:blue, label="PSSFSS", lw=2)
-plot!(ps11, yize[:,1], yize[:,2], color=:red, label="Yize et al.", lw=2)
+plot!(ps11, li[:,1], li[:,2], color=:red, label="Li et al.", lw=2)
 savefig(ps11, "flexibleabsorbers11.png"); nothing  # hide
 ````
 
@@ -593,11 +586,7 @@ EditURL = "../literate/splitringexample.jl"
 ```
 
 ## Split-Ring Resonator
-This example is taken from Figure 3 of
-Fabian‐Gongora, et al, "Independently Tunable Closely Spaced Triband
-Frequency Selective Surface Unit Cell Using the Third Resonant Mode of Split Ring Slots",
-IEEE Access, 8/3/2021, Digital Object Identifier 10.1109/ACCESS.2021.3100325.
-
+This example is taken from [fabian2021independently; Figure 3](@cite).
 It consists of three concentric split rings with gaps sequentially rotated by 180° situated
 on a thin dielectric slab.
 
@@ -657,14 +646,10 @@ EditURL = "../literate/reflectarray_example.jl"
 ```
 
 ## Reflectarray Element
-This example is taken from Figure 6 of
-Li, Jiao, and Zhao: "A Novel Microstrip Rectangular-Patch/Ring-
-Combination Reflectarray Element and Its Application", **IEEE Antennas and Wireless Propagation Letters**,
-VOL. 8, 2009, pp. 1119-1112.
-
+This example is taken from [li2009novel; Figure 6](@cite).
 It generates the so-called "S-curve" for reflection phase of a reflectarray element. The element
 consists of a square patch in a square ring, separated from a ground plane by two dielectric layers.
-Reflection phase is plotted versus the `L2` parameter as defined by Li, et al., which characterizes the
+Reflection phase is plotted versus the `L2` parameter as defined in [li2009novel](@cite), which characterizes the
 overall size of the element.
 
 We start by defining a convenience function to generate a `RWGSheet` for a given value of `L2` in mm and
@@ -856,20 +841,17 @@ EditURL = "../literate/band_pass_filter.jl"
 ```
 
 ## Loaded Cross Band Pass Filter
-This example is originally from Fig. 7.9 of B. Munk, *Frequency Selective Surfaces,
-Theory and Design,* John Wiley and Sons, 2000.  The same case was analyzed in L. Li,
-D. H. Werner et al, "A Model-Based Parameter Estimation Technique for
-Wide-Band Interpolation of Periodic Moment Method Impedance Matrices With Application to
-Genetic Algorithm Optimization of Frequency Selective Surfaces", *IEEE Trans. AP-S*,
-vol. 54, no. 3, March 2006, pp. 908-924, Fig. 6.  Unfortunately, in neither reference
+This example is originally from [munk2000fss; Fig. 7.9](@cite).
+The same case was analyzed in [li2006model](@cite).  Unfortunately, in neither reference
 are the dimensions of the loaded cross stated, except for the square unit cell
 period of 8.61 mm.  I estimated the dimensions from the sketch in Fig. 6 of the second
 reference.  To provide a reliable comparison, I analyzed one-eighth of the structure
-in HFSS, a commercial finite element solver, using all three planes of symmetry
-(using symmetry in the z = constant centerline plane
+in HFSS, a commercial finite element solver, using all three planes of symmetry.
+Exploiting the symmetry in the z = constant centerline plane
 required two analyses, once for an H-wall boundary condition, and once for an E-wall. Those
-results were then combined using the method of Reed and Wheeler (even/odd symmetry)). With
-a much reduced computational domain, it was then possible to drive HFSS well into convergence.
+results were then combined using the method of Reed and Wheeler [reed1956method](@cite), i.e.
+using even/odd symmetry. With a much reduced computational domain, it was then possible to
+drive HFSS well into convergence.
 
 Two identical loaded cross slot-type elements are separated by a 6 mm layer of dielectric
 constant 1.9.  Outboard of each sheet is a 1.1 cm layer of dielectric constant 1.3.
@@ -950,10 +932,7 @@ to the two senses of circular polarization.
 We'll first look at analyzing a design presented in the literature, and then proceed to optimize another
 design using PSSFSS as the analysis engine inside the optimization objective function.
 ### Sjöberg and Ericsson Design
-This example comes from the paper D. Sjöberg and A. Ericsson, "A multi layer meander line circular
-polarization selective structure (MLML-CPSS)," The 8th European Conference on Antennas and Propagation
-(EuCAP 2014), 2014, pp. 464-468, doi: 10.1109/EuCAP.2014.6901792.
-
+This example comes from [sjoberg2014multi](@cite).
 The authors describe an ingenious structure consisting of 5 progressively rotated meanderline sheets, which
 acts as a circular polarization selective surface: it passes LHCP (almost) without attenuation or
 reflection, and reflects RHCP (without changing its sense!) almost without attenuation or transmission.
@@ -1171,7 +1150,7 @@ As previosly discussed, this is necessary because the rotated meanderlines are a
 the entire unit cell, and the unit cell for sheets 2 and 4 are not square.  Since the periodicity of
 the sheets in the structure varies from sheet to sheet, higher order Floquet modes common to neighboring
 sheets cannot be defined, so we are forced to use only the dominant (0,0) modes which are independent of
-the periodicity.  This limitation is removed in a later example.
+the periodicity.  This limitation is removed in the next example.
 Meanwhile, it is of interest to note that their high-accuracy runs
 required 10 hours for CST and 19 hours for COMSOL on large engineering workstations versus about 22
 seconds for PSSFSS on my desktop machine.
@@ -1341,17 +1320,14 @@ The final sheet geometries and performance of this design are shown below:
 ![](./assets/cpss_cmaesopt_ar_trans.png)
 
 As hoped for, the performance meets the more stringent design goals over a broader bandwidth than the
-Sjöberg and Ericsson design, presumably because of the greater design flexibility allowed here.
+Sjöberg and Ericsson design of [sjoberg2014multi](@cite), presumably because of the greater design flexibility allowed here.
 
 ```@meta
 EditURL = "../literate/cpss2.jl"
 ```
 
 ## Meanderline/Strip-Based CPSS
-This example comes from the same authors as the previous example.  The paper is
-A. Ericsson and D. Sjöberg, "Design and Analysis of a Multilayer Meander Line
-Circular Polarization Selective Structure", IEEE Trans. Antennas Propagat.,
-Vol. 65, No. 8, Aug 2017, pp. 4089-4101.
+This example comes from [ericsson2017design](@cite), by the same authors as the previous example.
 The design is similar to that of the previous example except that here, the two ``\pm 45^\circ``
 rotated meanderlines are replaced with rectangular strips.
 This allows us to employ the `diagstrip` element and the `orient` keyword for the
@@ -1485,7 +1461,7 @@ Dielectric layer information...
 ...
 ```
 
-Layers 3 and 9 were assigned 10 modes each.  Layers 5 and 7, being thinner were assigned
+Layers 3 and 9 were assigned 10 modes each.  Layers 5 and 7, being thinner, were assigned
 18 modes each. The numbers of modes are determined automatically by PSSFSS to ensure
 accurate cascading.
 
@@ -1550,10 +1526,7 @@ EditURL = "../literate/splitring_cpss.jl"
 
 ## Split Ring-Based CPSS
 This circular polarization selective surface (CPSS) example comes from the paper
-L.-X. Wu, K. Chen, T. Jiang, J. Zhao and Y. Feng, "Circular-Polarization-Selective
-Metasurface and Its Applications to Transmit-Reflect-Array Antenna and Bidirectional
-Antenna," in IEEE Trans. Antennas and Propag., vol. 70, no. 11, pp. 10207-10217,
-Nov. 2022, doi: 10.1109/TAP.2022.3191213.
+[wu2022circular](@cite) by Wu et al.
 The design consists of three sequentially rotated split rings separated by dielectric
 layers. Since the unit cells for all three rings are identical, PSSFSS can rigorously
 account for multiple scattering between the individual sheets using multiple
@@ -1703,11 +1676,7 @@ EditURL = "../literate/angular_ss_example.jl"
 ```
 
 ## Angle Selective Surface
-This example is taken from Zhenting Chen, Chao Du, Jie Liu, Di Zhou, and Zhongxiang Shen,
-"Design Methodology of Dual-Polarized Angle-Selective Surface Based
-on Three-Layer Frequency-Selective Surfaces", IEEE Trans. Antennas Propagat., Vol. 71, No. 11, November 2023,
-pp. 8704--8713.
-
+This example is taken [chen2023design](@cite).
 A three-sheet FSS is designed that is transparent to normally incident plane waves, but strongly
 attenuates obliquely incident waves.  All three sheets are swastika-shaped, with the outer two
 sheets being identical.  The shapes are generated in PSSFSS using the manji element.
@@ -1808,6 +1777,201 @@ Note how the transmission amplitude rapidly rolls off beyond about 15°.  This r
 about 13.5 minutes to complete, much longer than for normal incidence. This is due to fact that
 the incremental phase shift ψ₁ is not held constant during the analysis, requiring the spatial
 integrals to be recomputed for each new incidence angle.
+
+```@meta
+EditURL = "../literate/checkerboard_example.jl"
+```
+
+## Checkerboard Metasurface
+Checkerboard-style metasurfaces have been exensively studied, for example in [nakata2013plane](@cite)
+and [kempa2010percolation](@cite).  They exhibit some very unusual properties, which we will demonstrate here.
+
+We consider a series of checkerboad-like geometries.  The square unit cell has dimension ``P = 5~\text{mm}``.
+The side length for a PEC square sheet rotated 45° and perfectly inscribed in the unit cell is ``L_0 = P / \sqrt{2}``.
+We will analyze a series of squares at 1 GHz with side lengths ``L = L_0 + δ``.  The function `computed_and_plot`
+defined below will take a given value of ``δ`` as its input, then perform four distinct analyses based on two
+complementary triangulations.  Let's run it first for ``δ = -0.5 \text{mm}`` and look
+at the resulting triangulations:
+
+````@example checkerboard_example
+using PSSFSS, Plots, PrettyTables
+using Printf: @sprintf
+
+units = mm
+P = 5  # period in x and y direction
+L0 = P / √2 # Side length for self-complementary square
+Nx = Ny = 10
+
+function compute_and_plot(δ; P=P, units=units, L0=L0, Nx=Nx, Ny=Ny)
+
+    Px = Py = P
+    Lx = Ly = L0 - abs(δ)
+    orient = 45
+    islekwds = (; Lx, Ly, Px, Py, units, Nx, Ny, orient)
+    holekwds = (; units, s1=[P,0], s2=[0,P], sides=4,
+                  a = iszero(δ) ? [P/2] : [(L0-abs(δ)) / √2],
+                  b=[-2*Nx], ntri=2*Nx*Ny, structuredtri=false)
+    if δ ≤ 0
+        redj = rectstrip(; class='J', islekwds...)
+        redm = rectstrip(; class='M', islekwds...)
+        bluej = polyring(; class='J', holekwds...)
+        bluem = polyring(; class='M', holekwds...)
+    else
+        redj = polyring(; class='J', holekwds...)
+        redm = polyring(; class='M', holekwds...)
+        bluej = rectstrip(; class='J', islekwds...)
+        bluem = rectstrip(; class='M', islekwds...)
+    end
+
+    p1 = plot(redj, unitcell=true, faces=true, fillcolor=:red, title="Unit Cell")
+    p2 = plot(redj, faces=true, edges=false, fillcolor=:red, rep=(3,3), title="3×3 Array")
+    p3 = plot(bluej, unitcell=true, faces=true, fillcolor=:blue, title="Unit Cell")
+    p4 = plot(bluej, faces=true, edges=false, fillcolor=:blue, rep=(3,3), title="3×3 Array")
+    pl = plot(p1,p2,p3,p4, layout=(2,2), size=(550,600), plot_title=" Triangulations for δ = $δ")
+
+    flist = 1  # Analysis frequency in GHz
+    steering = (θ=0, ϕ=0) # Normal incidence
+    logfile = resultfile = devnull  # Suppress creation of output files
+    showprogress = false  # Suppress screen output
+
+    redjres = analyze([Layer(), redj, Layer()], flist, steering; logfile, resultfile, showprogress)
+    bluejres = analyze([Layer(), bluej, Layer()], flist, steering; logfile, resultfile, showprogress)
+    redmres = analyze([Layer(), redm, Layer()], flist, steering; logfile, resultfile, showprogress)
+    bluemres = analyze([Layer(), bluem, Layer()], flist, steering; logfile, resultfile, showprogress)
+
+
+    s11rj = extract_result(redjres, @outputs s11(v,v)) |> only
+    s21rj = extract_result(redjres, @outputs s21(v,v)) |> only
+    s11rm = extract_result(redmres, @outputs s11(v,v)) |> only
+    s21rm = extract_result(redmres, @outputs s21(v,v)) |> only
+    s11bj = extract_result(bluejres, @outputs s11(v,v)) |> only
+    s21bj = extract_result(bluejres, @outputs s21(v,v)) |> only
+    s11bm = extract_result(bluemres, @outputs s11(v,v)) |> only
+    s21bm = extract_result(bluemres, @outputs s21(v,v)) |> only
+
+    return pl, (; s11rj, s21rj, s11rm, s21rm, s11bj, s21bj, s11bm, s21bm)
+end
+
+pl, _ = compute_and_plot(-0.5)
+pl
+````
+
+The function creates a "red" triangulation occupying the triangle of side length ``L_0 + δ``, and a "blue" triangulation,
+occupying the complementary portion of the unit cell. Since for this case the red square
+side length is 0.5 mm shorter than the critical length ``L_0``, it lies strictly inside the unit cell.  So if we choose to
+use the red triangulation to model electric surface current, then we can consider the red regions to be "islands" of
+metal in otherwise empty space.  We could also use the blue triangulation to model magnetic surface current, which again would
+lead to the conclusion that the small untriangulated squares are conducting patches or "islands" of metalization.
+Either of these two choices, when analyzed with PSSFSS, should yield the same values for computed reflection or transmission
+coefficients (within modeling accuracy).
+
+A different approach would be to choose the red triangulation for representing magnetic surface current, in which case
+the small red squares would represent "holes" in an otherwise solid metallic sheet. The same "hole" interpretation would
+follow from using the blue triangulation to represent electric surface current. In fact, for this case, the blue region
+in the full plane can be regarded as the union of an infinite number of metallic squares of dimension ``L_0 + δ``.
+So positive values of ``δ`` can be handled by using ``-δ`` and reversing the roles of the red and blue triangulations.
+This is exactly what is done in the function `compute_and_plot` above.
+
+We'll now exercise the function for the set of ``δ`` values ``\{ -0.2, -0.05, 0, 0.05, 0.2 \}``, observing both the plotted
+triangulations and the resulting scattering parameter predictions for each of the four modeling choices outlined above.
+
+````@example checkerboard_example
+δs = [-0.2, -0.05, 0, 0.05, 0.2] # Departure in mm from self-complementary square side length
+s11rj, s21rj, s11rm, s21rm, s11bj, s21bj, s11bm, s21bm = (zeros(ComplexF64, length(δs)) for _ in 1:8)
+pls = [] #hide
+for (i, δ) in pairs(δs)
+    plt, r = compute_and_plot(δ)
+    s11rj[i] = r.s11rj
+    s21rj[i] = r.s21rj
+    s11rm[i] = r.s11rm
+    s21rm[i] = r.s21rm
+    s11bj[i] = r.s11bj
+    s21bj[i] = r.s21bj
+    s11bm[i] = r.s11bm
+    s21bm[i] = r.s21bm
+    display(plt)
+    push!(pls, plt) #hide
+end
+````
+
+````@example checkerboard_example
+i = 1   #hide
+pls[i]   #hide
+````
+
+````@example checkerboard_example
+i += 1   #hide
+pls[i]   #hide
+````
+
+````@example checkerboard_example
+i += 1   #hide
+pls[i]   #hide
+````
+
+````@example checkerboard_example
+i += 1   #hide
+pls[i]   #hide
+````
+
+````@example checkerboard_example
+i += 1   #hide
+pls[i]   #hide
+````
+
+Let the letter "J" denote use of a triangulation to represent electric surface current and let "M" denote magnetic surface current.
+So, e.g. "Blue M" means that the blue triangulation is used to represent magnetic current.  We can make the following observations about
+the above plots:
+
+1. The red and blue triangulations alway occupy complementary regions of the unit cell. Then for a given choice
+   of ``δ``, PSSFSS analysis of "Blue J" and "Red M" should result identical scattering parameters (apart from modeling errors).
+   Likewise analysis of "Red J" and "Blue M" should result in the same scattering parameters.
+2. It is well known from Babinet's principle [nakata2013plane](@cite) [tan2012babinet](@cite) that reflection coefficients
+   of thin perforated screens are equal to the negative of the transmission coefficients of the complementary structure, provided the
+   structures exhibit sufficient rotational symmetry as is the case here.  "Red J" and "Blue J" form such a
+   complementary pair, as do "Red M" and "Blue M".
+3. All of the ``δ`` values are quite small compared to ``L_0 \approx 3.5355 \text{mm}``.  In particular, the plots for
+   ``δ = \pm 0.05`` are almost indistinguishable from the plot for ``δ = 0``.  Therefore, we expect the scattering
+   parameters of all of these cases to be nearly equal.
+4. For the case of ``δ = 0``, the red and blue regions are both self-complementary. From our earlier considerations, we then
+   expect equal reflection and transmission coefficients for any of the choices "Red J", "Blue J", "Red M", or "Blue M".  In
+   fact all four of these cases should yield the same values.
+
+The following code generates a summary table showing how well these expectations are satisfied:
+
+````@example checkerboard_example
+mat = hcat(s11rj, s11bm, -s21rm, -s21bj) |> transpose
+row_labels = ["S₁₁: Red J ", "S₁₁: Blue M", "-S₂₁: Red M ", "-S₂₁: Blue J"]
+header = (["δ = $δ mm" for δ in δs], ["islands or holes" for δ in δs])
+header[2][findfirst(iszero, δs)] = "SC (Self-Complementary)"
+formatters = (v,i,j) -> imag(v) > 0 ? @sprintf("%7.4f + %6.4fim", real(v), imag(v)) :
+                                      @sprintf("%7.4f - %6.4fim", real(v), -imag(v))
+highlighters = Highlighter((data, i, j) -> (j == findfirst(iszero,δs)), crayon"red bold")
+pretty_table(mat; header, row_labels, alignment=:c, formatters, highlighters)
+````
+
+For ``δ < 0`` the results seem reasonable.  In this regime of electrically small metal islands (for Red J and Blue M),
+one wouldn't expect much reflection, and that is what is observed.  For ``δ > 0``, the geometry (for Red J and Blue M)
+consists of a metal plate with small holes, so one would expect almost total reflection, as observed.  Now consider
+how well our above observations are aligned with the computed results...
+
+From observations 1 and 2, the numbers in any one column should all be approximately equal, which they are
+except for the center ``δ = 0`` column (highlighted in red).  From observation 3 we expect all the entries
+in any one row to be nearly equal, but this is not true at all.  In any one row there is a violent jump in
+amplitude at or near ``δ = 0``.  Finally, from observation 4 we expect all of the numeric entries for ``δ = 0``
+to be approximately equal--which they are most definitely not.  What is going on here?
+
+As discussed in the previously cited references, the idealized model being analyzed for ``δ = 0`` is unphysical.
+As ``\delta \rightarrow 0`` the response of the structure does not approach a limit, since the violent jump in
+reflection coefficient occurs for arbitrarily small positive and negative excursions from ``L_0``.  Any physically
+realizable structure must exhibit continuous dependence on its physical parameters. If one attempts
+to approximate this ideal surface in the real world one must use finite thickness and conductivity, so that neighboring
+unit cells will intersect all along the thickness of the metal, rather than at a single point, thus destroying the
+self-complementary property.  Similarly, finite losses in any real metal preclude self-complementarity.
+
+The same problem observed here for an ideal model of a self-coplementary surface arises when analyzing pixelated
+structures such as shown in the next example, where adjacent metal pixels
+can intersect at only a single point. In that case, using a "Blue M" approach is known to agree with measurements.
 
 ```@meta
 EditURL = "../literate/tepfile_creation_example.jl"

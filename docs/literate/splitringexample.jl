@@ -1,10 +1,6 @@
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "Slide"}}
 # ## Split-Ring Resonator
-# This example is taken from Figure 3 of 
-# Fabian‐Gongora, et al, "Independently Tunable Closely Spaced Triband
-# Frequency Selective Surface Unit Cell Using the Third Resonant Mode of Split Ring Slots", 
-# IEEE Access, 8/3/2021, Digital Object Identifier 10.1109/ACCESS.2021.3100325.
-#
+# This example is taken from [fabian2021independently; Figure 3](@cite).
 # It consists of three concentric split rings with gaps sequentially rotated by 180° situated
 # on a thin dielectric slab.
 # 
