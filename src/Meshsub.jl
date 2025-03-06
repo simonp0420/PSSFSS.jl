@@ -62,16 +62,16 @@ function meshsub(; points::Matrix{<:Real}, seglist::Matrix{<:Integer},
     end
 
     # Set up for call to triangulate:
+    # Set up for call to triangulate:
+    triin = TriangulateIO()
+    triin.pointlist = Matrix{Cdouble}(points)
+    triin.segmentlist = Matrix{Cint}(seglist)
+    isempty(segmarkers) || (triin.segmentmarkerlist = Vector{Cint}(segmarkers))
+    isempty(holes) || (triin.holelist = Matrix{Cdouble}(holes))
     triout = TriangulateIO()  # Establish scope
+
     areaold = area
     for k in 1:iter
-        # Set up for call to triangulate:
-        triin = TriangulateIO()
-        triin.pointlist = Matrix{Cdouble}(points)
-        triin.segmentlist = Matrix{Cint}(seglist)
-        isempty(segmarkers) || (triin.segmentmarkerlist = Vector{Cint}(segmarkers))
-        isempty(holes) || (triin.holelist = Matrix{Cdouble}(holes))
-
         # Perform triangulation:
         (triout, vorout) = triangulate(switches, triin)
         ntrinew = size(triout.trianglelist, 2)
