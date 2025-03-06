@@ -100,7 +100,6 @@ for (i, δ) in pairs(δs)
     s21bj[i] = r.s21bj
     s11bm[i] = r.s11bm
     s21bm[i] = r.s21bm
-    display(plt)
     push!(pls, plt) #hide
 end
 #-

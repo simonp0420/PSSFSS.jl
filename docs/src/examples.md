@@ -1889,7 +1889,6 @@ for (i, δ) in pairs(δs)
     s21bj[i] = r.s21bj
     s11bm[i] = r.s11bm
     s21bm[i] = r.s21bm
-    display(plt)
     push!(pls, plt) #hide
 end
 ````
@@ -2046,11 +2045,9 @@ form triangles. The code for analyzing the `pdiv = 1` case would look like this:
 strata = [Layer(), sheet1, Layer(epsr=3.28, tandel=0.007, width=0.05mm), Layer()]
 steering = (θ=0, ϕ=0)
 flist = range(start=20, stop=36, length=401)
-logfile = "bp_filter_inverted_pdiv2.log"
-resultfile = "bp_filter_inverted_pdiv2.res"
+logfile = "bp_filter_pdiv1.log"
+resultfile = "bp_filter_pdiv1.res"
 results = analyze(strata, flist, steering; logfile, resultfile)
-s21_inv = extract_result(results, @outputs s21(te,te))
-s11_inv = extract_result(results, @outputs s11(te,te))
 s21db = extract_result(results, @outputs s21db(te,te))
 ```
 
@@ -2066,7 +2063,7 @@ geometry in HFSS to observe the significance of the thickness.  Here is a plot c
 results from [hong2021design; Fig. 4a](@cite), with the zero-thickness HFSS analysis and the two
 PSSFSS analyses:
 
-#md # ![](./assets/sympixels_fig4a_comparison.svg)
+![](./assets/sympixels_fig4a_comparison.svg)
 
 As seen above, the finite metallization thickness does not have a large effect on the transmission trace.
 Using `pdiv = 2` produces much better agreement with HFSS, but it appears that an even larger value would
