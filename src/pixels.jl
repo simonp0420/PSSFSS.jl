@@ -125,7 +125,8 @@ const pix_optional_kwargs =
 - `class::Char='M'`  Specify the class, either `'J'` or `'M'`. If `'J'`, the unknowns are electric surface 
   currents in the areas corresponding to `1` values of the pixels.  If `'M'`,  the unknowns are magnetic surface
   currents in the areas corresponding to `0` values of the pixels.  It is known that using `'J'` can result in 
-  grossly incorrect results for some geometries.  Therefore, use of only `'M'` is strongly recommended.
+  grossly incorrect results for some geometries where adjacent metallic pixels intersect at only a single point.
+  Therefore, use of only `'M'` is strongly recommended for most `pixels` elements and all `sympixels` elements.
 """ *
 optional_kwargs[keepstart:end]
 
@@ -249,8 +250,8 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
         @warn """
 
         `class='J'` detected for `sympixels` or `pixels` element.
-        This is is known to incorrect results for certain geometries containing metallic islands that intersect in a single point.
-        It is recommended to use `class='M'` for `sympixels` and `pixels` elements.
+        This is is known to produce incorrect results for certain geometries containing metallic islands that intersect in a single point.
+        It is strongly recommended to use `class='M'` for most `sympixels` and `pixels` elements.
         """
     end
 
