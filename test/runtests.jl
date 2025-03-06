@@ -41,6 +41,9 @@ end
     include("fresnel_test.jl")
 end
 
+@safetestset "sympixels test" begin
+    include("sympixels_test.jl")
+end
 
 if get(ENV, "BENCHMARK", "false") == "true"
     include("benchmark.jl")
