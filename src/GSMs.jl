@@ -802,9 +802,9 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
 
     # Loop over each adjacent pair of junctions stored in sint:
     for i in 1:ns-1
-        (j1, j2) = sint[i:i+1]   # Interface locations
+        j1, j2 = sint[i], sint[i+1]   # Interface 
         ## to do:  check here if j2-j1==1, and periods are different
-        Nwide = count(elength[(1+j1):j2] .> min_elength) # Numb. of wide enough intervening layers
+        Nwide = count(>(min_elength), @view elength[(1+j1):j2]) # Numb. of wide enough intervening layers
         if Nwide > 0  # step into the region from each end and assign ownership
             for j in j2:-1:j1+1
                 (elength[j] > min_elength || sheets[junc[j2]].style == "NULL") && break
