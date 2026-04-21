@@ -18,6 +18,7 @@ jobs:
         version:
             - '1.10'
             - '1.11'
+            - '1.12'
         os:
           - ubuntu-latest
           - macOS-latest
@@ -26,7 +27,7 @@ jobs:
           - x64
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
