@@ -2,11 +2,11 @@
     Package PSSFSS v$(pkgversion(PSSFSS))
 
 `PSSFSS` is a software package for the analysis of planar polarization and frequency selective surfaces (PSSs and FSSs).
-The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric [`Layer`](@ref)s 
+The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric [`Layer`](@ref)s
 and zero or more [`Sheet`](@ref) objects denoting the PSS/FSS surfaces.  After also specifying the scan angles or
-unit cell incremental phasings, frequencies to be considered,  
-the user then invokes the [`analyze`](@refs) function to perform the analysis. Performance parameters such as 
-axial ratio, insertion loss, return loss, reflection phase, etc. are easily retrieved using the 
+unit cell incremental phasings, frequencies to be considered,
+the user then invokes the [`analyze`](@refs) function to perform the analysis. Performance parameters such as
+axial ratio, insertion loss, return loss, reflection phase, etc. are easily retrieved using the
 [`extract_result`](@ref) function in combination with the [`@outputs`](@ref) macro. FSS/PSS sheet triangulations
 can be conveniently visualized using the `plot` command of the `Plots` package.
 
@@ -52,7 +52,7 @@ include("FastSweep.jl")
 
 using .UnitVectors: ẑ
 using .Rings
-@reexport using .Sheets: Sheet, RWGSheet, read_sheet_data, write_sheet_data, nodecount, facecount, edgecount, 
+@reexport using .Sheets: Sheet, RWGSheet, read_sheet_data, write_sheet_data, nodecount, facecount, edgecount,
                          export_sheet, STL_ASCII, STL_BINARY
 using .RWG: setup_rwg, rwgbfft!, RWGData
 using .GSMs: GSM, cascade, cascade!, gsm_electric_gblock, gsm_magnetic_gblock,
@@ -63,8 +63,8 @@ using .Constants: twopi, c₀, tdigits, dbmin
 using .Log: pssfss_logger, @logfile
 @reexport using .PSSFSSLen
 @reexport using .Layers: Layer
-@reexport using .Elements: diagstrip, jerusalemcross, loadedcross, manji, meander, 
-                           pixels, pecsheet, pmcsheet, polyring, rectstrip, sinuous, 
+@reexport using .Elements: diagstrip, jerusalemcross, loadedcross, manji, meander,
+                           pixels, pecsheet, pmcsheet, polyring, rectstrip, sinuous,
                            splitring, sympixels
 @reexport using .Outputs: @outputs, extract_result_file, extract_result, res2fresnel, res2tep
 using .Outputs: Result, append_result_data
@@ -76,9 +76,76 @@ Base.isfile(f::Base.DevNull) = false
 Base.open(f::Base.DevNull, ::AbstractString) = f
 
 """
+    _is_ijulia()
+
+Return `true` if called from within an IJulia Jupyter notebook, otherwise `false`.
+"""
+_is_ijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
+
+"""
+    _is_vsc_ext()
+
+Return `true` if called from within VS Code, otherwise `false`.
+"""
+_is_vsc_ext() = isdefined(Main, :VSCodeServer)
+
+"""
+    _is_vsc_integrated_term()
+
+Return `true` if called from within a VS Code integrated terminal, `false` otherwise.
+"""
+_is_vsc_integrated_term() = haskey(ENV, "TERM_PROGRAM") && ENV["TERM_PROGRAM"] == "vscode"
+
+"""
+    _is_vsc_notebook()
+
+Return `true` if called from within a VS Code notebook, `false` otherwise.
+"""
+_is_vsc_notebook() = _is_vsc_ext() && isdefined(Main.VSCodeServer, :notebook_provider)
+
+"""
+    _is_pluto_notebook()
+
+Return `true` if called from within a Pluto notebook, `false` otherwise.
+"""
+_is_pluto_notebook() = isdefined(Main, :AbstractPlutoDingetjes) && Main.AbstractPlutoDingetjes.is_inside_pluto()
+
+"""
+    run_environment()
+
+Return a string whose value depends on the enclosing execution environment as follows:
+- IJulia Jupyter notebook: "IJulia Notebook"
+- Pluto notebook: "Pluto Notebook"
+- VS Code notebook: "VS Code Notebook"
+- VS Code Julia extension REPL: "VS Code Julia Extension"
+- VS Code integrated terminal: "VS Code Integrated Terminal"
+- Windows Terminal: "Windows Terminal"
+- Other terminal program that sets the `TERM` or `TERM_PROGRAM` environment variable: contents of the variable
+- Other: "Unknown Terminal Environment"
+"""
+function run_environment()
+    if _is_ijulia()
+        "IJulia Notebook"
+    elseif _is_pluto_notebook()
+        "Pluto Notebook"
+    elseif _is_vsc_ext()
+        _is_vsc_notebook() ? "VS Code Notebook" : "VS Code Julia Extension"
+    elseif _is_vsc_integrated_term()
+        "VS Code Integrated Terminal"
+    elseif Sys.iswindows() && haskey(ENV, "WT_SESSION")
+        "Windows Terminal"
+    elseif haskey(ENV, "TERM_PROGRAM")
+        ENV["TERM_PROGRAM"]
+    else
+        get(ENV, "TERM", "Unknown Terminal Environment")
+    end
+end
+
+
+"""
     result = analyze(strata, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res", showprogress::Bool=true, fastsweep=true)
 
-Analyze a full FSS/PSS structure over a range of frequencies and steering angles/phasings.  
+Analyze a full FSS/PSS structure over a range of frequencies and steering angles/phasings.
 Generate output files as specified in `outlist`.
 
 ## Positional Arguments
@@ -91,12 +158,12 @@ Generate output files as specified in `outlist`.
 
     - one of {`:phi` ,`:ϕ`} and one of {`:theta`, `:θ`}, or
 
-    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}.  
+    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}.
 
   All steering parameters are input in degrees.  Examples of valid `steering` tuples:
-  `(θ=0, ϕ=0)`, `(theta=0:10:60, phi=[0, 45])`, `(theta=40, ϕ=90)`, `(psi1=0, psi2=90)`, `(ψ₁=0, psi2=34.3)`. 
-  
-  The program will analyze while iterating over a triple loop over the two steering 
+  `(θ=0, ϕ=0)`, `(theta=0:10:60, phi=[0, 45])`, `(theta=40, ϕ=90)`, `(psi1=0, psi2=90)`, `(ψ₁=0, psi2=34.3)`.
+
+  The program will analyze while iterating over a triple loop over the two steering
   parameters and frequency, with frequency in the innermost loop (i.e. varying the fastest).
   The steering parameter listed first will be in the outermost loop and will therefore
   vary most slowly.
@@ -106,17 +173,17 @@ Generate output files as specified in `outlist`.
 
 - `outlist`:  A matrix with 2 columns.  The first column in each row is a string
   containing the name of the CSV file to write the output to.  The second entry in
-  each row is a tuple generated by the `@outputs` macro of the `Outputs` module. The 
+  each row is a tuple generated by the `@outputs` macro of the `Outputs` module. The
   contents of the specified file(s) will be updated as the program completes each analysis
   frequency.
 
-- `logfile`:  A string containing the name of the log file to which timing and other 
+- `logfile`:  A string containing the name of the log file to which timing and other
   information about the run is written. Defaults to `"pssfss.log"`.
   If this file already exists, it will be overwritten.
 
 - `resultfile`:  A string containing the name of the results file. Defaults to `pssfss.res`.
   If this file already exists, it will be overwritten.  It is a binary
-  file that contains information (including the generalized scattering matrix) from 
+  file that contains information (including the generalized scattering matrix) from
   the analysis performed for each scan condition and frequency. The result file can be
   post-processed to produce similar or additional outputs that were requested at run time
   via the `outlist` argument.
@@ -127,8 +194,8 @@ Generate output files as specified in `outlist`.
 
 ## Return Value
 
-- `result`: A vector of `Result` objects, one for each scan angle/frequency combination. This 
-  vector can be passed as an input to the [`extract_result`](@refs) function to obtain any desired 
+- `result`: A vector of `Result` objects, one for each scan angle/frequency combination. This
+  vector can be passed as an input to the [`extract_result`](@refs) function to obtain any desired
   performance parameters that are supported by the [`@outputs`](@refs) macro.
 """
 function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.log",
@@ -141,7 +208,7 @@ function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.lo
     nl = length(layers)
     nj = nl - 1
     ns = length(sheets)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     freqstemp = float.(collect(flist))
@@ -171,7 +238,7 @@ end # function
 
 
 """
-function _analyze(layers, sheets, junc, freqs, stkeys, stvalues; 
+function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     outlist=Any[], resultfile="pssfss.res", showprogress::Bool=true, tstart=time(), fastsweep::Bool=true)
 
 
@@ -189,12 +256,12 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
 
     - one of {`:phi` ,`:ϕ`} and one of {`:theta`, `:θ`}, or
 
-    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}.  
+    - one of {`:psi1` ,`:ψ₁`} and one of {`:psi2`, `:ψ₂`}.
 
   The angular steering parameters are input in degrees, while the incremental phase shift
-  parameters are input in radians.  
-  
-  The program will analyze while iterating over a triple loop over the two steering 
+  parameters are input in radians.
+
+  The program will analyze while iterating over a triple loop over the two steering
   parameters and frequency, with frequency in the innermost loop (i.e. varying the fastest).
   The steering parameter listed first will be in the outermost loop and will therefore
   vary most slowly.
@@ -204,13 +271,13 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
 
 - `outlist`:  A matrix with 2 columns.  The first column in each row is a string
   containing the name of the CSV file to write the output to.  The second entry in
-  each row is a tuple generated by the `@outputs` macro of the `Outputs` module. The 
+  each row is a tuple generated by the `@outputs` macro of the `Outputs` module. The
   contents of the specified file(s) will be updated as the program completes each analysis
   frequency.
 
 - `resultfile`:  A string containing the name of the results file. Defaults to `pssfss.res`.
   If this file already exists, it will be overwritten.  It is a binary
-  file that contains information (including the generalized scattering matrix) from 
+  file that contains information (including the generalized scattering matrix) from
   the analysis performed for each scan condition and frequency. The result file can be
   post-processed to produce similar or additional outputs that were requested at run time
   via the `outlist` argument.
@@ -223,8 +290,8 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
 
 ## Return Value
 
-- `result`: A vector of `Result` objects, one for each scan angle/frequency combination. This 
-vector can be passed as an input to the [`extract_result`](@refs) function to obtain any desired 
+- `result`: A vector of `Result` objects, one for each scan angle/frequency combination. This
+vector can be passed as an input to the [`extract_result`](@refs) function to obtain any desired
 performance parameters that are supported by the [`@outputs`](@refs) macro.
 """
 function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
@@ -232,7 +299,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     showprogress && println("Beginning PSSFSS Analysis")
     ncount = 0 # Number of analyses performed
     ntotal = length(freqs) * length(stvalues[1]) * length(stvalues[2])
-    showprogress && (progress = Progress(ntotal; dt = 1))
+    showprogress && (progress = Progress(ntotal; dt = 1, enabled = !_is_ijulia()))
     showprogress && update!(progress, 0)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()), 'T')
@@ -245,8 +312,9 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     juliainfo = juliainfo[1:first(i)-1]
     juliainfo *= "  BLAS: $(BLAS.get_config())\n"
     if VERSION < v"1.8"
-        juliainfo = juliainfo * "  Threads.nthreads() = $(Threads.nthreads())\n"
+        juliainfo *= "  Threads.nthreads() = $(Threads.nthreads())\n"
     end
+    juliainfo *= string("Running under: ", run_environment())
     @logfile "\n\nStarting PSSFSS $(pssfssv) analysis on $(date) at $(clock)\n$(juliainfo)\n\n"
     check_inputs(layers, sheets, junc, freqs, stkeys, stvalues, outlist)
     k0min, k0max = twopi * 1e9 / c₀ .* extrema(freqs)
@@ -280,8 +348,8 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
         end
         @logfile "Beginning $(steer)"
         if fastsweep
-            smat4x4s = interpolate_band(freqs; showprogress, xlabel="GHz") do fghz
-                (_, result) = compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi, 
+            smat4x4s = interpolate_band(freqs; showprogress, prelabel = "$(steer): ", xlabel="GHz") do fghz
+                (_, result) = compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi,
                 rwgdat, uvec, junc, gbls, gbldup, gsm_save)
                 smat =  MArray{Tuple{4,4}}([result.gsm[1,1] result.gsm[1,2]; result.gsm[2,1] result.gsm[2,2]])
                 return smat
@@ -306,7 +374,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
             if fastsweep
                 result = results[ncount]
             else
-                (β⃗₀₀, result) = compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi, 
+                (β⃗₀₀, result) = compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi,
                 rwgdat, uvec, junc, gbls, gbldup, gsm_save)
                 push!(results, result)
             end
@@ -417,7 +485,7 @@ function compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi, rwgd
     result = Result(gsmc, steer, β⃗₀₀, fghz, layers[1].ϵᵣ, layers[1].μᵣ,
         layers[1].β₁, layers[1].β₂, layers[end].ϵᵣ, layers[end].μᵣ,
         layers[end].β₁, layers[end].β₂)
-    
+
     return (β⃗₀₀, result)
 end # function
 
@@ -457,7 +525,7 @@ function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
         rwgdat.bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
     end
     bfftstore = rwgdat.bfftstore
-    # Compute area correction factors for the mode normalization constants of 
+    # Compute area correction factors for the mode normalization constants of
     # the two end regions:
     tempvec = zeros(2)
     for (i, l) in enumerate(@view layers[[begin, end]])
@@ -472,8 +540,8 @@ function calculate_jtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
         return gsm
     end
 
-    # Calculate the scattered field partial scattering matrix of the 
-    # FSS sheet at this junction. Then add it to GSM already computed 
+    # Calculate the scattered field partial scattering matrix of the
+    # FSS sheet at this junction. Then add it to GSM already computed
     # for the dielectric discontinuity...
 
     #  Fill the interaction matrix for the current sheet:
@@ -588,7 +656,7 @@ function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
         rwgdat.bfftstore = zeros(SArray{Tuple{2},ComplexF64,1,2}, (nbf, 2, nmodesmax))
     end
     bfftstore = rwgdat.bfftstore
-    # Compute area correction factors for the mode normalization constants of 
+    # Compute area correction factors for the mode normalization constants of
     # the two end regions:
     tempvec = zeros(2)
     for (i, l) in enumerate(@view layers[[begin, end]])
@@ -604,8 +672,8 @@ function calculate_mtype_gsm(layers::AbstractVector{Layer}, sheet::RWGSheet, u::
         return gsm
     end
 
-    # Calculate the scattered field partial scattering matrix of the 
-    # FSS sheet at this junction. Then add it to GSM already computed 
+    # Calculate the scattered field partial scattering matrix of the
+    # FSS sheet at this junction. Then add it to GSM already computed
     # for the dielectric discontinuity...
 
     #  Fill the interaction matrix for the current sheet:
@@ -698,13 +766,13 @@ English as `:theta`, `:phi`, `:psi1`, and `:psi2`.
 
 ### Arguments
 
-- `stkeys`: A 2-tuple containing steering parameters as `Symbols`, either (`:ψ₁` and `ψ₂`) or (`:θ` and `:ϕ`) 
+- `stkeys`: A 2-tuple containing steering parameters as `Symbols`, either (`:ψ₁` and `ψ₂`) or (`:θ` and `:ϕ`)
   (or their spelled-out English versions as detailed above), either of which
   could be listed in either order.  The order is significant in that the first member of the pair
-  defines the outer steering loop.  
+  defines the outer steering loop.
 
 - `stout` and `stin`: These are the current values of the outer and inner steering variables,
-  respectively. 
+  respectively.
 """
 function getsttuple(stkeys::Tuple{Symbol,Symbol}, stout::Float64, stin::Float64)
     if stkeys[1] ∈ (:phi, :ϕ, :Phi, :PHI, :Φ)
@@ -738,7 +806,7 @@ end
 """
     unique_indices(v::Vector)
 
-Return a vector `ui` of the same length as `v`. 
+Return a vector `ui` of the same length as `v`.
 `ui[k]` contains the index into a list of unique, nonidentical entries in `v`, where two entries
 are considered identical using `===`.
 """
@@ -762,12 +830,12 @@ end
     get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int})
     -> (gbldup, junc)
 
-Return `gbldup::Vector{Int}` of the same length as `gbls`. 
+Return `gbldup::Vector{Int}` of the same length as `gbls`.
 `gbldup[k]` contains `0` for an ordinary Gblock.  `gbldup[k] == -1` means that
-`gbls[k]` is the first occurence of a repeated Gblock and that its GSM should be 
+`gbls[k]` is the first occurence of a repeated Gblock and that its GSM should be
 saved for reuse.  `gbldup[k] == i` where `0<i<k` means that `gbls[k]` is identical
 to `gbls[i]` and they can both use the same GSM.
-Two `Gblock`s are considered identical if they 
+Two `Gblock`s are considered identical if they
 
 1. Contain identical (`===`) `Sheet` objects at the same location within the block.
 2. Comprise the same number of dielectric layers with identical widths and
@@ -775,7 +843,7 @@ Two `Gblock`s are considered identical if they
 3. Are embedded within similar adjacent dielectric layers, having identical electrical
    properties, lattice vectors, and numbers of modes.
 
-`junc::Vector{Int}` is has length `length(Layers)-1`. `junc[i]`` is the sheet number 
+`junc::Vector{Int}` is has length `length(Layers)-1`. `junc[i]`` is the sheet number
 present at dielectric interface `i`, or `0` if no sheet is present there.
 """
 function get_gbldup(gbls::Vector{Gblock}, layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int})
@@ -849,7 +917,7 @@ function report_layers_sheets(layers, sheets, junc, rwgdat, usi)
             @logfile "$str"
         end
     end
-    sint = findall(junc .≠ 0) # sint[k] contains dielectric interface number of k'th sheet 
+    sint = findall(junc .≠ 0) # sint[k] contains dielectric interface number of k'th sheet
 
     @logfile "\n\n\nPSS/FSS sheet information...\n"
     @logfile "Sheet  Loc         Style      Rot  J/M Faces Edges Nodes Unknowns  NUFP"
