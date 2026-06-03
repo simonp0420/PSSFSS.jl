@@ -116,6 +116,7 @@ function interpolate_band(
     f::F,
     x::AbstractVector{T};
     showprogress = false,
+    prelabel = "",
     xlabel = "",
     max_err_lim_db = -80,
     nrepeat = 3) where {F<:Function, T<:Real}
@@ -132,12 +133,12 @@ function interpolate_band(
 
     showprogress && println("")
     f1 = f(x[knots[1]])
-    showprogress && print(crclear, "1 knot at ", x[knots[1]], " ", xlabel, ", maxerrdB = Inf")
+    showprogress && print(crclear, prelabel, "1 knot at ", x[knots[1]], " ", xlabel, ", maxerrdB = Inf")
     fknots = Array{typeof(f1), 1}(undef, length(knots))
     fknots[1] = f1
     for k in (1+firstindex(knots)):lastindex(knots)
         fknots[k] = f(x[knots[k]])
-        showprogress && print(crclear, k, " knots. Added ", x[knots[k]], " ", xlabel, ", maxerrdB = Inf")
+        showprogress && print(crclear, prelabel, k, " knots. Added ", x[knots[k]], " ", xlabel, ", maxerrdB = Inf")
     end
     errs = ones(len)
     errs[knots] .= 0.0
@@ -164,7 +165,7 @@ function interpolate_band(
         (max_err, nextknot) = findmax(errs)
         if showprogress
             maxerrdB = round(20*log10(max_err), digits=2)
-            print(crclear, length(knots), " knots. Added ", x[knots[end]], " ", xlabel, ", maxerrdB = ", maxerrdB)
+            print(crclear, prelabel, length(knots), " knots. Added ", x[knots[end]], " ", xlabel, ", maxerrdB = ", maxerrdB)
         end
         iszero(max_err) && break
         max_err ≤ max_err_lim && (repeats += 1)
