@@ -76,6 +76,73 @@ Base.isfile(f::Base.DevNull) = false
 Base.open(f::Base.DevNull, ::AbstractString) = f
 
 """
+    _is_ijulia()
+
+Return `true` if called from within an IJulia Jupyter notebook, otherwise `false`.
+"""
+_is_ijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
+
+"""
+    _is_vsc_ext()
+
+Return `true` if called from within VS Code, otherwise `false`.
+"""
+_is_vsc_ext() = isdefined(Main, :VSCodeServer)
+
+"""
+    _is_vsc_integrated_term()
+
+Return `true` if called from within a VS Code integrated terminal, `false` otherwise.
+"""
+_is_vsc_integrated_term() = haskey(ENV, "TERM_PROGRAM") && ENV["TERM_PROGRAM"] == "vscode"
+
+"""
+    _is_vsc_notebook()
+
+Return `true` if called from within a VS Code notebook, `false` otherwise.
+"""
+_is_vsc_notebook() = _is_vsc_ext() && isdefined(Main.VSCodeServer, :notebook_provider)
+
+"""
+    _is_pluto_notebook()
+
+Return `true` if called from within a Pluto notebook, `false` otherwise.
+"""
+_is_pluto_notebook() = isdefined(Main, :AbstractPlutoDingetjes) && Main.AbstractPlutoDingetjes.is_inside_pluto()
+
+"""
+    run_environment()
+
+Return a string whose value depends on the enclosing execution environment as follows:
+- IJulia Jupyter notebook: "IJulia Notebook"
+- Pluto notebook: "Pluto Notebook"
+- VS Code notebook: "VS Code Notebook"
+- VS Code Julia extension REPL: "VS Code Julia Extension"
+- VS Code integrated terminal: "VS Code Integrated Terminal"
+- Windows Terminal: "Windows Terminal"
+- Other terminal program that sets the `TERM` or `TERM_PROGRAM` environment variable: contents of the variable
+- Other: "Unknown Terminal Environment"
+"""
+function run_environment()
+    if _is_ijulia()
+        "IJulia Notebook"
+    elseif _is_pluto_notebook()
+        "Pluto Notebook"
+    elseif _is_vsc_ext()
+        _is_vsc_notebook() ? "VS Code Notebook" : "VS Code Julia Extension"
+    elseif _is_vsc_integrated_term()
+        "VS Code Integrated Terminal"
+    elseif Sys.iswindows() && haskey(ENV, "WT_SESSION")
+        "Windows Terminal"
+    elseif haskey(ENV, "TERM_PROGRAM")
+        ENV["TERM_PROGRAM"]
+    else
+        get(ENV, "TERM", "Unknown Terminal Environment")
+    end
+end
+
+
+"""
     result = analyze(strata, flist, steering; outlist=[], logfile="pssfss.log", resultfile="pssfss.res", showprogress::Bool=true, fastsweep=true)
 
 Analyze a full FSS/PSS structure over a range of frequencies and steering angles/phasings.
@@ -232,7 +299,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     showprogress && println("Beginning PSSFSS Analysis")
     ncount = 0 # Number of analyses performed
     ntotal = length(freqs) * length(stvalues[1]) * length(stvalues[2])
-    showprogress && (progress = Progress(ntotal; dt = 1))
+    showprogress && (progress = Progress(ntotal; dt = 1, enabled = !_is_ijulia()))
     showprogress && update!(progress, 0)
     isfile(resultfile) && rm(resultfile)
     date, clock = split(string(now()), 'T')
@@ -245,8 +312,9 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
     juliainfo = juliainfo[1:first(i)-1]
     juliainfo *= "  BLAS: $(BLAS.get_config())\n"
     if VERSION < v"1.8"
-        juliainfo = juliainfo * "  Threads.nthreads() = $(Threads.nthreads())\n"
+        juliainfo *= "  Threads.nthreads() = $(Threads.nthreads())\n"
     end
+    juliainfo *= string("Running under: ", run_environment())
     @logfile "\n\nStarting PSSFSS $(pssfssv) analysis on $(date) at $(clock)\n$(juliainfo)\n\n"
     check_inputs(layers, sheets, junc, freqs, stkeys, stvalues, outlist)
     k0min, k0max = twopi * 1e9 / c₀ .* extrema(freqs)
@@ -280,7 +348,7 @@ function _analyze(layers, sheets, junc, freqs, stkeys, stvalues;
         end
         @logfile "Beginning $(steer)"
         if fastsweep
-            smat4x4s = interpolate_band(freqs; showprogress, xlabel="GHz") do fghz
+            smat4x4s = interpolate_band(freqs; showprogress, prelabel = "$(steer): ", xlabel="GHz") do fghz
                 (_, result) = compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi,
                 rwgdat, uvec, junc, gbls, gbldup, gsm_save)
                 smat =  MArray{Tuple{4,4}}([result.gsm[1,1] result.gsm[1,2]; result.gsm[2,1] result.gsm[2,2]])
