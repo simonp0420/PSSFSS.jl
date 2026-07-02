@@ -1,6 +1,6 @@
 module Elements
 
-export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet, 
+export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet,
        pixels, pmcsheet, polyring, rectstrip, sinuous, splitring, sympixels
 
 using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
@@ -117,9 +117,9 @@ end
 """
     check_optional_kw_arguments!(kwargs:: AbstractDict{Symbol,T} where T)
 
-Check the validity of the optional keyword arguments passed to one of the 
+Check the validity of the optional keyword arguments passed to one of the
 user-callable, specific sheet constructor functions.  If any of the arguments
-were not passed, assign appropriate default values. 
+were not passed, assign appropriate default values.
 
 Also, replace obsolete `:Rsheet` with `:Zsheet`
 """
@@ -133,8 +133,8 @@ function check_optional_kw_arguments!(kwargs::AbstractDict{Symbol,T} where {T})
     haskey(kwargs, :Zsheet) && haskey(kwargs, :disttype) && error("Zsheet and disttype cannot both be specified")
 
 
-    defaults = Dict(:class => 'J', :dx => 0.0, :dy => 0.0, :rot => 0.0, 
-    :Zsheet => 0.0, :σ => -Inf, :Rq => 0.0, :disttype => :normal, 
+    defaults = Dict(:class => 'J', :dx => 0.0, :dy => 0.0, :rot => 0.0,
+    :Zsheet => 0.0, :σ => -Inf, :Rq => 0.0, :disttype => :normal,
     :fufp => false, :structuredtri => true)
     validkws = keys(defaults)
 
@@ -147,7 +147,7 @@ function check_optional_kw_arguments!(kwargs::AbstractDict{Symbol,T} where {T})
     end
 
     class = kwargs[:class]
-    badlen = length(class) ≠ 1 
+    badlen = length(class) ≠ 1
     class = first(class) # This converts a string to a char
     (badlen || (class ≠ 'J' && class ≠ 'M')) && throw(ArgumentError("class must be 'J' or 'M'"))
     kwargs[:class] = class
@@ -161,7 +161,7 @@ function check_optional_kw_arguments!(kwargs::AbstractDict{Symbol,T} where {T})
     real(Zsheet) < 0 && error("real(Zsheet) must be nonnegative")
 
     σ = kwargs[:σ]
-    if class ≠ 'J' 
+    if class ≠ 'J'
         σ ≠ -Inf && error("Conductivity only allowed for J-class sheet")
     else
         -Inf < σ ≤ 0 && error("Conductivity must be nonnegative")
@@ -177,35 +177,35 @@ function check_optional_kw_arguments!(kwargs::AbstractDict{Symbol,T} where {T})
 end
 
 const optional_kwargs = """
-                        - `class::Char='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface 
+                        - `class::Char='J'`  Specify the class, either `'J'` or `'M'`.. If `'J'`,  the unknowns are electric surface
                                    currents, as used to model a wire or metallic patch-type FSS.  If `'M'`,  the unknowns are
                                    magnetic surface currents, as used to model a slot or aperture in a perfectly conducting plane.
-                        - `dx::Real=0.0`, `dy::Real=0.0`:  These specify the offsets in the x and y directions applied to the entire 
-                                   unit cell and its contents.  Length units are as specified in the `units` keyword. 
-                        - `rot::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the entire unit cell and its contents. 
+                        - `dx::Real=0.0`, `dy::Real=0.0`:  These specify the offsets in the x and y directions applied to the entire
+                                   unit cell and its contents.  Length units are as specified in the `units` keyword.
+                        - `rot::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the entire unit cell and its contents.
                                    This rotation is applied prior to any offsets specified in `dx` and `dy`.
-                        - `Zsheet::Complex=0.0`:  The frequency-independent surface impedance of the FSS conductor in 
-                          units of [Ω].  May only be specified for a sheet of class `'J'`.  If `Zsheet` is specified, then 
+                        - `Zsheet::Complex=0.0`:  The frequency-independent surface impedance of the FSS conductor in
+                          units of [Ω].  May only be specified for a sheet of class `'J'`.  If `Zsheet` is specified, then
                           `sigma` (or `σ`) may not be specified.                          )
-                        - `sigma` or `σ`: DC, bulk conductivity [S/m].  Only allowed for sheets of class `'J'`.  Cannot be 
-                          simultaneously specified with `Zsheet`.  Is used with `Rq` by PSSFSS to calculate an effective 
+                        - `sigma` or `σ`: DC, bulk conductivity [S/m].  Only allowed for sheets of class `'J'`.  Cannot be
+                          simultaneously specified with `Zsheet`.  Is used with `Rq` by PSSFSS to calculate an effective
                           sheet surface impedance at each frequency, using the Gradient Model (Grujić 2022).
-                        - `Rq=0.0`: RMS surface roughness [m].  Only legal for class `'J'`. Only used if `sigma` (or `σ`) is 
+                        - `Rq=0.0`: RMS surface roughness [m].  Only legal for class `'J'`. Only used if `sigma` (or `σ`) is
                            also specified.  In that case is is used along with `sigma` to calculate a frequency-dependent
                            sheet impedance using the Gradient Model.  The default value of 0 denotes a smooth surface.
                         - `disttype::Symbol=:normal`: Probability distrubution type for surface roughness.  defaults
                           to `:normal`.  The other legal value is `:rayleigh`.
-                        - `fufp::Bool`:  This keyword is not usually required. 
-                          `fufp` is mnemonic for "Find Unique Face Pairs".  If true, the code will search the 
+                        - `fufp::Bool`:  This keyword is not usually required.
+                          `fufp` is mnemonic for "Find Unique Face Pairs".  If true, the code will search the
                           triangulation for classes of triangle
                           pairs that are the equivalent in the toeplitz sense.  I.e., if triangle pairs (A,B) and (C,D) belong
-                          to the same equivalence class,  the six vertices in the pair (A,B) can be made to coincide 
-                          with those of pair (C,D) by a simple translation. If there are many such equivalent pairs, 
+                          to the same equivalence class,  the six vertices in the pair (A,B) can be made to coincide
+                          with those of pair (C,D) by a simple translation. If there are many such equivalent pairs,
                           a significant decrease in matrix fill time ensues by exploiting the equivalence.  The tradeoff
-                          is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`,  
-                          `meander`, `manji`, `loadedcross`, `jerusalemcross`, `pixels`, 4-sided `polyring` styles (those 
+                          is the time needed to identify them.  The default value is `true` for the `strip`, `diagstrip`,
+                          `meander`, `manji`, `loadedcross`, `jerusalemcross`, `pixels`, 4-sided `polyring` styles (those
                           employing structured meshes), and `sympixels`, and `false` for the remaining styles (those employing unstructured meshes).
-                                
+
                         """
 
 
@@ -226,15 +226,15 @@ All arguments are keyword arguments which can be entered in any order.
   is `P/√2`.
 - `w`: The width of the strip.
 - `orient`: The orientation of the strip within the unrotated unit cell in degrees.  The only valid values
-  are `45` for a strip running from lower left to upper right and `-45` for a strip running from lower 
+  are `45` for a strip running from lower left to upper right and `-45` for a strip running from lower
   right to upper left.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `Nl` and `Nw`:  Number of line segments along the length and width of the strip, for dividing up the strip into
-  rectangles, which are  triangulated by adding a diagonal to each rectangle. These arguments are actually used for 
-  triangulating the central, rectangular portion of the strip.  The ends of the strip are tapered in the form of 
-  right, isosceles triangles, to conform to the boundaries of the square unit cell.  These triangular "end-caps" 
+  rectangles, which are  triangulated by adding a diagonal to each rectangle. These arguments are actually used for
+  triangulating the central, rectangular portion of the strip.  The ends of the strip are tapered in the form of
+  right, isosceles triangles, to conform to the boundaries of the square unit cell.  These triangular "end-caps"
   are triangulated using an unstructured mesh.
-    
+
 ## Optional arguments:
 $(optional_kwargs)
 """
@@ -312,14 +312,14 @@ function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PS
 end # function
 
 """
-    jerusalemcross(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real, 
+    jerusalemcross(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
                  ntri::Int, units::PSSFSSLength, kwargs...)
- 
+
 # Description:
 
-Create a variable of type `RWGSheet` that contains the triangulation for a 
+Create a variable of type `RWGSheet` that contains the triangulation for a
 "Jerusalem cross" type of geometry.
-The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`,
 and `fr` properly initialized.
 
 
@@ -330,7 +330,7 @@ about its horizontal and vertical centerlines, and wrt reflections through a lin
 at a 45 degree angle wrt the x-axis.
 
 
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
     ┃                                                       ┃ _______
     ┃               ┌────────────────────────┐              ┃    ↑
     ┃               │ ┌───────────────────┐  │              ┃    │
@@ -342,9 +342,9 @@ at a 45 degree angle wrt the x-axis.
     ┃  │  │ │  │           │  │   →│ │← w         │ │  │ │  ┃    │
     ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
     ┃  │  │ │  └───────────┘  │    │ └────────────┘ │  │ │  ┃    │
-    ┃  │  │ └─────────────────┘    └────────────────┘  │ │  ┃    
-    ┃  │  │                                            │ │  ┃   L1 
-    ┃  │  │ ┌─────────────────┐    ┌────────────────┐  │ │  ┃  
+    ┃  │  │ └─────────────────┘    └────────────────┘  │ │  ┃
+    ┃  │  │                                            │ │  ┃   L1
+    ┃  │  │ ┌─────────────────┐    ┌────────────────┐  │ │  ┃
     ┃  │  │ │  ┌───────────┐  │    │ ┌────────────┐ │  │ │  ┃    │
     ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
     ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
@@ -356,11 +356,11 @@ at a 45 degree angle wrt the x-axis.
     ┃               │ └───────────────────┘  │              ┃    │
     ┃               └────────────────────────┘              ┃ ___↓___
     ┃               |<───────── A ──────────>|              ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
     |<─────────────────────── P ───────────────────────────>|
-                        
-    
-    
+
+
+
 # Arguments:
 
 All arguments are keyword arguments which can be entered in any order.
@@ -370,16 +370,16 @@ All arguments are keyword arguments which can be entered in any order.
 - `L1`,`L2`, `A`, `B`, `w`: Geometrical parameters as defined above.  Note that it is permissible
    to specify `w ≥ L2/2` and/or `w ≥ B/2` in which case the respective region will
    be filled in solidly with triangles.  If both conditions hold, then the entire structure will be
-   filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used 
+   filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used
    for the respective widths of the arms, and `w` will not be used.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+- `ntri`:  The desired total number of triangles.  This is a guide/request,
   the actual number will likely be different.
-    
+
 ## Optional arguments:
 $(optional_kwargs)
 - `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
-  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured
   mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
   mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
 """
@@ -399,14 +399,14 @@ end
 
 
 """
-    jerusalemcross_unstructured(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real, 
+    jerusalemcross_unstructured(;P::Real, L1::Real, L2::Real, A::Real, B::Real, w::Real,
                  ntri::Int, units::PSSFSSLength, kwargs...)
- 
+
 # Description:
 
-Create a variable of type `RWGSheet` that contains the triangulation for a 
+Create a variable of type `RWGSheet` that contains the triangulation for a
 "Jerusalem cross" type of geometry, using an unstructured mesh.
-The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`,
 and `fr` properly initialized.
 
 
@@ -417,7 +417,7 @@ about its horizontal and vertical centerlines, and wrt reflections through a lin
 at a 45 degree angle wrt the x-axis.
 
 
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
     ┃                                                       ┃ _______
     ┃               ┌────────────────────────┐              ┃    ↑
     ┃               │ ┌───────────────────┐  │              ┃    │
@@ -429,9 +429,9 @@ at a 45 degree angle wrt the x-axis.
     ┃  │  │ │  │           │  │   →│ │← w         │ │  │ │  ┃    │
     ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
     ┃  │  │ │  └───────────┘  │    │ └────────────┘ │  │ │  ┃    │
-    ┃  │  │ └─────────────────┘    └────────────────┘  │ │  ┃    
-    ┃  │  │                                            │ │  ┃   L1 
-    ┃  │  │ ┌─────────────────┐    ┌────────────────┐  │ │  ┃  
+    ┃  │  │ └─────────────────┘    └────────────────┘  │ │  ┃
+    ┃  │  │                                            │ │  ┃   L1
+    ┃  │  │ ┌─────────────────┐    ┌────────────────┐  │ │  ┃
     ┃  │  │ │  ┌───────────┐  │    │ ┌────────────┐ │  │ │  ┃    │
     ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
     ┃  │  │ │  │           │  │    │ │            │ │  │ │  ┃    │
@@ -443,11 +443,11 @@ at a 45 degree angle wrt the x-axis.
     ┃               │ └───────────────────┘  │              ┃    │
     ┃               └────────────────────────┘              ┃ ___↓___
     ┃               |<───────── A ──────────>|              ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
     |<─────────────────────── P ───────────────────────────>|
-                        
-    
-    
+
+
+
 # Arguments:
 
 All arguments are keyword arguments which can be entered in any order.
@@ -457,12 +457,12 @@ All arguments are keyword arguments which can be entered in any order.
 - `L1`,`L2`, `A`, `B`, `w`: Geometrical parameters as defined above.  Note that it is permissible
    to specify `w ≥ L2/2` and/or `w ≥ B/2` in which case the respective region will
    be filled in solidly with triangles.  If both conditions hold, then the entire structure will be
-   filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used 
+   filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used
    for the respective widths of the arms, and `w` will not be used.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+- `ntri`:  The desired total number of triangles.  This is a guide/request,
   the actual number will likely be different.
-    
+
 ## Optional arguments:
 $(optional_kwargs)
 """
@@ -625,14 +625,14 @@ end # function
 
 
 """
-    loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real, 
+    loadedcross(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
                  ntri::Int, units::PSSFSSLength, kwargs...)
- 
+
 # Description:
 
 Create a variable of type `RWGSheet` that
 contains the triangulation for a "loaded cross" type of geometry.
-The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`,
 and `fr` properly initialized.
 
 
@@ -665,9 +665,9 @@ at a 45 degree angle wrt the x-axis.
      |                 |  |________|  |
      |                 |              |
      V                 ----------------
-    
+
                        <---- L2 ------>
-    
+
 # Arguments:
 
 All arguments are keyword arguments which can be entered in any order.
@@ -675,12 +675,12 @@ All arguments are keyword arguments which can be entered in any order.
 ## Required arguments:
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `L1`,`L2`,`w`: Geometrical parameters as defined above.  Note that it is permissible
-   to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be 
+   to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be
    generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+- `ntri`:  The desired total number of triangles.  This is a guide/request,
   the actual number will likely be different.
-    
+
 
 ## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
@@ -688,7 +688,7 @@ All arguments are keyword arguments which can be entered in any order.
            positive x-axis.
 $(optional_kwargs)
 - `structuredtri::Bool=true`: If true, use a structured mesh for the triangulation.  If false,
-  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured
   mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
   mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
 """
@@ -707,14 +707,14 @@ end
 
 
 """
-    loadedcross_unstructured(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real, 
+    loadedcross_unstructured(;s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
                  ntri::Int, units::PSSFSSLength, kwargs...)
- 
+
 # Description:
 
 Create a variable of type `RWGSheet` that
-contains the triangulation for a "loaded cross" type of geometry, using an unstructured 
-triangulation.  The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+contains the triangulation for a "loaded cross" type of geometry, using an unstructured
+triangulation.  The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`,
 and `fr` properly initialized.
 
 
@@ -747,9 +747,9 @@ at a 45 degree angle wrt the x-axis.
      |                 |  |________|  |
      |                 |              |
      V                 ----------------
-    
+
                        <---- L2 ------>
-    
+
 # Arguments:
 
 All arguments are keyword arguments which can be entered in any order.
@@ -757,17 +757,17 @@ All arguments are keyword arguments which can be entered in any order.
 ## Required arguments:
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `L1`,`L2`,`w`: Geometrical parameters as defined above.  Note that it is permissible
-   to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be 
+   to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be
    generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request, 
+- `ntri`:  The desired total number of triangles.  This is a guide/request,
   the actual number will likely be different.
-    
+
 ## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
   vertex of the loaded cross.  The default is to locate the vertex on the
   positive x-axis.
-$(optional_kwargs)           
+$(optional_kwargs)
 """
 function loadedcross_unstructured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Real, L2::Real, w::Real,
     ntri::Int, orient::Real=0.0, units::PSSFSSLength, kwarg...)
@@ -877,11 +877,11 @@ end # function
                   units::PSSFSSLength, orient=0, kwarg...) --> sheet::RWGSheet
 
 # Description:
-Return a variable of type `RWGSheet` that contains the triangulation for 
-a meanderline strip.  The returned `sheet` has the components `s₁`, `s₂`, 
-`β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, and `fr` properly initialized.  
+Return a variable of type `RWGSheet` that contains the triangulation for
+a meanderline strip.  The returned `sheet` has the components `s₁`, `s₂`,
+`β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, and `fr` properly initialized.
 Geometrical parameters are shown in the following diagram:
- 
+
       - - - - - - - - - - - - - - - - - - - - - - - - -             ^
      |                                                |             |
      |                                                |             |
@@ -901,13 +901,13 @@ Geometrical parameters are shown in the following diagram:
      |            |                     |             |  w2   |     |
      |            |                     |             |  |    |     |
      ------------ - - - - - - - - - - - ---------------  v    v     v
- 
+
      <-------------------- a ------------------------->
- 
- 
+
+
 `a` and `b` are unit cell dimensions.  `w1` and `w2` are the widths
    of the vertical and horizontal strips, resp. `h` is the total
-   height of the meander. 
+   height of the meander.
 
 A nicer diagram:
 ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/meanderdef.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/meanderdef.png)
@@ -919,11 +919,11 @@ All arguments are keyword arguments which can be entered in any order.
 ## Required arguments:
 - `a`,`b`,`h`,`w1`, `w2`: Geometrical parameters as defined above.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles. 
+- `ntri`:  The desired total number of triangles.
   This is a guide, the actual number will likely be different.
-    
+
 ## Optional arguments:
-- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to rotate the 
+- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to rotate the
   meanderline orientation within the unrotated unit cell.  Nonzero values are
   allowed only when the unit cell is a square (i.e. `a` == `b`).  The only allowable
   values are positive or negative multiples of 90.
@@ -1088,23 +1088,23 @@ All arguments are keyword arguments which can be entered in any order.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
-  Entries in `a` and `b` must be strictly increasing, except for possibly `b[end]` as discussed 
-  below. `b[i] > a[i]` ∀ `i ∈ 1:n`, except possibly `b[end]` as discussed below. 
+  Entries in `a` and `b` must be strictly increasing, except for possibly `b[end]` as discussed
+  below. `b[i] > a[i]` ∀ `i ∈ 1:n`, except possibly `b[end]` as discussed below.
   `a[1]` may be zero to denote a solid (non-annular) polygon as the first "ring".
-  It is possible to let the outermost ring to extend completely to the unit cell boundary.  
+  It is possible to let the outermost ring to extend completely to the unit cell boundary.
   This is specified by setting `b[end]` < 0, in which case for unstructured meshes,
   `-b[end]` is interpreted as the number of edges along the shorter of the `s1` and `s2` lattice vectors.
 - `sides`:  The number (>= 3) of polygon sides.
-- `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number 
+- `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number
   will likely be different.
-    
+
 ## Optional arguments:
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees used to locate the initial
            vertex of the polygonal rings.  The default is to locate the vertex on the
            positive x-axis.
 - `structuredtri::Bool`: Defaults to `true` when `sides==4` and false otherwise. A `true` value is only
   allowed when `sides==4` and `s1` ⟂ `s2`.  If true, use a structured mesh for the triangulation.  If false,
-  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured 
+  the unstructured mesh generator that was standard up to PSSFSS version 1.2 will be used. A structured
   mesh can be analyzed more efficiently, but the number of triangles created by the unstructured
   mesh generator is usually closer to `ntri` than the number for the structured mesh generator.
 $(optional_kwargs)
@@ -1122,7 +1122,7 @@ function polyring(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vector{<:Real}
             throw(ArgumentError("structuredtri=true not not compatible for polyring with sides≠4 and b[end]<0"))
     end
 
-    structuredtri && b[end] < 0 && !iszero(s1 ⋅ s2) && 
+    structuredtri && b[end] < 0 && !iszero(s1 ⋅ s2) &&
         throw(ArgumentError("structuredtri=true not not possible for nonrectangular unit cell with b[end]<0"))
     fufp = haskey(kwargs, :fufp) ? kwargs[:fufp] : structuredtri
 
@@ -1340,9 +1340,9 @@ All arguments are keyword arguments which can be entered in any order.
 - `Px` and `Py`:  Lengths (periods) of the rectangular unit cell in the x and y directions.
 - `Nx` and `Ny`:  Number of line segments in the x and y directions, for dividing up the strip into
   rectangles, which are  triangulated by adding a diagonal to each rectangle.
-    
+
 ## Optional arguments:
-- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the strip within the unrotated unit cell. 
+- `orient::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the strip within the unrotated unit cell.
    This rotation is applied prior to any offsets specified in `dx` and `dy` and any unit cell rotation specified
    by `rot`.
 $(optional_kwargs)
@@ -1461,7 +1461,7 @@ function _makeringarc(a::Real, b::Real, sides::Int, ϕ1::Real, ϕ2::Real; gap::R
     s2, c2 = sincosd(ϕ2)
     x2a, y2a = SA[c2 -s2; s2 c2] * SV2(x0a, -gap)
     x2b, y2b = SA[c2 -s2; s2 c2] * SV2(x0b, -gap)
-    ϕ1a, ϕ1b, ϕ2a, ϕ2b = atand.((y1a, y1b, y2a, y2b), (x1a, x1b, x2a, x2b)) 
+    ϕ1a, ϕ1b, ϕ2a, ϕ2b = atand.((y1a, y1b, y2a, y2b), (x1a, x1b, x2a, x2b))
     ϕ1a > ϕ2a && (ϕ2a += 360)
     ϕ1b > ϕ2b && (ϕ2b += 360)
     io = IOBuffer()
@@ -1594,10 +1594,10 @@ All arguments are keyword arguments which can be entered in any order.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
   Entries in `a` and `b` must be positive and strictly increasing. `b[i] > a[i]` ∀ `i ∈ 1:n`.
 - `sides`:  The number (>= 4) of polygon sides for the background regular annular polygon(s) from which the gaps are removed.
-- `gapcenter`: A scalar or vector of angles in degrees that define the gap center angular location(s), measured counterclockwise.  
-  A scalar implies that all rings have a gap in that same angular location.  If a vector, then it must have the 
+- `gapcenter`: A scalar or vector of angles in degrees that define the gap center angular location(s), measured counterclockwise.
+  A scalar implies that all rings have a gap in that same angular location.  If a vector, then it must have the
   same length as `a` and `b`, with `gapcenter[m]` denoting the gap center location for the `m`th ring.
-  However `gapcenter[m]` can be either a scalar (denoting a single gap) or an n-tuple (denoting n gaps 
+  However `gapcenter[m]` can be either a scalar (denoting a single gap) or an n-tuple (denoting n gaps
   in the `m`th ring).
 - `gapwidth`: A scalar or a vector of the same length as `a` and `b` containing the gap width(s) for each ring.
   A width of zero implies that the ring is not split (i.e. there is no gap).  If the `gapwidth` of all rings
@@ -1605,15 +1605,15 @@ All arguments are keyword arguments which can be entered in any order.
   the widths of the gaps for that ring should be passed as a tuple.  For example, suppose there are three
   rings and the second ring has 2 gaps, with the others having a single gap.  Then `gapwidth = [0.5, (0.4, 0.6), 0.3]`
   would be an appropriately formatted input in this case. When `gapwidth` is specified, the gaps are
-  implemented as if a rectangular region is removed from the annular polygonal rings. Note that only 
+  implemented as if a rectangular region is removed from the annular polygonal rings. Note that only
   one of `gapwidth` and `gapangle` can be specified.
 - `gapangle`: A scalar or vector of the same length as `a` and `b` containing the angular widths of the gaps in degrees.
-  As with `gapwidth`, for any rings with multiple gaps, the corresponding entry in `gapangle` should be a 
-  tuple of the same length as the number of gaps for that ring. When `gapangle` is specified, the gap(s) 
-  in the `m`th ring is/are formed as if pie-shaped wedge(s) with wedge angle(s) `gapangle[m]`, are 
-  removed from the ring(s). The locations and sizes of the tuples in `gapangle` must agree with those 
+  As with `gapwidth`, for any rings with multiple gaps, the corresponding entry in `gapangle` should be a
+  tuple of the same length as the number of gaps for that ring. When `gapangle` is specified, the gap(s)
+  in the `m`th ring is/are formed as if pie-shaped wedge(s) with wedge angle(s) `gapangle[m]`, are
+  removed from the ring(s). The locations and sizes of the tuples in `gapangle` must agree with those
   in `gapcenter`.  Note that only one of `gapangle` and `gapwidth` can be specified.
-- `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number 
+- `ntri`:  The desired total number of triangles distributed among all the annular regions. This is a guide, the actual number
   will likely be different.
 
 ## Optional arguments:
@@ -1698,7 +1698,7 @@ function splitring(;
             ring = LibGEOS.difference(ring, poly)
         end
         _add_libgeos_geom!(msdata, ring, ρ₀)
-    end # for iring 
+    end # for iring
 
     # Set up call to meshsub
     areatri = msdata.area / ntri # Desired area of a single triangle
@@ -1757,8 +1757,8 @@ All arguments are keyword arguments which can be entered in any order.
   be positive and strictly increasing, with the difference between adjacent rings exceeding `w`.
 - `w`: The width of the traces in the arms.
 - `g`: A scalar containing the rectangular gap width separating adjacent arms.
-- `sides::Int`:  The number (>= 4) of polygon sides for the background regular annular polygon(s) from which the 
-  ring sections are created. 
+- `sides::Int`:  The number (>= 4) of polygon sides for the background regular annular polygon(s) from which the
+  ring sections are created.
 - `ntri::Int`:  The desired total number of triangles. This is a guide/request, the actual number will likely be different.
 - `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
@@ -1769,7 +1769,7 @@ All arguments are keyword arguments which can be entered in any order.
 - `L2`: The outer dimension (i.e. the full side length) of the square "rim" present when `w2 > 0`.  The user is responsible for
   choosing `L2` large enough that the rim does not intefere with the sinuous arms of the structure.  `L2` must be less than
   or equal to the square unit cell dimension.  It defaults to the unit cell dimension if it is not specified.
-- `c2::Real=0.0`: The outer dimension of the small squares shown in the corners of the enclosing square loop "rim". If 
+- `c2::Real=0.0`: The outer dimension of the small squares shown in the corners of the enclosing square loop "rim". If
   `c2==0` then the squares are not included, and the outer loop is a simple square loop.
 $(optional_kwargs)
 """
@@ -1807,7 +1807,7 @@ function sinuous(;
     (length(s1) == length(s2) == 2) || throw(ArgumentError("s1 and s2 must have length 2"))
     s1norm, s2norm = norm.((s1, s2))
     squnitcell = abs(s1 ⋅ s2) / (s1norm * s2norm) < 1e-10 && s1norm ≈ s2norm
-    if w2 > 0 
+    if w2 > 0
         squnitcell || error("w2 > 0 not allowed unless unit cell is square")
         iszero(L2) && (L2 = s1norm) # Default to entire unit cell for rim
         L2 > s1norm && error("L2 may not exceed unit cell dimension")
@@ -1827,7 +1827,7 @@ function sinuous(;
 
     ρ₀ = 0.5 * (s1 + s2) # calculate center of polygon.
     origin = SV2(0.0, 0.0)
-    
+
     discsides = max(20, ceil(Int, sides * rc / b[end]))
     body = _makeregpoly(rc, discsides) # Center circular region
 
@@ -1843,7 +1843,7 @@ function sinuous(;
             spoke = _makespoke(r1, r2, orient - (-1)^(!rhs) * ϕarmo2 + armrot, w, rhs; gap=g/2)
             body = LibGEOS.union(body, spoke)
             rhs = !rhs
-        end 
+        end
         armrot += 360 / arms
     end
 
@@ -1910,9 +1910,9 @@ end # function sinuous
 """
     _tritri(w::Real, nw::Int) -> sh::RWGSheet
 
-Create a variable of type `RWGSheet` that contains the triangulation for 
+Create a variable of type `RWGSheet` that contains the triangulation for
 a isosceles right triangle.  The apex is located at the origin and the base is bisected by the positive x-axis.
-The base length is w and the triangulation is generated by dividing up the triangular region into squares and adding 
+The base length is w and the triangulation is generated by dividing up the triangular region into squares and adding
 a diagonal edge across each square (an exception is the triangle adjacent to the vertex of the large triangle in the case
 where nw is odd). The fields `ρ`, `e1`, `e2`, `fv`, and `fe` are properly initialized upon return.
 """

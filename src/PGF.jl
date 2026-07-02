@@ -28,28 +28,28 @@ const table2g = OffsetArray(zeros(ComplexF64, 2mg + 1, 2mg + 1), -mg:mg, -mg:mg)
 
 """
     jksums(uρ⃗₀₀, ψ₁, ψ₂, us₁, us₂, extract::Bool; convtest=1e-8) --> (jsum, ksum)
-                                                                  
-Compute the frequency-independent sums defined in Equations (7.32c) and (7.32d) of the 
+
+Compute the frequency-independent sums defined in Equations (7.32c) and (7.32d) of the
 theory documentation.
 
 ## Arguments:
 
-- `uρ⃗₀₀`: 2-vector containing the difference of the observation and source vectors, 
+- `uρ⃗₀₀`: 2-vector containing the difference of the observation and source vectors,
           multiplied by `u`, the smoothing parameter.
 - `ψ₁`, `ψ₂`:  The unit cell incremental phase shifts (radians).
-- `us⃗₁`, `us⃗₂`:  2-vectors containing unit cell direct lattice vectors multiplied 
+- `us⃗₁`, `us⃗₂`:  2-vectors containing unit cell direct lattice vectors multiplied
                  by `u`, the smoothing parameter.
-- `extract`: If true, directs this function to perform singularity extraction 
+- `extract`: If true, directs this function to perform singularity extraction
     in the jsum calculation.
 - `convtest`: Relative convergence criterion.  If the latest loop contributions
-              for both sums are smaller than `convtest` times the magnitude of the 
+              for both sums are smaller than `convtest` times the magnitude of the
               latest respective sum values then the sums are assumed to have converged.
 
 ## Return values
 
-- `jsum`: The complex sum appearing in the integral of Equations (7.22c) and (7.32c) of 
+- `jsum`: The complex sum appearing in the integral of Equations (7.22c) and (7.32c) of
               the theory documentation.
-- `ksum`: The complex sum appearing in the integral of Equation (7.22d) and (7.32d) of 
+- `ksum`: The complex sum appearing in the integral of Equation (7.22d) and (7.32d) of
               the theory documentation.
 """
 function jksums(uρ⃗₀₀, ψ₁, ψ₂, us⃗₁, us⃗₂, extract, convtest=1e-8)
@@ -121,7 +121,7 @@ function _jkring(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ₁:
         end
         jring = complex(jring_r, jring_i)
         kring = complex(kring_r, kring_i)
-    end  
+    end
     return jring, kring
 end
 
@@ -138,10 +138,10 @@ function _jkringslow(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ
         jring_i = 0.0
         for i in 1:8r
             e = exp(-ringuρₘₙ[i])
-            term_r = e 
+            term_r = e
             kring_r += term_r
-            jring_r += term_r / ringuρₘₙ[i] 
-        end  
+            jring_r += term_r / ringuρₘₙ[i]
+        end
     else
         for i in 1:8r
             e = exp(-ringuρₘₙ[i])
@@ -151,10 +151,10 @@ function _jkringslow(r::Int, uρ⃗₀₀::SV2, us⃗₁::SV2, us⃗₂::SV2, ψ
             term_i = e * s
             kring_r += term_r
             kring_i += term_i
-            jring_r += term_r / ringuρₘₙ[i] 
-            jring_i += term_i / ringuρₘₙ[i] 
+            jring_r += term_r / ringuρₘₙ[i]
+            jring_i += term_i / ringuρₘₙ[i]
         end
-    end  
+    end
     jring = complex(jring_r, jring_i)
     kring = complex(kring_r, kring_i)
     return jring, kring
@@ -180,13 +180,13 @@ end
     c3_calc(k0, u , μ₁, ϵ₁, μ₂, ϵ₂)
 
 Compute the magnetic vector potential expansion coefficient `c3`, defined
-in Equation (4.30) of the theory documentation. The units of `c3` are the 
+in Equation (4.30) of the theory documentation. The units of `c3` are the
 square of the units of `u` (or `k0`).
 
 ## Arguments:
 
 - `k0` Free-space wavenumber.
-- `u` Smoothing factor.  `k0` and `u` can be of any 
+- `u` Smoothing factor.  `k0` and `u` can be of any
 """
 function c3_calc(k0, u, μ₁, ϵ₁, μ₂, ϵ₂)
     w1sq = k0 * k0 * μ₁ * ϵ₁ + u * u    # Eq. (4.25)
@@ -200,13 +200,13 @@ end
     d3_calc(k0, u , μ₁, ϵ₁, μ₂, ϵ₂)
 
 Compute the electric scalar potential expansion coefficient `d3`, defined
-in Equation (4.33) of the theory documentation. The units of `d3` are the 
+in Equation (4.33) of the theory documentation. The units of `d3` are the
 square of the units of `u` (or `k0`).
 
 ## Arguments:
 
 - `k0` Free-space wavenumber.
-- `u` Smoothing factor.  `k0` and `u` can be of any 
+- `u` Smoothing factor.  `k0` and `u` can be of any
 """
 function d3_calc(k0, u, μ₁, ϵ₁, μ₂, ϵ₂)
     w1sq = k0 * k0 * μ₁ * ϵ₁ + u * u  # Eq. (4.25)
@@ -220,8 +220,8 @@ end
 
 """
     electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β⃗₁, β⃗₂, β⃗₀₀, convtest=5e-12) --> (Σm1_func, Σm2_func)
-   
-Return a pair of functions that efficiently compute the modal series for the magnetic vector 
+
+Return a pair of functions that efficiently compute the modal series for the magnetic vector
 potential and electric scalar potential as defined in Eqs. (5.19) of the theory documentation.
 
 ## Arguments:
@@ -229,20 +229,20 @@ potential and electric scalar potential as defined in Eqs. (5.19) of the theory 
 - `k0`: Free-space wavenumber (1/meter).
 - `u`:  Smoothing parameter (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts (radians).
-- `layers`  An `AbstractVector` of element type `Layer` containing the layer 
+- `layers`  An `AbstractVector` of element type `Layer` containing the layer
        parameters for the cascade structure.  Note that the first
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis
               vectors.  Units are (1/meters).
-- `β⃗₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet 
-           vector transverse wavenumber which incorporates the intrinsic phase 
+- `β⃗₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet
+           vector transverse wavenumber which incorporates the intrinsic phase
            shifts.  Units are (1/meters).
-- `convtest` Relative convergence criterion. 
+- `convtest` Relative convergence criterion.
 
 ##  Return Values
-    
+
 A pair of functions that evaulate the two series defined in Eq. (5.19) of the
 theory documentation.  Each function takes a single argument `ρ⃗dif`, a 2-vector
 containing the difference of the observation and source point position vectors.
@@ -381,7 +381,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         end
     end
     # Create proper sized interpolation array---Note that we add an extra row
-    # and extra column at both the beginning and end of each table to allow 
+    # and extra column at both the beginning and end of each table to allow
     # for extra points needed in the interpolation scheme.
     table1 = OffsetArray(zeros(ComplexF64, mmax + 2, mmax + 2), -1:mmax, -1:mmax)
     table2 = OffsetArray(zeros(ComplexF64, mmax + 2, mmax + 2), -1:mmax, -1:mmax)
@@ -431,16 +431,16 @@ using a 6-point interpolation into a precomputed table.
 
 ## Arguments:
 
-- `table`:  An `OffsetArray` generated by the function `electric_modal_sum_funcs` or `magnetic_modal_sum_funcs`, 
+- `table`:  An `OffsetArray` generated by the function `electric_modal_sum_funcs` or `magnetic_modal_sum_funcs`,
             with both axes consisting of `-1:mmax`.
-- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis
               vectors.  Units are (1/meters).
 - `ψ₁`, `ψ₂`: Incremental unit cell phase shifts (radians).
 
 ## Return value:
 
 - `Σm_func`: A function that takes a single argument `ρ⃗dif`, a 2-vector containing the difference between
-             observation and source points, and returns the value of the modal sum via interpolation in the 
+             observation and source points, and returns the value of the modal sum via interpolation in the
              precomputed table.
 
 """
@@ -494,8 +494,8 @@ end
 
 """
     magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers, s, β⃗₁, β⃗₂, β⃗₀₀,convtest=5e-12) --> (Σpm1_func, Σpm2_func)
-   
-Return a pair of functions that efficiently compute the modal series for the electric vector 
+
+Return a pair of functions that efficiently compute the modal series for the electric vector
 potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory documentation.
 
 ## Arguments:
@@ -503,20 +503,20 @@ potential and magnetic scalar potential as defined in Eqs. (5.26) of the theory 
 - `k0`: Free-space wavenumber (1/meter).
 - `u`:  Smoothing parameter (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts (radians).
-- `layers`  An `AbstractVector` of element type `Layer` containing the layer 
+- `layers`  An `AbstractVector` of element type `Layer` containing the layer
        parameters for the cascade structure.  Note that the first
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis
               vectors.  Units are (1/meters).
-- `β⃗₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet 
-           vector transverse wavenumber which incorporates the intrinsic phase 
+- `β⃗₀₀`    2-vector containing the principal (i.e. with index (0,0)) Floquet
+           vector transverse wavenumber which incorporates the intrinsic phase
            shifts.  Units are (1/meters).
-- `convtest` Relative convergence criterion. 
+- `convtest` Relative convergence criterion.
 
 ##  Return Values
-    
+
 A pair of functions that evaulate the two series defined in Eq. (5.26) of the
 theory documentation.  Each function takes a single argument `ρ⃗dif`, a 2-vector
 containing the difference of the observation and source point position vectors.
@@ -656,7 +656,7 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     end
 
     # Create proper sized interpolation array---Note that we add an extra row
-    # and extra column at both the beginning and end of each table to allow 
+    # and extra column at both the beginning and end of each table to allow
     # for extra points needed in the interpolation scheme.
     table1 = OffsetArray(zeros(ComplexF64, mmax + 2, mmax + 2), -1:mmax, -1:mmax)
     table2 = OffsetArray(zeros(ComplexF64, mmax + 2, mmax + 2), -1:mmax, -1:mmax)
@@ -697,7 +697,7 @@ end
 
 """
     direct_electric_modal_series(k0,u,ψ₁,ψ₂,layers,s β⃗₁,β⃗₂,β⃗₀₀,ρdif) --> (Σm1,Σm2)
-   
+
 This function uses direct, brute-force summation to calculate the electric source
 modal series needed for the potential Green's functions.  **THIS ROUTINE IS FOR
 TEST PURPOSES ONLY!!!!**  This routine is **NOT** numerically efficient.
@@ -708,24 +708,24 @@ It is only used for comparison and testing purposes.
 - `k0`: Free-space wavenumber (1/meter).
 - `u`:  Smoothing parameter (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts (radians).
-- `layers`:  An array of element type `Layer` containing the layer 
+- `layers`:  An array of element type `Layer` containing the layer
        parameters for the cascade structure.  Note that the first
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`:  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis
               vectors.  Units are (1/meters).
-- `β⃗₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet 
-           vector transverse wavenumber which incorporates the intrinsic phase 
+- `β⃗₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet
+           vector transverse wavenumber which incorporates the intrinsic phase
            shifts.  Units are (1/meters).
-- `ρ⃗dif`:  2-vector containing the difference between observation and source 
+- `ρ⃗dif`:  2-vector containing the difference between observation and source
            points.
 
 ##  Return Values
-    
-`Σm1`, `Σm2`:  Offset arrays of with indices 0:max_ring containing the direct 
-               modal series defined in Eq. (5.19) of the theory documentation.  
-               `Σm1[i]` contains the partial sum of ring `i`, and similarly 
+
+`Σm1`, `Σm2`:  Offset arrays of with indices 0:max_ring containing the direct
+               modal series defined in Eq. (5.19) of the theory documentation.
+               `Σm1[i]` contains the partial sum of ring `i`, and similarly
                for `Σm2`.
 """
 function direct_electric_modal_series(k0, u, ψ₁, ψ₂,
@@ -823,10 +823,10 @@ end
 
 """
     direct_magnetic_modal_series(k0,u,ψ₁,ψ₂,layers,s β⃗₁,β⃗₂,β⃗₀₀,ρ⃗dif) --> (Σpm1,Σpm2)
-   
-This function uses direct, brute-force summation to calculate the magnetic 
-source modal series needed for the potential Green's functions.  
-**THIS ROUTINE IS FOR TEST PURPOSES ONLY!!!!**  This routine is **NOT** 
+
+This function uses direct, brute-force summation to calculate the magnetic
+source modal series needed for the potential Green's functions.
+**THIS ROUTINE IS FOR TEST PURPOSES ONLY!!!!**  This routine is **NOT**
 numerically efficient. It is only used for comparison and testing purposes.
 
 ## Arguments:
@@ -834,24 +834,24 @@ numerically efficient. It is only used for comparison and testing purposes.
 - `k0`: Free-space wavenumber (1/meter).
 - `u`:  Smoothing parameter (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts (radians).
-- `layers`:  An array of element type `Layer` containing the layer 
+- `layers`:  An array of element type `Layer` containing the layer
        parameters for the cascade structure.  Note that the first
        and last layer's thicknesses are not accounted for in this
        function.  They are assumed to be semi-infinite.
 - `s`:  Interface number (within layers) at which the FSS or PSS sheet is located.
-- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis 
+- `β⃗₁`, `β⃗₂`:   2-vectors containing the reciprocal lattice basis
               vectors.  Units are (1/meters).
-- `β⃗₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet 
-           vector transverse wavenumber which incorporates the intrinsic phase 
+- `β⃗₀₀`:    2-vector containing the principal (i.e. with index (0,0)) Floquet
+           vector transverse wavenumber which incorporates the intrinsic phase
            shifts.  Units are (1/meters).
-- `ρ⃗dif`:  2-vector containing the difference between observation and source 
+- `ρ⃗dif`:  2-vector containing the difference between observation and source
            points.
 
 ##  Return Values
-    
-`Σm1`, `Σm2`:  Offset arrays of with indices 0:max_rings containing the direct 
-                 modal series defined  in Eq. (5.26) of the theory documentation.  
-                `Σm1[i]` contains the partial sum of ring `i`, and similarly 
+
+`Σm1`, `Σm2`:  Offset arrays of with indices 0:max_rings containing the direct
+                 modal series defined  in Eq. (5.26) of the theory documentation.
+                `Σm1[i]` contains the partial sum of ring `i`, and similarly
                  for `Σm2`.
 """
 function direct_magnetic_modal_series(k0, u, ψ₁, ψ₂,

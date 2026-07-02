@@ -18,8 +18,8 @@ Rational function interpolation using a Path II Neville lozenge, as defined in t
 
 ## Optional Keyword Arguments
 
-- `store1`, `store2`, `store3`: Optional storage vectors, which will be mutated.  If not supplied, 
-  they will be allocated on each call to this function. They should be of the same element type and 
+- `store1`, `store2`, `store3`: Optional storage vectors, which will be mutated.  If not supplied,
+  they will be allocated on each call to this function. They should be of the same element type and
   length as `Sj0`.
 
 ## Return Values
@@ -28,8 +28,8 @@ Rational function interpolation using a Path II Neville lozenge, as defined in t
  - `errest`: An error estimate for `norm(Sinterp - S(x0))`.
 
 ## Reference
-Ma, X., Wan, G. and Wan, W., 2012. "A Multi-Dimensional Adaptive Sampling Method for Analysis 
-and Design of Frequency Selective Surface with Arbitrary Element". 
+Ma, X., Wan, G. and Wan, W., 2012. "A Multi-Dimensional Adaptive Sampling Method for Analysis
+and Design of Frequency Selective Surface with Arbitrary Element".
 Progress In Electromagnetics Research B, 41, pp.213-230.
 """
 function interp_path2(
@@ -56,13 +56,13 @@ function interp_path2(
     store1n = @view store1[begin:begin+K]
     store2n = @view store2[begin:begin+K]
     store3n = @view store3[begin:begin+K]
-    
+
     for i in eachindex(store1n, store2n, store3n)
         store1n[i] = zero(T2)
         store2n[i] = zero(T2)
         store3n[i] = zero(T2)
     end
-    
+
     # Use zero-based arrays for convenience:
     x0j = zerobased(x0jin) ? x0jin : Origin(0)(x0jin)
     Sjk = zerobased(store1n) ? store1n : Origin(0)(store1n)
@@ -82,7 +82,7 @@ function interp_path2(
             num2 = x0j[j+k] - x0
             den2 = Sjkm1[j] - Sjkm2[j+1]
             bigden = fixbigden(num1 * den2 + num2 * den1)
-            Sjk[j] = Sjkm2[j+1] 
+            Sjk[j] = Sjkm2[j+1]
             Sjk[j] += (x0j[j+k] - x0j[j]) * den1 .* den2 ./ bigden
         end
     end
@@ -102,12 +102,12 @@ end
 """
     interpolate_band(f::F, x::AbstractVector; max_err_lim_db=-80, nrepeat=3, xlabel="", showprogress=false) where {F<:Function}
 
-Rational function interpolation of the function `f` evaluated at each element of `x`. 
+Rational function interpolation of the function `f` evaluated at each element of `x`.
 
 `f` is a function that returns either a number, vector, or matrix such that `LinearAlgebra.norm(f[x[i]])`
- and `zero(f[x[i]])` are defined for any `i ∈ eachindex(x)`.  
+ and `zero(f[x[i]])` are defined for any `i ∈ eachindex(x)`.
 `max_err_lim_db` is the maximum allowed estimated error in dB
-for any of the interpolated points, and `nrepeat` is the number of times this error criterion must be 
+for any of the interpolated points, and `nrepeat` is the number of times this error criterion must be
 consecutively met during the interpolation procedure before it has been considered to be satisfied.  Note
 that the default values are very strict.  The return value is a vector of the same length as `x` containing
 the interpolated function values.

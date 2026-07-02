@@ -28,7 +28,3 @@ const min_elength = 0.18 # Results in about 320 modes
 const tdigits = 4
 
 end
-
-
-
-

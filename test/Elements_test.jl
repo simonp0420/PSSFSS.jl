@@ -54,7 +54,7 @@ end
 
     sheet_structured = polyring(; ntri, units, s1, s2, sides, a, b, orient, structuredtri=true)
     sheet_unstructured = polyring(; ntri, units, s1, s2, sides, a, b, orient, structuredtri=false)
-    
+
     FGHz = 30
     gsm_s = analyze([Layer(), sheet_structured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
     gsm_u = analyze([Layer(), sheet_unstructured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
@@ -70,7 +70,7 @@ end
 
     sheet_structured = loadedcross(; ntri, units, s1, s2, L1, L2, w, structuredtri=true)
     sheet_unstructured = loadedcross(; ntri, units, s1, s2, L1, L2, w, structuredtri=false)
-    
+
     FGHz = 30
     gsm_s = analyze([Layer(), sheet_structured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
     gsm_u = analyze([Layer(), sheet_unstructured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
@@ -86,7 +86,7 @@ end
 
     sheet_structured = jerusalemcross(; ntri, units, A, B, P, L1, L2, w, structuredtri=true)
     sheet_unstructured = jerusalemcross(; ntri, units, A, B, P, L1, L2, w, structuredtri=false)
-    
+
     FGHz = 30
     gsm_s = analyze([Layer(), sheet_structured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
     gsm_u = analyze([Layer(), sheet_unstructured, Layer()], FGHz, (ϕ=0, θ=0); showprogress, logfile, resultfile)[1].gsm
@@ -99,7 +99,7 @@ end
     L1 = 0.481
     L2 = 0.22
     w = 0.06
-    L3 = 0.1 
+    L3 = 0.1
     a = 0.15
     w2 = 0.04
     sheet = manji(; s1=[1.1, 0], s2=[0, 1.1], units=cm, L1, L2, L3, w, w2, a, ntri=1000)
@@ -129,10 +129,10 @@ end
 
 @testset "ManjiFull" begin
     #=
-    Angular Selective Surface 
-    From paper Zhenting Chen, Chao Du, Jie Liu, Di Zhou, and Zhongxiang Shen, 
-    "Design Methodology of Dual-Polarized Angle-Selective Surface Based 
-    on Three-Layer Frequency-Selective Surfaces", IEEE Trans. Antennas Propagat., Vol. 71, No. 11, November 2023, 
+    Angular Selective Surface
+    From paper Zhenting Chen, Chao Du, Jie Liu, Di Zhou, and Zhongxiang Shen,
+    "Design Methodology of Dual-Polarized Angle-Selective Surface Based
+    on Three-Layer Frequency-Selective Surfaces", IEEE Trans. Antennas Propagat., Vol. 71, No. 11, November 2023,
     pp. 8704--8713.
     =#
     smat_true, smat_false = map([true, false]) do fufp

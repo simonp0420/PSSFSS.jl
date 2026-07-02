@@ -4,7 +4,7 @@
     SymPixels
 
 A struct containing the pixel parameters of a symmetric pixel mesh element. Fields:
-    - `halfnint`: Half the number of pixels across the interior (non-rim) portion of 
+    - `halfnint`: Half the number of pixels across the interior (non-rim) portion of
       the unit cell. Must be a positive integer.
     - `nrim`: Width of the rim in pixels. Must be a nonnegative integer.
 """
@@ -29,7 +29,7 @@ ucsidelen(s::SymPixels) = 2 * (s.halfnint + s.nrim) # Total number of pixels alo
 Return the length of the 1/0 pattern vector needed to define the unit cell metallization pattern
 for a symmetric pixel mesh.  This is the number of pixels in the irreducible zone for the mesh.
 """
-patternveclen(s::SymPixels) = s.halfnint * (1 + s.halfnint) ÷ 2 
+patternveclen(s::SymPixels) = s.halfnint * (1 + s.halfnint) ÷ 2
 
 """
     sympixmat(s::SymPixels, v::AbstractVector) -> mat::Matrix{Bool}
@@ -44,7 +44,7 @@ counting from the lower-left corner of the unit cell.
 ## Input Arguments
 - `s::SymPixels`: Defines the pixel parameters of the mesh.
 - `v::AbstractVector`: This is the metallization pattern vector. It must contain only ones and
-  zeros, and its length should be equal to the number of pixels in the 
+  zeros, and its length should be equal to the number of pixels in the
   irreducible zone of the mesh.  A greater length is also allowed, in which case a warning is
   issued and the extra elements in `v` are ignored.
 
@@ -55,7 +55,7 @@ function sympixmat(s::SymPixels, v::AbstractVector)
     all(x -> isone(x) || iszero(x), v) || throw(ArgumentError("v must consist only of 1s and 0s"))
     length(v) > niz && @warn "v is longer than necessary.  Ignoring extra entries"
 
-    totsidelen = ucsidelen(s)    
+    totsidelen = ucsidelen(s)
     mat = falses(totsidelen, totsidelen)
 
     # Fill the rim
@@ -68,7 +68,7 @@ function sympixmat(s::SymPixels, v::AbstractVector)
     end
 
     nir = patternveclen(s) # Number of pixels in irreducible zone
-    halfnint = s.halfnint 
+    halfnint = s.halfnint
     nint = 2 * halfnint
 
     # Work on the interior
@@ -94,27 +94,27 @@ function sympixmat(s::SymPixels, v::AbstractVector)
 end
 
 """
-    ulindices(n::Integer) 
+    ulindices(n::Integer)
 
 Return a CartesianIndex generator that iterates over the indices in the upper left half
-of a square matrix of order n.  The upper left half is bounded by (and includes) the 
+of a square matrix of order n.  The upper left half is bounded by (and includes) the
 antidiagonal of the matrix.  The elements are iterated in column major order.
 """
-function ulindices(n::Integer) 
+function ulindices(n::Integer)
     n > 0 || throw(ArgumentError("uladindices requires a a positive argument"))
     return (CartesianIndex(i,j) for (j,k) in zip(1:n, n:-1:1) for i in 1:n if i ≤ k)
 end
 
 """
-    lrindices(n::Integer) 
+    lrindices(n::Integer)
 
 Return a CartesianIndex generator that iterates over the indices in the lower right half
-of a square matrix of order n.  The lower right half is bounded by (and includes) the 
-antidiagonal of the matrix.  The elements are iterated in row major order, but with the 
+of a square matrix of order n.  The lower right half is bounded by (and includes) the
+antidiagonal of the matrix.  The elements are iterated in row major order, but with the
 elements of each row reversed. This places the elements in 1:1 correspondence with their
 mirror images in the upper left half.
 """
-function lrindices(n::Integer) 
+function lrindices(n::Integer)
     n > 0 || throw(ArgumentError("lradindices requires a a positive argument"))
     return (CartesianIndex(n-j+1, n-i+1) for (j,k) in zip(1:n, n:-1:1) for i in 1:n if i ≤ k)
 end
@@ -122,9 +122,9 @@ end
 const keepstart = first(findfirst("- `dx", optional_kwargs)) - 1
 const pix_optional_kwargs =
 """
-- `class::Char='M'`  Specify the class, either `'J'` or `'M'`. If `'J'`, the unknowns are electric surface 
+- `class::Char='M'`  Specify the class, either `'J'` or `'M'`. If `'J'`, the unknowns are electric surface
   currents in the areas corresponding to `1` values of the pixels.  If `'M'`,  the unknowns are magnetic surface
-  currents in the areas corresponding to `0` values of the pixels.  It is known that using `'J'` can result in 
+  currents in the areas corresponding to `0` values of the pixels.  It is known that using `'J'` can result in
   grossly incorrect results for some geometries where adjacent metallic pixels intersect at only a single point.
   Therefore, use of only `'M'` is strongly recommended for most `pixels` elements and all `sympixels` elements.
 """ *
@@ -133,11 +133,11 @@ optional_kwargs[keepstart:end]
 
 """
     function sympixels(; P, nrim, halfnint, patternvec, units, kwargs...)
- 
+
 # Description:
 
 Create a variable of type `RWGSheet` that contains the triangulation for a symmetrically pixelated
-square unit cell. The pattern of metallic pixels has C4 symmetry, as well as left-right and up-down mirror symmetry, 
+square unit cell. The pattern of metallic pixels has C4 symmetry, as well as left-right and up-down mirror symmetry,
 as well as each quadrant exhibiting antidiagonal mirror symmetry. The returned value has fields `s₁`, `s₂`, `β₁`,
 `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, and `fr` properly initialized.  The pixels included in the triangulation are
 determined by the `patternvec` input vector as described below.
@@ -149,30 +149,30 @@ All arguments are keyword arguments which can be entered in any order.
 
 ## Required arguments:
 - `P::Real > 0`: The side length of the square unit cell, specified in units defined by the `units` keyword argument.
-- `nrim::Integer`: The width of the solid metallic rim placed just inside the unit cell boundary, in units of pixels. 
+- `nrim::Integer`: The width of the solid metallic rim placed just inside the unit cell boundary, in units of pixels.
   A value of `0` implies that there is no rim.
 - `halfnint`: Half the number of pixels in the side length for the interior (strictly inside the rim) square pixelated
   region of the unit cell.
 - `patternvec::AbstractVector{<:Integer}`: A vector of length `halfnint*(halfnint+1)÷2`, consisting solely of 1's and 0's.
-  The elements of this vector are mapped to pixels in the irreducible zone of the unit cell as shown in the 
+  The elements of this vector are mapped to pixels in the irreducible zone of the unit cell as shown in the
   diagram at ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png]\
   (https://simonp0420.github.io/PSSFSS.jl/stable/assets/sympixel_with_irzone_numbering.png).
   Within the irreducible zone, pixels corresponding to a value of `1` (or `true`)
-  are taken to be areas of metallization, while `0` or `false` values are metal-free (void) areas.  This holds for either 
+  are taken to be areas of metallization, while `0` or `false` values are metal-free (void) areas.  This holds for either
   `J` or `M` as the `class` value (see the `class` argument below for important limitations).
 - `units`:  Length units for `P` (either `mm`, `cm`, `inch`, or `mil`).
-    
+
 ## Optional arguments:
 - `pdiv::Int = 1`: The number of "chops" or subdivisions applied to each square pixel side when forming the triangulation.
   A value of `1` (the default) means that the pixels included in the triangulation (`1` or `true` values for `class='J'`,
   `0` or `false` values for `class='M'`) are not subdivided any further, except for a single diagonal across each square
   pixel to form triangles. A value of `n>1` means that each square pixel is first divided into `n×n` square
-  subpixels, after which a single diagonal edge (if `quad=false`) is added to each subpixel to form triangles. 
+  subpixels, after which a single diagonal edge (if `quad=false`) is added to each subpixel to form triangles.
 - `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
   two diagonals.  If `false` (the default), only a single diagonal is added to each square to produce two triangles.
 - `sym::Bool = false`: If true, the diagonals added to the squares will exhibit the same left-right and up-down
   mirror symmetry as the collection of `true` (`false`) pixel locations.  If `false` and `quad=false`, then all added diagonals
-  across the unit cell will have the same orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
+  across the unit cell will have the same orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since
   in that case the two added diagonals already ensure mirror symmetry of the triangulation.
 $(pix_optional_kwargs)
 """
@@ -189,7 +189,7 @@ function sympixels(; P::Real, nrim::Integer, halfnint::Integer, class::Char='M',
 
     s = SymPixels(halfnint, nrim)
     patternmat = sympixmat(s, patternvec)
-    
+
     sheet = pixels(; P, patternmat, units, pdiv, quad, class, kwargs...)
     return sheet
 
@@ -197,12 +197,12 @@ end
 
 """
     pixels(; P, patternmat, units, kwargs...)
- 
+
 # Description:
 
 Create a variable of type `RWGSheet` that contains the triangulation for an arbitrarily pixelated
-square unit cell. The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, 
-`e2`, `fv`, `fe`, and `fr` properly initialized.  
+square unit cell. The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`,
+`e2`, `fv`, `fe`, and `fr` properly initialized.
 
 
 # Arguments:
@@ -216,19 +216,19 @@ All arguments are keyword arguments which can be entered in any order.
   indicating no metallization.  The `(i,j)` entry corresponds to the pixel centered at `(x,y) = ((j-1/2)d, P-(i-1/2)d)`, where
   `d = P / size(patternmat, 1)`.
 - `units`:  Length units for `P` (either `mm`, `cm`, `inch`, or `mil`).
-    
+
 ## Optional arguments:
 - `pdiv::Int = 1`: The number of "chops" or subdivisions applied to each square pixel side when forming the geometry triangulation.
-  A value of `1` (the default) means that the pixels are not subdivided any further, except for a single diagonal across each 
+  A value of `1` (the default) means that the pixels are not subdivided any further, except for a single diagonal across each
   pixel to form triangles.  A value of `2` would subdivide each pixel into 4 squares.  A diagonal edge would be added to
   each of the resulting squares to form triangles.
 - `quad::Bool=false`:  If `true`, each subpixel (or pixel, if `pdiv` is 1) is divided into four triangles by adding
   two diagonals.  If `false` (the default), only a single diagonal is added to produce two triangles.
-- `sym::Bool = false`: A `true` value states that the pixel matrix has vertical and horizontal mirror symmetry, and 
-  consists of an even number of rows (and columns).  If `true`, the diagonals added to the squares to form 
+- `sym::Bool = false`: A `true` value states that the pixel matrix has vertical and horizontal mirror symmetry, and
+  consists of an even number of rows (and columns).  If `true`, the diagonals added to the squares to form
   triangles will exhibit the same left-right and up-down mirror symmetry as the collection of `true` (`false`) pixel
-  locations.  If `sym=false` and `quad=false`, then all added diagonals across the unit cell will have the same 
-  orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since 
+  locations.  If `sym=false` and `quad=false`, then all added diagonals across the unit cell will have the same
+  orientation.  `sym` has no effect (i.e. is redundant) if `quad=true` since
   in that case the two added diagonals already ensure mirror symmetry of the triangulation.
 $(pix_optional_kwargs)
 """
@@ -273,7 +273,7 @@ function pixels(; P::Real, patternmat::AbstractMatrix{<:Integer}, pdiv::Integer=
         elseif x == P
             j = npside
         else
-            j = 1 + trunc(Int, x / d) 
+            j = 1 + trunc(Int, x / d)
         end
         # row index into patternmat:
         if iszero(y)

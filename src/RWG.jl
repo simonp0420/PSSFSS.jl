@@ -1,15 +1,15 @@
 """
-# Module RWG 
-This module defines the modified Rao, Wilton, and Glisson triangle 
-subdomain basis function derived data type.  The definition of a basis 
-function has been generalized slightly to allow the "plus" and "minus" 
-triangles to be nonadjacent, and to identify those half-basis functions 
+# Module RWG
+This module defines the modified Rao, Wilton, and Glisson triangle
+subdomain basis function derived data type.  The definition of a basis
+function has been generalized slightly to allow the "plus" and "minus"
+triangles to be nonadjacent, and to identify those half-basis functions
 whose defining edge lies at the ξ=1 or η=1 boundaries of the unit cell.
-These modifications allow one to handle the analysis of a structure in a 
-periodic unit cell, as required in phased array and frequency selective 
-surface formulations.  Reference: P. S. Simon, "Modified RWG basis functions 
-for analysis of periodic structures," *2002 IEEE MTT-S International Microwave 
-Symposium Digest* (Cat. No.02CH37278), Seattle, WA, USA, 2002, pp. 2029-2032 
+These modifications allow one to handle the analysis of a structure in a
+periodic unit cell, as required in phased array and frequency selective
+surface formulations.  Reference: P. S. Simon, "Modified RWG basis functions
+for analysis of periodic structures," *2002 IEEE MTT-S International Microwave
+Symposium Digest* (Cat. No.02CH37278), Seattle, WA, USA, 2002, pp. 2029-2032
 vol. 3, doi: 10.1109/MWSYM.2002.1012266.
 """
 module RWG
@@ -36,16 +36,16 @@ mutable struct RWGData
     #  Basis function face indices.  The value in bff[1,i] is index of the
     #  "plus" triangle face associated with basis function i.
     #  The value in bff[2,i] is the index of the "minus" triangle face
-    #  associated with basis function i. 
+    #  associated with basis function i.
     bff::Array{Int,2}
 
     #  Edge basis function map.
-    #  ebf[i], if nonzero, is the index of the basis function associated with 
+    #  ebf[i], if nonzero, is the index of the basis function associated with
     #  edge i.
     ebf::Array{Int,1}
 
     #  Edge cell index.
-    #  eci[i] takes on the values 0, 1, 2, 3, or 4.   The values have the 
+    #  eci[i] takes on the values 0, 1, 2, 3, or 4.   The values have the
     #  following meanings:
     #  0  The edge does not lie along a unit cell boundary.
     #  1  The edge lies along the ξ=0 unit cell boundary.
@@ -55,22 +55,22 @@ mutable struct RWGData
     eci::Array{Int,1}
 
     #  Unique face pair matrix.
-    #  ufpm[i,j] contains the unique face pair index for observation face i 
-    #  with respect to source face j.  Two sets of face pairs are considered 
-    #  to be equivalent if they can be made to superimpose via a rigid 
+    #  ufpm[i,j] contains the unique face pair index for observation face i
+    #  with respect to source face j.  Two sets of face pairs are considered
+    #  to be equivalent if they can be made to superimpose via a rigid
     #  translation, and the nodes in the corresponding triangles of each pair
-    #  are numbered in the same order. Since the periodic Green's functions are 
+    #  are numbered in the same order. Since the periodic Green's functions are
     #  translationally invariant, the integrals involving equivalent face pairs
     #  will have identical values and thus need be computed only a single time.
     ufpm::Array{Int,2}
 
-    #  ufp2fp[i] contains the vector of face pair indices for equivalence class i. The 
-    #  face pair index uses column major ordering to enumerate the elements 
+    #  ufp2fp[i] contains the vector of face pair indices for equivalence class i. The
+    #  face pair index uses column major ordering to enumerate the elements
     #  of a matrix of order Nface × Nface.
     ufp2fp::Array{Array{Int,1},1}
 
     zorymat::Array{ComplexF64,2} # MoM matrix
-    rhs::Vector{ComplexF64}  # MoM right-hand side 
+    rhs::Vector{ComplexF64}  # MoM right-hand side
     bfftstore::Array{SArray{Tuple{2},ComplexF64,1,2},3} # Basis function Fourier Transforms
 
     nufp::Int  # Number of unique face pairs.
@@ -82,10 +82,10 @@ end # mutable struct
 
 This function accepts the sheet geometry data structure as created
 by the function `get_sheet_data` and creates a instance of `RWGdata` as the
-function return value.  When `sheet.fufp` is `true`, it directs this 
-function to search for unique face pairs.  This search can be time consuming 
-and thus the default action, when `sheet.fufp` is .false., 
-is to skip the search.  The tradeoff is the greater time needed to fill the 
+function return value.  When `sheet.fufp` is `true`, it directs this
+function to search for unique face pairs.  This search can be time consuming
+and thus the default action, when `sheet.fufp` is .false.,
+is to skip the search.  The tradeoff is the greater time needed to fill the
 interaction matrix when all face pairs are considered unique.
 """
 function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
@@ -111,9 +111,9 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
             end
         end
     end
-    # We must now add to this count the number of edges that are located at 
-    # the ξ=0  or the η=0 boundaries of the unit cell.  In the process of 
-    # locating such edges, we will also set the correct values in the eci, 
+    # We must now add to this count the number of edges that are located at
+    # the ξ=0  or the η=0 boundaries of the unit cell.  In the process of
+    # locating such edges, we will also set the correct values in the eci,
     # ieξ0, ieξ1, ieη0, and  ieη1 arrays.
     if sheet.ξη_check
         for gep in 1:nedge  # Loop over each edge of the structure.
@@ -147,7 +147,7 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     bff = zeros(Int, 2, nbf)
     ebf = zeros(Int, nedge)
 
-    # Loop over pairs of triangles.  Note that the order of the loops dictates 
+    # Loop over pairs of triangles.  Note that the order of the loops dictates
     # that the face with lower index will be the "plus" face.
     i = 0  # Basis function index
     for fp in 1:nface, fm = fp+1:nface            # Loop over "plus" and "minus" triangles.
@@ -269,15 +269,15 @@ function setup_rwg(sheet::RWGSheet, leafsize::Int=9)::RWGData
     #  The remaining code in this function sets up the
     #  two arrays ufpm and ufp2fp.  These are used to identify
     #  redundant face/pairs.  ufpm(i) contains the unique face/pair
-    #  index (or the equivalence class (E.C.) index) of face/pair i.  
-    #  The face pairs are numbered sequentially in the same manner as 
-    #  the elements of a square matrix of dimension nface (column major 
-    #  ordering). The row index is used for the observation face number and 
-    #  the column index is the source face number.  The array ufp2fp is 
-    #  of length nufp (the number of unique face pairs, or equivalence 
-    #  classes). Each element of ufp2fp contains a pointer to an allocated 
-    #  array of face/pair indices.  Row i contains a list of the face/pairs 
-    #  that are members of equivalence class i.  Two face pairs belong to 
+    #  index (or the equivalence class (E.C.) index) of face/pair i.
+    #  The face pairs are numbered sequentially in the same manner as
+    #  the elements of a square matrix of dimension nface (column major
+    #  ordering). The row index is used for the observation face number and
+    #  the column index is the source face number.  The array ufp2fp is
+    #  of length nufp (the number of unique face pairs, or equivalence
+    #  classes). Each element of ufp2fp contains a pointer to an allocated
+    #  array of face/pair indices.  Row i contains a list of the face/pairs
+    #  that are members of equivalence class i.  Two face pairs belong to
     #  the same equivalence class if the triangle pairs can be overlaid
     #  using a rigid translation, and the triangle nodes are listed
     #  in the same order. This version uses the NearestNeighbors package.
@@ -332,7 +332,7 @@ end # function setup_rwg
 """
     edge_current_unit_vector(ie::Integer, rwgdat::RWGData, metal::RWGSheet)::SV2
 
-Evaluate a unit vector u = SV2([ux,uy]) in the positive reference direction for 
+Evaluate a unit vector u = SV2([ux,uy]) in the positive reference direction for
 the basis function associated with edge ie of the triangulated sheet.
 """
 function edge_current_unit_vector(ie::Integer, rwgdat::RWGData, metal::RWGSheet)::SV2
@@ -365,10 +365,10 @@ end
 """
     get_ie_ξη(ie::Int, sheet::RWGSheet) -> (ξinit, ξterm, ηinit, ηterm)
 
-Evaluate the ξ and η coordinates of the initial and terminal vertices 
-of a given edge. The position vector of a point is represented as 
+Evaluate the ξ and η coordinates of the initial and terminal vertices
+of a given edge. The position vector of a point is represented as
 ξ*s1 + η*s2, where s1 and s2 are the direct lattice vectors.
- 
+
 ## Arguments:
 
 - `ie`:  Global edge index.
@@ -399,24 +399,24 @@ end
 
 """
     rwgbfft!(ft, rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁::Real, ψ₂::Real) -> ft::Vector
-    
-Compute the 2D fourier transform (FT) of the set of modified Rao-Wilton-Glisson basis functions 
-defined in `rwgdat` and `sheet`, evaluated at the transform variable `k`. `ψ₁` and `ψ₂` are the 
+
+Compute the 2D fourier transform (FT) of the set of modified Rao-Wilton-Glisson basis functions
+defined in `rwgdat` and `sheet`, evaluated at the transform variable `k`. `ψ₁` and `ψ₂` are the
 unit cell incremental phase shifts in radians.
 
 ## Arguments:
 
-- `ft`: A vector of length `nbf` whose elements are 2-vectors, where `nbf` is the number of 
+- `ft`: A vector of length `nbf` whose elements are 2-vectors, where `nbf` is the number of
     basis functions.  The contents of `ft` will be overwritten with the basis function FTs.
 - `rwgdat`: Contains the basis function definitions.
 - `sheet`: The contains the triangulation info.
-- `k`: A 2-vector containing the transform variable value at which the fourier transforms are to be 
+- `k`: A 2-vector containing the transform variable value at which the fourier transforms are to be
     evaluated. Units are (1/meter).
 - `ψ₁`, `ψ₂`:  Unit cell incremental phase shifts in units of radians.
 
 ## Return value:
 
-A length `nbf` complex vector containing the Fourier transforms of the basis functions.  Units are meters^2. 
+A length `nbf` complex vector containing the Fourier transforms of the basis functions.  Units are meters^2.
 `nbf` is the number of basis functions.
 
 ## Reference
@@ -497,7 +497,7 @@ function rwgbfft!(ft, rwgdat::RWGData, sheet::RWGSheet, k::AbstractVector, ψ₁
                     ctrm3 = ((ẑ × lvec[n]) + zdotlxk[n] * (ctrm1[n] - cjr)) * j0kl2[n]
                     csum .+= cphasv[n] * (ctrm3 - rtrm2[n])
                 end
-                #csum = csum * norm(lvec(next(i))) # Needed for orig. defn. of RWG 
+                #csum = csum * norm(lvec(next(i))) # Needed for orig. defn. of RWG
                 #                                          # basis funct.
                 #  Add to sum total fourier transform with proper sign:
                 if rwgdat.bff[1, ib] == iface  # Plus triangle.
@@ -515,7 +515,7 @@ end # function
 
 """
     j₀(x)
-    
+
 Spherical Bessel function of the first kind of order 0 and argument x.
 """
 j₀(x::Real) = abs(x) < 1e-3 ? begin
@@ -529,7 +529,7 @@ end : sin(x) / x
 
 """
     j₁(x)
-    
+
 Spherical Bessel function of the first kind of order 1 and argument x.
 """
 j₁(x::Real) = abs(x) < 1e-3 ? x * (1 / 3 - x * x / 30) : begin

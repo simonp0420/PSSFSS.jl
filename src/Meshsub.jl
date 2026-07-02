@@ -8,7 +8,7 @@ using ..Sheets: SV2, RWGSheet
 
 
 """
-    meshsub(;points, seglist, area, 
+    meshsub(;points, seglist, area,
             segmarkers=Int[], holes=Array{Float64}(undef,2,0),  switches="") -> sheet::RWGSheet
 
 Triangulate polygonal region(s) and create a sheet object with the triangulation fields properly initialized.
@@ -16,16 +16,16 @@ Triangulate polygonal region(s) and create a sheet object with the triangulation
 #  Required Input Keyword Arguments:
 
 - `points::Matrix{<:Real}` with size(points,1) == 2. Input list of boundary segment vertex coordinates.
-- `seglist::Matrix{<:Integer}` with size(seglist,1) == 2. List of boundary segments for the 
-               regions(s) to be triangulated.  seglist[:,n] contains the point 
-               indices for the n'th boundary segment. 
+- `seglist::Matrix{<:Integer}` with size(seglist,1) == 2. List of boundary segments for the
+               regions(s) to be triangulated.  seglist[:,n] contains the point
+               indices for the n'th boundary segment.
 - `area::Real` Desired maximum area of any triangle in the generated mesh.
 - `ntri::Int`  Desired number of triangles in the generated mesh.
 
 #  Optional Input Keyword Arguments:
 
-- `segmarkers::Vector{<:Integer}` with length(segmarkers) == size(seglist,2). Each boundary 
-               polygon is numbered starting with 1. These boundary numbers are entered 
+- `segmarkers::Vector{<:Integer}` with length(segmarkers) == size(seglist,2). Each boundary
+               polygon is numbered starting with 1. These boundary numbers are entered
                in segmarkers to denote which boundary a particular segment belongs to.
                Required if more than a single boundary is specified (i.e. for multiply connected regions).
 - `holes::Matrix{<:Real} with size(holes,1) == 2.  Each column `n` contains the coordinates

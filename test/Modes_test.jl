@@ -37,7 +37,7 @@ oldlogger = global_logger(testlogger)
     nl = length(layers)
     nj = nl - 1
     ns = length(sheets)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
@@ -75,7 +75,7 @@ end
     nl = length(layers)
     nj = nl - 1
     ns = length(sheets)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     fmin = 2.0 * 1e9  # minimum frequency [Hz]
@@ -118,7 +118,7 @@ end
     nl = length(layers)
     nj = nl - 1
     ns = length(sheets)
-    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet 
+    sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
 
