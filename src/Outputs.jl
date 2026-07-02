@@ -691,7 +691,7 @@ width for the first `Layer` object (i.e. using `Layer()` for the first layer), a
 to be the negative of the sum of all the other layer widths in the `strata` vector. The negative width value shifts
 the output port reference plane to coincide with that of the input port.  As an example:
 ```julia
-strata = [Layer(), Layer(width=2mm, ϵᵣ=2.2) Layer(width=3.3mm, ϵᵣ=3.0), Layer(width=2mm, ϵᵣ=2.2), Layer(width=-7.3mm)]
+strata = [Layer(), Layer(width=2mm, ϵᵣ=2.2), Layer(width=3.3mm, ϵᵣ=3.0), Layer(width=2mm, ϵᵣ=2.2), Layer(width=-7.3mm)]
 ```
 """
 function res2fresnel(results::Vector{Result}, fresnelfile::AbstractString)
