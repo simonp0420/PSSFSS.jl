@@ -14,7 +14,6 @@ Extensive documentation is available at https://simonp0420.github.io/PSSFSS.jl/
 """
 module PSSFSS
 
-
 if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
     @eval Base.Experimental.@optlevel 3
 end
@@ -111,19 +110,24 @@ Return `true` if called from within a Pluto notebook, `false` otherwise.
 _is_pluto_notebook() = isdefined(Main, :AbstractPlutoDingetjes) && Main.AbstractPlutoDingetjes.is_inside_pluto()
 
 """
-    run_environment()
+    run_environment() -> envstr::String
 
-Return a string whose value depends on the enclosing execution environment as follows:
-- IJulia Jupyter notebook: "IJulia Notebook"
-- Pluto notebook: "Pluto Notebook"
-- VS Code notebook: "VS Code Notebook"
-- VS Code Julia extension REPL: "VS Code Julia Extension"
-- VS Code integrated terminal: "VS Code Integrated Terminal"
-- Windows Terminal: "Windows Terminal"
-- Other terminal program that sets the `TERM` or `TERM_PROGRAM` environment variable: contents of the variable
-- Other: "Unknown Terminal Environment"
+Return a string whose value depends on the enclosing execution environment
+
+## Return Value
+
+- `envstr` : The returned value is determined as follows:
+  * IJulia Jupyter notebook: "IJulia Notebook"
+  * Pluto notebook: "Pluto Notebook"
+  * VS Code notebook: "VS Code Notebook"
+  * VS Code Julia extension REPL: "VS Code Julia Extension"
+  * VS Code integrated terminal: "VS Code Integrated Terminal"
+  * Windows Terminal: "Windows Terminal"
+  * Other terminal program that sets the `TERM` or `TERM_PROGRAM` environment variable: contents of the variable
+  * Other: "Unknown Terminal Environment"
 """
 function run_environment()
+    envstr =
     if _is_ijulia()
         "IJulia Notebook"
     elseif _is_pluto_notebook()
@@ -139,6 +143,7 @@ function run_environment()
     else
         get(ENV, "TERM", "Unknown Terminal Environment")
     end
+    return envstr
 end
 
 

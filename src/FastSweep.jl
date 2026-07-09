@@ -30,7 +30,7 @@ Rational function interpolation using a Path II Neville lozenge, as defined in t
 ## Reference
 Ma, X., Wan, G. and Wan, W., 2012. "A Multi-Dimensional Adaptive Sampling Method for Analysis
 and Design of Frequency Selective Surface with Arbitrary Element".
-Progress In Electromagnetics Research B, 41, pp.213-230.
+Progress In Electromagnetics Research B, 41, pp. 213-230.
 """
 function interp_path2(
     x0::T1,
@@ -100,17 +100,41 @@ end
 
 
 """
-    interpolate_band(f::F, x::AbstractVector; max_err_lim_db=-80, nrepeat=3, xlabel="", showprogress=false) where {F<:Function}
+    interpolate_band(f::F, x::AbstractVector{<:Real}; kwargs...) where {F<:Function} -> fvalues
 
-Rational function interpolation of the function `f` evaluated at each element of `x`.
+Rational function (approximate) interpolation of the function `f` evaluated at each element of `x`,
+using a Path II Neville lozenge, as defined in the reference.
 
-`f` is a function that returns either a number, vector, or matrix such that `LinearAlgebra.norm(f[x[i]])`
- and `zero(f[x[i]])` are defined for any `i ∈ eachindex(x)`.
-`max_err_lim_db` is the maximum allowed estimated error in dB
-for any of the interpolated points, and `nrepeat` is the number of times this error criterion must be
-consecutively met during the interpolation procedure before it has been considered to be satisfied.  Note
-that the default values are very strict.  The return value is a vector of the same length as `x` containing
-the interpolated function values.
+## Positional Arguments
+
+- `f`: A function that returns either a number, vector, or matrix such that `LinearAlgebra.norm(f[x[i]])`
+  and `zero(f[x[i]])` are defined for any `i ∈ eachindex(x)`.
+
+- `x::AbstractVector{<:Real}`: A vector of strictly increasing numbers representing frequency.
+
+## Keyword Arguments
+All have default values and are thus optional.
+
+- `max_err_lim_db = -80` : The maximum allowed estimated error in dB for any of the interpolated points.
+
+- `nrepeat = 3`: The number of times the error criterion `max_err_lim_db` must be consecutively satisfied
+  during the interpolation procedure before the rational function approximation is considered to converged.
+  Note that the default values of `max_err_lim_db` and `nrepeat` constitute very strict criteria.
+
+- `xlabel = ""` :  Label to follow printed `x` values when `showprogress` is `true`.
+- `prelabel = ""` :  Label to precede printed `x` values when `showprogress` is `true`.
+- `showprogress = false` : If true, print out (and use `ProgressBar` if not in an IJulia notebook) progress
+  indicators.
+
+## Return Value
+
+- `fvalues` : A vector of the same length as `x` containing the (approximately) interpolated function values,
+  with `eltype(finterp) == eltype(f.(x))`.
+
+## Reference
+Ma, X., Wan, G. and Wan, W., 2012. "A Multi-Dimensional Adaptive Sampling Method for Analysis
+and Design of Frequency Selective Surface with Arbitrary Element".
+**Progress In Electromagnetics Research B**, 41, pp. 213-230.
 """
 function interpolate_band(
     f::F,
