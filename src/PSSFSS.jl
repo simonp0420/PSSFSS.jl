@@ -27,7 +27,8 @@ using DelimitedFiles: writedlm
 using Printf: @sprintf
 using LinearAlgebra: ×, norm, ⋅, factorize, lu!, ldiv!, BLAS
 using StaticArrays: StaticArrays, SVector, SArray, @SVector, MArray
-using Unitful: ustrip, @u_str
+using Unitful: ustrip
+@reexport using Unitful: @u_str
 using Logging: with_logger
 using ProgressMeter
 using PrecompileTools
@@ -84,7 +85,9 @@ Generate output files as specified in `outlist`.
 ## Positional Arguments
 - `strata`:  A vector of `Layer` and `RWGSheet` objects. The first and last entries must be of type `Layer`.
 
-- `flist`: An iterable containing the analysis frequencies in GHz.
+- `flist`: An iterable containing the analysis frequencies. By default these are assumed to be numbers that
+  are interpreted to be in GHz. However, they can instead be any `Unitful` quantities with dimension of frequency
+  (i.e. inverse time).  For example `(1.5:0.1:3) * u"THz"` would be acceptable as an input.
 
 - `steering`: A length 2 `NamedTuple` containing as keys the steering parameter labels and as values
   the iterables that define the values of steering parameters to be analyzed.
@@ -144,9 +147,13 @@ function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.lo
     sint = cumsum(islayer)[issheet] # sint[k] contains dielectric interface number of k'th sheet
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
-    freqstemp = float.(collect(flist))
+    if isa(first(flist), Unitful.Quantity)
+        freqstemp = [float(Unitful.ustrip(u"GHz", f)) for f in flist]
+    else
+        freqstemp = float.(collect(flist))
+    end
     if length(freqstemp) < 2
-        freqs = Float64[freqstemp]
+        freqs = Float64[only(freqstemp)]
     else
         freqs::Vector{Float64} = freqstemp
     end
