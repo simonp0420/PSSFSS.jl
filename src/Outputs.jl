@@ -68,9 +68,9 @@ end
 """
     getsijmn(i::Int,j::Int,m,n,o::Result)
 
-Obtain the `(m,n)` entry of the `(i,j)` partition of `o.gsm`.  Note that 
+Obtain the `(m,n)` entry of the `(i,j)` partition of `o.gsm`.  Note that
 `m` and `n` can be either integers or `enums` of type `TEorTEM`, `RorL`, or `HorV`.
-In either of the last two cases, the GSM is modified appropriately as described in 
+In either of the last two cases, the GSM is modified appropriately as described in
 Chapter 8 of the theory documentation.
 """
 @inline function getsijmn(i::Int, j::Int, m::Union{Int,TEorTM}, n::Union{Int,TEorTM}, o::Result)
@@ -95,7 +95,7 @@ end
 """
 sourcemat(j, n::union{HorV,RorL}, o::Result)
 
-Compute a 2×2 transformation matrix which when used to right-multiply `o.gsm[i,j]` performs 
+Compute a 2×2 transformation matrix which when used to right-multiply `o.gsm[i,j]` performs
 a basis change for the polarization basis vectors from TE/TM to either CP (circular polarization)
 or horizontal/vertical, as determined by the type of `n`.
 """
@@ -150,7 +150,7 @@ end
 """
 obsmat(i::Int, n::union{HorV,RorL}, o::Result)
 
-Compute a 2×2 transformation matrix which when used to left-multiply `o.gsm[i,j]` performs 
+Compute a 2×2 transformation matrix which when used to left-multiply `o.gsm[i,j]` performs
 a basis change for the polarization basis vectors from TE/TM to either CP (circular polarization)
 or horizontal/vertical, as determined by the type of `n`.
 """
@@ -347,9 +347,9 @@ function θϕ(o::Result)
 end
 
 """
-    ĥv̂(θ, ϕ)  
+    ĥv̂(θ, ϕ)
 
-Compute Ludwig 3 unit vectors from spherical location vectors.  
+Compute Ludwig 3 unit vectors from spherical location vectors.
 """
 function ĥv̂(θ, ϕ)
     st, ct = sincosd(θ)
@@ -400,7 +400,7 @@ Append a `Result` instance to a result file for a particular frequency and pair 
 ## Arguments
 
 - `fname`: The name of the result file to be appended to.
-- `gname`: The unique `JLD2` group name to be used in the file for grouping the data 
+- `gname`: The unique `JLD2` group name to be used in the file for grouping the data
   associated with this frequency/scan case.
 - `result`:  The `Result` data to be written to the file.
 """
@@ -417,7 +417,7 @@ append_result_data(::Base.DevNull, ::String, ::Result) = nothing
 """
     read_result_file(fname::AbstractString) --> Vector{Result}
 
-Read a result file (in JLD2 format) and return a vector of results.    
+Read a result file (in JLD2 format) and return a vector of results.
 """
 function read_result_file(fname::AbstractString)::Vector{Result}
     dat = load(fname) # a Dict
@@ -436,7 +436,7 @@ end
     extract_result(r::Result, ops::NTuple{N,Outfun}) --> Row Matrix
     extract_result(r::AbstractVector{Result}, ops::NTuple{N,Outfun}) --> Matrix
 
-Return a matrix of outputs extracted from a `Result` instance or vector.  `ops` is a 
+Return a matrix of outputs extracted from a `Result` instance or vector.  `ops` is a
 `NTuple` as returned by the `@outputs` macro.
 
 ### Example
@@ -456,7 +456,7 @@ end
 """
     extract_result(fname::AbstractString, ops::Tuple) --> Matrix
 
-Return a matrix of outputs extracted from a results file.  `ops` is a 
+Return a matrix of outputs extracted from a results file.  `ops` is a
 Tuple returned by the `@outputs` macro.
 
 ### Example
@@ -482,7 +482,7 @@ function _check_results_for_tep!(results::Vector{Result})
     kys = keys(results[1].steering)
     kys != (:θ, :ϕ) && error("results do not use θ and ϕ for steering")
     # Rearrange into proper order for storage in a TEPperiodic:
-    sort!(results, by = r -> (r.FGHz, r.steering.ϕ, r.steering.θ)) 
+    sort!(results, by = r -> (r.FGHz, r.steering.ϕ, r.steering.θ))
     freqs = unique!([r.FGHz for r in results])
     thetas = unique!([r.steering.θ for r in results])
     phis = unique!([r.steering.ϕ for r in results])
@@ -499,7 +499,7 @@ function _check_results_for_tep!(results::Vector{Result})
     # Verify that full cartesian product of angles and frequencies is present:
     i = 0
     for f in freqs, p in phis, t in thetas
-        i += 1 
+        i += 1
         r = results[i]
         if (r.steering.ϕ != p) || (r.steering.θ != t) || (r.FGHz != f)
             error("Missing case (FGHz, ϕ, θ) = ($f, $p, $t) in input vector")
@@ -507,17 +507,17 @@ function _check_results_for_tep!(results::Vector{Result})
     end
     return (theta_range, phi_range, freqs_vec)
 end # function
-    
+
 """
     res2tep(results::Vector{Result}; name="tep", class="res2tep") -> t::TEPperiodic
     res2tep(resultfile::AbstractString; name="tep", class="res2tep") -> t::TEPperiodic
     res2tep(results::Vector{Result}, tepfile::AbstractString; name="tep", class="res2tep") -> t::TEPperiodic
     res2tep(resultfile::AbstractString, tepfile::AbstractString; name="tep", class="res2tep") -> t::TEPperiodic
 
-Convert a vector of `Result` elements into a `TEPperiodic` object, as defined in the 
+Convert a vector of `Result` elements into a `TEPperiodic` object, as defined in the
 [TicraUtilities](https://github.com/simonp0420/TicraUtilities.jl) package.  If positional argument
 `tepfile` is provided, the `TEPperiodic` object will be saved to this file name as a TICRA-compatible
-TEP (tabulated electrical properties) file. If the first positional argument is an `AbstractString`, it is 
+TEP (tabulated electrical properties) file. If the first positional argument is an `AbstractString`, it is
 assumed to be the name of a PSSFSS results file, from which the vector of results will be read.
 The keyword arguments are used to provide values for the same-named fields in the TEP structure.
 
@@ -525,8 +525,8 @@ The keyword arguments are used to provide values for the same-named fields in th
 Because a TEP file contains all of the information of the full 4×4 scattering matrix computed by PSSFSS, there are no
 limitations on the type of unit cell geometry that can be used for creating TEP files.
 
-TEP files use the concept of "front" and "rear" incidence.  When converting a PSSFSS analysis result to TEP format, Region 1 
-(the first layer in the `strata` vector) is taken as the "front" incidence region, and Region `n` (the last layer) is 
+TEP files use the concept of "front" and "rear" incidence.  When converting a PSSFSS analysis result to TEP format, Region 1
+(the first layer in the `strata` vector) is taken as the "front" incidence region, and Region `n` (the last layer) is
 taken to be the "rear" region.  Both of these layers should have zero width and assume vacuum electrical parameters.  I.e.,
 they should be specified as `Layer()` in the `strata` stackup.
 
@@ -560,7 +560,7 @@ function res2tep(results::Vector{Result}; name="tep", class="res2tep")
     sff, sfr, srf, srr = (zeros(ComplexF64, (2,2,nt,np,nf)) for _ in 1:4)
     i = 0
     for ifr in 1:nf, ip in 1:np, it in 1:nt
-        i += 1 
+        i += 1
         gsm = results[i].gsm
         sff[:,:,it,ip,ifr] .= mff .* gsm[1,1]
         sfr[:,:,it,ip,ifr] .= mff .* gsm[1,2]
@@ -599,7 +599,7 @@ function _prepare_results_for_fresnel(results::Vector{Result})
     ϕmin = minimum(abs, (r.steering.ϕ for r in results))
     results = filter(r -> r.steering.ϕ == ϕmin, results)
 
-    sort!(results, by = r -> (r.steering.θ, r.FGHz)) 
+    sort!(results, by = r -> (r.steering.θ, r.FGHz))
 
     freqs = unique!([r.FGHz for r in results])
     thetas = unique!([r.steering.θ for r in results])
@@ -620,7 +620,7 @@ function _prepare_results_for_fresnel(results::Vector{Result})
      # Verify that full cartesian product of angles and frequencies is present:
     i = 0
     for t in thetas, f in freqs
-        i += 1 
+        i += 1
         r = results[i]
         if (r.steering.θ != t) || (r.FGHz != f)
             error("Missing case (FGHz, ϕ, θ) = ($f, $phimin, $t) in input vector")
@@ -630,7 +630,7 @@ function _prepare_results_for_fresnel(results::Vector{Result})
     # Fill in any missing theta values
     if last(thetas) < 90
         newthetas = float((dtheta + last(thetas)):dtheta:90)
-        irng = (length(results) - nf + 1):length(results) # Indices in results for all frequencies of last θ input value 
+        irng = (length(results) - nf + 1):length(results) # Indices in results for all frequencies of last θ input value
         for newtheta in newthetas, i in irng
             r = results[i]
             steer = (θ = newtheta, ϕ = r.steering.ϕ)
@@ -648,16 +648,16 @@ end # function
     res2fresnel(results::Vector{Result}, fresnelfile::AbstractString)
     res2fresnel(resultfile::AbstractString, fresnelfile::AbstractString)
 
-Create an HFSS-compatible "Fresnel table" file from `results`, the vector of `Result` objects returned by 
-the `analyze` function.  If the first positional argument is an `AbstractString`, it is 
+Create an HFSS-compatible "Fresnel table" file from `results`, the vector of `Result` objects returned by
+the `analyze` function.  If the first positional argument is an `AbstractString`, it is
 assumed to be the name of a PSSFSS results file, from which the vector of results will be read.
 
 Since Fresnel tables contain data for only a single ϕ value, if the input `result` vector contains data for multiple
 ϕ values, only the value with minimum magnitude will be used.
 
-Fresnel tables may be formatted to contain only reflection coefficients (for a so-called "opaque" structure), or they 
+Fresnel tables may be formatted to contain only reflection coefficients (for a so-called "opaque" structure), or they
 may contain both reflection and transmission coefficients (a "non-opaque" structure).
-An opaque structure is one for which the s21 partition of the generalized scattering matrix is identically zero 
+An opaque structure is one for which the s21 partition of the generalized scattering matrix is identically zero
 for all frequencies and scan angles.  The correct format to be written will be selected automatically by `res2fresnel`.
 
 ## Requirements for Fresnel Table Compatibility
@@ -667,26 +667,26 @@ The data in `results` must satisfy the following requirements:
 3. The increment in θ values must divide evenly into 90.
 4. If multiple frequencies are present, then they must have a uniform spacing.
 
-A Fresnel table must contain θ values equally spaced between 0 and 90, inclusive.  
-If the `results` vector provided as input does not contain θ values all the way to 90, then the scattering matrix values 
-corresponding to the maximum provided θ value will be copied into the remaining angular "slots" as necessary to provide 
+A Fresnel table must contain θ values equally spaced between 0 and 90, inclusive.
+If the `results` vector provided as input does not contain θ values all the way to 90, then the scattering matrix values
+corresponding to the maximum provided θ value will be copied into the remaining angular "slots" as necessary to provide
 a complete Fresnel table.
 
-There are some limitations on the type of unit cell geometry that should be used for creating Fresnel tables.  First, a Fresnel 
+There are some limitations on the type of unit cell geometry that should be used for creating Fresnel tables.  First, a Fresnel
 table contains data for only a single ϕ value.  This means that the geometry being analyzed must be such that the scattering
 matrix of the structure is essentially independent of ϕ.  As a counterexample, a strip grid is not a suitable structure, since
 its scattering properties are strongly dependent on ϕ.  Second, a Fresnel table records only co-polarized
-(TE → TE and TM → TM) transmission and reflection coefficients.  This means that the structure being analyzed must not 
+(TE → TE and TM → TM) transmission and reflection coefficients.  This means that the structure being analyzed must not
 generate cross-polarized (TE → TM or TM → TE) transmission or reflection coefficients of significant amplitude.
 
-Fresnel tables consider only incidence from a single "front" region. When creating the Fresnel table, the front region is taken 
-to be Region 1 of the PSSFSS model (i.e. the first layer present in the PSSFSS `strata` vector). 
+Fresnel tables consider only incidence from a single "front" region. When creating the Fresnel table, the front region is taken
+to be Region 1 of the PSSFSS model (i.e. the first layer present in the PSSFSS `strata` vector).
 
 ### Additional Requirements for Non-Opaque Structures
 When used in an HFSS SBR+ model, the scattering properties read from the Fresnel table are applied to a zero-thickness surface,
-so that the transmitted ray is launched from the same "hit" point of the surface that was encountered by the incident 
-ray. Because of this, the phase reference plane for both input and output ports of the PSSFSS model should be located 
-at this front surface (i.e. the first interface plane in the `strata` vector).  This is accomplished by specifying zero 
+so that the transmitted ray is launched from the same "hit" point of the surface that was encountered by the incident
+ray. Because of this, the phase reference plane for both input and output ports of the PSSFSS model should be located
+at this front surface (i.e. the first interface plane in the `strata` vector).  This is accomplished by specifying zero
 width for the first `Layer` object (i.e. using `Layer()` for the first layer), and then specifying the final layer's width
 to be the negative of the sum of all the other layer widths in the `strata` vector. The negative width value shifts
 the output port reference plane to coincide with that of the input port.  As an example:
@@ -714,7 +714,7 @@ function res2fresnel(results::Vector{Result}, fresnelfile::AbstractString)
 
         println(fid, "# <num_theta_step> = <number_of_points> - 1")
         println(fid,  nt - 1)
-        
+
         if nf == 1
             println(fid, "# Mono freq. table for ", only(freqs), " GHz")
             println(fid, "MonoFreq")

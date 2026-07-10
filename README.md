@@ -5,7 +5,7 @@
 |:--------:|:---------------:|:-------:|
 |[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/stable/manual)  [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/dev/manual)| [![Build Status](https://github.com/simonp0420/PSSFSS.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/simonp0420/PSSFSS.jl/actions/workflows/CI.yml?query=branch%3Amain) | [![codecov.io](https://codecov.io/github/simonp0420/PSSFSS.jl/coverage.svg?branch=main)](https://codecov.io/github/simonp0420/PSSFSS.jl?branch=main) |
 
-`PSSFSS` is a Julia package for analyzing planar 
+`PSSFSS` is a Julia package (Python users should check out [pyPSSFSS](https://github.com/simonp0420/pypssfss)) for analyzing planar 
 [polarization selective surfaces](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=polarization+selective+surface&btnG=) (PSSs), [frequency selective surfaces](https://en.wikipedia.org/wiki/Frequency_selective_surface) (FSSs), 
 [reflectarray](https://en.wikipedia.org/wiki/Reflectarray_antennahttps://en.wikipedia.org/wiki/Reflectarray_antenna) elements, 
 [radomes](https://en.wikipedia.org/wiki/Radome), and similar structures.  It is intended to be useful to antenna design engineers and others who work in applied electromagnetic engineering.

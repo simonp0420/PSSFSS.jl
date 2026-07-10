@@ -17,34 +17,34 @@ export filljk!, zint
 
 """
     filljk!(metal::RWGSheet, rwgdat::RWGData, closed::Bool)
-    
-Compute matrices of frequency-independent integrals needed in filling 
+
+Compute matrices of frequency-independent integrals needed in filling
 the generalized impedance matrix.
 
 ## Arguments:
 
-- `metal`: A variable of `RWGSheet` containing the face 
-  information, unit cell incremental phase shifts, and 
+- `metal`: A variable of `RWGSheet` containing the face
+  information, unit cell incremental phase shifts, and
   Green's function smoothing parameter.
 - `rwgdat`:  A variable of type `RWGData` from which we make
   use of the arrays `ufpm` and `ufp2fp`.
 - `closed`:    A logical flag which, if true, instructs this function
   to perform singularity extraction and analytic integration
   for all source triangles. If false then analytic singularity
-  integration is performed ONLY for the case when source and 
+  integration is performed ONLY for the case when source and
   observation triangles are the same.
 
 ##  Outputs:
 
 - `metal`:  The following fields of `metal` are modified:
   `J`, `J_ξ`, `J_η`, `K`, `K_ξ`, `K_η`.  These are matrices
-  of face-pair scalar integrals defined in Equations 
+  of face-pair scalar integrals defined in Equations
   (7.22) through (7.27) of the theory documentation. Note these
-  integrals are unitless.  Also modified are the fields `ρ_r` (the 
-  vector of singular vector integrals defined in Equation (B.3b), 
-  divided by twice the source triangle area to make them unitless, 
-  and `rinv`, a vector of singular scalar integrals defined in Eq. 
-  (B.3a), divided by u times twice the source triangle 
+  integrals are unitless.  Also modified are the fields `ρ_r` (the
+  vector of singular vector integrals defined in Equation (B.3b),
+  divided by twice the source triangle area to make them unitless,
+  and `rinv`, a vector of singular scalar integrals defined in Eq.
+  (B.3a), divided by u times twice the source triangle
   area to make them unitless.
 
 """
@@ -243,9 +243,3 @@ Compute frequency-dependent integrals needed to fill the generalized impedance m
 end  # function
 
 end # module
-
-
-
-
-
-

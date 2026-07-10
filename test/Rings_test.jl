@@ -10,6 +10,3 @@ using Test
     @test length(collect(Ring(10))) == length(Ring(10)) == 80
     @test all(map(x -> max(abs(x[1]), abs(x[2])), collect(Ring(100))) .== 100)
 end
-
-
-

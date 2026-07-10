@@ -11,7 +11,7 @@ using Test
 """
     duffy(f,reltol=1e-10)
 
-Perform the integral  ``\\int_0^1 \\int_0^{1-y} f(x,y) \\, dx \\, dy`` via a call to `pcubature` of the 
+Perform the integral  ``\\int_0^1 \\int_0^{1-y} f(x,y) \\, dx \\, dy`` via a call to `pcubature` of the
 `Cubature` package using a Duffy transform.
 """
 function duffy(f, reltol=1e-10)
@@ -23,7 +23,7 @@ end
 """
     duffy2(f,reltol=1e-10)
 
-Perform the integral  ``\\int_0^1 \\int_0^{1-y} f(x,y) \\, dx \\, dy`` via a call to `hcubature` of the 
+Perform the integral  ``\\int_0^1 \\int_0^{1-y} f(x,y) \\, dx \\, dy`` via a call to `hcubature` of the
 `Cubature` package using a Duffy transform.  Here `f(ξ,η)` returns a 2-vector.
 """
 function duffy2(f, reltol=1e-10)
@@ -100,4 +100,3 @@ conv = 1e-7
         @test norm((sheet.ρ_r[iufp] - ρ_r_duffy) / ρ_r_duffy) < conv
     end
 end
-

@@ -291,12 +291,12 @@ end # function polyring_structured
 
 """
     function manji(; L1, L2, L3, w, s1, s2, ntri, units, a=0, w2=0, CCW=false, orient=0, kwargs...)
- 
+
 # Description:
 
 Create a variable of type `RWGSheet` that
 contains the triangulation for a "manji" (Japanese for swastica shape) type of geometry.
-The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`, 
+The returned value has fields `s₁`, `s₂`, `β₁`, `β₂`, `ρ`, `e1`, `e2`, `fv`, `fe`,
 and `fr` properly initialized.
 
 
@@ -307,26 +307,26 @@ All arguments are keyword arguments which can be entered in any order.
 ## Required arguments:
 - `L1`, `L2`, `L3`, `w`: Geometrical parameters defined in the diagram at
   ![https://simonp0420.github.io/PSSFSS.jl/stable/assets/manjidef.png](https://simonp0420.github.io/PSSFSS.jl/stable/assets/manjidef.png)
-  Note that if `a` ≤ `w` then the center square shown in the figure will not be present.  Similarly, if 
-  `L3` ≤ `2*w` then the bent portions of the arms will consist of a single strip of width `L3` 
+  Note that if `a` ≤ `w` then the center square shown in the figure will not be present.  Similarly, if
+  `L3` ≤ `2*w` then the bent portions of the arms will consist of a single strip of width `L3`
   (without any gap in the middle).
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
 - `ntri`:  The desired total number of triangles.  This is a guide/request, 
   the actual number will likely be different.
-    
+
 ## Optional arguments:
 - `a::Real=0`: A geometrical parameter defined in the above referenced diagram.  If `a` ≤ `w`
   then the center square shown in that figure will be absent, and the arms will continue uninterrupted
   to the center of the structure.
-- `w2::Real=0`: The width of the square ring border shown in 
+- `w2::Real=0`: The width of the square ring border shown in
   the above-referenced diagram.  If `w2` ≤ 0 the square ring will not be included in the triangulation.
   Note that `w2 > 0` is only allowed for square unit cells.
 - `L4`: The outer side length of the square ring border.  `0 < L4 ≤ norm(s1)`. If not specified,
-  when `w2 > 0`, the default value for `L4` is the unit cell square dimension. It is the user's 
+  when `w2 > 0`, the default value for `L4` is the unit cell square dimension. It is the user's
   responsibility to ensure that `L4` is large enough to prevent the square ring from interfering
-  with other parts of the `manji` structure.  
-- `CCW::Bool=false`: By default, the chiral structure has a clockwise sense.  If 
+  with other parts of the `manji` structure.
+- `CCW::Bool=false`: By default, the chiral structure has a clockwise sense.  If
   `CCW` is `true`, the structure will be counter-clockwise.
 - `orient::Real=0.0`:  Counterclockwise rotation angle in degrees applied to the structure within the
   unrotated unit cell.  Note that the outer square ring present when `w2 > 0` will not be rotated by
@@ -334,7 +334,7 @@ All arguments are keyword arguments which can be entered in any order.
 $(optional_kwargs)
 """
 function manji(; L1::Real, L2::Real, L3::Real, L4::Real=0.0, a::Real=0.0, w::Real, w2::Real=0.0,
-    s1::AbstractVector{<:Real}, s2=AbstractVector{<:Real}, CCW::Bool=false, 
+    s1::AbstractVector{<:Real}, s2=AbstractVector{<:Real}, CCW::Bool=false,
     ntri::Int, units::PSSFSSLength, orient::Real=0, kwarg...)
     kwargs = Dict{Symbol,Any}(kwarg)
     haskey(kwargs, :fufp) || (kwargs[:fufp] = true)
@@ -346,7 +346,7 @@ function manji(; L1::Real, L2::Real, L3::Real, L4::Real=0.0, a::Real=0.0, w::Rea
     @testpos(w)
     @testpos(ntri)
     length(s1) == length(s2) == 2 || error("s1 and s2 must be 2-vectors")
-    if w2 > 0 
+    if w2 > 0
         s1norm, s2norm = norm.((s1, s2))
         squnitcell = abs(s1 ⋅ s2) / (s1norm * s2norm) < 1e-10 && s1norm ≈ s2norm
         squnitcell || error("w2 > 0 not allowed unless unit cell is square")
@@ -372,7 +372,7 @@ function manji(; L1::Real, L2::Real, L3::Real, L4::Real=0.0, a::Real=0.0, w::Rea
         areaarm = (L2 - ymin) * w + L1 * L3
     end
     areat = (2*ymin)^2 + 4 * areaarm
-    if w2 > 0 
+    if w2 > 0
         areat += 4 * (L2 - w2) * w2
     end
 
@@ -428,7 +428,7 @@ function manji(; L1::Real, L2::Real, L3::Real, L4::Real=0.0, a::Real=0.0, w::Rea
         # Add outer ring
         xr = [-L4o2, -L4o2+w2, L4o2-w2, L4o2]
         yr = xr
-        oring_inside(x,y) = L4o2-w2 ≤ abs(x) ≤ L4o2 || L4o2-w2 ≤ abs(y) ≤ L4o2 
+        oring_inside(x,y) = L4o2-w2 ≤ abs(x) ≤ L4o2 || L4o2-w2 ≤ abs(y) ≤ L4o2
         arearing = 4 * (L4 * w2 - w2^2)
         ntriring = round(Int, ntri * arearing / areat)
         ring = make_plaid_mesh(xr, yr, arearing, ntriring, oring_inside)
@@ -509,7 +509,7 @@ function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_
         append!(tn, tr[i-1] .+ collect((1:nt) * (dt / nt)))
         tn[end] = tr[i] # correct rounding errors
     end
-    
+
     # xn and yn now contain the plaid vertex coordinates
     if quad
         # Add centerpoint values
@@ -523,7 +523,7 @@ function make_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri, is_
     facevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}, Tuple{Int,Int}}[]
     edgevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}}[]
 
-    # Add triangular faces and edges within the desired geometry.  Assumes that 
+    # Add triangular faces and edges within the desired geometry.  Assumes that
     # if the center of the rectangle is inside, then so are both triangles
     # partitioning that rectangle.
     irange = quad ? (3:2:length(xn)) : (2:length(xn))
@@ -593,7 +593,7 @@ _plain_rim_area(P, w) = 4 * (P * w - w^2)
 function _fancy_rim_area(P, w, c)
     qarea = 3 * _plain_rim_area(c, w) # corner squares
     qarea += 4 * w^2 # strips connecting corner squares
-    qarea += 2w * 
+    qarea += 2w *
         (
         (P/2 - (2c + 3w)) + # top horiz segment
         (c + 2w) + # vertical segment
@@ -621,7 +621,7 @@ function _squarerim(P::Real, w::Real, c::Real, ntri::Integer)
     @testpos(w)
     @testpos(ntri)
     Po2 = P / 2
-    plain_inside(x,y) = Po2-w ≤ abs(x) ≤ Po2 || Po2-w ≤ abs(y) ≤ Po2 
+    plain_inside(x,y) = Po2-w ≤ abs(x) ≤ Po2 || Po2-w ≤ abs(y) ≤ Po2
     function fancy_inside(x,y)
         x, y = abs.((x, y))  # (x,y) now in 1st quadrant
         y > x && ((x,y) = (y,x)) # (x,y) now in 1st octant
@@ -728,7 +728,7 @@ function make_sym_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri,
     facevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}, Tuple{Int,Int}}[]
     edgevs = Tuple{Tuple{Int,Int}, Tuple{Int,Int}}[]
 
-    # Add triangular faces and edges within the desired geometry.  Assumes that 
+    # Add triangular faces and edges within the desired geometry.  Assumes that
     # if the center of the rectangle is inside, then so are both triangles
     # partitioning that rectangle.
     for i in eachindex(xn)[begin+1:end]
@@ -773,11 +773,11 @@ function make_sym_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri,
     sh.fe = fe
 
     test_fefv(sh)
-    
+
     # Mirror in x:
     sh2 = deepcopy(sh)
     for i in eachindex(sh2.ρ)
-        sh2.ρ[i] = sh2.ρ[i] .* @SVector [-1, 1] 
+        sh2.ρ[i] = sh2.ρ[i] .* @SVector [-1, 1]
     end
     # Reverse order of face edges and nodes to stay CCW:
     for i in axes(sh2.fv, 2)
@@ -796,7 +796,7 @@ function make_sym_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri,
     # Now mirror in y
     sh2 = deepcopy(sh)
     for i in eachindex(sh2.ρ)
-        sh2.ρ[i] = sh2.ρ[i] .* @SVector [1, -1] 
+        sh2.ρ[i] = sh2.ρ[i] .* @SVector [1, -1]
     end
     # Reverse order of face edges and nodes to stay CCW:
     for i in axes(sh2.fv, 2)
@@ -817,4 +817,3 @@ function make_sym_plaid_mesh(xr::AbstractVector, yr::AbstractVector, area, ntri,
     return sh
 
 end
-

@@ -18,8 +18,8 @@ const SV2 = SVector{2,Float64}
 abstract type Sheet end
 
 """
-    RWGSheet 
-A type that represents a zero-thickness sheet of periodically patterned metalization.  Particular instances 
+    RWGSheet
+A type that represents a zero-thickness sheet of periodically patterned metalization.  Particular instances
 are created by calling a constructor function for a specific type of sheet geometry.  These include:
 `diagstrip`, `jerusalemcross`, `loadedcross`, `manji`, `meander`, `pecsheet`, `pmcsheet`, `polyring`,
 `rectstrip`, `sinuous`, and `splitring`.
@@ -68,7 +68,7 @@ mutable struct RWGSheet <: Sheet
     fufp::Bool
     σ::Float64 # Bulk, DC conductivity for J-class surfaces [S/m].  If < 0, ignore it.
     Rq::Float64 # RMS surface roughness for J-class [m]
-    disttype::Symbol # :normal or :rayleigh 
+    disttype::Symbol # :normal or :rayleigh
     Zs::ComplexF64 # Surface impedance [Ω] for J-class. If σ₀ > 0, recompute for each frequency.
 end # struct
 import Base.==
@@ -105,7 +105,7 @@ RWGSheet() = RWGSheet("", u"mm",            # style, units
 
 """
     nodecount(s::RWGSheet)
-    
+
 Return the number of unique triangle vertices in the `RWGSheet` triangulation.
 """
 nodecount(s::RWGSheet) = length(s.ρ)
@@ -113,7 +113,7 @@ nodecount(s::RWGSheet) = length(s.ρ)
 
 """
     facecount(s::RWGSheet)
-    
+
 Return the number of triangle faces in the `RWGSheet` triangulation.
 """
 facecount(s::RWGSheet) = size(s.fv, 2)
@@ -121,7 +121,7 @@ facecount(s::RWGSheet) = size(s.fv, 2)
 
 """
     edgecount(s::RWGSheet)
-    
+
 Return the number of triangle edges in the `RWGSheet` triangulation.
 """
 edgecount(s::RWGSheet) = length(s.e1)
@@ -132,7 +132,7 @@ function Base.show(io::IO, ::MIME"text/plain", s::RWGSheet)
     elseif s.class == 'H'
         print(io, "RWGSheet: perfect magnetic conducting wall")
     else
-        if s.σ > 0 
+        if s.σ > 0
             print(io, "RWGSheet: style=", s.style, ", class=", s.class, ", ", nodecount(s), " nodes, ", edgecount(s),
             " edges, ", facecount(s), " faces, σ=", s.σ, " S/m, Rq=", s.Rq, " m (:", s.disttype, ")")
         else
@@ -144,7 +144,7 @@ end
 
 """
     read_sheet_data(filename::AbstractString)::RWGSheet
-    
+
 Read the sheet triangulation and unit cell data from a `JLD2` file named in `filename`.
 """
 function read_sheet_data(filename::AbstractString)::RWGSheet
@@ -222,13 +222,13 @@ end
 
 
 """
-    find_unique_periods(junction::Vector{Int}, sheets) 
+    find_unique_periods(junction::Vector{Int}, sheets)
 
 Find the unique unit cells for the sheets used in the FSS analysis.
 
 # Arguments
-- `junction`:  An integer array of length `(Nlayer-1)` containing 
-               in location `i` the index of the FSS sheet located 
+- `junction`:  An integer array of length `(Nlayer-1)` containing
+               in location `i` the index of the FSS sheet located
                at the interface of dielectric layers `i` and `i+1`. If
                no sheet is present there, the value is 0.
 - `sheets`:     An iterable that contains the FSS sheets.
@@ -297,7 +297,7 @@ end
 """
     orient!(sh::RWGSheet, rot::Real, center::AbstractVector)
 
-Rotate a sheet by rot degrees (counter-clockwise) about the point specified by `center`.  
+Rotate a sheet by rot degrees (counter-clockwise) about the point specified by `center`.
 Only the content of the unit cell (the triangulation) is rotated.  The unit cell is left unchanged.
 """
 function orient!(sh::RWGSheet, rot::Real, center::AbstractVector)
@@ -332,9 +332,9 @@ end
 Combine the triangulations stored in sheets `sh1` and `sh2`.
 
 # Arguments:
-- `sh1`, `sh2`:  sheets having 
-              initialized values for fields `units`, `ρ`, 
-              `e1`, `e2` `fv`, `fe`, and possibly `fr`.  It is assumed 
+- `sh1`, `sh2`:  sheets having
+              initialized values for fields `units`, `ρ`,
+              `e1`, `e2` `fv`, `fe`, and possibly `fr`.  It is assumed
               that the two triangulations do not overlap except possibly
               along a line defined by `dup_coor` and `dup_coor_value`,
               as discussed below.  If they do coincide along such
@@ -349,12 +349,12 @@ Combine the triangulations stored in sheets `sh1` and `sh2`.
 - `dup_coor_value`  The value of the coordinate at which the two
               input triangulations overlap.
 # Return value
-- `sh3`         A `RWGSheet` instance with the following member arrays 
+- `sh3`         A `RWGSheet` instance with the following member arrays
                 initialized: `units`, `ρ`, `ec`, `fv`, `fe`, and `fr`.
 """
 function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::Real)
     sh1.units == sh2.units || error("Inconsistent units for sh1 and sh2")
-    # Count number of vertices located at the duplicate coordinate.  
+    # Count number of vertices located at the duplicate coordinate.
     # Save vertex indices of matching points in vcen1 and vcen2
     #
     Nv1 = length(sh1.ρ)
@@ -439,7 +439,7 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
     if dup_coor == ' '
         sh3.ρ[(1+Nv1):end] = sh2.ρ
     else
-        i2 = 1 + Nv1  # Node counter 
+        i2 = 1 + Nv1  # Node counter
         for i in 1:Nv2
             if !(i in vcen2)
                 sh3.ρ[i2] = sh2.ρ[i]
@@ -447,7 +447,7 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
             end
         end
     end
-  
+
     # Copy edge-node matrices
     eoffset = Ne1
     voffset = Nv1
@@ -463,7 +463,7 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
         for i in eachindex(sh2.e1, sh2.e2, sh3e1new, sh3e2new)
             if i ∉ ecen2 # Edges in ecen2 will be removed later
                 i2 = findfirst(==(sh2.e1[i]), vcen2)
-                if isnothing(i2) 
+                if isnothing(i2)
                     # ordinary point not on shared border:
                     sh3e1new[i] -= count(<(sh2.e1[i]), vcen2)
                 else
@@ -472,7 +472,7 @@ function combine(sh1::RWGSheet, sh2::RWGSheet, dup_coor::Char, dup_coor_value::R
                 end
                 #
                 i2 = findfirst(==(sh2.e2[i]), vcen2)
-                if isnothing(i2) 
+                if isnothing(i2)
                     # ordinary point not on shared border:
                     sh3e2new[i] -= count(<(sh2.e2[i]), vcen2)
                 else
@@ -533,7 +533,7 @@ end
 """
     recttri(rhobl::SVector{2,Float64}, rhotr::SVector{2,Float64}, nx::Int, ny::Int)
 
-Create a variable of type `RWGSheet` that contains the triangulation for 
+Create a variable of type `RWGSheet` that contains the triangulation for
 a rectangular strip.  The fields `ρ`, `e1`, `e2`, `fv`, and `fe` properly initialized.
 """
 function recttri(rhobl::SV2, rhotr::SV2, nx::Int, ny::Int)
@@ -587,7 +587,7 @@ function recttri(rhobl::SV2, rhotr::SV2, nx::Int, ny::Int)
         end
     end
 
-    # Done with edges.  Begin setting up faces. 
+    # Done with edges.  Begin setting up faces.
     # Allocate arrays whose length depends only on the number of faces:
     sh.fv = zeros(Int, 3, facecount)
     sh.fe = zeros(Int, 3, facecount)

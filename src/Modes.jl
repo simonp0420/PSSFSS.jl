@@ -19,26 +19,26 @@ const MNmax_default = 6
 
     #
 Set up the arrays of modal indices `M`, `N`, and `P` for all layers not included
-in `Gblock`s given the wavenumber at the maximum operating frequency `k0max`,  
-the list of layers and sheets `strata`, the list of `Gblock`s `gbl`, and the 
+in `Gblock`s given the wavenumber at the maximum operating frequency `k0max`,
+the list of layers and sheets `strata`, the list of `Gblock`s `gbl`, and the
 desired minimum attenuation `dbmin` for each neglected mode to encounter
-when passing through the layer.  Also, allocate the arrays `β`, `γ`, `Y`, 
-`c`, and `tvec` for each of the excluded layers.  Note that the modes are not 
-necessarily defined consistently in each layer because the periodicity of the 
-multiple FSS/PSS sheets may not all be identical.  Therefore, we store the β₁ 
-and β₂ reciprocal lattice vectors for each layer in the `Layer` type and use 
+when passing through the layer.  Also, allocate the arrays `β`, `γ`, `Y`,
+`c`, and `tvec` for each of the excluded layers.  Note that the modes are not
+necessarily defined consistently in each layer because the periodicity of the
+multiple FSS/PSS sheets may not all be identical.  Therefore, we store the β₁
+and β₂ reciprocal lattice vectors for each layer in the `Layer` type and use
 these values to define the periodicity for the modes in a given layer.
 
 ## Arguments
 
-- `layers`: A vector of Layer objects. It is assumed that for each `Layer` not included in a `Gblock`, 
-the permeability and permittivity have been correctly initialized.  On exit, these same excluded layers 
-will have fields `β₁` and `β₂` appropriately set, and will have the arrays `β`, `γ`, `Y`, 
+- `layers`: A vector of Layer objects. It is assumed that for each `Layer` not included in a `Gblock`,
+the permeability and permittivity have been correctly initialized.  On exit, these same excluded layers
+will have fields `β₁` and `β₂` appropriately set, and will have the arrays `β`, `γ`, `Y`,
 `c`, and `tvec` allocated for the  appropriate number of modes.
 
 - `sheets`: A vector of Sheet objects.
 
-- `junc`: An integer vector.  `junc[k]` contains the sheet number located at junction `k` or `0` if 
+- `junc`: An integer vector.  `junc[k]` contains the sheet number located at junction `k` or `0` if
   no sheet is present.
 
 - `gbl`: An collection of `Gblock`s containing the definitions of the GSM block entities.
@@ -66,7 +66,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
         @label nexti
     end
 
-    # Possible mode indices m and n will range from -MNmax to MNmax,for a total of 2(2MNmax+1)^2 
+    # Possible mode indices m and n will range from -MNmax to MNmax,for a total of 2(2MNmax+1)^2
     # modes in the layer (first factor of 2 is for both TE/TM).
     mset = falses(nl)  # Indicates that modes have not been determined yet for any layers
     for g in gbl  # Don't need to set modes for layers included in a Gblock
@@ -96,8 +96,8 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
         last_gbl = findlast(x -> !iszero(x.j) && sheets[junc[x.j]].style ≠ "NULL", gbl)
         last_sheet = junc[gbl[last_gbl].j] # sheet index
         first_gbl = findfirst(x -> !iszero(x.j) && sheets[junc[x.j]].style ≠ "NULL", gbl)
-        first_sheet = junc[gbl[first_gbl].j] # sheet index 
-        # Assign equivalence class numbers to the interfaces based on the 
+        first_sheet = junc[gbl[first_gbl].j] # sheet index
+        # Assign equivalence class numbers to the interfaces based on the
         # unit cell of the sheet located there:
         upa = find_unique_periods(junc, sheets)
         # Treat all unassigned layers that are adjacent to a gbl containing an FSS screen:
@@ -115,7 +115,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
             i2 = 1 + g.rng[end] # Index of layer to right of current GBLOCK.
             for i in [i1, i2]
                 (i == 1 || i == nl) && continue  # Skip boundary layers.
-                # Determine neighboring gblock to the outside: 
+                # Determine neighboring gblock to the outside:
                 if i == i1
                     igbl_other = max(igbl - 1, 1)
                 else
@@ -162,9 +162,9 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
         end # for
 
 
-        # At this point, all layers adjacent to a Gblock containing an FSS sheet have 
-        # been assigned modes.  Now we assign mode index values to the remaining layers 
-        # by stepping inwards from the already assigned layers. Loop until all 
+        # At this point, all layers adjacent to a Gblock containing an FSS sheet have
+        # been assigned modes.  Now we assign mode index values to the remaining layers
+        # by stepping inwards from the already assigned layers. Loop until all
         # layers are assigned.
         while any(.!mset[2:nl-1])
             for i in 2:nl-1  # Step over each layer
@@ -196,8 +196,8 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
                         if length(layers[i-1].P) ≠ 2 || length(layers[i+1].P) ≠ 2
                             @logfile """
                             ******************* Warning ***********************
-                                Setting # modes in Layer $(i) to 2 due to 
-                                unequal unit cells in surrounding FSS sheets 
+                                Setting # modes in Layer $(i) to 2 due to
+                                unequal unit cells in surrounding FSS sheets
                             ******************* Warning ***********************
 
                             """
@@ -230,7 +230,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
         end
         mset[1] = mset[nl] = true
 
-        # Ensure that any adjacent non-gblock layers either have the same 
+        # Ensure that any adjacent non-gblock layers either have the same
         # periodicity or have only dominant modes:
         inagblock = reduce(union, (g.rng[2:end] for g in gbl)) # layer indices in Gblocks
         notinablock = sort(setdiff(1:nl, inagblock))
@@ -246,7 +246,7 @@ function choose_layer_modes!(layers::Vector{Layer}, sheets::Vector{RWGSheet}, ju
             @logfile """
             ******************* Warning ***********************
                 Setting # modes in layers $(il) and $(il+1) to 2 due
-                to unequal unit cells in surrounding FSS sheets 
+                to unequal unit cells in surrounding FSS sheets
             ******************* Warning ***********************
 
             """
@@ -279,23 +279,23 @@ end
     setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector, β̂default::AbstractVector)
 
 Fill the modal layer fields.  Needed for layers not contained in a Gblock.
-The arrays are assumed to have  been already allocated, and the index arrays 
+The arrays are assumed to have  been already allocated, and the index arrays
 `M`, `N`, and `P` are asssumed to have been already initialized.
 
 ### Input arguments
 
-- `layer`: It is assumed that the `ϵᵣ`, `μᵣ`, `β₁`, and `β₂` have been 
+- `layer`: It is assumed that the `ϵᵣ`, `μᵣ`, `β₁`, and `β₂` have been
     initialized, as have the modal index arrays `P`, `M`, and `N`.
 - `k0`: Free-space wavenumber (1/meter).
 - `kvec`: A real-valued 2-vector containing the x and y components of the incident
-    plane wave unit vector that defines the unit cell incremental 
+    plane wave unit vector that defines the unit cell incremental
     phase shifts.
 - `β̂default`: Region 1 incident unit tangential wave vector that depends correctly on ϕ in all cases.
 
 ### Outputs
 
 There is no explicit output, but the fields of `layer` will be modified, including
-`β`, `tvec`, `γ`, `c`, and `Y`. 
+`β`, `tvec`, `γ`, `c`, and `Y`.
 """
 function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector, β̂default::AbstractVector)
     β₀₀ = SVector(kvec[1], kvec[2])
@@ -306,7 +306,7 @@ function setup_modes!(layer::Layer, k0::Real, kvec::AbstractVector, β̂default:
         m, n, p = layer.M[mode], layer.N[mode], layer.P[mode]
         β = β₀₀ + m * β₁ + n * β₂
         β² = β ⋅ β
-        if β² * area < 1e-14 
+        if β² * area < 1e-14
             β̂ = copy(β̂default)
         else
             β̂ = β / norm(β)
@@ -361,9 +361,9 @@ end
     fill_mmax_pmn!(layer::Layer, MNmax::Int, k0max, dbmin)
 
 Fill the `layer` modal index arrays `M`, `N`, and `P` given the `layer`
-material parameters and reciprocal lattice vectors, the wavenumber `k0max` 
-at the maximum analysis frequency, and the minimum desired attenuation in dB 
-`dbmin` for the neglected modes. `MNmax` is the maximum ring number in the 
+material parameters and reciprocal lattice vectors, the wavenumber `k0max`
+at the maximum analysis frequency, and the minimum desired attenuation in dB
+`dbmin` for the neglected modes. `MNmax` is the maximum ring number in the
 mode lattice to consider.
 """
 function fill_mmax_pmn!(layer::Layer, MNmax::Int, k0max, dbmin)
@@ -390,8 +390,8 @@ end
 
 Select the accessible modes from among the candidates provided
 in the `layer`. A mode is considered not accessible if it undergoes more
-than `dbmin` decibels of attenuation when propagating/attenuating through 
-the thickness of dielectric substrate `layer` at the highest frequency of 
+than `dbmin` decibels of attenuation when propagating/attenuating through
+the thickness of dielectric substrate `layer` at the highest frequency of
 operation, for any possible angle of incidence of the plane-wave that excites
 the FSS structure.
 

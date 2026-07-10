@@ -16,7 +16,7 @@ oldlogger = global_logger(testlogger)
 """
     grating(kP, nterms=30) -> (Γ, T)
 
-Compute the normal incidence reflecton and transmission coefficients of a symmetric grid of 
+Compute the normal incidence reflecton and transmission coefficients of a symmetric grid of
 zero-thickness conducting strips.  The product of the period of the strips and the incident
 electric field wavenumber is `kP` (dimensionless).  The incident electric field is perpendicular
 to the direction along the axis of the strips.  The formula is from Problem 10.6 of Collin,
@@ -26,7 +26,7 @@ inverse sin function.  `kP` must be in the half-open interval [0,1). The default
 terms `nterms` yeilds better than 10 digits of accuracy over the interval [0.01,0.99].
 """
 function grating(kP; nterms=30)
-    sum1 = 1.3862943611198906 # \sum_{n=1}^{\infty} 1/(n-1/2) - 1/n = log(4) 
+    sum1 = 1.3862943611198906 # \sum_{n=1}^{\infty} 1/(n-1/2) - 1/n = log(4)
     sum3 = 7.2123414189575710 # \sum_{n=1}^{\infty} (n-1/2)^{-3} - n^{-3} = 6 * \zeta(3)
     x = kP / (4π)
     θ = x * sum1 + x^3 / 6 * sum3

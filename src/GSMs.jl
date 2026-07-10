@@ -70,21 +70,21 @@ end
 """
     Gblock <: Any
 
- 
+
      Gblock(rng::UnitRange{Int}, j::Int)
 
 `Gblock` constructor.
 The `Gblock` type is used to represent GSMblocks. A GSMblock is a contiguous portion
 of the composite FSS structure for which a single GSM (generalized scattering
-matrix) is defined and computed. A GSMblock may consist of a single dielectric 
+matrix) is defined and computed. A GSMblock may consist of a single dielectric
 interface plane (with or without FSS sheet present), or it may consist
-of multiple, adjacent interface planes and the intervening dielectric 
+of multiple, adjacent interface planes and the intervening dielectric
 layers.  In the latter case, there must be an FSS sheet present at exactly
 one of the interface planes within the GSMblock. Note
 that interface plane k is located between layers k and k+1, so that
 there are N-1 interface planes in a FSS structure consisting of N
 dielectric layers.
-   
+
 # Arguments
 - `rng`: Specifies the interface planes contained in the `Gblock`. `rng` must
          not be empty, and its initial and final values must be between `1`
@@ -122,7 +122,7 @@ Cascade a pair of generalized scattering matrices (GSMs).
 
 ## Input arguments
 
-- `a`, `b`:  variables containing the input GSMs that are to be cascaded.  The matrices 
+- `a`, `b`:  variables containing the input GSMs that are to be cascaded.  The matrices
 must be conformable, i.e., `n2a == n1b`, where `n2a` is the number of modes in Region
 2 for GSM `a`, and `n1b` is the number of modes in Region 1 of GSM `b`.
 """
@@ -145,11 +145,11 @@ end
 """
     cascade!(a::GSM, layer::Layer, t=NaN)
 
-Cascade a GSM (generalized scattering matrix) on the left with a 
+Cascade a GSM (generalized scattering matrix) on the left with a
 dielectric slab on the right. On exit, `a` is modified. `t` is an
-layer thickness in layer units.  If not passed or set to `NaN`, 
+layer thickness in layer units.  If not passed or set to `NaN`,
 the thickness given in the `layer` variable is used.  It is assumed that
-the modes corresponding to the side `2` ports of the GSM are already properly 
+the modes corresponding to the side `2` ports of the GSM are already properly
 defined (i.e. normalized) consistent with the dielectric slab electrical properties.
 """
 function cascade!(a::GSM, layer::Layer, t=NaN)
@@ -183,14 +183,14 @@ zdotcross(a, b) = a[1] * b[2] - a[2] * b[1]
 """
     gsm_electric_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Float64) -> (gsm, tlgfvi, vincs)
 
-Calculate the partial GSM (generalized scattering matrix) due to incident fields of a 
-`Gblock` containing a single electric-type FSS surface.  Also compute the quantities 
+Calculate the partial GSM (generalized scattering matrix) due to incident fields of a
+`Gblock` containing a single electric-type FSS surface.  Also compute the quantities
 from Section 6.2 of the theory documentation needed to compute incident and scattered fields.
 
 ## Arguments
 
 - `layers`:  Contains the layer parameters for the cascade structure.  Note that the first
-   and last layer's thicknesses are not accounted for in this function.  They are assumed 
+   and last layer's thicknesses are not accounted for in this function.  They are assumed
    to be semi-infinite.
 - `s`: Interface number (within layers) at which the FSS is located.
 - `k0`: Free-space wavenumber in rad/m.
@@ -200,13 +200,13 @@ from Section 6.2 of the theory documentation needed to compute incident and scat
 - `gsm::GSM`: A variable containing the portion of the generalized scattering matrix due
     to incident fields.
 
-- `tlgfvi::Matrix{ComplexF64}`: `tlgfvi` is the voltage transmission line Green's function 
-    (TLGF) due to a unit current. `tlgfvi[q,1]` is the TLGF for mode `q` of Region 1, with 
-    source at ``z=z_s`` and observation point at ``z=z_1``. `tlgfvi[q,2]` is the TLGF for 
-    mode `q` of Region N, with source at ``z=z_s`` and observation point at ``z=z_{N-1}``. 
+- `tlgfvi::Matrix{ComplexF64}`: `tlgfvi` is the voltage transmission line Green's function
+    (TLGF) due to a unit current. `tlgfvi[q,1]` is the TLGF for mode `q` of Region 1, with
+    source at ``z=z_s`` and observation point at ``z=z_1``. `tlgfvi[q,2]` is the TLGF for
+    mode `q` of Region N, with source at ``z=z_s`` and observation point at ``z=z_{N-1}``.
 - `vincs::Matrix{ComplexF64}`: `vincs` is the transmission line voltage evaluated at ``z = z_s``
     due to a Thevenin voltage source ``V_g = 2`` at either the left (``z=z_1``) or right (``z=z_{N-1}``)
-    ends of the equivalent circuit.   `vincs[q,1]` is the voltage for mode `q` with source at ``z=z_1``, 
+    ends of the equivalent circuit.   `vincs[q,1]` is the voltage for mode `q` with source at ``z=z_1``,
     `vincs[q,2]` is the voltage for mode `q` with the source at ``z=z_{N-1}``.
 """
 function gsm_electric_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Float64)
@@ -228,8 +228,8 @@ function gsm_electric_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Floa
 
 
     # Compute square root of the ratio of the Region 1 and Region n
-    # unit cell areas.  This is needed to account for the fact that the 
-    # two regions may not employ the same lattice to define their modes, 
+    # unit cell areas.  This is needed to account for the fact that the
+    # two regions may not employ the same lattice to define their modes,
     # hence the mode normalizations may not be compatible.
     root_area1oN = sqrt(abs(
         zdotcross(layers[N].β₁, layers[N].β₂) / zdotcross(layers[1].β₁, layers[1].β₂)))
@@ -373,7 +373,7 @@ end
     gsm_magnetic_gblock(layers::Vector{Layer}, s::Integer, k0::Float64) -> (gsm, tlgfiv, iincs)
 
 Calculate the GSM (generalized scattering matrix) of a `GBLOCK` containing a single magnetic-type
-FSS surface.  Also compute the quantities from Section 6.3 of the theory documentation needed to 
+FSS surface.  Also compute the quantities from Section 6.3 of the theory documentation needed to
 compute incident and scattered fields.
 
 ## Arguments
@@ -387,14 +387,14 @@ compute incident and scattered fields.
 
 - `gsm::GSM`: A variable containing the generalized scattering matrix initialized by this function.
 
-- `tlgfiv::Matrix{ComplexF64}` `tlgfiv` is the current transmission line Green's function 
- (TLGF) due to a unit voltage. `tlgfiv[q,1]` is the TLGF for mode `q` of Region 1, with source 
-at ``z=z_s`` and observation point at ``z=z_1``. `tlgfvi[q,2]` is the TLGF for mode `q` of 
-Region N, with source at ``z=z_s`` and observation point at ``z=z_{N-1}``. 
+- `tlgfiv::Matrix{ComplexF64}` `tlgfiv` is the current transmission line Green's function
+ (TLGF) due to a unit voltage. `tlgfiv[q,1]` is the TLGF for mode `q` of Region 1, with source
+at ``z=z_s`` and observation point at ``z=z_1``. `tlgfvi[q,2]` is the TLGF for mode `q` of
+Region N, with source at ``z=z_s`` and observation point at ``z=z_{N-1}``.
 
 - `iincs::Matrix{ComplexF64}`: `iincs` is the transmission line current evaluated at ``z = z_s``
 due to a Norton current source ``I_g = 2`` at either the left (``z=z_1``) or right (``z=z_{N-1}``)
-ends of the equivalent circuit.   `iincs[q,1]` is the current for mode `q` with source at ``z=z_1``, 
+ends of the equivalent circuit.   `iincs[q,1]` is the current for mode `q` with source at ``z=z_1``,
 `iincs[q,2]` is the voltage for mode `q` with the source at ``z=z_{N-1}``.
 """
 function gsm_magnetic_gblock(layers::AbstractVector{Layer}, s::Integer, k0::Float64)
@@ -552,10 +552,10 @@ function gsm_slab_interface(L1::Layer, L2::Layer, k0)
     for i1 in 1:n1
         Y1 = L1.Y[i1]  # Obtain source modal admittance.
         # We now require the modal admittance for the corresponding
-        # mode in Region 2. This, however, is not guaranteed to exist 
-        # since we don't necessarily define the same sets of modes in all 
+        # mode in Region 2. This, however, is not guaranteed to exist
+        # since we don't necessarily define the same sets of modes in all
         # regions.  Therefore, we search for it on the other side,
-        # but if it doesn't exist, we have to compute the modal 
+        # but if it doesn't exist, we have to compute the modal
         # admittance on the fly.
 
         # Locate identical mode in region 2:
@@ -587,10 +587,10 @@ function gsm_slab_interface(L1::Layer, L2::Layer, k0)
     for i2 in 1:n2
         Y2 = L2.Y[i2]  # Obtain source modal admittance.
         # We now require the modal admittance for the corresponding
-        # mode in Region 1. This, however, is not guaranteed to exist 
-        # since we don't necessarily define the same sets of modes in all 
+        # mode in Region 1. This, however, is not guaranteed to exist
+        # since we don't necessarily define the same sets of modes in all
         # regions.  Therefore, we search for it on the other side,
-        # but if it doesn't exist, we have to compute the modal 
+        # but if it doesn't exist, we have to compute the modal
         # admittance on the fly.
 
         # Locate identical mode in region 1:
@@ -621,9 +621,9 @@ function gsm_slab_interface(L1::Layer, L2::Layer, k0)
 end # function
 
 """
-    initialize_gsm_file(fname::AbstractString, layer1::Layer, layer2::Layer, sh1::Sheet, sh2::Sheet) 
+    initialize_gsm_file(fname::AbstractString, layer1::Layer, layer2::Layer, sh1::Sheet, sh2::Sheet)
 
-Initialize a generalized scattering matrix (GSM) file, by appending the GSM-specific 
+Initialize a generalized scattering matrix (GSM) file, by appending the GSM-specific
 header info, including the unit cell data.  The file is stored in `JLD2` format.
 
 
@@ -631,7 +631,7 @@ header info, including the unit cell data.  The file is stored in `JLD2` format.
 
 - `fname`: A string containing the file name to open.  The file will be closed after writing.
 - `layer1`, `layer2`:  These provide the mode indices for the input and output regions.
-- `sh1`, `sh2`: `SHEET` objects from which the unit 
+- `sh1`, `sh2`: `SHEET` objects from which the unit
          cell info for the input and output regions will be extracted.  These two arguments
     are optional, but if either is present the other must be also.  If they are absent, then
     a square unit cell of dimension 1 meter will be used for both input and output regions.
@@ -667,7 +667,7 @@ end
 """
     append_gsm_data(fname::AbstractString, gname::String, gsm::GSM, l1::Layer, l2::Layer, case::Dict{String,Float64})
 
-Append a block of GSM data to a GSM file for a particular frequency and pair of scan parameters.  It is 
+Append a block of GSM data to a GSM file for a particular frequency and pair of scan parameters.  It is
 assumed that the file has already been initialized by a previous call to `initialize_gsm_file`.
 
 ## Arguments
@@ -678,7 +678,7 @@ via a call to `initialize_gsm_file`.
 - `gsm`:  The GSM data to be written to the file.
 - `l1`, `l2`: `Layer` data for the input and output regions containing the permeability and permittivity information
 to be written to the file.
-- `case`: A dictionary containing three key-value pairs which together fully define the frequency/scan case. 
+- `case`: A dictionary containing three key-value pairs which together fully define the frequency/scan case.
 The keys are "FGHz" and either ("θ" and "ϕ") or ("ψ₁" and "ψ₂").
 """
 function append_gsm_data(fname::AbstractString, gname::String, gsm::GSM, l1::Layer, l2::Layer, case::Dict{String,Float64})
@@ -701,18 +701,18 @@ end
 """
     translate_gsm!(g::GSM, dx::Real, dy::Real, layer1::Layer, layer2::Layer)
 
-Convert `GSM` `g` into one for an identical structure that is translated by 
-`dx` meters in x and `dy` meters in y. `layer1` and `layer2` define the modes 
+Convert `GSM` `g` into one for an identical structure that is translated by
+`dx` meters in x and `dy` meters in y. `layer1` and `layer2` define the modes
 on each side of the GSM.
 
 ## Arguments:
 
 - `g`: On input contains the GSM for a device with zero x and y translation. After
    return, `g` will be modified by applying appropriate phase shifts due to translation,
-   according the to the formula presented in John C. Vardaxoglou, "Frequency Selective Surfaces", 
+   according the to the formula presented in John C. Vardaxoglou, "Frequency Selective Surfaces",
    Wiley, 1997, Eq. (7.57).
 - `dx`, `dy`:   The translations in the x and y directions in meters.
-- `layer1`, `layer2`:  The β components of these variables are used with 
+- `layer1`, `layer2`:  The β components of these variables are used with
     `dx` and `dy` to determine the effect of the translation.
 """
 function translate_gsm!(g, dx, dy, layer1, layer2)
@@ -754,7 +754,7 @@ end
 """
     choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::Vector{Int}, k0min::Float64) -> gbl::Vector{Gblock}
 
-Set up gbl, the array of GBLOCKs the defines the basic GSM building 
+Set up gbl, the array of GBLOCKs the defines the basic GSM building
 blocks for the FSS structure.
 
 ## Input arguments:
@@ -783,7 +783,7 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
 
     # Compute min. electrical length of each layer:
     elength = [k0min * l.width * sqrt(real(l.ϵᵣ * l.μᵣ)) for l in layers]
-    sint = findall(junc .≠ 0) # sint[k] contains dielectric interface number of k'th sheet 
+    sint = findall(junc .≠ 0) # sint[k] contains dielectric interface number of k'th sheet
     upa = find_unique_periods(junc, sheets)
 
     # Initialize junction ownerships to self:
@@ -806,7 +806,7 @@ function choose_gblocks(layers::Vector{Layer}, sheets::Vector{RWGSheet}, junc::V
 
     # Loop over each adjacent pair of junctions stored in sint:
     for i in 1:ns-1
-        j1, j2 = sint[i], sint[i+1]   # Interface 
+        j1, j2 = sint[i], sint[i+1]   # Interface
         ## to do:  check here if j2-j1==1, and periods are different
         Nwide = count(>(min_elength), @view elength[(1+j1):j2]) # Numb. of wide enough intervening layers
         if Nwide > 0  # step into the region from each end and assign ownership
@@ -870,12 +870,12 @@ end
 
 """
     find_mode_index(p::TEorTM, m::Int, n::Int, layer::Layer)
-    
+
 Find the index of the mode (p,m,n).
 
 ## Arguments
 
-- `p`, `m`, `n`: Mode indices. 
+- `p`, `m`, `n`: Mode indices.
 - `layer`: An instance of Layer with modes initialized.
 
 ## Return Value

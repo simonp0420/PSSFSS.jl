@@ -57,7 +57,7 @@ Fill the generalized impedance matrix for an FSS of electric current type.
 - `u`:  Green's function smoothing factor (1/meter).
 - `layers`:  An array characterizing the dielectric layers surrounding the FSS sheet.
 - `s`:  An integer indexing the interface within layers at which the FSS
-          sheet is located. `s=1` implies the sheet is between `layers[1]` and 
+          sheet is located. `s=1` implies the sheet is between `layers[1]` and
           `layers[2]`, etc.
 - `ψ₁`,`ψ₂`:  Variables containing the unit cell incremental phase shifts (radians).
 - `metal`:  A variable which characterizes the metalization region of the FSS/PSS.
@@ -65,9 +65,9 @@ Fill the generalized impedance matrix for an FSS of electric current type.
 
 ## Return value
 
-- `zmat`: Complex array of size `(Nbf,Nbf)`, where `Nbf` is the 
-          number of basis functions. On exit, this array will have been 
-          filled with the generalized impedance matrix of the moment 
+- `zmat`: Complex array of size `(Nbf,Nbf)`, where `Nbf` is the
+          number of basis functions. On exit, this array will have been
+          filled with the generalized impedance matrix of the moment
           method formulation.
 
 """
@@ -153,7 +153,7 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
         rs = vtxcrd(ifs, metal) ./ units_per_meter
         rm = vtxcrd(ifm, metal) ./ units_per_meter  # Coords (m) of the match tri. vertices.
         rmc = mean(rm)        # Match face centroid (meters).
-        # Perform frequency-dependent integrals over source triangle 
+        # Perform frequency-dependent integrals over source triangle
         (metal.I1[iufp], metal.I1_ξ[iufp], metal.I1_η[iufp], metal.I2[iufp]) = zint(Σm1_func, Σm2_func, rs, rmc)
     end
     t2 = time_ns()
@@ -200,7 +200,7 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
                 ρc2 = 0.5 * (rmc - rm_opp)
 
                 iufp = rwgdat.ufpm[mf, sf] # Obtain unique face pair index
-        
+
                 # Recall the spatial face integrals:
                 I1 = metal.I1[iufp]; I1_ξ = metal.I1_ξ[iufp]; I1_η = metal.I1_η[iufp]
                 I2 = metal.I2[iufp]
@@ -211,7 +211,7 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
                 J_ζ = J - J_ξ - J_η
                 K_ζ = K - K_ξ - K_η
 
-                # Compute singular contribution for this edge (the middle term in 
+                # Compute singular contribution for this edge (the middle term in
                 # square brackets in Equation (7-21) using (B.2):
                 Asing = ρ_r + u * rinv * (rmc - rs_opp)
 
@@ -233,7 +233,7 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
                 zmat[mbf, sbf] += match_flag * (jω * dotprod - Φ_i)
 
                 # Add surface loading, if applicable:
-                if sf == mf && !iszero(Zs)  
+                if sf == mf && !iszero(Zs)
                     ρ2s = metal.ρ[metal.e2[se]] / units_per_meter
                     ρ1s = metal.ρ[metal.e1[se]] / units_per_meter
                     ls = norm(ρ2s - ρ1s)
@@ -275,7 +275,7 @@ Fill the generalized admittance matrix for an FSS of magnetic current type.
 - `u`:  Green's function smoothing factor (1/meter).
 - `layers`:  An array characterizing the dielectric layers surrounding the FSS sheet.
 - `s`:  An integer indexing the interface within layers at which the FSS
-          sheet is located. `s=1` implies the sheet is between `layers[1]` and 
+          sheet is located. `s=1` implies the sheet is between `layers[1]` and
           `layers[2]`, etc.
 - `ψ₁`,`ψ₂`:  Variables containing the unit cell incremental phase shifts (radians).
 - `apert`:  A variable which characterizes the aperture region of the FSS/PSS.
@@ -283,9 +283,9 @@ Fill the generalized admittance matrix for an FSS of magnetic current type.
 
 ## Return value
 
-- `ymat`: Complex array of size `(Nbf,Nbf)`, where `Nbf` is the 
-          number of basis functions. On exit, this array will have been 
-          filled with the generalized admittance matrix of the moment 
+- `ymat`: Complex array of size `(Nbf,Nbf)`, where `Nbf` is the
+          number of basis functions. On exit, this array will have been
+          filled with the generalized admittance matrix of the moment
           method formulation.
 
 """
@@ -333,7 +333,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
     KFfact = (c3s * ϵᵣ₁ + c3sp1 * ϵᵣ₂) / (2 * ϵ̄ * u)
     I2fact = π * μ̃
     KPfact = μ̃ / (2 * u) * (d3s / μᵣ₁ + d3sp1 / μᵣ₂)
-    F_factor = -ϵ₀ / π * ϵ̄ 
+    F_factor = -ϵ₀ / π * ϵ̄
     Ψ_factor = 2im / (π * ω * μ₀ * μ̃)
 
     # Check whether or not the apert face/face integrals are up to date:
@@ -368,7 +368,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
         rs = vtxcrd(ifs, apert) ./ units_per_meter
         rm = vtxcrd(ifm, apert) ./ units_per_meter  # Coords (m) of the match tri. vertices.
         rmc = mean(rm)        # Match face centroid (meters).
-        # Perform frequency-dependent integrals over source triangle 
+        # Perform frequency-dependent integrals over source triangle
         (apert.I1[iufp], apert.I1_ξ[iufp], apert.I1_η[iufp], apert.I2[iufp]) = zint(Σm1_func, Σm2_func, rs, rmc)
     end
     t2 = time_ns()
@@ -383,7 +383,7 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
 
     @tasks for bfci in CartesianIndices((nbf,nbf))
         @set scheduler = DynamicScheduler(; nchunks)
-        
+
         mbf, sbf = Tuple(bfci) # match and source basis function indices
 
         sfp, sfm = @view bff[:, sbf] # plus and minus faces of source basis function
@@ -418,8 +418,8 @@ function filly(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, apert, rwg
                 # (divided by 2) as in Eq. (7-53):
                 rm_opp = vertexcoords_opposite_edge(me, mf, apert) ./ units_per_meter
                 ρc2 = 0.5 * (rmc - rm_opp)
-                    
-                # Compute singular contribution for this edge (the middle term in 
+
+                # Compute singular contribution for this edge (the middle term in
                 # square brackets in Equation (7-57)) using (B-2):
                 Fsing = ρ_r + u * rinv * (rmc - rs_opp)
 
