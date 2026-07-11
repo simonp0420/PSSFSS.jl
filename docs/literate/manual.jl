@@ -364,8 +364,9 @@ steer = (psi1=10:10:40, psi2=0) # Can use ASCII names if desired
 flist = 12
 flist = 2:2:12 # same as [2,4,6,8,10,12]
 flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
-# To specify frequencies in, say THz, use the [string macro](https://docs.julialang.org/en/v1/) from the
-# [`Unitful`](https://github.com/JuliaPhysics/Unitful.jl) package, provided as a convenience by PSSFSS:
+# To specify frequencies in, say THz, use the
+# [string macro](https://docs.julialang.org/en/v1/manual/metaprogramming/#meta-non-standard-string-literals) from the
+# [`Unitful`](https://github.com/JuliaPhysics/Unitful.jl) package, which is exported for convenience by PSSFSS:
 flist = (2:2:12) * u"THz"
 # Any `Unitful` unit having the correct dimension (inverse time) can be used (including of course `u"GHz"`).
 
