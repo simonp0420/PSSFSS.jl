@@ -54,7 +54,7 @@ Reexport = "1.2.2"
 SLEEFPirates = "0.6.42"
 StaticArrays = "1.9.2"
 TicraUtilities = "1.1.2"
-Triangulate = "2.3.2"
+Triangulate = "3"
 Unitful = "1.19.0"
 julia = "1"
 
