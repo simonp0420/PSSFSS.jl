@@ -1,9 +1,13 @@
+"""
+# Elements
+Contains definitions and functions for each element type. A list of element types can be found in the documentation at https://simonp0420.github.io/PSSFSS.jl/
+"""
 module Elements
 
 export diagstrip, jerusalemcross, loadedcross, manji, meander, pecsheet,
        pixels, pmcsheet, polyring, rectstrip, sinuous, splitring, sympixels
 
-using ..PSSFSSLen: mm, cm, inch, mil, PSSFSSLength
+using ..PSSFSSLen: mm, cm, inch, mil, μm, micron, PSSFSSLength
 using ..Sheets: RWGSheet, rotate!, translate!, combine, recttri, SV2, orient!, test_fefv
 using ..Meshsub: meshsub
 using StaticArrays: SA, @SVector
@@ -228,7 +232,7 @@ All arguments are keyword arguments which can be entered in any order.
 - `orient`: The orientation of the strip within the unrotated unit cell in degrees.  The only valid values
   are `45` for a strip running from lower left to upper right and `-45` for a strip running from lower
   right to upper left.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
 - `Nl` and `Nw`:  Number of line segments along the length and width of the strip, for dividing up the strip into
   rectangles, which are  triangulated by adding a diagonal to each rectangle. These arguments are actually used for
   triangulating the central, rectangular portion of the strip.  The ends of the strip are tapered in the form of
@@ -372,8 +376,8 @@ All arguments are keyword arguments which can be entered in any order.
    be filled in solidly with triangles.  If both conditions hold, then the entire structure will be
    filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used
    for the respective widths of the arms, and `w` will not be used.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request,
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
   the actual number will likely be different.
 
 ## Optional arguments:
@@ -459,8 +463,8 @@ All arguments are keyword arguments which can be entered in any order.
    be filled in solidly with triangles.  If both conditions hold, then the entire structure will be
    filled in (i.e., singly-connected).  In that case the `L2` and `B` dimensions will be used
    for the respective widths of the arms, and `w` will not be used.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request,
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
   the actual number will likely be different.
 
 ## Optional arguments:
@@ -677,8 +681,8 @@ All arguments are keyword arguments which can be entered in any order.
 - `L1`,`L2`,`w`: Geometrical parameters as defined above.  Note that it is permissible
    to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be
    generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request,
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
   the actual number will likely be different.
 
 
@@ -759,8 +763,8 @@ All arguments are keyword arguments which can be entered in any order.
 - `L1`,`L2`,`w`: Geometrical parameters as defined above.  Note that it is permissible
    to specify `w ≥ L2/2` in which case a solid (i.e., singly-connected) cross will be
    generated.  In that case the `L2` dimension will be used for the width of the cross pieces.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request,
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
   the actual number will likely be different.
 
 ## Optional arguments:
@@ -918,8 +922,8 @@ All arguments are keyword arguments which can be entered in any order.
 
 ## Required arguments:
 - `a`,`b`,`h`,`w1`, `w2`: Geometrical parameters as defined above.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
+- `ntri`:  The desired total number of triangles. 
   This is a guide, the actual number will likely be different.
 
 ## Optional arguments:
@@ -1085,7 +1089,7 @@ Return a variable of type `RWGSheet` that contains the triangulation for one or 
 All arguments are keyword arguments which can be entered in any order.
 
 ## Required arguments:
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
   Entries in `a` and `b` must be strictly increasing, except for possibly `b[end]` as discussed
@@ -1335,7 +1339,7 @@ Return a variable of type `RWGSheet` that contains the triangulation for a recta
 All arguments are keyword arguments which can be entered in any order.
 
 ## Required arguments:
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
 - `Lx` and `Ly`:  Lengths of the strip in the x and y directions.
 - `Px` and `Py`:  Lengths (periods) of the rectangular unit cell in the x and y directions.
 - `Nx` and `Ny`:  Number of line segments in the x and y directions, for dividing up the strip into
@@ -1589,7 +1593,7 @@ Return a variable of type `RWGSheet` similar to a `polyring` but with zero or mo
 All arguments are keyword arguments which can be entered in any order.
 
 ## Required arguments:
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 - `a` and `b`:  n-vectors (n>=1) of the same length providing the inner and outer radii, respectively of the polygonal rings.
   Entries in `a` and `b` must be positive and strictly increasing. `b[i] > a[i]` ∀ `i ∈ 1:n`.
@@ -1760,7 +1764,7 @@ All arguments are keyword arguments which can be entered in any order.
 - `sides::Int`:  The number (>= 4) of polygon sides for the background regular annular polygon(s) from which the
   ring sections are created.
 - `ntri::Int`:  The desired total number of triangles. This is a guide/request, the actual number will likely be different.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
 
 ## Optional arguments:

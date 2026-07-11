@@ -1,3 +1,7 @@
+"""
+# GSMs 
+Contains functions for creating, cascading, and performing computations on GSMs.
+"""
 module GSMs
 export GSM, cascade, cascade!, initialize_gsm_file, append_gsm_data, read_gsm_file,
     Gblock, choose_gblocks, gsm_slab_interface, translate_gsm!, pecgsm, pmcgsm

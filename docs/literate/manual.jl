@@ -175,7 +175,7 @@ using PSSFSS # Brings PSSFSS functions and types into scope
 Layer() # Defaults to zero-thickness vacuum layer
 #-
 #nb %% A slide [code] {"slideshow": {"slide_type": "fragment"}}
-Layer(ϵᵣ=2.2, tanδ=0.003, width=20mil) # Available length units include mil, inch, mm, cm
+Layer(ϵᵣ=2.2, tanδ=0.003, width=20mil) # Available length units include mil, inch, mm, cm, and μm/micron
 
 #nb # %% A slide [markdown] {"slideshow": {"slide_type": "fragment"}}
 # Layers and sheets can be assigned to Julia variables to avoid repetitive typing:
