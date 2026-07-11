@@ -148,6 +148,7 @@ function analyze(strata::Vector, flist, steering; outlist=[], logfile="pssfss.lo
     junc = zeros(Int, nj)
     junc[sint] = 1:ns #  junc[i] is the sheet number present at interface i, or 0 if no sheet is there
     if isa(first(flist), Unitful.Quantity)
+        first(flist) isa Unitful.Quantity{<:Real, Unitful.𝐓^-1} || throw(ArgumentError("Bad flist units"))
         freqstemp = [float(Unitful.ustrip(u"GHz", f)) for f in flist]
     else
         freqstemp = float.(collect(flist))
