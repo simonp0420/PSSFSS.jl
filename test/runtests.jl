@@ -45,6 +45,10 @@ end
     include("sympixels_test.jl")
 end
 
+@safetestset "Micron test" begin
+    include("Micron_test.jl")
+end
+
 if get(ENV, "BENCHMARK", "false") == "true"
     include("benchmark.jl")
 end

@@ -291,12 +291,24 @@ AR21DB(n) = ardb(2, 1, n)
 AR22DB(n) = ardb(2, 2, n)
 
 
+FTHZ = Outfun("FTHZ") do o
+    o.FGHz * 1e-3
+end
+
 FGHZ = Outfun("FGHZ") do o
     o.FGHz
 end
 
 FMHZ = Outfun("FMHZ") do o
-    o.FGHz * 1000
+    o.FGHz * 1e3
+end
+
+FKHZ = Outfun("FKHZ") do o
+    o.FGHz * 1e6
+end
+
+FHZ = Outfun("FHZ") do o
+    o.FGHz * 1e9
 end
 
 THETA = Outfun("THETA") do o

@@ -21,8 +21,8 @@ in a Gblock, an instance of Layer also specifies the periodicity (via the
 reciprocal lattice vectors) and stores the mode constants for the Floquet modes present
 in the layer.
 
-    Layer(;width::0mm, ϵᵣ=1.0, tanδ=0.0, μᵣ=1.0, mtanδ=0.0)
-    Layer(;width::0mm, epsr=1.0, tandel=0.0, mur=1.0, mtandel=0.0)
+    Layer(; width=0mm, ϵᵣ=1.0, tanδ=0.0, μᵣ=1.0, mtanδ=0.0)
+    Layer(; width=0mm, epsr=1.0, tandel=0.0, mur=1.0, mtandel=0.0)
 
 Create a `Layer` instance with the specified electrical properties.  All arguments
 are optional keyword arguments with default values as shown above. They can be
@@ -33,15 +33,13 @@ reference planes are located at the surfaces just adjacent to these semi-infinit
 
 # Arguments
 - `width`: The layer width (i.e. thickness) expressed as a
-        [`Unitful`](https://github.com/timholy/Unitful.jl)
-        length quantity. For convenience the following unit
-        suffixes are exported by this module: `m`, `cm`, `mil`, `inch`,
-        so one can specify, e.g., `width=20mil`.  Note that `width` can
-        be negative for the first and/or final layer of the composite structure,
-        which has the effect of shifting the phase reference plane towards
-        the interior of the composite structure.  This is sometimes needed
-        when interfacing with other programs, such as TEP file generation for
-        Ticra's `GRASP` program.
+  [`Unitful`](https://github.com/timholy/Unitful.jl) length quantity. For convenience the
+  following unit suffixes are exported by this module: `m`, `cm`, `mm`, `μm`, `micron`,
+  `mil`, and `inch`.  So one can specify, e.g., `width=20mil`.  Note that `width` can
+  be negative for the first and/or final layer of the composite structure, which has the
+  effect of shifting the phase reference plane towards the interior of the composite structure.
+  This is sometimes needed when interfacing with other programs, such as TEP file generation
+  for Ticra's `GRASP` program.
 - `ϵᵣ` or `epsr`: Relative permittivity of the dielectric.
 - `tanδ` or `tandel`: Loss tangent (electrical) of the dielectric.
 - `μᵣ` or `mur`: Relative permeability of the dielectric.

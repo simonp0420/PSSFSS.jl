@@ -311,8 +311,8 @@ All arguments are keyword arguments which can be entered in any order.
   `L3` ≤ `2*w` then the bent portions of the arms will consist of a single strip of width `L3`
   (without any gap in the middle).
 - `s1` and `s2`:  2-vectors containing the unit cell lattice vectors.
-- `units`:  Length units (`mm`, `cm`, `inch`, or `mil`)
-- `ntri`:  The desired total number of triangles.  This is a guide/request,
+- `units`:  Length units (`mm`, `cm`, `inch`, `mil` or `μm`/`micron`)
+- `ntri`:  The desired total number of triangles.  This is a guide/request, 
   the actual number will likely be different.
 
 ## Optional arguments:

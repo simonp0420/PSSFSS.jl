@@ -5,6 +5,7 @@ using LinearAlgebra: norm
 using Test
 using Logging: Error, ConsoleLogger, default_metafmt, global_logger
 using MetalSurfaceImpedance: Zsurface
+using Unitful: @u_str
 
 
 testlogger = ConsoleLogger(stderr, Error,
@@ -129,6 +130,32 @@ end
     s11_file = extract_result(resultfile, @outputs s11(te,te))[1]
     @test s11 == s11_file
     @test s11 ≈ s11_expected atol=1e-5
+end
+
+make_slab_strata(width) = [Layer(), Layer(width = width, ϵᵣ = 6.5), Layer()]
+
+@testset "LengthUnits" begin
+    @test_throws TypeError Layer(width = 20u"GHz")
+
+    results1 = analyze(make_slab_strata(10mm), 10, (θ=0, ϕ=0), logfile=devnull, resultfile=devnull, showprogress=false)
+    results2 = analyze(make_slab_strata(10*1000μm), 10, (θ=0, ϕ=0), logfile=devnull, resultfile=devnull, showprogress=false)
+    results3 = analyze(make_slab_strata(10*1000micron), 10, (θ=0, ϕ=0), logfile=devnull, resultfile=devnull, showprogress=false)
+    @test only(results1).gsm.s11 == only(results2).gsm.s11 == only(results3).gsm.s11
+    @test only(results1).gsm.s12 == only(results2).gsm.s12 == only(results3).gsm.s12
+    @test only(results1).gsm.s21 == only(results2).gsm.s21 == only(results3).gsm.s21
+    @test only(results1).gsm.s22 == only(results2).gsm.s22 == only(results3).gsm.s22
+end
+
+@testset "FrequencyUnits" begin
+    strata = make_slab_strata(10mm)
+    @test_throws ArgumentError analyze(strata, 10mm, (θ=0, ϕ=0), logfile=devnull, resultfile=devnull, showprogress=false)
+
+    results1 = analyze(strata, 10, (θ=0, ϕ=0), logfile=devnull, resultfile=devnull, showprogress=false)
+    results2 = analyze(strata, 1e-2u"THz", (θ=0, ϕ=0), logfile=devnull, resultfile=devnull, showprogress=false)
+    @test only(results1).gsm.s11 == only(results2).gsm.s11
+    @test only(results1).gsm.s12 == only(results2).gsm.s12
+    @test only(results1).gsm.s21 == only(results2).gsm.s21
+    @test only(results1).gsm.s22 == only(results2).gsm.s22
 end
 
 global_logger(oldlogger)

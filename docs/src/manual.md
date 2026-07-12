@@ -159,7 +159,7 @@ Layer() # Defaults to zero-thickness vacuum layer
 ```
 
 ```@repl manual
-Layer(ϵᵣ=2.2, tanδ=0.003, width=20mil) # Available length units include mil, inch, mm, cm
+Layer(ϵᵣ=2.2, tanδ=0.003, width=20mil) # Available length units include mil, inch, mm, cm, and μm/micron
 ```
 
 Layers and sheets can be assigned to Julia variables to avoid repetitive typing:
@@ -344,7 +344,7 @@ Note however, that by sweeping frequency over a number of different phasings,
 one can "cover" any desired range of scan angles.
 
 ## Analysis Frequencies
-Frequencies to be analyzed are entered in GHz as either a scalar value or a Julia "iterable collection"
+Frequencies to be analyzed are by default entered in GHz as either a scalar value or a Julia "iterable collection"
 such as a `Vector` or `Range`:
 
 ```@repl manual
@@ -352,6 +352,16 @@ flist = 12
 flist = 2:2:12 # same as [2,4,6,8,10,12]
 flist = union(7:0.5:10, 20:0.5:25) # Two frequency bands
 ```
+
+To specify frequencies in, say THz, use the
+[string macro](https://docs.julialang.org/en/v1/manual/metaprogramming/#meta-non-standard-string-literals) from the
+[`Unitful`](https://github.com/JuliaPhysics/Unitful.jl) package, which is exported for convenience by PSSFSS:
+
+```@repl manual
+flist = (2:2:12) * u"THz"
+```
+
+Any `Unitful` unit having the correct dimension (inverse time) can be used (including of course `u"GHz"`).
 
 ## Outputs
 ### Standard Output Files
@@ -453,7 +463,7 @@ parameters and their argument(s) can be typed without regard to capitalization.
 
 |Name(s)                             |# of Arguments| Description                        |
 |:-----------------------------------|:------------:|:-----------------------------------|
-|FGHz, FMHz                          | 0            | Frequency in GHz or MHz, resp.     |
+|FTHz, FGHz, FMHz, FkHz, FHz         | 0            | Frequency in THz, GHz, ..., Hz, resp.|
 |θ, theta, ϕ, phi                    | 0            | Incidence angles in degrees        |
 |ψ₁, ψ₂, psi1, psi2                  | 0            | Incremental phase shifts in degrees|
 | s11, s12, s21, s22                 | 2            | Complex coefficient                |
