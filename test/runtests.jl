@@ -1,6 +1,9 @@
 using Test
 using SafeTestsets
 
+@safetestset "Term Tests" begin
+    include("Term_test.jl")
+end
 @safetestset "Rings Tests" begin
     include("Rings_test.jl")
 end
