@@ -1,5 +1,5 @@
 """
-# FillZY 
+# FillZY
 Contains two functions, fillz and filly, used to construct matrices for moment method. See individual doctrings for details.
 """
 module FillZY
@@ -20,7 +20,7 @@ using PSSFSS.PGF: c3_calc, d3_calc
 using PSSFSS.Zint: zint, filljk!, vtxcrd
 using PSSFSS.PGF: electric_modal_sum_funcs, magnetic_modal_sum_funcs
 using PSSFSS.Log: @logfile
-using OhMyThreads: @tasks, @set, DynamicScheduler, StaticScheduler
+using OhMyThreads: @localize, @tasks, @set, DynamicScheduler, StaticScheduler
 
 const next = (2, 3, 1)
 const prev = (3, 1, 2)
@@ -166,7 +166,7 @@ function fillz(k0, u, layers::AbstractVector{Layer}, s, ψ₁, ψ₂, metal::RWG
     nthr = Threads.nthreads()
     nchunks = 2 * nthr
     t1 = time_ns()
-    @tasks for bfci in CartesianIndices((nbf,nbf))   # Loop over basis function pairs
+    @localize Zs @tasks for bfci in CartesianIndices((nbf,nbf))   # Loop over basis function pairs
         @set scheduler = DynamicScheduler(; nchunks)
 
         mbf, sbf = Tuple(bfci) # match and source basis function indices

@@ -273,7 +273,6 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     convlist = OffsetArray([false for i in 0:mmax_list[end]÷2], 0:mmax_list[end]÷2)
     mmax = mmax_list[1] ÷ 2
     mmax_old = -2
-    test1 = test2 = 0.0 # Establish scope
     first = true
     while mmax < mmax_list[end] # Convergence loop
         if first
@@ -356,7 +355,7 @@ function electric_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         end
     end
 
-    !converged && @warn "Inadequate Convergence" test1 test2 convtest mmax maxlog = 5
+    !converged && @warn "Inadequate Convergence" convtest mmax maxlog = 5
 
     # Create proper sized storage arrays for FFT routine:
     mmaxo2 = mmax ÷ 2
@@ -554,7 +553,6 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
     convlist = OffsetArray([false for i in 0:mmax_list[end]÷2], 0:mmax_list[end]÷2)
     mmax = mmax_list[1] ÷ 2
     mmax_old = -2
-    test1 = test2 = 0.0
     first = true
     while mmax < mmax_list[end] # Convergence loop
         if first
@@ -632,7 +630,7 @@ function magnetic_modal_sum_funcs(k0, u, ψ₁, ψ₂, layers::AbstractVector{La
         end
     end
 
-    !converged && @warn "Inadequate Convergence" test1 test2 convtest mmax maxlog = 5
+    !converged && @warn "Inadequate Convergence" convtest mmax maxlog = 5
 
     # Create proper sized storage arrays for FFT routine:
     mmaxo2 = mmax ÷ 2
