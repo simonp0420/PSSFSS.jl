@@ -1,6 +1,10 @@
 using Test
 using SafeTestsets
 
+@safetestset "Translation Test" begin
+    include("Translate_test.jl")
+end
+
 @safetestset "Term Tests" begin
     include("Term_test.jl")
 end
@@ -50,10 +54,6 @@ end
 
 @safetestset "Micron test" begin
     include("Micron_test.jl")
-end
-
-@safetestset "Translation Test" begin
-    include("Translate_test.jl")
 end
 
 if get(ENV, "BENCHMARK", "false") == "true"

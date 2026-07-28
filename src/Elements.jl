@@ -250,10 +250,6 @@ function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PS
     @testpos(w)
     @testpos(Nl)
     @testpos(Nw)
-    dxdy = [kwargs[:dx], kwargs[:dy]]
-    if dxdy ≠ [0, 0]
-        error("Translation not allowed for this style of sheet")
-    end
 
     abs(orient) == 45 || error("orient must be 45 or -45")
 
@@ -308,6 +304,8 @@ function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PS
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.ξη_check = true
 
