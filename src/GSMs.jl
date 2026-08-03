@@ -1,5 +1,5 @@
 """
-# GSMs 
+# GSMs
 Contains functions for creating, cascading, and performing computations on GSMs.
 """
 module GSMs
@@ -729,22 +729,22 @@ function translate_gsm!(g, dx, dy, layer1, layer2)
 
     # Fix up S11:
     for n in 1:length(layer1.P), m in 1:length(layer1.P)
-        g.s11[m, n] *= t1[n] / t1[m]
+        g.s11[m, n] *= t1[m] / t1[n]
     end
 
     # Fix up S12:
     for n in 1:length(layer2.P), m in 1:length(layer1.P)
-        g.s12[m, n] *= t2[n] / t1[m]
+        g.s12[m, n] *= t1[m] / t2[n]
     end
 
     # Fix up S21:
     for n in 1:length(layer1.P), m in 1:length(layer2.P)
-        g.s21[m, n] *= t1[n] / t2[m]
+        g.s21[m, n] *= t2[m] / t1[n]
     end
 
     # Fix up S22:
     for m in 1:length(layer2.P), n in 1:length(layer2.P)
-        g.s22[m, n] *= t2[n] / t2[m]
+        g.s22[m, n] *= t2[m] / t2[n]
     end
 
     return
