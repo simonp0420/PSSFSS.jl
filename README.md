@@ -72,6 +72,7 @@ the user then invokes the `analyze` function to perform the analysis.  Post-proc
 - Version 1.12: Added `pixels` and `sympixels` elements.
 - Version 1.13: Added `write_sheet_data` function.
 - Version 1.14: Additional built-in frequency and length units (THz, kHz, micron, μm), and support for any Unitful length or frequency quantities.
+- Version 1.14.1: Corrected longstanding bug in translating an element's location.  Thanks to [JoelKartchner](https://github.com/JoelKartchner) for this fix.
 
 ## Installation
 You can obtain and install PSSFSS using Julia's Pkg REPL-mode (hitting `]` as the first character at the command prompt):
