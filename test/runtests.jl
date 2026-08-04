@@ -52,6 +52,10 @@ end
     include("Micron_test.jl")
 end
 
+@safetestset "Translation Test" begin
+    include("Translate_test.jl")
+end
+
 if get(ENV, "BENCHMARK", "false") == "true"
     include("benchmark.jl")
 end

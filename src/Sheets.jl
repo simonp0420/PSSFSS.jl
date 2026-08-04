@@ -645,9 +645,10 @@ end
         error("Illegal type for rep[2]")
     end
 
+    dxdy = SV2([sh.dx, sh.dy])
 
     for m in mrange, n in nrange
-        x0, y0 = (m - 1) * sh.s₁ + (n - 1) * sh.s₂
+        x0, y0 = (m - 1) * sh.s₁ + (n - 1) * sh.s₂ + dxdy
 
         # Add series for faces
         if faces

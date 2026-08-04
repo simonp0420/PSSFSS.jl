@@ -250,10 +250,6 @@ function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PS
     @testpos(w)
     @testpos(Nl)
     @testpos(Nw)
-    dxdy = [kwargs[:dx], kwargs[:dy]]
-    if dxdy ≠ [0, 0]
-        error("Translation not allowed for this style of sheet")
-    end
 
     abs(orient) == 45 || error("orient must be 45 or -45")
 
@@ -308,6 +304,8 @@ function diagstrip(; P::Real, w::Real, orient::Real, Nl::Int, Nw::Int, units::PS
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.ξη_check = true
 
@@ -611,10 +609,8 @@ function jerusalemcross_unstructured(; P::Real, L1::Real, L2::Real, A::Real, B::
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "jerusalemcross"
     sheet.ξη_check = true
@@ -860,10 +856,8 @@ function loadedcross_unstructured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "loadedcross"
     sheet.ξη_check = true
@@ -1042,10 +1036,8 @@ function meander(; a::Real, b::Real, h::Real, w1::Real, w2::Real, ntri::Int,
     sheet.s₂ = SV2([0.00, b])
     sheet.β₁, sheet.β₂ = s₁s₂2β₁β₂(sheet.s₁, sheet.s₂)
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.ξη_check = true
 
@@ -1313,10 +1305,8 @@ function polyring_unstructured(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::V
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "polyring"
     sheet.ξη_check = fillcell
@@ -1386,10 +1376,8 @@ function rectstrip(; Lx::Real, Ly::Real, Nx::Int, Ny::Int, Px::Real, Py::Real, u
     sheet.class = kwargs[:class]
     iszero(orient) || orient!(sheet, orient, 0.5 * SV2(Px,Py))
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.ξη_check = (Lx == Px || Ly == Py)
 
@@ -1726,10 +1714,8 @@ function splitring(;
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "splitring"
     sheet.ξη_check = false
@@ -1893,10 +1879,8 @@ function sinuous(;
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "sinuous"
     sheet.ξη_check = w2 > 0 && L2 == s1norm

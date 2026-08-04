@@ -56,10 +56,8 @@ function loadedcross_structured(; s1::Vector{<:Real}, s2::Vector{<:Real}, L1::Re
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "loadedcross"
     sheet.ξη_check = true
@@ -169,10 +167,8 @@ function jerusalemcross_structured(; P::Real, L1::Real, L2::Real, A::Real, B::Re
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "jerusalemcross"
     sheet.ξη_check = true
@@ -273,10 +269,8 @@ function polyring_structured(; s1::Vector, s2::Vector, a::Vector{<:Real}, b::Vec
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "polyring"
     sheet.ξη_check = fillcell
@@ -456,10 +450,8 @@ function manji(; L1::Real, L2::Real, L3::Real, L4::Real=0.0, a::Real=0.0, w::Rea
     sheet.fufp = kwargs[:fufp]
     sheet.class = kwargs[:class]
     rotate!(sheet, kwargs[:rot])
-    dxdy = SV2([kwargs[:dx], kwargs[:dy]])
-    if dxdy ≠ [0.0, 0.0]
-        sheet.ρ .= (dxdy + xy for xy in sheet.ρ)
-    end
+    sheet.dx = kwargs[:dx]
+    sheet.dy = kwargs[:dy]
 
     sheet.style = "manji"
     sheet.ξη_check = w2 > 0 && L4 == s1norm
