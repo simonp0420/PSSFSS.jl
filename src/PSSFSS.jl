@@ -474,6 +474,7 @@ function compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi, rwgd
             # Apply translations if requested:
             sheet = sheets[i_sheet]
             if sheet.dx ≠ 0 || sheet.dy ≠ 0
+                region = @view layers[i1:i2]
                 upm = ustrip(Float64, sheet.units, 1u"m")
                 dx = sheet.dx / upm
                 dy = sheet.dy / upm
