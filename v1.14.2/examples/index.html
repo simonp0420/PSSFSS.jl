@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Usage Examples · PSSFSS.jl</title><meta name="title" content="Usage Examples · PSSFSS.jl"/><meta property="og:title" content="Usage Examples · PSSFSS.jl"/><meta property="twitter:title" content="Usage Examples · PSSFSS.jl"/><meta name="description" content="Documentation for PSSFSS.jl."/><meta property="og:description" content="Documentation for PSSFSS.jl."/><meta property="twitter:description" content="Documentation for PSSFSS.jl."/><meta property="og:url" content="https://simonp0420.github.io/PSSFSS.jl/stable/examples/"/><meta property="twitter:url" content="https://simonp0420.github.io/PSSFSS.jl/stable/examples/"/><link rel="canonical" href="https://simonp0420.github.io/PSSFSS.jl/stable/examples/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="../democards/bulmagridtheme.css" rel="stylesheet" type="text/css"/><link href="../assets/citations.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../contents/"><img src="../assets/logo.svg" alt="PSSFSS.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../contents/">PSSFSS.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../contents/">Contents</a></li><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../manual/">User Manual</a></li><li><a class="tocitem" href="../PSS_&amp;_FSS_Element_Gallery/">PSS &amp; FSS Element Gallery</a></li><li class="is-active"><a class="tocitem" href>Usage Examples</a><ul class="internal"><li><a class="tocitem" href="#Symmetric-Strip-Grating"><span>Symmetric Strip Grating</span></a></li><li><a class="tocitem" href="#Resistive-Square-Patch"><span>Resistive Square Patch</span></a></li><li><a class="tocitem" href="#Cross-on-Dielectric-Substrate"><span>Cross on Dielectric Substrate</span></a></li><li><a class="tocitem" href="#Square-Loop-Absorber"><span>Square Loop Absorber</span></a></li><li><a class="tocitem" href="#Flexible-Absorber"><span>Flexible Absorber</span></a></li><li><a class="tocitem" href="#Split-Ring-Resonator"><span>Split-Ring Resonator</span></a></li><li><a class="tocitem" href="#Reflectarray-Element"><span>Reflectarray Element</span></a></li><li><a class="tocitem" href="#Loaded-Cross-Band-Pass-Filter"><span>Loaded Cross Band Pass Filter</span></a></li><li><a class="tocitem" href="#Meanderline-Based-CPSS"><span>Meanderline-Based CPSS</span></a></li><li><a class="tocitem" href="#CPSS-Optimization"><span>CPSS Optimization</span></a></li><li><a class="tocitem" href="#Meanderline/Strip-Based-CPSS"><span>Meanderline/Strip-Based CPSS</span></a></li><li><a class="tocitem" href="#Split-Ring-Based-CPSS"><span>Split Ring-Based CPSS</span></a></li><li><a class="tocitem" href="#Angle-Selective-Surface"><span>Angle Selective Surface</span></a></li><li><a class="tocitem" href="#Checkerboard-Metasurface"><span>Checkerboard Metasurface</span></a></li><li><a class="tocitem" href="#Pixelated-Band-Pass-Filter"><span>Pixelated Band Pass Filter</span></a></li><li><a class="tocitem" href="#TEP-File-Creation"><span>TEP File Creation</span></a></li><li><a class="tocitem" href="#Fresnel-Table-Creation"><span>Fresnel Table Creation</span></a></li></ul></li><li><a class="tocitem" href="../reference/">API Documentation</a></li><li><a class="tocitem" href="../function_index/">API Index</a></li><li><a class="tocitem" href="../references/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Usage Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Usage Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/simonp0420/PSSFSS.jl/blob/{commit}{path}#L{line}" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/simonp0420/PSSFSS.jl/blob/main/docs/literate/fresneltable_creation_example.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="[PSSFSS](https://github.com/simonp0420/PSSFSS)-Examples"><a class="docs-heading-anchor" href="#[PSSFSS](https://github.com/simonp0420/PSSFSS)-Examples"><a href="https://github.com/simonp0420/PSSFSS">PSSFSS</a> Examples</a><a id="[PSSFSS](https://github.com/simonp0420/PSSFSS)-Examples-1"></a><a class="docs-heading-anchor-permalink" href="#[PSSFSS](https://github.com/simonp0420/PSSFSS)-Examples" title="Permalink"></a></h1><h2 id="Symmetric-Strip-Grating"><a class="docs-heading-anchor" href="#Symmetric-Strip-Grating">Symmetric Strip Grating</a><a id="Symmetric-Strip-Grating-1"></a><a class="docs-heading-anchor-permalink" href="#Symmetric-Strip-Grating" title="Permalink"></a></h2><p>This example consists of a symmetric strip grating, i.e. a grating where the strip width is half the unit cell period <span>$P$</span>:</p><p><img src="../assets/symmetric_strip_diagram.png" alt="diagram"/></p><p>Only three of the infinite number of strips in the grating are shown, and they extend infinitely to the left and right. The grating lies in the <span>$z=0$</span> plane with free space on both sides. The shaded areas represent metalization. The dashed lines show two possible choices for the unit cell location: &quot;J&quot; for a formulation in terms of electric surface currents, and &quot;M&quot; for magnetic surface currents.</p><p>For normal incidence there is a closed-form solution due to Weinstein [<a href="../references/#weinstein1969theory">4</a>], but there are more recent (and accessible) references in which one can also find the solution.  For example [<a href="../references/#collin1991field">5</a>, Problem 10.6] and [<a href="../references/#daniele1990diffraction">6</a>]. Here is the code for computing the exact solution, based on [<a href="../references/#collin1991field">5</a>]:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+    grating(kP, nterms=30) -&gt; (Γ, T)
+
+Compute the normal incidence reflecton and transmission coefficients of a symmetric grid of
+zero-thickness conducting strips.  The product of the period of the strips and the incident
+electric field wavenumber is `kP` (dimensionless).  The incident electric field is
+perpendicular to the direction along the axis of the strips.  The series have been
+accelerated by applying a Kummer&#39;s transformation, using the first two terms in the Maclaurin
+series for the inverse sin function.  `kP` must be in the half-open interval [0,1). The
+default number of summed terms `nterms` yields better than 10 digits of accuracy over the
+interval [0.01,0.99].
+&quot;&quot;&quot;
+function grating(kP; nterms=30)
+    sum1 = 1.3862943611198906 # \sum_{n=1}^{\infty} 1/(n-1/2) - 1/n = log(4)
+    sum3 = 7.2123414189575710 # \sum_{n=1}^{\infty} (n-1/2)^{-3} - n^{-3} = 6 * \zeta(3)
+    x = kP/(4π)
+    θ = x*sum1 + x^3/6 * sum3
+    for n = 1:nterms
+        xonmhalf = x/(n - 0.5)
+        xon = x/n
+        term = asin(xonmhalf) - (xonmhalf + (xonmhalf)^3/6) -
+              (asin(xon) - (xon + xon^3/6))
+        θ += term
+    end
+    Γ = sin(θ) * cis(-π/2 - θ)
+    T = 1 + Γ
+    return (Γ, T)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Main.grating</code></pre><p>Note that using the extension of Babinet&#39;s Principle for electromagnetic fields [<a href="../references/#tan2012babinet">7</a>], [<a href="../references/#nakata2013plane">8</a>], this also provides the solution (upon appropriate interchange and sign change of the coefficients) for the case where the incident wave polarization is parallel to the direction of the strips.</p><p>Here is the PSSFSS code to analyze this structure using electric currents as the unknowns.  We will scale the geometry so that the frequency in GHz is numerically equal to the period of the strips measured in wavelengths.</p><pre><code class="language-julia hljs">using Plots, PSSFSS
+c = 11.802852677165355 # light speed [inch*GHz]
+period = c  # so the period/wavelength = freq in GHz
+Py = period
+Ly = period/2
+Px = Lx = Ly/10 # Infinite in x direction so this can be anything
+Ny = 60
+Nx = round(Int, Ny*Lx/Ly)
+sheet = rectstrip(;Px, Py, Lx, Ly, Nx, Ny, units=inch)
+flist = 0.02:0.02:0.98
+steering = (θ=0, ϕ=0)
+strata = [Layer()
+          sheet
+          Layer()]
+results_j = analyze(strata, flist, steering, showprogress=false,
+                    resultfile=devnull, logfile=devnull);
+p1 = plot(sheet)
+p2 = plot(sheet, unitcell=true)
+ptitle = plot(title = &quot;Symmetric Strip Triangulation&quot;,
+             grid = false, showaxis = false, xtick=[], ytick=[],
+             bottom_margin = -50Plots.px)
+plot(ptitle, p1, p2, layout = @layout([A{0.09h}; [B C]]))</code></pre><p><img src="../symstrip1.png" alt/></p><p>Note that setting <code>Lx = Px</code> causes the strip to fully occupy the x-extent of the unit cell.  PSSFSS automatically ensures that the triangle edges at these unit cell boundaries define basis functions that satisfy the Floquet (phase shift) boundary conditions, so that currents are free to flow across these unit cell boundaries.</p><p>We can also analyze the same structure using magnetic currents in the areas free of metalization as the unknowns:</p><pre><code class="language-julia hljs">sheet = rectstrip(;class=&#39;M&#39;, Px, Py, Lx, Ly, Nx, Ny, units=inch)
+strata = [Layer()
+          sheet
+          Layer()]
+results_m = analyze(strata, flist, steering, showprogress=false,
+                    resultfile=devnull, logfile=devnull);</code></pre><p>Under Julia 1.8, the first 50-frequency run of <code>analyze</code> takes about 9 seconds for this geometry of 720 triangles on my machine, and the second run takes 4 seconds.  The additional time for the first run is due to JIT (just-in-time) compilation.  Under Julia 1.9 the time of the first run is 3.8 seconds and the second run requires 3.2 seconds, a much smaller difference.  This is due to improvements in Julia 1.9&#39;s ability to save precompiled native code for later reuse. More detailed timing information for PSSFSS runs is available in the log file (which is omitted for generating this documentation).</p><p>We will compare the PSSFSS results to the analytic solution:</p><pre><code class="language-julia hljs"># Generate exact results:
+rt = grating.(2π*flist)
+rperp_exact = first.(rt)
+tperp_exact = last.(rt)
+rpar_exact = -tperp_exact
+tpar_exact = -rperp_exact;</code></pre><p>Obtain PSSFSS results for electric and magnetic currents:</p><pre><code class="language-julia hljs">outrequest = @outputs s11(v,v) s21(v,v) s11(h,h) s21(h,h)
+rperp_j, tperp_j, rpar_j, tpar_j = eachcol(extract_result(results_j, outrequest))
+rperp_m, tperp_m, rpar_m, tpar_m = eachcol(extract_result(results_m, outrequest));</code></pre><p>Generate the comparison plots:</p><pre><code class="language-julia hljs">angdeg(z) = rad2deg(angle(z)) # Convenience function
+
+p1 = plot(title = &quot;Perpendicular Reflection Magnitude&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Coefficient Magnitude&quot;,
+          legend=:topleft)
+plot!(p1, flist, abs.(rperp_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p1, flist, abs.(rperp_j), label=&quot;PSSFSS J&quot;)
+plot!(p1, flist, abs.(rperp_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip2.png" alt/></p><pre><code class="language-julia hljs">p2 = plot(title = &quot;Perpendicular Reflection Phase&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Phase (deg)&quot;)
+plot!(p2, flist, angdeg.(rperp_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p2, flist, angdeg.(rperp_j), label=&quot;PSSFSS J&quot;)
+plot!(p2, flist, angdeg.(rperp_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip3.png" alt/></p><pre><code class="language-julia hljs">p1 = plot(title = &quot;Parallel Reflection Magnitude&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Coefficient Magnitude&quot;)
+plot!(p1, flist, abs.(rpar_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p1, flist, abs.(rpar_j), label=&quot;PSSFSS J&quot;)
+plot!(p1, flist, abs.(rpar_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip4.png" alt/></p><pre><code class="language-julia hljs">p2 = plot(title = &quot;Parallel Reflection Phase&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Phase (deg)&quot;)
+plot!(p2, flist, angdeg.(rpar_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p2, flist, angdeg.(rpar_j), label=&quot;PSSFSS J&quot;)
+plot!(p2, flist, angdeg.(rpar_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip5.png" alt/></p><p>Now look at the transmission coefficients:</p><pre><code class="language-julia hljs">p1 = plot(title = &quot;Perpendicular Transmission Magnitude&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Coefficient Magnitude&quot;)
+plot!(p1, flist, abs.(tperp_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p1, flist, abs.(tperp_j), label=&quot;PSSFSS J&quot;)
+plot!(p1, flist, abs.(tperp_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip6.png" alt/></p><pre><code class="language-julia hljs">p2 = plot(title = &quot;Perpendicular Transmission Phase&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Phase (deg)&quot;)
+plot!(p2, flist, angdeg.(tperp_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p2, flist, angdeg.(tperp_j), label=&quot;PSSFSS J&quot;)
+plot!(p2, flist, angdeg.(tperp_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip7.png" alt/></p><pre><code class="language-julia hljs">p1 = plot(title = &quot;Parallel Transmission Magnitude&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Coefficient Magnitude&quot;, legend=:topleft)
+plot!(p1, flist, abs.(tpar_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p1, flist, abs.(tpar_j), label=&quot;PSSFSS J&quot;)
+plot!(p1, flist, abs.(tpar_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip8.png" alt/></p><pre><code class="language-julia hljs">p2 = plot(title = &quot;Parallel Transmission Phase&quot;,
+          xlabel = &quot;Period (wavelengths)&quot;,
+          ylabel = &quot;Phase (deg)&quot;)
+plot!(p2, flist, angdeg.(tpar_exact), ls=:dash, label=&quot;Exact&quot;)
+plot!(p2, flist, angdeg.(tpar_j), label=&quot;PSSFSS J&quot;)
+plot!(p2, flist, angdeg.(tpar_m), label=&quot;PSSFSS M&quot;)</code></pre><p><img src="../symstrip9.png" alt/></p><h3 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h3><p>Although very good agreement is obtained, as expected the best agreement between all three results occurs for the lowest frequencies, where the triangles are smallest in terms of wavelength.  This emphasizes the fact that it is necessary for the user to check that enough triangles have been requested for good convergence over the frequency band of interest.  This example is an extremely demanding case in terms of bandwidth, as the ratio of maximum to minimum frequency here is <span>$0.98/0.02 = 49:1$</span></p><h2 id="Resistive-Square-Patch"><a class="docs-heading-anchor" href="#Resistive-Square-Patch">Resistive Square Patch</a><a id="Resistive-Square-Patch-1"></a><a class="docs-heading-anchor-permalink" href="#Resistive-Square-Patch" title="Permalink"></a></h2><p>This example will demonstrate the ability of PSSFSS to accurately model finite conductivity of FSS metalization.  It consists of a square finitely conducting patch in a square lattice.  It is taken from a paper by Barlevy and Rahmat-Samii [<a href="../references/#barlevy1997fundamental">9</a>]. This particular example is from Section 3.2, Figures 7 and 8.  We will compare PSSFSS results to those digitized from the cited figures.</p><p>We start by defining a function that creates a patch of the desired sheet resistance:</p><pre><code class="language-julia hljs">using Plots, PSSFSS
+patch(Z) = rectstrip(Nx=10, Ny=10, Px=1, Py=1, Lx=0.5, Ly=0.5, units=cm, Zsheet=Z)
+plot(patch(0), unitcell=true)</code></pre><p><img src="../resistive1.png" alt/></p><p>The patches measure 0.5 cm on a side and lie in a square lattice of period 1 cm. Now we perform the analysis, looping over the desired values of sheet resistance.</p><pre><code class="language-julia hljs">steering = (ϕ=0, θ=0)
+flist = 1:0.5:60
+Rs = [0, 10, 30, 100]
+calculated = zeros(length(flist), length(Rs)) # preallocate storage
+outputs = @outputs s11mag(v,v)
+for (i,R) in pairs(Rs)
+    strata = [Layer(), patch(R), Layer()]
+    results = analyze(strata, flist, steering, showprogress=false,
+                      logfile=devnull, resultfile=devnull)
+    calculated[:,i] = extract_result(results, outputs)
+end</code></pre><p>Looping over the four sheet resistance values, each evaluated at 119 frequencies required approximately 20 seconds total on my machine.</p><p>We plot the results, including those digitized from the paper for comparison:</p><pre><code class="language-julia hljs">using DelimitedFiles
+markers = (:diamond, :utriangle, :square, :xcross)
+colors = (:blue, :red, :green, :black)
+p = plot(xlim=(-0.01,60.01), xtick = 0:10:60, ylim=(-0.01,1.01), ytick=0:0.1:1,
+         xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Reflection Coefficient Magnitude&quot;,
+         title = &quot;Resistive Square Patch&quot;,
+         legend=:topright)
+for (i,R) in pairs(Rs)
+    scatter!(p, flist, calculated[:,i], label=&quot;PSSFSS $R Ω&quot;, ms=2, shape=markers[i], color=colors[i])
+    data = readdlm(&quot;../src/assets/barlevy_patch_digitized_$(R)ohm.csv&quot;, &#39;,&#39;)
+    plot!(p, data[:,1], data[:,2], label=&quot;Barlevy $R Ω&quot;, ls=:dash, color=colors[i])
+end
+p</code></pre><p><img src="../resistive2.png" alt/></p><h3 id="Conclusion-2"><a class="docs-heading-anchor" href="#Conclusion-2">Conclusion</a><a class="docs-heading-anchor-permalink" href="#Conclusion-2" title="Permalink"></a></h3><p>PSSFSS results are indistinguishable from those reported in the cited paper.</p><h2 id="Cross-on-Dielectric-Substrate"><a class="docs-heading-anchor" href="#Cross-on-Dielectric-Substrate">Cross on Dielectric Substrate</a><a id="Cross-on-Dielectric-Substrate-1"></a><a class="docs-heading-anchor-permalink" href="#Cross-on-Dielectric-Substrate" title="Permalink"></a></h2><p>This example is also taken from the paper [<a href="../references/#barlevy1997fundamental">9</a>] by Barlevy and Rahmat-Samii. This particular example is from Section 3.2, Figures 7 and 8.  It also appeared at higher resolution in Barlevy&#39;s PhD dissertation [<a href="../references/#barlevy1998dissertation">10</a>] from which the comparison curves were digitized.</p><p>We use the <code>loadedcross</code> element where we choose <code>w &gt; L2/2</code>, so that the Cross is &quot;unloaded&quot;, i.e. the center section is filled in with metalization:</p><pre><code class="language-julia hljs">using Plots, PSSFSS, DelimitedFiles
+sheet = loadedcross(w=1.0, L1=0.6875, L2=0.0625, s1=[1.0,0.0],
+                    s2=[0.0,1.0], ntri=600, units=cm)
+plot(sheet, unitcell=true, linecolor=:red)</code></pre><p><img src="../cross1.png" alt/></p><p>A few things to note. First, as of PSSFSS version 1.3, the mesh is <em>structured</em>. So there are redundant triangle face-pairs that PSSFSS can exploit to reduce execution time. Second, the number of triangle faces generated is only approximately equal to the requested value of 600.  This can be verified by entering the Julia variable <code>sheet</code> at the <a href="https://docs.julialang.org/en/v1/manual/getting-started/#man-getting-started">REPL</a> (i.e. the Julia prompt):</p><pre><code class="language-julia hljs">sheet</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">RWGSheet: style=loadedcross, class=J, 405 nodes, 1044 edges, 640 faces, Zs=0.0 + 0.0im Ω</code></pre><p>Alternatively, the <code>facecount</code> function will return the number of triangle faces on the sheet:</p><pre><code class="language-julia hljs">facecount(sheet)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">640</code></pre><p>The cross FSS is etched on a dielectric sheet of thickness 3 mm.  The dielectric constant is varied over the values 1, 2, and 4 to observe the effect on the resonant frequency.  Following the reference, the list of analysis frequencies is varied slightly depending on the value of dielectric constant:</p><pre><code class="language-julia hljs">resultsstack = Any[]
+steering = (ϕ=0, θ=0)
+for eps in [1, 2, 4]
+    strata = [  Layer()
+                sheet
+                Layer(ϵᵣ=eps, width=3mm)
+                Layer()
+             ]
+    if eps == 1
+        flist = 1:0.2:30
+    elseif eps == 2
+        flist = 1:0.2:26
+    else
+        flist = 1:0.2:20
+    end
+    results = analyze(strata, flist, steering, showprogress=false,
+                      resultfile=devnull, logfile=devnull)
+    push!(resultsstack, results)
+end</code></pre><p>The above loop requires about 18 seconds of execution time on my machine. Compare PSSFSS results to those digitized from the dissertation:</p><pre><code class="language-julia hljs">col=[:red,:blue,:green]
+p = plot(xlim=(0.,30), xtick = 0:5:30, ylim=(0,1), ytick=0:0.1:1,
+         xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Reflection Coefficient Magnitude&quot;,
+         legend=:topleft, lw=2)
+for (i,eps) in enumerate([1,2,4])
+    data = extract_result(resultsstack[i],  @outputs FGHz s11mag(v,v))
+    plot!(p, data[:,1], data[:,2], label=&quot;PSSFSS ϵᵣ = $eps&quot;, lc=col[i])
+    data = readdlm(&quot;../src/assets/barlevy_diss_eps$(eps).csv&quot;, &#39;,&#39;)
+    plot!(p, data[:,1], data[:,2], label=&quot;Barlevy ϵᵣ = $eps&quot;, lc=col[i], ls=:dot)
+end
+p</code></pre><p><img src="../cross2.png" alt/></p><h3 id="Conclusion-3"><a class="docs-heading-anchor" href="#Conclusion-3">Conclusion</a><a class="docs-heading-anchor-permalink" href="#Conclusion-3" title="Permalink"></a></h3><p>PSSFSS results agree very well with those of the cited reference, especially when accounting for the fact that the reference results are obtained by digitizing a scanned figure.</p><h2 id="Square-Loop-Absorber"><a class="docs-heading-anchor" href="#Square-Loop-Absorber">Square Loop Absorber</a><a id="Square-Loop-Absorber-1"></a><a class="docs-heading-anchor-permalink" href="#Square-Loop-Absorber" title="Permalink"></a></h2><p>This example, from Figure 7 of [<a href="../references/#costa2012frequency">11</a>], shows how one can use the <a href="../reference/#PSSFSS.Elements.polyring"><code>polyring</code></a> function to model square loop elements.  Three different designs are examined that employ different loop thicknesses and different values of sheet resistance. We compare the reflection coefficient magnitudes computed by PSSFSS with those digitized from the cited figure when the sheet is suspended 5 mm above a ground plane, hence we will also make use of the <a href="../reference/#PSSFSS.Elements.pecsheet"><code>pecsheet</code></a> function.</p><pre><code class="language-julia hljs">using Plots, PSSFSS, DelimitedFiles
+D = 11 # Period of square lattice (mm)
+r_outer = √2/2 * D/8 * [5,6,7] # radii of square outer vertices
+thickness = D/16 * [1,2,3]
+r_inner = r_outer - √2 * thickness  # radii of square inner vertices
+Rs = [15,40,70] # Sheet resistance (Ω/□)
+labels = [&quot;Thin&quot;, &quot;Medium&quot;, &quot;Thick&quot;]
+colors = [:green, :blue, :red]
+p = plot(title=&quot;Costa Absorber&quot;, xlim=(0,25),ylim=(-35,0),xtick=0:5:25,ytick=-35:5:0,
+         xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Reflection Magnitude (dB)&quot;, legend=:bottomleft)
+ps = []
+for (ri, ro, label, color, R) in zip(r_inner, r_outer, labels, colors, Rs)
+    sheet = polyring(sides=4, s1=[D, 0], s2=[0, D], ntri=750, orient=45,
+                     a=[ri], b=[ro], Zsheet=R, units=mm)
+    push!(ps, plot(sheet, unitcell=true, title=label, lc=color))
+    strata = [Layer()
+              sheet
+              Layer(width=5mm)
+              pecsheet() # Perfectly conducting ground plane
+              Layer()]
+    results = analyze(strata, 1:0.2:25, (ϕ=0, θ=0), showprogress=false,
+                      resultfile=devnull, logfile=devnull)
+    data = extract_result(results, @outputs FGHz s11dB(h,h))
+    plot!(p, data[:,1], data[:,2], label=&quot;PSSFSS &quot;*label, lc=color)
+    dat = readdlm(&quot;../src/assets/costa_2014_&quot; * lowercase(label) * &quot;_reflection.csv&quot;, &#39;,&#39;)
+    plot!(p, dat[:,1], dat[:,2], label=&quot;Costa &quot;*label, ls=:dash, lc=color)
+end
+plot(ps..., layout=(1,3), size=(600,220), margin=3Plots.mm)</code></pre><p><img src="../sqloop1.png" alt/></p><p>This PSSFSS run of three geometries takes about 15 seconds on my machine.</p><pre><code class="language-julia hljs">p</code></pre><p><img src="../sqloop2.png" alt/></p><p>It is useful to take a look at the log file created by PSSFSS for the last run above (from a previous run where the log file was not discarded):</p><pre><code class="nohighlight hljs">Starting PSSFSS 1.2.2 analysis on 2023-03-04 at 19:44:10.800
+Julia Version 1.8.5
+Commit 17cfb8e65e (2023-01-08 06:45 UTC)
+Platform Info:
+  OS: Windows (x86_64-w64-mingw32)
+  CPU: 8 × Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
+  Threads: 8 on 8 virtual cores
+  BLAS: LBTConfig([ILP64] libopenblas64_.dll)
+
+
+
+Dielectric layer information...
+
+ Layer  Width  units  epsr   tandel   mur  mtandel modes  beta1x  beta1y  beta2x  beta2y
+ ----- ------------- ------- ------ ------- ------ ----- ------- ------- ------- -------
+     1    0.0000  mm    1.00 0.0000    1.00 0.0000     2   571.2    -0.0    -0.0   571.2
+ ==================  Sheet   1  ========================   571.2    -0.0    -0.0   571.2
+     2    5.0000  mm    1.00 0.0000    1.00 0.0000    42   571.2    -0.0    -0.0   571.2
+ ==================  Sheet   2  ========================     0.0     0.0     0.0     0.0
+     3    0.0000  mm    1.00 0.0000    1.00 0.0000     2   571.2    -0.0    -0.0   571.2
+
+
+
+PSS/FSS sheet information...
+
+Sheet  Loc         Style      Rot  J/M Faces Edges Nodes Unknowns  NUFP
+-----  ---  ---------------- ----- --- ----- ----- ----- -------- ------
+   1     1          polyring   0.0  J    720  1152   432    1008  199676
+   2     2              NULL   0.0  E      0     0     0       0       0
+⋮</code></pre><p>Note from the dielectric layer report that there are 42 modes defined in the region between the ground plane and the FSS sheet.  This is the number of modes selected by the code to include in the generalized scattering matrix formulation to properly account for electromagnetic coupling between the two surfaces. If the 5 mm spacing were increased to, say, 7 mm then fewer modes would be needed.  Also note in the FSS sheet information that <code>NUFP</code> (the number of unique face pairs) 199676, is less than the number of faces squared (<span>$567009 = 753^2$</span>), a consequence of the structured triangulation used for a 4-sided <code>polyring</code>.</p><h3 id="Conclusion-4"><a class="docs-heading-anchor" href="#Conclusion-4">Conclusion</a><a class="docs-heading-anchor-permalink" href="#Conclusion-4" title="Permalink"></a></h3><p>PSSFSS results agree very well with those of the paper, except for the medium width loop, where the agreement is not quite as good.  It was found empirically that using a slightly different value of <code>Rs = 37</code> for this ring results in nearly perfect agreement with the digitized results.</p><h2 id="Flexible-Absorber"><a class="docs-heading-anchor" href="#Flexible-Absorber">Flexible Absorber</a><a id="Flexible-Absorber-1"></a><a class="docs-heading-anchor-permalink" href="#Flexible-Absorber" title="Permalink"></a></h2><p>This example is from [<a href="../references/#li2023ultra">12</a>]. It uses square and circular resistive FSS elements sandwiched between layers of flexible dielectrics to realize a reflective absorber (i.e. a &quot;rabsorber&quot;). We compare the reflection coefficient magnitude computed by PSSFSS to that digitized from the Figure 2(a) of the paper.  The latter was obtained by the authors using CST Microwave Studio.</p><pre><code class="language-julia hljs">using PSSFSS, Plots, DelimitedFiles
+
+p = 20 # Period of square unit cell (mm)
+a, b, Rsquare = (0.5, 19, 120) # Parameters of squares
+c, d, Rcircle = (1, 9, 400) # Parameters of circles
+
+units = mm; Px = Py = p; Lx = Ly = p - 2a; Nx = Ny = 21
+squares = rectstrip(; Px, Py, Lx, Ly, Nx, Ny, units, Zsheet=Rsquare)
+s1 = [p,0]; s2 = [0, p]; ntri = 800; sides = 40
+disks = polyring(; units, sides, a=[0], b=[d], s1, s2, ntri, Zsheet=Rcircle)
+
+psq = plot(squares, unitcell=true, linecolor=:red)
+pdi = plot(disks, unitcell=true, linecolor=:red)
+psheet = plot(psq, pdi)
+plot!(psheet, title=[&quot;Resistive Squares&quot; &quot;Resistive Disks&quot;], size=(600,300))</code></pre><p><img src="../flexibleabsorbersheets.png" alt/></p><pre><code class="language-julia hljs">silicone = Layer(width = 4mm, ϵᵣ = 2.9, tanδ = 0.1) # using unicode keywords
+foam = Layer(width = 6mm, epsr = 1.05, tandel = 0.02) # using ASCII keywords
+
+strata = [Layer(), silicone, disks, silicone, squares, foam, pecsheet(), Layer()]
+
+FGHz = 0.5:0.1:20
+scan = (θ=0, ϕ=0)
+
+results = analyze(strata, FGHz, scan, showprogress=false, resultfile=devnull, logfile=devnull)
+
+s11db = extract_result(results, @outputs s11db(te,te))
+li = readdlm(&quot;../src/assets/li2023_fig2a_s11db_digitized.csv&quot;, &#39;,&#39;, Float64, &#39;\n&#39;)
+
+ps11 = plot(title=&quot;Normal Incidence Reflection Magnitude&quot;,
+            xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;20log₁₀|s₁₁|&quot;, xlim=(0,20),
+            ylim=(-18,0), xtick=0:2:20, ytick=-20:2:0, framestyle=:box)
+plot!(ps11, FGHz, s11db, color=:blue, label=&quot;PSSFSS&quot;, lw=2)
+plot!(ps11, li[:,1], li[:,2], color=:red, label=&quot;Li et al.&quot;, lw=2)</code></pre><p><img src="../flexibleabsorbers11.png" alt/></p><p>This PSSFSS run takes about 44 seconds on my machine for 196 frequencies covering a 40:1 bandwidth.</p><h3 id="Conclusion-5"><a class="docs-heading-anchor" href="#Conclusion-5">Conclusion</a><a class="docs-heading-anchor-permalink" href="#Conclusion-5" title="Permalink"></a></h3><p>PSSFSS results agree well with those of the paper.</p><h2 id="Split-Ring-Resonator"><a class="docs-heading-anchor" href="#Split-Ring-Resonator">Split-Ring Resonator</a><a id="Split-Ring-Resonator-1"></a><a class="docs-heading-anchor-permalink" href="#Split-Ring-Resonator" title="Permalink"></a></h2><p>This example is taken from [<a href="../references/#fabian2021independently">13</a>, Figure 3]. It consists of three concentric split rings with gaps sequentially rotated by 180° situated on a thin dielectric slab.</p><p>Here is a script that analyzes this geometry:</p><pre><code class="language-Julia hljs">using PSSFSS, Plots, DelimitedFiles
+
+r123 = [3.7, 4.25, 4.8]
+d = 10.8
+w = 0.3
+g = 0.3
+a = r123 .- w/2
+b = a .+ w
+gapwidth = [g, g, g]
+gapcenter = [-90, 90, -90]
+s1 = [d, 0]
+s2 = [0, d]
+
+sheet = splitring(;class=&#39;M&#39;, units=mm, sides=42, ntri=1500, a, b, s1, s2, gapwidth, gapcenter)
+display(plot(sheet, unitcell=true))
+strata = [
+    Layer()
+    sheet
+    Layer(ϵᵣ=10.2, tanδ=0.0023, width=0.13mm)
+    Layer()
+    ]
+
+freqs = 1:0.02:14)
+steering = (θ = 0, ϕ = 0)
+results = analyze(strata, freqs, steering)
+s11dbvv = extract_result(results, @outputs s11db(v,v))
+p = plot(xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;S₁₁ Amplitude (dB)&quot;,
+    xtick=1:14, xlim=(1, 14), ytick = -40:5:0, ylim=(-30,0),
+    legend=:bottom)
+plot!(p, freqs, s11dbvv, label=&quot;PSSFSS&quot;)
+dat = readdlm(&quot;../src/assets/fabian2021_fig3_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, dat[:,1], dat[:,2], label=&quot;Fabian (CST)&quot;)</code></pre><p><img src="../assets/fabian2021_element.png" alt/></p><p><img src="../assets/fabian2021_comparison.png" alt/></p><p>This run of 651 frequencies requires about 40 seconds on my machine. Generally good agreement is seen between the PSSFSS predicted reflection amplitude and that digitized from the paper. (The latter was obtained from a CST frequency domain analysis, according to the paper&#39;s authors.) However, there is a small discrepancy in the predicted resonant frequencies that increases with frequency, likely because both results are less well converged at higher frequencies. Also, the reflection amplitudes of the higher-frequency peaks are less than unity for the CST results, possibly because the authors may have included the finite conductivity of the metal traces. This detail was not reported in the paper.</p><h2 id="Reflectarray-Element"><a class="docs-heading-anchor" href="#Reflectarray-Element">Reflectarray Element</a><a id="Reflectarray-Element-1"></a><a class="docs-heading-anchor-permalink" href="#Reflectarray-Element" title="Permalink"></a></h2><p>This example is taken from [<a href="../references/#li2009novel">14</a>, Figure 6]. It generates the so-called &quot;S-curve&quot; for reflection phase of a reflectarray element. The element consists of a square patch in a square ring, separated from a ground plane by two dielectric layers. Reflection phase is plotted versus the <code>L2</code> parameter as defined in [<a href="../references/#li2009novel">14</a>], which characterizes the overall size of the element.</p><p>We start by defining a convenience function to generate a <code>RWGSheet</code> for a given value of <code>L2</code> in mm and desired number of triangles <code>ntri</code>:</p><pre><code class="language-julia hljs">function element(L2, ntri::Int)
+    L = 17 # Period of square lattice (mm)
+    k1 = 0.5
+    k2 = 0.125
+    L1 = k1 * L2
+    w = k2 * L2
+    a = [-1.0, (L2-2w)/√2]
+    b = [L1/√2, L2/√2]
+    return polyring(; sides=4, s1=[L, 0], s2=[0, L], ntri, orient=45, a, b, units=mm)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">element (generic function with 1 method)</code></pre><p>Here is a plot of the two elements at the size extremes to be examined:</p><pre><code class="language-julia hljs">using PSSFSS, Plots
+p1 = plot(element(2, 675), title=&quot;L2 = 2mm&quot;, unitcell=true, linecolor=:red)
+p2 = plot(element(16.5, 3416), title=&quot;L2 = 16.5mm&quot;, unitcell=true, linecolor=:red)
+p = plot(p1,p2)</code></pre><p><img src="../reflectarray_elements.png" alt/></p><p>Here is the script that generates the S-curve.  To ensure accurate phases, a convergence check is performed for each distinct <code>L2</code> value.  The number of triangles is increased by a factor of 1.5 if the previous increase resulted in a reflection phase change of more than one degree.  After computing the phases, comparison is made to the same data computed by Li, et al from Ansoft HFSS and CST Microwave Studio, and displayed in their Figure 6.</p><p>Note that the <code>width</code> for the first <code>Layer</code> is set to <code>-7mm</code>.  This has the effect of referring reflection phases to the location of the ground plane, as was apparently done by Li, et al.  Also note that the <code>unwrap!</code> function of the <code>DSP</code> package is used to &quot;unwrap&quot; phases to remove any possible discontinuous jumps of 360 degrees.</p><pre><code class="language-Julia hljs">using PSSFSS
+using Plots, DelimitedFiles
+using DSP: unwrap!
+
+p = plot(title=&quot;Reflection Phase Convergence&quot;, xlim=(2,18),ylim=(-350,150),xtick=2:2:18,ytick=-350:50:150,
+         xlabel=&quot;Large Square Dimension L2 (mm)&quot;, ylabel=&quot;Reflecton Phase (deg)&quot;, legend=:topright)
+
+FGHz = 10.0
+L2s = range(2.0, 16.5, length=30)
+nfactor = 1.5 # Growth factor for ntri
+phasetol = 1.0 # Phase convergence tolerance
+record = Tuple{Float64, Int, Int}[] # Storage for (L2,ntri,facecount(sheet))
+phases = zeros(length(L2s))
+ntri = 300
+for (il2, L2) in pairs(L2s)
+    print(&quot;L2 = $L2; ntri =&quot;)
+    if il2 &gt; 1
+        global ntri = round(Int, ntri / (nfactor*nfactor))
+    end
+    oldphase = Inf
+    firstrun = true
+    while true
+        ntri = round(Int, nfactor * ntri)
+        if firstrun
+            print(&quot; $ntri&quot;)
+            firstrun = false
+        else
+            print(&quot;, $ntri&quot;)
+        end
+        sheet = element(L2, ntri)
+        strata = [Layer(width=-7mm)
+                  sheet
+                  Layer(ϵᵣ=2.65, width=1mm)
+                  Layer(ϵᵣ=1.07, width=6mm)
+                  pecsheet() # ground plane
+                  Layer()]
+        results = analyze(strata, FGHz, (ϕ=0, θ=0), showprogress=false, logfile=&quot;li2009.log&quot;, resultfile=&quot;li2009.res&quot;)
+        phase = extract_result(results, @outputs s11ang(h,h))[1,1]
+        phase &lt; 0 &amp;&amp; (phase += 360)
+        Δphase = abs(phase - oldphase)
+        if Δphase &gt; phasetol
+            oldphase = phase
+        else
+            phases[il2] = phase
+            push!(record, (L2, ntri, facecount(sheet)))
+            println(&quot;; Δphase = $(round(Δphase, digits=2))°&quot;)
+            break
+        end
+    end
+end
+
+unwrap!(phases, range=360)
+p = plot(title=&quot;Li 2009 Reflectarray&quot;, xlim=(2,18),ylim=(-350,150),xtick=2:2:18,ytick=-350:50:150,
+    xminorticks=2, yminorticks=2,
+    xlabel=&quot;Large Square Dimension L2 (mm)&quot;, ylabel=&quot;Reflecton Phase (deg)&quot;, legend=:topright)
+plot!(p, L2s, phases, label=&quot;PSSFSS&quot;, color=:red, mscolor=:red, ms=3, shape=:circ)
+dat = readdlm(&quot;li2009_ansoft_digitized.csv&quot;,  &#39;,&#39;)
+scatter!(p, dat[:,1], dat[:,2], label=&quot;Li Ansoft&quot;, mc=:blue, msc=:blue, markershape=:square)
+dat = readdlm(&quot;li2009_cst_digitized.csv&quot;,  &#39;,&#39;)
+scatter!(p, dat[:,1], dat[:,2], label=&quot;Li CST&quot;, mc=:green, msc=:green, markershape=:circle)
+display(p)
+println()
+record</code></pre><p><img src="../assets/li2009_comparison.svg" alt/></p><p>It can be seen that the PSSFSS phases compare well with the HFSS phases, better than the CST and HFSS phases compare to each other.  The authors of the paper do not discuss checking the convergence of their results or even any details of how they set up their HFSS and CST models.</p><p>The console output from the above script is shown below:</p><pre><code class="language-Julia hljs">julia&gt; include(&quot;li2009_convergence.jl&quot;)
+
+L2 = 2.0; ntri = 450, 675; Δphase = 0.02°
+L2 = 2.5; ntri = 450, 675; Δphase = 0.04°
+L2 = 3.0; ntri = 450, 675; Δphase = 0.06°
+L2 = 3.5; ntri = 450, 675; Δphase = 0.1°
+L2 = 4.0; ntri = 450, 675; Δphase = 0.14°
+L2 = 4.5; ntri = 450, 675; Δphase = 0.18°
+L2 = 5.0; ntri = 450, 675; Δphase = 0.19°
+L2 = 5.5; ntri = 450, 675; Δphase = 0.15°
+L2 = 6.0; ntri = 450, 675; Δphase = 0.02°
+L2 = 6.5; ntri = 450, 675; Δphase = 0.41°
+L2 = 7.0; ntri = 450, 675, 1012; Δphase = 0.12°
+L2 = 7.5; ntri = 675, 1012; Δphase = 0.23°
+L2 = 8.0; ntri = 675, 1012; Δphase = 0.38°
+L2 = 8.5; ntri = 675, 1012; Δphase = 0.55°
+L2 = 9.0; ntri = 675, 1012; Δphase = 0.73°
+L2 = 9.5; ntri = 675, 1012; Δphase = 0.93°
+L2 = 10.0; ntri = 675, 1012, 1518, 2277, 3416; Δphase = 0.67°
+L2 = 10.5; ntri = 2277, 3416; Δphase = 0.54°
+L2 = 11.0; ntri = 2277, 3416; Δphase = 0.35°
+L2 = 11.5; ntri = 2277, 3416; Δphase = 0.1°
+L2 = 12.0; ntri = 2277, 3416; Δphase = 0.17°
+L2 = 12.5; ntri = 2277, 3416; Δphase = 0.41°
+L2 = 13.0; ntri = 2277, 3416; Δphase = 0.59°
+L2 = 13.5; ntri = 2277, 3416; Δphase = 0.69°
+L2 = 14.0; ntri = 2277, 3416; Δphase = 0.73°
+L2 = 14.5; ntri = 2277, 3416; Δphase = 0.72°
+L2 = 15.0; ntri = 2277, 3416; Δphase = 0.69°
+L2 = 15.5; ntri = 2277, 3416; Δphase = 0.65°
+L2 = 16.0; ntri = 2277, 3416; Δphase = 0.61°
+L2 = 16.5; ntri = 2277, 3416; Δphase = 0.59°
+
+30-element Vector{Tuple{Float64, Int64, Int64}}:
+ (2.0, 675, 722)
+ (2.5, 675, 722)
+ (3.0, 675, 722)
+ (3.5, 675, 722)
+ (4.0, 675, 722)
+ (4.5, 675, 722)
+ (5.0, 675, 722)
+ (5.5, 675, 722)
+ (6.0, 675, 722)
+ (6.5, 675, 722)
+ (7.0, 1012, 944)
+ (7.5, 1012, 944)
+ (8.0, 1012, 944)
+ (8.5, 1012, 944)
+ (9.0, 1012, 944)
+ (9.5, 1012, 944)
+ (10.0, 3416, 3314)
+ (10.5, 3416, 3314)
+ (11.0, 3416, 3314)
+ (11.5, 3416, 3314)
+ (12.0, 3416, 3314)
+ (12.5, 3416, 3314)
+ (13.0, 3416, 3314)
+ (13.5, 3416, 3314)
+ (14.0, 3416, 3314)
+ (14.5, 3416, 3314)
+ (15.0, 3416, 3314)
+ (15.5, 3416, 3314)
+ (16.0, 3416, 3314)
+ (16.5, 3416, 3314)</code></pre><p>The first list shows how the script increases the number of triangles requested for each geometry until the reflection phase is sufficiently converged.  The printout of the <code>record</code> array shows both the final requested value of <code>ntri</code> and actual number of triangle faces generated by the mesher for each <code>L2</code> value.  The final cases with <code>ntri=3416</code> required about 21 seconds each of execution time.</p><h2 id="Loaded-Cross-Band-Pass-Filter"><a class="docs-heading-anchor" href="#Loaded-Cross-Band-Pass-Filter">Loaded Cross Band Pass Filter</a><a id="Loaded-Cross-Band-Pass-Filter-1"></a><a class="docs-heading-anchor-permalink" href="#Loaded-Cross-Band-Pass-Filter" title="Permalink"></a></h2><p>This example is originally from [<a href="../references/#munk2000fss">15</a>, Fig. 7.9]. The same case was analyzed in [<a href="../references/#li2006model">16</a>].  Unfortunately, in neither reference are the dimensions of the loaded cross stated, except for the square unit cell period of 8.61 mm.  I estimated the dimensions from the sketch in Fig. 6 of the second reference.  To provide a reliable comparison, I analyzed one-eighth of the structure in HFSS, a commercial finite element solver, using all three planes of symmetry. Exploiting the symmetry in the z = constant centerline plane required two analyses, once for an H-wall boundary condition, and once for an E-wall. Those results were then combined using the method of Reed and Wheeler [<a href="../references/#reed1956method">17</a>], i.e. using even/odd symmetry. With a much reduced computational domain, it was then possible to drive HFSS well into convergence.</p><p>Two identical loaded cross slot-type elements are separated by a 6 mm layer of dielectric constant 1.9.  Outboard of each sheet is a 1.1 cm layer of dielectric constant 1.3. The closely spaced sheets are a good test of the generalized scattering formulation implemented in PSSFSS.  The sheet geometry is shown below.  Remember that the entire sheet is metalized <em>except</em> for the region of the triangulation.</p><pre><code class="language-julia hljs">using Plots, PSSFSS
+sheet = loadedcross(class=&#39;M&#39;, w=0.023, L1=0.8, L2=0.14,
+            s1=[0.861,0.0], s2=[0.0,0.861], ntri=2400, units=cm)
+plot(sheet, linecolor=:red, unitcell=true)</code></pre><p><img src="../bpf1.png" alt/></p><pre><code class="language-julia hljs">steering = (ϕ=0, θ=0)
+strata = [  Layer()
+            Layer(ϵᵣ=1.3, width=1.1cm)
+            sheet
+            Layer(ϵᵣ=1.9, width=0.6cm)
+            sheet
+            Layer(ϵᵣ=1.3, width=1.1cm)
+            Layer()  ]
+flist = 1:0.1:20
+results = analyze(strata, flist, steering, resultfile=devnull,
+                  logfile=devnull, showprogress=false)
+data = extract_result(results, @outputs FGHz s21db(v,v) s11db(v,v))
+using DelimitedFiles
+dat = readdlm(&quot;../src/assets/hfss_loadedcross_bpf_full.csv&quot;, &#39;,&#39;, skipstart=1)
+p = plot(xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Reflection Coefficient (dB)&quot;,
+         legend=:left, title=&quot;Loaded Cross Band-Pass Filter&quot;, xtick=0:2:20, ytick=-30:5:0,
+         xlim=(-0.1,20.1), ylim=(-35,0.1))
+plot!(p, data[:,1], data[:,3], label=&quot;PSSFSS&quot;, color=:red)
+plot!(p, dat[:,1], dat[:,2], label=&quot;HFSS&quot;, color=:blue)</code></pre><p><img src="../bpf2.png" alt/></p><pre><code class="language-julia hljs">p2 = plot(xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Transmission Coefficient (dB)&quot;,
+          legend=:bottom, title=&quot;Loaded Cross Band-Pass Filter&quot;, xtick=0:2:20, ytick=-80:10:0,
+         xlim=(-0.1,20.1), ylim=(-80,0.1))
+plot!(p2, data[:,1], data[:,2], label=&quot;PSSFSS&quot;, color=:red)
+plot!(p2, dat[:,1], dat[:,4], label=&quot;HFSS&quot;, color=:blue)</code></pre><p><img src="../bpf3.png" alt/></p><p>This analysis takes about 173 seconds for 191 frequencies on my machine. The number of triangles requested is a compromise between accuracy and speed.  Even better agreement with the HFSS result would be possible with more triangles, at the cost of execution time. Note that rather than including two separate invocations of the <code>loadedcross</code> function when defining the strata, I referenced the same sheet object in the two different locations. This allows PSSFSS to recognize that the triangulations are identical, and to exploit this fact in making the analysis more efficient.  In fact, if both sheets had been embedded in similar dielectric claddings (in the same order), then the GSM (generalized scattering matrix) computed for the sheet in its first location could be reused without additional computation for its second location.  In this case, though, only the spatial integrals are re-used.  For an oblique incidence case, computing the spatial integrals is often the most expensive part of the analysis, so the savings from reusing the same sheet definition can be substantial.</p><h3 id="Conclusion-6"><a class="docs-heading-anchor" href="#Conclusion-6">Conclusion</a><a class="docs-heading-anchor-permalink" href="#Conclusion-6" title="Permalink"></a></h3><p>Very good agreement is obtained versus HFSS over a large dynamic range of almost 80 dB, and over a 20:1 frequency bandwidth.</p><h2 id="Meanderline-Based-CPSS"><a class="docs-heading-anchor" href="#Meanderline-Based-CPSS">Meanderline-Based CPSS</a><a id="Meanderline-Based-CPSS-1"></a><a class="docs-heading-anchor-permalink" href="#Meanderline-Based-CPSS" title="Permalink"></a></h2><p>A &quot;CPSS&quot; is a circular polarization selective structure, i.e., a structure that reacts differently to the two senses of circular polarization. We&#39;ll first look at analyzing a design presented in the literature, and then proceed to optimize another design using PSSFSS as the analysis engine inside the optimization objective function.</p><h3 id="Sjöberg-and-Ericsson-Design"><a class="docs-heading-anchor" href="#Sjöberg-and-Ericsson-Design">Sjöberg and Ericsson Design</a><a id="Sjöberg-and-Ericsson-Design-1"></a><a class="docs-heading-anchor-permalink" href="#Sjöberg-and-Ericsson-Design" title="Permalink"></a></h3><p>This example comes from [<a href="../references/#sjoberg2014multi">18</a>]. The authors describe an ingenious structure consisting of 5 progressively rotated meanderline sheets, which acts as a circular polarization selective surface: it passes LHCP (almost) without attenuation or reflection, and reflects RHCP (without changing its sense!) almost without attenuation or transmission.</p><p>Here is the script that analyzes their design:</p><pre><code class="language-julia hljs">using PSSFSS
+# Define convenience functions for sheets:
+outer(rot) = meander(a=3.97, b=3.97, w1=0.13, w2=0.13, h=2.53+0.13, units=mm, ntri=600, rot=rot)
+inner(rot) = meander(a=3.97*√2, b=3.97/√2, w1=0.1, w2=0.1, h=0.14+0.1, units=mm, ntri=600, rot=rot)
+center(rot) = meander(a=3.97, b=3.97, w1=0.34, w2=0.34, h=2.51+0.34, units=mm, ntri=600, rot=rot)
+# Note our definition of `h` differs from that of the reference by the width of the strip.
+t1 = 4mm # Outer layers thickness
+t2 = 2.45mm # Inner layers thickness
+substrate = Layer(width=0.1mm, epsr=2.6)
+foam(w) = Layer(width=w, epsr=1.05) # Foam layer convenience function
+rot0 = 0 # rotation of first sheet
+strata = [
+    Layer()
+    outer(rot0)
+    substrate
+    foam(t1)
+    inner(rot0 - 45)
+    substrate
+    foam(t2)
+    center(rot0 - 2*45)
+    substrate
+    foam(t2)
+    inner(rot0 - 3*45)
+    substrate
+    foam(t1)
+    outer(rot0 - 4*45)
+    substrate
+    Layer() ]
+steering = (θ=0, ϕ=0)
+flist = 10:0.1:20
+#
+results = analyze(strata, flist, steering, showprogress=false,
+                  resultfile=devnull, logfile=devnull);</code></pre><p>Here are plots of the five meanderline sheets:</p><pre><code class="language-julia hljs">using Plots
+plot(outer(rot0), unitcell=true, title=&quot;Sheet1&quot;)</code></pre><img src="c3520a3f.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot(inner(rot0-45), unitcell=true, title=&quot;Sheet2&quot;)</code></pre><img src="39976af4.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot(center(rot0-2*45), unitcell=true, title=&quot;Sheet3 (Center)&quot;)</code></pre><img src="dfc672d0.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot(inner(rot0-3*45), unitcell=true, title=&quot;Sheet4&quot;)</code></pre><img src="b5db26a3.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot(outer(rot0-4*45), unitcell=true, title=&quot;Sheet5&quot;)</code></pre><img src="1a4a53ee.svg" alt="Example block output"/><p>Notice that not only are the meanders rotated, but so too are the unit cell rectangles. This is because we used the generic <code>rot</code> keyword argument that rotates the entire unit cell and its contents. <code>rot</code> can be used for any FSS or PSS element type.  As a consequence of the different rotations applied to each unit cell, interactions between sheets due to higher-order modes cannot be accounted for; only the dominant <span>$m=n=0$</span> TE and TM modes are used in cascading the individual sheet scattering matrices.  This approximation is adequate for sheets that are sufficiently separated.  We can see from the log file (saved from a previous run where it was not disabled) that only 2 modes are used to model the interactions between sheets:</p><pre><code class="nohighlight hljs">Starting PSSFSS 1.0.0 analysis on 2022-09-12 at 16:35:20.914
+Julia Version 1.8.1
+Commit afb6c60d69 (2022-09-06 15:09 UTC)
+Platform Info:
+  OS: Windows (x86_64-w64-mingw32)
+  CPU: 8 × Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
+  Threads: 8 on 8 virtual cores
+  BLAS: LBTConfig([ILP64] libopenblas64_.dll)
+
+
+
+******************* Warning ***********************
+   Unequal unit cells in sheets 1 and 2
+   Setting #modes in dividing layer 3 to 2
+******************* Warning ***********************
+
+
+******************* Warning ***********************
+   Unequal unit cells in sheets 2 and 3
+   Setting #modes in dividing layer 5 to 2
+******************* Warning ***********************
+
+
+******************* Warning ***********************
+   Unequal unit cells in sheets 3 and 4
+   Setting #modes in dividing layer 7 to 2
+******************* Warning ***********************
+
+
+******************* Warning ***********************
+   Unequal unit cells in sheets 4 and 5
+   Setting #modes in dividing layer 9 to 2
+******************* Warning ***********************
+
+
+Dielectric layer information...
+
+ Layer  Width  units  epsr   tandel   mur  mtandel modes  beta1x  beta1y  beta2x  beta2y
+ ----- ------------- ------- ------ ------- ------ ----- ------- ------- ------- -------
+     1    0.0000  mm    1.00 0.0000    1.00 0.0000     2  1582.7    -0.0    -0.0  1582.7
+ ==================  Sheet   1  ========================  1582.7    -0.0    -0.0  1582.7
+     2    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+     3    4.0000  mm    1.05 0.0000    1.00 0.0000     2  1582.7    -0.0    -0.0  1582.7
+ ==================  Sheet   2  ========================   791.3  -791.3  1582.7  1582.7
+     4    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+     5    2.4500  mm    1.05 0.0000    1.00 0.0000     2   791.3  -791.3  1582.7  1582.7
+ ==================  Sheet   3  ========================     0.0 -1582.7  1582.7     0.0
+     6    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+     7    2.4500  mm    1.05 0.0000    1.00 0.0000     2     0.0 -1582.7  1582.7     0.0
+ ==================  Sheet   4  ========================  -791.3  -791.3  1582.7 -1582.7
+     8    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+     9    4.0000  mm    1.05 0.0000    1.00 0.0000     2  -791.3  -791.3  1582.7 -1582.7
+ ==================  Sheet   5  ======================== -1582.7     0.0     0.0 -1582.7
+    10    0.1000  mm    2.60 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+    11    0.0000  mm    1.00 0.0000    1.00 0.0000     2 -1582.7     0.0     0.0 -1582.7
+
+...</code></pre><p>Note that PSSFSS prints warnings to the log file where it is forced to set the number of layer modes to 2 because of unequal unit cells.  Also, in the dielectric layer list it can be seen that these layers are assigned 2 modes each.  The thin layers adjacent to sheets are assigned 0 modes because these sheets are incorporated into so-called &quot;GSM blocks&quot; or &quot;Gblocks&quot; wherein the presence of the thin layer is accounted for using the stratified medium Green&#39;s functions. Analyzing this multilayer structure at 101 frequencies required about 22 seconds on my machine.</p><p>Here is the script that compares PSSFSS predicted performance with very high accuracy predictions from CST and COMSOL that were digitized from figures in the paper.</p><pre><code class="language-julia hljs">using Plots, DelimitedFiles
+RL11rr = -extract_result(results, @outputs s11db(r,r))
+AR11r = extract_result(results, @outputs ar11db(r))
+IL21L = -extract_result(results, @outputs s21db(L,L))
+AR21L = extract_result(results, @outputs ar21db(L))
+
+RLgoal, ILgoal, ARgoal  = ([0.5, 0.5], [0.5, 0.5], [0.75, 0.75])
+foptlimits = [12, 18]
+default(lw=2, xtick=10:20, xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Amplitude (dB)&quot;, gridalpha=0.3)
+
+p = plot(flist,RL11rr,title=&quot;RHCP → RHCP Return Loss&quot;, label=&quot;PSSFSS&quot;,
+         ylim=(0,2), ytick=0:0.25:2)
+cst = readdlm(&quot;../src/assets/cpss_cst_fine_digitized_rl.csv&quot;, &#39;,&#39;)
+plot!(p, cst[:,1], cst[:,2], label=&quot;CST&quot;)
+comsol = readdlm(&quot;../src/assets/cpss_comsol_fine_digitized_rl.csv&quot;, &#39;,&#39;)
+plot!(p, comsol[:,1], comsol[:,2], label=&quot;COMSOL&quot;)
+plot!(p, foptlimits, RLgoal, color=:black, lw=4, label=&quot;Goal&quot;)</code></pre><p><img src="../cpssa1.png" alt/></p><pre><code class="language-julia hljs">p = plot(flist,AR11r,title=&quot;RHCP → RHCP Reflected Axial Ratio&quot;, label=&quot;PSSFSS&quot;,
+         xlim=(10,20), ylim=(0,3), ytick=0:0.5:3)
+cst = readdlm(&quot;../src/assets/cpss_cst_fine_digitized_ar_reflected.csv&quot;, &#39;,&#39;)
+plot!(p, cst[:,1], cst[:,2], label=&quot;CST&quot;)
+comsol = readdlm(&quot;../src/assets/cpss_comsol_fine_digitized_ar_reflected.csv&quot;, &#39;,&#39;)
+plot!(p, comsol[:,1], comsol[:,2], label=&quot;COMSOL&quot;)
+plot!(p, foptlimits, ARgoal, color=:black, lw=4, label=&quot;Goal&quot;)</code></pre><p><img src="../cpssa2.png" alt/></p><pre><code class="language-julia hljs">p = plot(flist,IL21L,title=&quot;LHCP → LHCP Insertion Loss&quot;, label=&quot;PSSFSS&quot;,
+         xlim=(10,20), ylim=(0,2), ytick=0:0.25:2)
+cst = readdlm(&quot;../src/assets/cpss_cst_fine_digitized_il.csv&quot;, &#39;,&#39;)
+plot!(p, cst[:,1], cst[:,2], label=&quot;CST&quot;)
+comsol = readdlm(&quot;../src/assets/cpss_comsol_fine_digitized_il.csv&quot;, &#39;,&#39;)
+plot!(p, comsol[:,1], comsol[:,2], label=&quot;COMSOL&quot;)
+plot!(p, foptlimits, ILgoal, color=:black, lw=4, label=&quot;Goal&quot;)</code></pre><p><img src="../cpssa3.png" alt/></p><pre><code class="language-julia hljs">p = plot(flist,AR21L,title=&quot;LHCP → LHCP Transmitted Axial Ratio&quot;, label=&quot;PSSFSS&quot;,
+         xlim=(10,20), ylim=(0,3), ytick=0:0.5:3)
+cst = readdlm(&quot;../src/assets/cpss_cst_fine_digitized_ar_transmitted.csv&quot;, &#39;,&#39;)
+plot!(p, cst[:,1], cst[:,2], label=&quot;CST&quot;)
+comsol = readdlm(&quot;../src/assets/cpss_comsol_fine_digitized_ar_transmitted.csv&quot;, &#39;,&#39;)
+plot!(p, comsol[:,1], comsol[:,2], label=&quot;COMSOL&quot;)
+plot!(p, foptlimits, ARgoal, color=:black, lw=4, label=&quot;Goal&quot;)</code></pre><p><img src="../cpssa4.png" alt/></p><p>The PSSFSS results generally track well with the high-accuracy solutions, but are less accurate especially at the high end of the band, possibly because in PSSFSS metallization thickness is neglected and cascading is performed for this structure using only the two principal Floquet modes. As previosly discussed, this is necessary because the rotated meanderlines are achieved by rotating the entire unit cell, and the unit cell for sheets 2 and 4 are not square.  Since the periodicity of the sheets in the structure varies from sheet to sheet, higher order Floquet modes common to neighboring sheets cannot be defined, so we are forced to use only the dominant (0,0) modes which are independent of the periodicity.  This limitation is removed in the next example. Meanwhile, it is of interest to note that their high-accuracy runs required 10 hours for CST and 19 hours for COMSOL on large engineering workstations versus about 22 seconds for PSSFSS on my desktop machine.</p><h2 id="CPSS-Optimization"><a class="docs-heading-anchor" href="#CPSS-Optimization">CPSS Optimization</a><a id="CPSS-Optimization-1"></a><a class="docs-heading-anchor-permalink" href="#CPSS-Optimization" title="Permalink"></a></h2><p>Here we design a CPSS (circular polarization selective structure) similar to the previous example using PSSFSS in conjunction with the CMAES optimizer from the <a href="https://github.com/jbrea/CMAEvolutionStrategy.jl">CMAEvolutionStrategy</a> package.  I&#39;ve used CMAES in the past with good success on some tough optimization problems.  Here is the code that defines the objective function:</p><pre><code class="language-julia hljs">using PSSFSS
+using Dates: now
+
+let bestf = typemax(Float64)
+    global objective
+    &quot;&quot;&quot;
+        result = objective(x)
+
+    &quot;&quot;&quot;
+    function objective(x)
+        ao, bo, ai, bi, ac, bc, wo, ho, wi, hi, wc, hc, t1, t2 = x
+        (bo &gt; ho &gt; 2.1*wo &amp;&amp; bi &gt; hi &gt; 2.1*wi &amp;&amp; bc &gt; hc &gt; 2.1*wc) || (return 5000.0)
+
+        outer(rot) = meander(a=ao, b=bo, w1=wo, w2=wo, h=ho, units=mm, ntri=400, rot=rot)
+        inner(rot) = meander(a=ai, b=bi, w1=wi, w2=wi, h=hi, units=mm, ntri=400, rot=rot)
+        center(rot) = meander(a=ac, b=bc, w1=wc, w2=wc, h=hc, units=mm, ntri=400, rot=rot)
+
+        substrate = Layer(width=0.1mm, epsr=2.6)
+        foam(w) = Layer(width=w, epsr=1.05)
+        rot0 = 0
+
+        strata = [
+                Layer()
+                outer(rot0)
+                substrate
+                foam(t1*1mm)
+                inner(rot0 - 45)
+                substrate
+                foam(t2*1mm)
+                center(rot0 - 2*45)
+                substrate
+                foam(t2*1mm)
+                inner(rot0 - 3*45)
+                substrate
+                foam(t1*1mm)
+                outer(rot0 - 4*45)
+                substrate
+                Layer() ]
+        steering = (θ=0, ϕ=0)
+        flist = 11.5:0.25:18.5
+        resultfile = logfile = devnull
+        showprogress = false
+        results = analyze(strata, flist, steering; showprogress, resultfile, logfile)
+        s11rr, s21ll, ar11db, ar21db = eachcol(extract_result(results,
+                       @outputs s11db(R,R) s21db(L,L) ar11db(R) ar21db(L)))
+        RL = -s11rr
+        IL = -s21ll
+        RLgoal, ILgoal, ARgoal  = (0.4, 0.5, 0.6)
+        obj = max(maximum(RL) - RLgoal,
+                  maximum(IL) - ILgoal,
+                  maximum(ar11db) - ARgoal,
+                  maximum(ar21db) - ARgoal)
+        if obj &lt; bestf
+            bestf = obj
+            open(&quot;optimization_best.log&quot;, &quot;a&quot;) do fid
+                xround = map(t  -&gt; round(t, digits=4), x)
+                println(fid, round(obj,digits=5), &quot; at x = &quot;, xround, &quot;  #&quot;, now())
+            end
+        end
+        return obj
+    end
+end</code></pre><p>We optimize at 29 frequencies between 11.5 and 18.5 GHz.  In the previously presented Sjöberg and Ericsson design a smaller frequency range of 12 to 18 GHz was used for optimization. We have also adopted more ambitious goals for return loss, insertion loss, and axial ratio of 0.4 dB, 0.5 dB, and 0.6 dB, respectively. These should be feasible because for our optimization setup, we have relaxed the restriction that all unit cells must be identical squares.  With more &quot;knobs to turn&quot; (i.e., a larger search space), we expect to be able to do somewhat better in terms of bandwidth and worst-case performance.  For our setup there are fourteen optimization variables in all. As one can see from the code above, each successive sheet in the structure is rotated an additional 45 degrees relative to its predecessor.   The objective is defined as the maximum departure from the goal of RHCP reflected return loss, LHCP insertion loss, or reflected or transmitted axial ratio that occurs at any of the analysis frequencies (i.e. we are setting up for &quot;minimax&quot; optimization). Also, the <code>let</code> block allows the objective function to maintain persistent state in the variable <code>bestf</code> which is initialized to the largest 64-bit floating point value. Each time a set of inputs results in a lower objective function value, <code>bestf</code> is updated with this value and the inputs and objective function value are written to the file &quot;optimization_best.log&quot;, along with a date/time stamp.  This allows the user to monitor the optimization and to terminate the it prematurely, if desired, without losing the best result achieved so far. Each objective function evaluation takes about 4.5 seconds on my machine.</p><p>Here is the code for running the optimization:</p><pre><code class="language-julia hljs">using CMAEvolutionStrategy
+#  x = [a1,  b1,   a2, b2,  a3,  b3,  wo,  ho,  wi,   hi,  wc,   hc,  t1,  t2]
+xmin = [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 0.1, 0.1, 0.1,  0.1, 0.1,  0.1, 2.0, 2.0]
+xmax = [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 0.35,4.0, 0.35, 4.0, 0.35, 4.0, 6.0, 6.0]
+x0 = 0.5 * (xmin + xmax)
+isfile(&quot;optimization_best.log&quot;) &amp;&amp; rm(&quot;optimization_best.log&quot;)
+popsize = 2*(4 + floor(Int, 3*log(length(x0))))
+opt = minimize(objective, x0, 1.0;
+           lower = xmin,
+           upper = xmax,
+           maxfevals = 9000,
+           popsize = popsize,
+           xtol = 1e-4,
+           ftol = 1e-6)</code></pre><p>Note that I set the population size to twice the normal default value.  Based on previous experience, using 2 to 3 times the default population size helps the optimizer to do better on tough objective functions like the present one. The optimizer finished after about 12 hours, having used up its budget of 9000 objective function evaluations. During this time it reduced the objective function value from 35.75 dB to -0.14 dB.</p><p>Here are the first and last few lines of the file &quot;optimization_best.log&quot; created during the optimization run:</p><pre><code class="nohighlight hljs">35.74591 at x = [3.0822, 3.851, 3.0639, 3.1239, 3.7074, 3.1435, 0.3477, 2.4549, 0.1816, 2.9164, 0.335, 1.9599, 4.6263, 3.8668]  #2022-09-20T17:58:29.168
+34.98097 at x = [4.1331, 3.9279, 3.3677, 3.4181, 3.0029, 4.5767, 0.2332, 1.3751, 0.1181, 3.2087, 0.3212, 1.7239, 3.7246, 3.7646]  #2022-09-20T17:58:35.329
+21.45525 at x = [3.0427, 3.1525, 4.2728, 4.8541, 4.1922, 3.426, 0.102, 1.1193, 0.35, 2.0465, 0.1142, 1.9158, 3.4733, 4.0413]  #2022-09-20T17:58:45.925
+13.85918 at x = [4.2285, 4.3504, 3.873, 4.3875, 3.7093, 3.8152, 0.118, 2.1575, 0.31, 3.5789, 0.3475, 3.0538, 5.5819, 2.9443]  #2022-09-20T17:59:45.984
+7.71171 at x = [3.3824, 3.7428, 4.0395, 3.0979, 4.4467, 3.6702, 0.1304, 0.8826, 0.2323, 1.8111, 0.1534, 2.5018, 4.4872, 2.8612]  #2022-09-20T17:59:56.203
+7.34573 at x = [4.2534, 4.7094, 4.0162, 3.3676, 3.2118, 4.4815, 0.1251, 2.6005, 0.3312, 1.5494, 0.3153, 1.5827, 2.0242, 4.181]  #2022-09-20T18:00:00.968
+3.07587 at x = [4.9501, 4.6063, 4.9145, 4.6475, 4.3812, 3.1389, 0.1147, 2.2538, 0.3489, 2.1218, 0.1052, 0.8864, 3.6838, 3.4847]  #2022-09-20T18:00:12.513
+3.05626 at x = [4.2391, 4.9991, 4.4545, 4.3303, 3.8393, 3.4906, 0.1207, 1.4096, 0.1421, 2.5086, 0.3435, 1.3212, 3.1339, 2.7907]  #2022-09-20T18:01:51.282
+2.41192 at x = [3.7758, 4.9686, 4.0366, 4.5324, 4.2108, 3.9565, 0.1304, 2.0133, 0.345, 0.753, 0.1746, 1.0458, 2.7633, 2.8851]  #2022-09-20T18:02:04.960
+2.19734 at x = [3.5704, 3.3381, 4.8014, 3.9773, 4.95, 3.5487, 0.1265, 2.3151, 0.2854, 1.1389, 0.108, 1.4173, 3.8662, 2.5112]  #2022-09-20T18:02:59.465
+...
+-0.13539 at x = [3.1913, 4.8684, 3.5625, 3.0614, 3.5238, 3.1521, 0.3499, 2.8795, 0.3371, 1.2669, 0.2726, 2.3683, 3.9736, 2.3058]  #2022-09-21T05:32:23.953
+-0.13572 at x = [3.2131, 4.8659, 3.5518, 3.0545, 3.5278, 3.1605, 0.35, 2.868, 0.3365, 1.2666, 0.2749, 2.3801, 3.9877, 2.2922]  #2022-09-21T05:32:34.131
+-0.13595 at x = [3.2096, 4.8665, 3.5728, 3.0472, 3.4952, 3.1517, 0.35, 2.8719, 0.3369, 1.2747, 0.274, 2.3782, 3.983, 2.2889]  #2022-09-21T05:34:20.813
+-0.13598 at x = [3.1954, 4.8681, 3.567, 3.0514, 3.4953, 3.1516, 0.35, 2.8779, 0.3366, 1.2694, 0.273, 2.3704, 3.9765, 2.2992]  #2022-09-21T05:35:16.363
+-0.13599 at x = [3.1931, 4.862, 3.5728, 3.0501, 3.5085, 3.1609, 0.3499, 2.8702, 0.3366, 1.2717, 0.2757, 2.3794, 3.9833, 2.2925]  #2022-09-21T05:35:41.565
+-0.13615 at x = [3.2057, 4.8631, 3.5908, 3.0483, 3.5005, 3.1543, 0.3498, 2.869, 0.3371, 1.2736, 0.2743, 2.3792, 3.9859, 2.2878]  #2022-09-21T05:36:42.633
+-0.13664 at x = [3.177, 4.8596, 3.598, 3.0483, 3.4378, 3.1504, 0.3498, 2.8722, 0.3373, 1.2771, 0.2753, 2.3737, 3.9777, 2.291]  #2022-09-21T05:38:59.901
+-0.13678 at x = [3.1939, 4.8634, 3.5887, 3.0558, 3.4491, 3.1507, 0.35, 2.8725, 0.3381, 1.2715, 0.2744, 2.3721, 3.9811, 2.2932]  #2022-09-21T05:43:47.228
+-0.13692 at x = [3.1669, 4.8616, 3.6063, 3.0555, 3.4097, 3.1535, 0.35, 2.8759, 0.3369, 1.2722, 0.2765, 2.3676, 3.9739, 2.2998]  #2022-09-21T05:56:14.160
+-0.13694 at x = [3.1666, 4.8568, 3.609, 3.053, 3.387, 3.1645, 0.35, 2.8688, 0.3368, 1.2743, 0.2806, 2.3778, 3.981, 2.2902]  #2022-09-21T05:57:50.537
+-0.137 at x = [3.1638, 4.8589, 3.603, 3.0576, 3.3991, 3.1654, 0.35, 2.8714, 0.3365, 1.2687, 0.2796, 2.3729, 3.978, 2.2978]  #2022-09-21T05:58:19.459
+-0.13701 at x = [3.1611, 4.859, 3.6064, 3.0629, 3.3962, 3.1529, 0.35, 2.8733, 0.3375, 1.2688, 0.2766, 2.3659, 3.9759, 2.3007]  #2022-09-21T05:58:34.762
+-0.13712 at x = [3.1711, 4.86, 3.6049, 3.0547, 3.4055, 3.1535, 0.35, 2.8727, 0.3386, 1.2797, 0.2774, 2.3738, 3.9777, 2.2907]  #2022-09-21T06:01:01.374
+-0.13717 at x = [3.1659, 4.8555, 3.6091, 3.0577, 3.3919, 3.1635, 0.35, 2.8698, 0.337, 1.2668, 0.2792, 2.3721, 3.9804, 2.2971]  #2022-09-21T06:10:03.148
+-0.13759 at x = [3.1576, 4.8557, 3.605, 3.0616, 3.3655, 3.1612, 0.3499, 2.8687, 0.3368, 1.2662, 0.2796, 2.3696, 3.9802, 2.2976]  #2022-09-21T06:10:13.351</code></pre><p>The final sheet geometries and performance of this design are shown below:</p><p><img src="../assets/cpss_cmaesopt_sheets.png" alt/></p><p><img src="../assets/cpss_cmaesopt_rl_refl.png" alt/></p><p><img src="../assets/cpss_cmaesopt_ar_refl.png" alt/></p><p><img src="../assets/cpss_cmaesopt_il_trans.png" alt/></p><p><img src="../assets/cpss_cmaesopt_ar_trans.png" alt/></p><p>As hoped for, the performance meets the more stringent design goals over a broader bandwidth than the Sjöberg and Ericsson design of [<a href="../references/#sjoberg2014multi">18</a>], presumably because of the greater design flexibility allowed here.</p><h2 id="Meanderline/Strip-Based-CPSS"><a class="docs-heading-anchor" href="#Meanderline/Strip-Based-CPSS">Meanderline/Strip-Based CPSS</a><a id="Meanderline/Strip-Based-CPSS-1"></a><a class="docs-heading-anchor-permalink" href="#Meanderline/Strip-Based-CPSS" title="Permalink"></a></h2><p>This example comes from [<a href="../references/#ericsson2017design">19</a>], by the same authors as the previous example. The design is similar to that of the previous example except that here, the two <span>$\pm 45^\circ$</span> rotated meanderlines are replaced with rectangular strips. This allows us to employ the <code>diagstrip</code> element and the <code>orient</code> keyword for the <code>meander</code> elements to maintain the same, square unit cell for all sheets. By doing this we allow PSSFSS to rigorously account for the inter-sheet coupling using multiple high-order modes in the generalized scattering matrix (GSM) formulation.</p><p>We begin by computing the skin depth for the copper traces.  The conductivity and thickness are as stated in the paper:</p><pre><code class="language-julia hljs"># Compute skin depth:
+using PSSFSS.Constants: μ₀ # free-space permeability [H/m]
+f = (10:0.1:20) * 1e9 # frequencies in Hz
+σ = 58e6 # conductivity of metalization [S/m]
+t = 18e-6 # metalization thickness [m]
+Δ = sqrt.(2 ./ (2π*f*σ*μ₀)) # skin depth [m]
+@show extrema(t./Δ)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(27.237445255106902, 38.519564484166885)</code></pre><p>We see that the metal is many skin depths thick (effectively infinitely thick) so that we can safely use the thick metal surface sheet impedance formula from the <a href="https://github.com/simonp0420/MetalSurfaceImpedance.jl">MetalSurfaceImpedance</a> package that is employed internally by PSSFSS.</p><p>Here is the script that analyzes the design from the referenced paper:</p><pre><code class="language-julia hljs">using PSSFSS
+P = 5.2 # side length of unit cell square
+d1 = 2.61 # Inner layer thickness
+d2 = 3.81 # Outer layer thickness
+h0 = 2.44 # Inner meanderline dimension (using paper&#39;s definition of h)
+h2 = 2.83 # Outer meanderline dimension (using paper&#39;s definition of h)
+w0x = 0.46 # Inner meanderline line thickness of traces running along x
+w0y = 0.58 # Inner meanderline line thickness of traces running along y
+w1 = 0.21 # Rectangular strips width
+w2x = 0.25   # Outer meanderline line thickness of traces running along x
+w2y = 0.17 # Outer meanderline line thickness of traces running along y
+a = b = P
+ntri = 600
+units = mm
+outer(orient) = meander(;a, b, w1=w2y, w2=w2x, h=h2+w2x, units, ntri, σ, orient=orient)
+inner = meander(;a, b, w1=w0y, w2=w0x, h=h0+w0x, units, ntri, σ)
+strip(orient) = diagstrip(;P, w=w1, units, Nl=60, Nw=4, orient=orient, σ)
+
+substrate = Layer(width=0.127mm, epsr=2.17, tandel=0.0009)
+foam(w) = Layer(width=w, epsr=1.043, tandel=0.0017)
+sheets = [outer(-90), strip(-45), inner, strip(45), outer(90)]
+strata = [
+    Layer()
+    substrate
+    sheets[1]
+    foam(d2 * 1mm)
+    substrate
+    sheets[2]
+    foam(d1 * 1mm)
+    sheets[3]
+    substrate
+    foam(d1 * 1mm)
+    substrate
+    sheets[4]
+    foam(d2 * 1mm)
+    sheets[5]
+    substrate
+    Layer() ]
+steering = (θ=0, ϕ=0)
+flist = 10:0.1:20
+
+results = analyze(strata, flist, steering, logfile=devnull,
+                  resultfile=devnull, showprogress=false)</code></pre><p>The PSSFSS run of this 5-sheet structure at 101 frequencies required only 13 seconds on my machine. Here are plots of the five sheets:</p><pre><code class="language-julia hljs">using Plots
+default()
+ps = []
+for k in 1:5
+    push!(ps, plot(sheets[k], unitcell=true, title=&quot;Sheet $k&quot;, linecolor=:red))
+end
+plot(ps..., layout=5)</code></pre><p><img src="../cpssb1.png" alt/></p><p>Notice that for all 5 sheets, the unit cell is a square of constant side length and is unrotated. We can see from the log file (of a previous run where it was not suppressed) that this allows PSSFSS to use additional modes in the GSM cascading procedure:</p><pre><code class="nohighlight hljs">Starting PSSFSS 1.2.1 analysis on 2022-11-30 at 09:30:18.299
+Julia Version 1.8.2
+Commit 36034abf26 (2022-09-29 15:21 UTC)
+Platform Info:
+  OS: Windows (x86_64-w64-mingw32)
+  CPU: 8 × Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
+  Threads: 8 on 8 virtual cores
+  BLAS: LBTConfig([ILP64] libopenblas64_.dll)
+
+
+
+Dielectric layer information...
+
+ Layer  Width  units  epsr   tandel   mur  mtandel modes  beta1x  beta1y  beta2x  beta2y
+ ----- ------------- ------- ------ ------- ------ ----- ------- ------- ------- -------
+     1    0.0000  mm    1.00 0.0000    1.00 0.0000     2  1208.3    -0.0    -0.0  1208.3
+     2    0.1270  mm    2.17 0.0009    1.00 0.0000     0     0.0     0.0     0.0     0.0
+ ==================  Sheet   1  ========================  1208.3    -0.0    -0.0  1208.3
+     3    3.8100  mm    1.04 0.0017    1.00 0.0000    10  1208.3    -0.0    -0.0  1208.3
+     4    0.1270  mm    2.17 0.0009    1.00 0.0000     0     0.0     0.0     0.0     0.0
+ ==================  Sheet   2  ========================  1208.3    -0.0    -0.0  1208.3
+     5    2.6100  mm    1.04 0.0017    1.00 0.0000    18  1208.3    -0.0    -0.0  1208.3
+ ==================  Sheet   3  ========================  1208.3    -0.0    -0.0  1208.3
+     6    0.1270  mm    2.17 0.0009    1.00 0.0000     0     0.0     0.0     0.0     0.0
+     7    2.6100  mm    1.04 0.0017    1.00 0.0000    18  1208.3    -0.0    -0.0  1208.3
+     8    0.1270  mm    2.17 0.0009    1.00 0.0000     0     0.0     0.0     0.0     0.0
+ ==================  Sheet   4  ========================  1208.3    -0.0    -0.0  1208.3
+     9    3.8100  mm    1.04 0.0017    1.00 0.0000    10  1208.3    -0.0    -0.0  1208.3
+ ==================  Sheet   5  ========================  1208.3    -0.0    -0.0  1208.3
+    10    0.1270  mm    2.17 0.0009    1.00 0.0000     0     0.0     0.0     0.0     0.0
+    11    0.0000  mm    1.00 0.0000    1.00 0.0000     2  1208.3    -0.0    -0.0  1208.3
+
+...</code></pre><p>Layers 3 and 9 were assigned 10 modes each.  Layers 5 and 7, being thinner, were assigned 18 modes each. The numbers of modes are determined automatically by PSSFSS to ensure accurate cascading.</p><p>Here are comparison plots of PSSFSS versus highly converged CST predictions digitized from plots presented in the paper:</p><pre><code class="language-julia hljs">using Plots, DelimitedFiles
+RLl = -extract_result(results, @outputs s11db(l,l))
+AR11l = extract_result(results, @outputs ar11db(l))
+IL21r = -extract_result(results, @outputs s21db(r,r))
+AR21r = extract_result(results, @outputs ar21db(r))
+
+default(lw=2, xlabel=&quot;Frequency (GHz)&quot;, xlim=(10,20), xtick=10:2:20,
+        framestyle=:box, gridalpha=0.3)
+
+plot(flist,RLl,title=&quot;LHCP → LHCP Return Loss&quot;, label=&quot;PSSFSS&quot;,
+         ylabel=&quot;Return Loss (dB)&quot;, ylim=(0,3), ytick=0:0.5:3)
+cst = readdlm(&quot;../src/assets/ericsson_cpss_digitized_rllhcp.csv&quot;, &#39;,&#39;)
+plot!(cst[:,1], cst[:,2], label=&quot;CST&quot;)</code></pre><p><img src="../cpssb2.png" alt/></p><pre><code class="language-julia hljs">plot(flist,AR11l,title=&quot;LHCP → LHCP Reflected Axial Ratio&quot;, label=&quot;PSSFSS&quot;,
+         ylabel=&quot;Axial Ratio (dB)&quot;, ylim=(0,3), ytick=0:0.5:3)
+cst = readdlm(&quot;../src/assets/ericsson_cpss_digitized_arlhcp.csv&quot;, &#39;,&#39;)
+plot!(cst[:,1], cst[:,2], label=&quot;CST&quot;)</code></pre><p><img src="../cpssb3.png" alt/></p><pre><code class="language-julia hljs">plot(flist,AR21r,title=&quot;RHCP → RHCP Transmitted Axial Ratio&quot;, label=&quot;PSSFSS&quot;,
+     ylabel=&quot;Axial Ratio (dB)&quot;, ylim=(0,3), ytick=0:0.5:3)
+cst = readdlm(&quot;../src/assets/ericsson_cpss_digitized_arrhcp.csv&quot;, &#39;,&#39;)
+plot!(cst[:,1], cst[:,2], label=&quot;CST&quot;)</code></pre><p><img src="../cpssb4.png" alt/></p><pre><code class="language-julia hljs">plot(flist,IL21r,title=&quot;RHCP → RHCP Insertion Loss&quot;, label=&quot;PSSFSS&quot;,
+         ylabel=&quot;Insertion Loss (dB)&quot;, ylim=(0,3), ytick=0:0.5:3)
+cst = readdlm(&quot;../src/assets/ericsson_cpss_digitized_ilrhcp.csv&quot;, &#39;,&#39;)
+plot!(cst[:,1], cst[:,2], label=&quot;CST&quot;)</code></pre><p><img src="../cpssb5.png" alt/></p><p>Differences between the PSSFSS and CST predictions are attributed to the fact that the metalization thickness of 18 μm was included in the CST model but cannot be accommodated by PSSFSS.</p><h2 id="Split-Ring-Based-CPSS"><a class="docs-heading-anchor" href="#Split-Ring-Based-CPSS">Split Ring-Based CPSS</a><a id="Split-Ring-Based-CPSS-1"></a><a class="docs-heading-anchor-permalink" href="#Split-Ring-Based-CPSS" title="Permalink"></a></h2><p>This circular polarization selective surface (CPSS) example comes from the paper [<a href="../references/#wu2022circular">20</a>] by Wu et al. The design consists of three sequentially rotated split rings separated by dielectric layers. Since the unit cells for all three rings are identical, PSSFSS can rigorously account for multiple scattering between the individual sheets using multiple high-order modes in the generalized scattering matrix (GSM) formulation.</p><p>We begin by defining the three <code>splitring</code> sheets:</p><pre><code class="language-julia hljs">using PSSFSS
+b = [3.8, 4.18, 3.8] # outer radius of each ring
+a = b - [1, 1.1, 1]  # inner radius of each ring
+gw = [3.1, 1.0, 3.1] # gap widths
+gc = [90, 45, 0]     # gap centers
+s1 = [10, 0]; s2 = [0, 10] # lattice vectors
+units = mm; sides = 42; ntri = 900
+sheets = [splitring(;units, sides, ntri, a=[a[i]], b=[b[i]],
+          s1, s2, gapwidth=gw[i], gapcenter=gc[i])  for i in 1:3]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3-element Vector{RWGSheet}:
+ RWGSheet: style=splitring, class=J, 602 nodes, 1590 edges, 989 faces, Zs=0.0 + 0.0im Ω
+ RWGSheet: style=splitring, class=J, 582 nodes, 1540 edges, 959 faces, Zs=0.0 + 0.0im Ω
+ RWGSheet: style=splitring, class=J, 591 nodes, 1572 edges, 982 faces, Zs=0.0 + 0.0im Ω</code></pre><p>We generate a plot of the three sheets:</p><pre><code class="language-julia hljs">using Plots
+ps = []
+for i in 1:3
+    push!(ps, plot(sheets[i], unitcell=true, lc=:red, title=&quot;Sheet $i&quot;, size=(400,400)))
+end
+p = plot(ps..., layout = (1,3), size=(900,300), margin=5Plots.mm)</code></pre><p><img src="../wu2022_sheets.png" alt/></p><p>Next we define the dielectric layers: <code>F4B</code> and <code>prepreg</code> (the latter is the bonding agent), then set up and run the PSSFSS analysis:</p><pre><code class="language-julia hljs">F4B = Layer(ϵᵣ=2.55, tanδ=0.002, width=3mm)
+prepreg = Layer(ϵᵣ=3.71, width=0.07mm)
+strata = [
+    Layer()
+    sheets[1]
+    F4B
+    prepreg
+    sheets[2]
+    F4B
+    prepreg
+    sheets[3]
+    Layer()
+    ]
+freqs = 8:0.05:12
+steering = (θ = 0, ϕ = 0)
+results = analyze(strata, freqs, steering, logfile=devnull, resultfile=devnull, showprogress=false)</code></pre><p>PSSFSS analysis of this 3-sheet structure at 81 frequencies required 28 seconds on my machine. As seen from the portion of the log file below (from a previous run where the log file was not discarded), PSSFSS chose 42 modes in layers 2 and 4 to ensure acccurate cascading of the GSMs.</p><pre><code class="nohighlight hljs">Starting PSSFSS 1.2.1 analysis on 2022-12-01 at 09:48:54.807
+Julia Version 1.8.3
+Commit 0434deb161 (2022-11-14 20:14 UTC)
+Platform Info:
+  OS: Windows (x86_64-w64-mingw32)
+  CPU: 8 × Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
+  Threads: 8 on 8 virtual cores
+  BLAS: LBTConfig([ILP64] libopenblas64_.dll)
+
+
+
+Dielectric layer information...
+
+ Layer  Width  units  epsr   tandel   mur  mtandel modes  beta1x  beta1y  beta2x  beta2y
+ ----- ------------- ------- ------ ------- ------ ----- ------- ------- ------- -------
+     1    0.0000  mm    1.00 0.0000    1.00 0.0000     2   628.3    -0.0    -0.0   628.3
+ ==================  Sheet   1  ========================   628.3    -0.0    -0.0   628.3
+     2    3.0000  mm    2.55 0.0020    1.00 0.0000    42   628.3    -0.0    -0.0   628.3
+     3    0.0700  mm    3.71 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+ ==================  Sheet   2  ========================   628.3    -0.0    -0.0   628.3
+     4    3.0000  mm    2.55 0.0020    1.00 0.0000    42   628.3    -0.0    -0.0   628.3
+     5    0.0700  mm    3.71 0.0000    1.00 0.0000     0     0.0     0.0     0.0     0.0
+ ==================  Sheet   3  ========================   628.3    -0.0    -0.0   628.3
+     6    0.0000  mm    1.00 0.0000    1.00 0.0000     2   628.3    -0.0    -0.0   628.3</code></pre><p>The circular polarization reflection and transmission amplitudes are now extracted from the PSSFSS results and are plotted along with digitized results from the reference.  We first plot the case where the excitation is a LHCP polarized plane wave traveling in the positive <span>$z$</span> direction, incident upon Region 1:</p><pre><code class="language-julia hljs">using DelimitedFiles
+default(lw=2)
+(s11ll,s11rl,s21ll, s21rl) = eachcol(extract_result(results, @outputs s11db(L,L) s11db(R,L) s21db(L,L) s21db(R,L)))
+p = plot(xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Amplitude (dB)&quot;, xminorticks=2, yminorticks=2, framestyle=:box,
+    xtick=8:12, xlim=(8, 12), ytick = -30:5:0, ylim=(-20,0), legend=:top, gridalpha=0.3)
+plot!(p, freqs, s11ll, lc=:black, label = &quot;PSSFSS S11(L,L)&quot;)
+plot!(p, freqs, s11rl, lc=:red, label = &quot;PSSFSS S11(R,L)&quot;)
+plot!(p, freqs, s21rl, lc=:blue, label = &quot;PSSFSS S21(R,L)&quot;)
+plot!(p, freqs, s21ll, lc=:green, label = &quot;PSSFSS S21(L,L)&quot;)
+data = readdlm(&quot;../src/assets/rll_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:black, ls=:dash, label = &quot;Wu S11(L,L)&quot;)
+data = readdlm(&quot;../src/assets/rrl_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:red, ls=:dash, label = &quot;Wu S11(R,L)&quot;)
+data = readdlm(&quot;../src/assets/trl_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:blue, ls=:dash, label = &quot;Wu S21(R,L)&quot;)
+data = readdlm(&quot;../src/assets/tll_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:green, ls=:dash, label = &quot;Wu S21(L,L)&quot;)</code></pre><p><img src="../wu2022_fig2a_compare.png" alt/></p><p>And then the case where the excitation is a RHCP polarized plane wave:</p><pre><code class="language-julia hljs">(s11lr,s11rr,s21lr, s21rr) = eachcol(extract_result(results, @outputs s11db(L,R) s11db(R,R) s21db(L,R) s21db(R,R)))
+p = plot(xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;Amplitude (dB)&quot;, xminorticks=2, yminorticks=2, framestyle=:box,
+    xtick=8:12, xlim=(8, 12), ytick = -30:5:0, ylim=(-20,0), legend=:top, gridalpha=0.3)
+plot!(p, freqs, s11lr, lc=:black, label = &quot;PSSFSS S11(L,R)&quot;)
+plot!(p, freqs, s11rr, lc=:red, label = &quot;PSSFSS S11(R,R)&quot;)
+plot!(p, freqs, s21rr, lc=:blue, label = &quot;PSSFSS S21(R,R)&quot;)
+plot!(p, freqs, s21lr, lc=:green, label = &quot;PSSFSS S21(L,R)&quot;)
+data = readdlm(&quot;../src/assets/rlr_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:black, ls=:dash, label = &quot;Wu S11(L,R)&quot;)
+data = readdlm(&quot;../src/assets/rrr_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:red, ls=:dash, label = &quot;Wu S11(R,R)&quot;)
+data = readdlm(&quot;../src/assets/trr_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:blue, ls=:dash, label = &quot;Wu S21(R,R)&quot;)
+data = readdlm(&quot;../src/assets/tlr_wu_digitized.csv&quot;, &#39;,&#39;)
+plot!(p, data[:,1], data[:,2], lc=:green, ls=:dash, label = &quot;Wu S21(L,R)&quot;)</code></pre><p><img src="../wu2022_fig2b_compare.png" alt/></p><p>The agreement between Wu et al and PSSFSS is generally quite good, with larger differences at smaller amplitudes.  This is attributed to the fact that conductor thickness was included in the reference but can not yet be accommodated by PSSFSS.</p><h2 id="Angle-Selective-Surface"><a class="docs-heading-anchor" href="#Angle-Selective-Surface">Angle Selective Surface</a><a id="Angle-Selective-Surface-1"></a><a class="docs-heading-anchor-permalink" href="#Angle-Selective-Surface" title="Permalink"></a></h2><p>This example is taken [<a href="../references/#chen2023design">21</a>]. A three-sheet FSS is designed that is transparent to normally incident plane waves, but strongly attenuates obliquely incident waves.  All three sheets are swastika-shaped, with the outer two sheets being identical.  The shapes are generated in PSSFSS using the manji element.</p><p>We begin by setting up and plotting the geometries of the outer and inner sheets:</p><pre><code class="language-Julia hljs">using PSSFSS, Plots
+
+# Dimensions in mm using the paper&#39;s notation:
+Pₚ=50; Lₚ=115; L1ₚ=24.7; L2ₚ=42; L3ₚ=21.5; L4ₚ=45; W1ₚ=7.4; W2ₚ=3
+
+ntri = 2500
+common_keywords = (units=mm, class=&#39;M&#39;, w2=0, a=0, s1=[Pₚ, 0], s2=[0, Pₚ], ntri=ntri)
+
+outer = manji(; L3=W1ₚ, w=W1ₚ, L1=L1ₚ, L2=L2ₚ/2-W1ₚ, common_keywords...)
+pouter = plot(outer, unitcell=true, title=&quot;Outer&quot;, linecolor=:red, linewidth=0.5)
+
+inner = manji(; L3=W2ₚ, w=W2ₚ, L1=L3ₚ, L2=L4ₚ/2-W2ₚ, common_keywords...)
+pinner = plot(inner, unitcell=true, title=&quot;Inner&quot;, linecolor=:red, linewidth=0.5)
+
+p = plot(pouter, pinner, size=(600,300))</code></pre><p><img src="../assets/ass_geometry.svg" alt/></p><p>Here is the rest of the script that performs the normal incidence analysis and compares it against the same analysis performed in HFSS:</p><pre><code class="language-Julia hljs">strata = [Layer()
+          outer
+          Layer(width=L_paper/2 * 1mm)
+          inner
+          Layer(width=L_paper/2 * 1mm)
+          outer
+          Layer()]
+
+flist = range(2.5, 3.5, 300)
+steering = (θ=0, ϕ=0)
+result = analyze(strata, flist, steering; logfile=&quot;ass1_ntri$ntri.log&quot;, resultfile=&quot;ass1_ntri$ntri.res&quot;)
+
+s21db = extract_result(result, @outputs s21db(te,te))
+
+p = plot(xlim=(2.5,3.5),ylim=(-50,0),xticks=2.5:0.1:3.5, minorticks=2,framestyle=:box,
+         title=&quot;Normal Incidence Transmission&quot;, xlabel=&quot;Frequency (GHz)&quot;, ylabel=&quot;20log₁₀|S₂₁| (dB)&quot;)
+plot!(p, flist, s21db, label=&quot;PSSFSS&quot;, linewidth=2)
+
+using DelimitedFiles
+hfssdat = readdlm(&quot;assets/hfss_ass_full.csv&quot;, &#39;,&#39;, Float64, skipstart=1)
+freqhfss = hfssdat[:,1]
+s21hfss = hfssdat[:,4]
+plot!(p, freqhfss, s21hfss, label=&quot;HFSS&quot;, linewidth=2)
+display(p)</code></pre><p><img src="../assets/ass1.png" alt/></p><p>The above run required about 126 seconds on my machine.</p><p>Below is the script that analyzes the angle selective surface at 3 GHz while varying the incidence angle:</p><pre><code class="language-Julia hljs">using PSSFSS, Plots
+
+# Dimensions in mm using the paper&#39;s notation:
+Pₚ=50; Lₚ=115; L1ₚ=24.7; L2ₚ=42; L3ₚ=21.5; L4ₚ=45; W1ₚ=7.4; W2ₚ=3
+
+common_keywords = (units=mm, class=&#39;M&#39;, w2=0, a=0, s1=[Pₚ, 0], s2=[0, Pₚ], ntri=2500)
+outer = manji(; L3=W1ₚ, w=W1ₚ, L1=L1ₚ, L2=L2ₚ/2-W1ₚ, common_keywords...)
+inner = manji(; L3=W2ₚ, w=W2ₚ, L1=L3ₚ, L2=L4ₚ/2-W2ₚ, common_keywords...)
+
+strata = [Layer()
+          outer
+          Layer(width=Lₚ/2 * 1mm)
+          inner
+          Layer(width=Lₚ/2 * 1mm)
+          outer
+          Layer()]
+
+flist = 3.0
+steering = (θ=0:2:60, ϕ=0)
+result = analyze(strata, flist, steering; logfile=&quot;ass2.log&quot;, resultfile=&quot;ass2.res&quot;)
+
+s21te, s21tm = eachcol(extract_result(result, @outputs s21db(te,te) s21db(tm,tm)))
+
+(; ϕ, θ) = steering
+p = plot(xlim=(0,60),ylim=(-40,0),xticks=0:10:60, yticks=-40:10:0, minorticks=2, framestyle=:box,
+         xlabel=&quot;Incidence Angle θ (deg)&quot;, ylabel=&quot;20log₁₀|S₂₁| (dB)&quot;,
+         title=&quot;ϕ = $(ϕ)° Transmission at $flist GHz&quot;)
+plot!(p, θ, s21te, label=&quot;PSSFSS TE&quot;, linewidth=2)
+plot!(p, θ, s21tm, label=&quot;PSSFSS TM&quot;, linewidth=2)
+display(p)</code></pre><p><img src="../assets/ass2.png" alt/></p><p>Note how the transmission amplitude rapidly rolls off beyond about 15°.  This run required about 13.5 minutes to complete, much longer than for normal incidence. This is due to fact that the incremental phase shift ψ₁ is not held constant during the analysis, requiring the spatial integrals to be recomputed for each new incidence angle.</p><h2 id="Checkerboard-Metasurface"><a class="docs-heading-anchor" href="#Checkerboard-Metasurface">Checkerboard Metasurface</a><a id="Checkerboard-Metasurface-1"></a><a class="docs-heading-anchor-permalink" href="#Checkerboard-Metasurface" title="Permalink"></a></h2><p>Checkerboard-style metasurfaces have been exensively studied, for example in [<a href="../references/#nakata2013plane">8</a>] and [<a href="../references/#kempa2010percolation">22</a>].  They exhibit some very unusual properties, which we will demonstrate here.</p><p>We consider a series of checkerboad-like geometries.  The square unit cell has dimension <span>$P = 5~\text{mm}$</span>. The side length for a PEC square sheet rotated 45° and perfectly inscribed in the unit cell is <span>$L_0 = P / \sqrt{2}$</span>. We will analyze a series of squares at 1 GHz with side lengths <span>$L = L_0 + δ$</span>.  The function <code>computed_and_plot</code> defined below will take a given value of <span>$δ$</span> as its input, then perform four distinct analyses based on two complementary triangulations.  Let&#39;s run it first for <span>$δ = -0.5 \text{mm}$</span> and look at the resulting triangulations:</p><pre><code class="language-julia hljs">using PSSFSS, Plots, PrettyTables
+using Printf: @sprintf
+
+units = mm
+P = 5  # period in x and y direction
+L0 = P / √2 # Side length for self-complementary square
+Nx = Ny = 10
+
+function compute_and_plot(δ; P=P, units=units, L0=L0, Nx=Nx, Ny=Ny)
+
+    Px = Py = P
+    Lx = Ly = L0 - abs(δ)
+    orient = 45
+    islekwds = (; Lx, Ly, Px, Py, units, Nx, Ny, orient)
+    holekwds = (; units, s1=[P,0], s2=[0,P], sides=4,
+                  a = iszero(δ) ? [P/2] : [(L0-abs(δ)) / √2],
+                  b=[-2*Nx], ntri=2*Nx*Ny, structuredtri=false)
+    if δ ≤ 0
+        redj = rectstrip(; class=&#39;J&#39;, islekwds...)
+        redm = rectstrip(; class=&#39;M&#39;, islekwds...)
+        bluej = polyring(; class=&#39;J&#39;, holekwds...)
+        bluem = polyring(; class=&#39;M&#39;, holekwds...)
+    else
+        redj = polyring(; class=&#39;J&#39;, holekwds...)
+        redm = polyring(; class=&#39;M&#39;, holekwds...)
+        bluej = rectstrip(; class=&#39;J&#39;, islekwds...)
+        bluem = rectstrip(; class=&#39;M&#39;, islekwds...)
+    end
+
+    p1 = plot(redj, unitcell=true, faces=true, fillcolor=:red, title=&quot;Unit Cell&quot;)
+    p2 = plot(redj, faces=true, edges=false, fillcolor=:red, rep=(3,3), title=&quot;3×3 Array&quot;)
+    p3 = plot(bluej, unitcell=true, faces=true, fillcolor=:blue, title=&quot;Unit Cell&quot;)
+    p4 = plot(bluej, faces=true, edges=false, fillcolor=:blue, rep=(3,3), title=&quot;3×3 Array&quot;)
+    pl = plot(p1,p2,p3,p4, layout=(2,2), size=(550,600), plot_title=&quot; Triangulations for δ = $δ&quot;)
+
+    flist = 1  # Analysis frequency in GHz
+    steering = (θ=0, ϕ=0) # Normal incidence
+    logfile = resultfile = devnull  # Suppress creation of output files
+    showprogress = false  # Suppress screen output
+
+    redjres = analyze([Layer(), redj, Layer()], flist, steering; logfile, resultfile, showprogress)
+    bluejres = analyze([Layer(), bluej, Layer()], flist, steering; logfile, resultfile, showprogress)
+    redmres = analyze([Layer(), redm, Layer()], flist, steering; logfile, resultfile, showprogress)
+    bluemres = analyze([Layer(), bluem, Layer()], flist, steering; logfile, resultfile, showprogress)
+
+
+    s11rj = extract_result(redjres, @outputs s11(v,v)) |&gt; only
+    s21rj = extract_result(redjres, @outputs s21(v,v)) |&gt; only
+    s11rm = extract_result(redmres, @outputs s11(v,v)) |&gt; only
+    s21rm = extract_result(redmres, @outputs s21(v,v)) |&gt; only
+    s11bj = extract_result(bluejres, @outputs s11(v,v)) |&gt; only
+    s21bj = extract_result(bluejres, @outputs s21(v,v)) |&gt; only
+    s11bm = extract_result(bluemres, @outputs s11(v,v)) |&gt; only
+    s21bm = extract_result(bluemres, @outputs s21(v,v)) |&gt; only
+
+    return pl, (; s11rj, s21rj, s11rm, s21rm, s11bj, s21bj, s11bm, s21bm)
+end
+
+pl, _ = compute_and_plot(-0.5)
+pl</code></pre><img src="fb4d42a1.svg" alt="Example block output"/><p>The function creates a &quot;red&quot; triangulation occupying the triangle of side length <span>$L_0 + δ$</span>, and a &quot;blue&quot; triangulation, occupying the complementary portion of the unit cell. Since for this case the red square side length is 0.5 mm shorter than the critical length <span>$L_0$</span>, it lies strictly inside the unit cell.  So if we choose to use the red triangulation to model electric surface current, then we can consider the red regions to be &quot;islands&quot; of metal in otherwise empty space.  We could also use the blue triangulation to model magnetic surface current, which again would lead to the conclusion that the small untriangulated squares are conducting patches or &quot;islands&quot; of metalization. Either of these two choices, when analyzed with PSSFSS, should yield the same values for computed reflection or transmission coefficients (within modeling accuracy).</p><p>A different approach would be to choose the red triangulation for representing magnetic surface current, in which case the small red squares would represent &quot;holes&quot; in an otherwise solid metallic sheet. The same &quot;hole&quot; interpretation would follow from using the blue triangulation to represent electric surface current. In fact, for this case, the blue region in the full plane can be regarded as the union of an infinite number of metallic squares of dimension <span>$L_0 + δ$</span>. So positive values of <span>$δ$</span> can be handled by using <span>$-δ$</span> and reversing the roles of the red and blue triangulations. This is exactly what is done in the function <code>compute_and_plot</code> above.</p><p>We&#39;ll now exercise the function for the set of <span>$δ$</span> values <span>$\{ -0.2, -0.05, 0, 0.05, 0.2 \}$</span>, observing both the plotted triangulations and the resulting scattering parameter predictions for each of the four modeling choices outlined above.</p><pre><code class="language-julia hljs">δs = [-0.2, -0.05, 0, 0.05, 0.2] # Departure in mm from self-complementary square side length
+s11rj, s21rj, s11rm, s21rm, s11bj, s21bj, s11bm, s21bm = (zeros(ComplexF64, length(δs)) for _ in 1:8)
+for (i, δ) in pairs(δs)
+    plt, r = compute_and_plot(δ)
+    s11rj[i] = r.s11rj
+    s21rj[i] = r.s21rj
+    s11rm[i] = r.s11rm
+    s21rm[i] = r.s21rm
+    s11bj[i] = r.s11bj
+    s21bj[i] = r.s21bj
+    s11bm[i] = r.s11bm
+    s21bm[i] = r.s21bm
+    display(plt)
+end</code></pre><p><img src="../assets/checkerboard_delta(-0.2).png" alt/></p><p><img src="../assets/checkerboard_delta(-0.05).png" alt/></p><p><img src="../assets/checkerboard_delta(0.0).png" alt/></p><p><img src="../assets/checkerboard_delta(0.05).png" alt/></p><p><img src="../assets/checkerboard_delta(0.2).png" alt/></p><p>Let the letter &quot;J&quot; denote use of a triangulation to represent electric surface current and let &quot;M&quot; denote magnetic surface current. So, e.g. &quot;Blue M&quot; means that the blue triangulation is used to represent magnetic current.  We can make the following observations about the above plots:</p><ol><li>The red and blue triangulations alway occupy complementary regions of the unit cell. Then for a given choice of <span>$δ$</span>, PSSFSS analysis of &quot;Blue J&quot; and &quot;Red M&quot; should result identical scattering parameters (apart from modeling errors). Likewise analysis of &quot;Red J&quot; and &quot;Blue M&quot; should result in the same scattering parameters.</li><li>It is well known from Babinet&#39;s principle [<a href="../references/#nakata2013plane">8</a>] [<a href="../references/#tan2012babinet">7</a>] that reflection coefficients of thin perforated screens are equal to the negative of the transmission coefficients of the complementary structure, provided the structures exhibit sufficient rotational symmetry as is the case here.  &quot;Red J&quot; and &quot;Blue J&quot; form such a complementary pair, as do &quot;Red M&quot; and &quot;Blue M&quot;.</li><li>All of the <span>$δ$</span> values are quite small compared to <span>$L_0 \approx 3.5355 \text{mm}$</span>.  In particular, the plots for <span>$δ = \pm 0.05$</span> are almost indistinguishable from the plot for <span>$δ = 0$</span>.  Therefore, we expect the scattering parameters of all of these cases to be nearly equal.</li><li>For the case of <span>$δ = 0$</span>, the red and blue regions are both self-complementary. From our earlier considerations, we then expect equal reflection and transmission coefficients for any of the choices &quot;Red J&quot;, &quot;Blue J&quot;, &quot;Red M&quot;, or &quot;Blue M&quot;.  In fact all four of these cases should yield the same values.</li></ol><p>The following code generates a summary table showing how well these expectations are satisfied:</p><pre><code class="language-julia hljs">mat = hcat(s11rj, s11bm, -s21rm, -s21bj) |&gt; transpose
+row_labels = [&quot;S₁₁: Red J &quot;, &quot;S₁₁: Blue M&quot;, &quot;-S₂₁: Red M &quot;, &quot;-S₂₁: Blue J&quot;]
+header = ([&quot;δ = $δ mm&quot; for δ in δs], [&quot;islands or holes&quot; for δ in δs])
+header[2][findfirst(iszero, δs)] = &quot;SC (Self-Complementary)&quot;
+formatters = (v,i,j) -&gt; imag(v) &gt; 0 ? @sprintf(&quot;%7.4f + %6.4fim&quot;, real(v), imag(v)) :
+                                      @sprintf(&quot;%7.4f - %6.4fim&quot;, real(v), -imag(v))
+highlighters = Highlighter((data, i, j) -&gt; (j == findfirst(iszero,δs)), crayon&quot;red bold&quot;)
+pretty_table(mat; header, row_labels, alignment=:c, formatters, highlighters)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌─────────────────────────────────────┬────────────────────┬────────────────────┬─────────────────────────┬────────────────────┬────────────────────┐
+│                                     │    δ = -0.2 mm     │    δ = -0.05 mm    │       δ = 0.0 mm        │    δ = 0.05 mm     │     δ = 0.2 mm     │
+│                                     │  islands or holes  │  islands or holes  │ SC (Self-Complementary) │  islands or holes  │  islands or holes  │
+├─────────────────────────────────────┼────────────────────┼────────────────────┼─────────────────────────┼────────────────────┼────────────────────┤
+│  S₁₁: Red J (islands → SC → holes)  │ -0.0003 - 0.0178im │ -0.0005 - 0.0213im │   -0.0005 - 0.0227im    │ -0.9993 + 0.0268im │ -0.9995 + 0.0223im │
+│  S₁₁: Blue M (islands → SC → holes) │ -0.0005 - 0.0223im │ -0.0007 - 0.0268im │   -0.9994 + 0.0240im    │ -0.9995 + 0.0218im │ -0.9997 + 0.0181im │
+│ -S₂₁: Red M (holes → SC → islands)  │ -0.0003 - 0.0181im │ -0.0005 - 0.0218im │   -0.0005 - 0.0234im    │ -0.9993 + 0.0268im │ -0.9995 + 0.0223im │
+│ -S₂₁: Blue J (holes → SC → islands) │ -0.0005 - 0.0223im │ -0.0007 - 0.0268im │   -0.9994 + 0.0240im    │ -0.9995 + 0.0213im │ -0.9997 + 0.0178im │
+└─────────────────────────────────────┴────────────────────┴────────────────────┴─────────────────────────┴────────────────────┴────────────────────┘</code></pre><p>For <span>$δ &lt; 0$</span> the results seem reasonable.  In this regime of electrically small metal islands (for Red J and Blue M), one wouldn&#39;t expect much reflection, and that is what is observed.  For <span>$δ &gt; 0$</span>, the geometry (for Red J and Blue M) consists of a metal plate with small holes, so one would expect almost total reflection, as observed.  Now consider how well our above observations are aligned with the computed results...</p><p>From observations 1 and 2, the numbers in any one column should all be approximately equal, which they are except for the center <span>$δ = 0$</span> column.  From observation 3 we expect all the entries in any one row to be nearly equal, but this is not true at all.  In any one row there is a violent jump in amplitude at or near <span>$δ = 0$</span>.  Finally, from observation 4 we expect all of the numeric entries for <span>$δ = 0$</span> to be approximately equal–which they are most definitely not.  What is going on here?</p><p>As discussed in the previously cited references, the idealized model being analyzed for <span>$δ = 0$</span> is unphysical. As <span>$\delta \rightarrow 0$</span> the response of the structure does not approach a limit, since the violent jump in reflection coefficient occurs for arbitrarily small positive and negative excursions from <span>$L_0$</span>.  Any physically realizable structure must exhibit continuous dependence on its physical parameters. If one attempts to approximate this ideal surface in the real world one must use finite thickness and conductivity, so that neighboring unit cells will intersect all along the thickness of the metal, rather than at a single point, thus destroying the self-complementary property.  Similarly, finite losses in any real metal preclude self-complementarity.</p><p>The same problem observed here for an ideal model of a self-complementary surface arises when analyzing pixelated structures such as shown in the next example, where adjacent metal pixels can intersect at only a single point. In that case, using a &quot;Blue M&quot; approach is known to agree with measurements.</p><h2 id="Pixelated-Band-Pass-Filter"><a class="docs-heading-anchor" href="#Pixelated-Band-Pass-Filter">Pixelated Band Pass Filter</a><a id="Pixelated-Band-Pass-Filter-1"></a><a class="docs-heading-anchor-permalink" href="#Pixelated-Band-Pass-Filter" title="Permalink"></a></h2><p>This example of from [<a href="../references/#hong2021design">23</a>, Fig. 4a].  It consists of a single-layer band-pass filter consisting of many square metallic &quot;pixels&quot;, optimized using a special binary optimizer described in the cited paper.</p><p>The geometry for the pixelated filter is created using the <a href="../reference/#PSSFSS.Elements.sympixels"><code>sympixels</code></a> function as show below.</p><pre><code class="language-julia hljs">using PSSFSS, Plots
+P = 5.4
+units = mm
+nrim = 1
+halfnint = 26
+patternvec = Bool[
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1,
+    0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0,
+    1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1,
+    0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1,
+    1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1,
+    0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0,
+    0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0,
+    1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
+    1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1,
+    0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1,
+    1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0,
+    0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+    1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1,
+    1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1,
+    0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 1,
+    0, 1, 0, 0, 0, 1, 0, 0, 0,
+    0, 0, 1, 1, 0, 0, 1, 1,
+    0, 0, 0, 0, 1, 1, 0,
+    1, 0, 0, 1, 0, 0,
+    0, 0, 1, 1, 1,
+    1, 0, 0, 0,
+    0, 0, 1,
+    0, 0,
+    0]
+
+
+sheet1 = sympixels(; P, units, nrim, halfnint, patternvec, pdiv=1, class=&#39;M&#39;)
+plot(sheet1, size=(450,450), unitcell=true)</code></pre><img src="154b9091.svg" alt="Example block output"/><p>As described in the documentation for <a href="../reference/#PSSFSS.Elements.sympixels"><code>sympixels</code></a>, the <code>1</code> entries in <code>patternvec</code> above denote the locations of the metallized pixels.  However, by setting <code>class = &#39;M&#39;</code> above we choose to triangulate the empty pixel locations, i.e. those that are not occupied by metal.  As discussed in <a href="#Checkerboard-Metasurface">Checkerboard Metasurface</a>, this choice is necessary to avoid spurious results when analyzing a structure of this type.</p><p>Note that the above triangulation is created by forming a square for each triangulated pixel and then adding a single diagonal.  A finer triangulation is required for an accurate analysis result.  This can be accomplished by increasing <code>pdiv</code> to a value greater than <code>1</code>.  Here is the triangulation that results from <code>pdiv = 2</code>:</p><pre><code class="language-julia hljs">sheet2 = sympixels(; P, units, nrim, halfnint, patternvec, pdiv=2, class=&#39;M&#39;)
+plot(sheet2, lw=0.5, size=(450,450), unitcell=true)</code></pre><img src="01712311.svg" alt="Example block output"/><p>Now each pixel has been divided into an array of 2×2 squares, each of which receives a diagonal to form triangles. The code for analyzing the <code>pdiv = 1</code> case would look like this:</p><pre><code class="language-Julia hljs">strata = [Layer(), sheet1, Layer(epsr=3.28, tandel=0.007, width=0.05mm), Layer()]
+steering = (θ=0, ϕ=0)
+flist = range(start=20, stop=36, length=401)
+logfile = &quot;bp_filter_pdiv1.log&quot;
+resultfile = &quot;bp_filter_pdiv1.res&quot;
+results = analyze(strata, flist, steering; logfile, resultfile)
+s21db = extract_result(results, @outputs s21db(te,te))</code></pre><p>Accurately analyzing a structure like this consisting of a huge number of pixels can be become very expensive (in terms of memory usage and CPU time) very quickly.  For example, the <code>pdiv = 1</code> case generated 3056 basis functions and took about 30 seconds to analyze on a 32 GByte machine. But the <code>pdiv = 2</code> case generated 15,088 unknowns and required 683 seconds of execution time.  It also failed on the 32 GByte machine due to lack of memory, but was run successfully on a 64 GByte machine.</p><p>Because the analysis in [<a href="../references/#hong2021design">23</a>] used nonzero metal thickness, I ran the zero-thickness geometry in HFSS to observe the significance of the thickness.  Here is a plot comparing the digitized results from [<a href="../references/#hong2021design">23</a>, Fig. 4a], with the zero-thickness HFSS analysis and the two PSSFSS analyses:</p><p><img src="../assets/sympixels_fig4a_comparison.svg" alt/></p><p>As seen above, the finite metallization thickness does not have a large effect on the transmission trace. Using <code>pdiv = 2</code> produces much better agreement with HFSS, but it appears that an even larger value would be required to achieve full convergence.</p><h2 id="TEP-File-Creation"><a class="docs-heading-anchor" href="#TEP-File-Creation">TEP File Creation</a><a id="TEP-File-Creation-1"></a><a class="docs-heading-anchor-permalink" href="#TEP-File-Creation" title="Permalink"></a></h2><p>Here we show how to create a TICRA-compatible TEP (tabulated electrical properties) file using the <a href="../reference/#PSSFSS.Outputs.res2tep"><code>res2tep</code></a> function included with PSSFSS. The geometry for this example is a rectangular copper strip measuring 4 cm × 0.2 cm in a 5 cm square unit cell. The code for analyzing this geometry and creating the TEP file is shown below:</p><pre><code class="language-Julia hljs">using PSSFSS
+FGHz = 3.0
+Px = Py = 5
+Lx = 4.0
+Ly = 0.2
+Nx = 130
+Ny = 6
+sheet = rectstrip(; Px, Py, Lx, Ly, Nx, Ny, units=cm, sigma=5.7e8)
+steering = (θ=0:5:70, ϕ=0:15:345)
+strata = [Layer(), sheet, Layer()]
+resultfile = &quot;strip.res&quot;
+results = analyze(strata, FGHz, steering; resultfile)
+res2tep(results, &quot;dipole_pssfss.tep&quot;; name = &quot;dipole&quot;, class = &quot;pssfss&quot;)
+# Alternatively: res2tep(resultfile, &quot;dipole_pssfss.tep&quot;; name = &quot;dipole&quot;, class = &quot;pssfss&quot;)</code></pre><p>Note that a very fine discretization has been specified, resulting in 1560 triangles.  There are also a large number of steering angles requested (15 × 24 = 360).  This analysis required about 155 seconds on my machine. Please see the documentation for <a href="../reference/#PSSFSS.Outputs.res2tep"><code>res2tep</code></a> for requirements on setting up analysis scan angles.</p><p>For comparison, the same geometry was analyzed using the QUPES program of Ticra Tools Student Edition 2024 (hence the specification for <code>sigma</code> above, which is the default conductivity used by QUPES). For the QUPES analysis, basis function expansion accuracy was set to &quot;Extreme&quot; with the other analysis settings at their default values.  The maximum magnitude of the difference between QUPES and PSSFSS complex scattering coefficients for any of these 360 steering angles was approximately 0.0021.  Convergence studies showed that for both codes, the complex scattering coefficients were still varying slightly in the third decimal place for the settings used in this example.</p><h2 id="Fresnel-Table-Creation"><a class="docs-heading-anchor" href="#Fresnel-Table-Creation">Fresnel Table Creation</a><a id="Fresnel-Table-Creation-1"></a><a class="docs-heading-anchor-permalink" href="#Fresnel-Table-Creation" title="Permalink"></a></h2><p>Here we show how to create an HFSS-compatible Fresnel table using the <a href="../reference/#PSSFSS.Outputs.res2fresnel"><code>res2fresnel</code></a> function included with PSSFSS. The geometry for this example is a double square loop in a 5 cm square unit cell. The code for analyzing this geometry and creating the Fresnel table is shown below:</p><pre><code class="language-Julia hljs">using PSSFSS
+dwidth = 3mm
+duroid = Layer(epsr=2.2, tandel=0.0009, width=dwidth)
+a = √2 * [1, 2.125]
+b = √2 * [1.5, 3.125]
+units = mm
+sides = 4
+orient = 45
+sheet = polyring(;a, b, units, sides, orient, s1=[8,0], s2=[0,8], ntri=2000)
+strata = [Layer(), duroid, sheet, duroid, Layer(width=-2*dwidth)]
+steering = (θ=0:5:45, ϕ=0)
+FGHz = 10:2:20
+results = analyze(strata, FGHz, steering; resultfile=&quot;double_square_loop.res&quot;)
+res2fresnel(results, &quot;double_square_loop.rttbl&quot;)
+# Alternatively: res2fresnel(&quot;double_square_loop.res&quot;, &quot;double_square_loop.rttbl&quot;)</code></pre><p>Note that the final layer specifies a width that is the negative of the sum of the remaining layers&#39; widths. This has the effect of moving the output phase reference plane to coincide with the input phase reference plane. Please see the documentation for <a href="../reference/#PSSFSS.Outputs.res2fresnel"><code>res2fresnel</code></a> for discussion of the setup requirements and restrictions necessary for creating a valid Fresnel table.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../PSS_&amp;_FSS_Element_Gallery/">« PSS &amp; FSS Element Gallery</a><a class="docs-footer-nextpage" href="../reference/">API Documentation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 12 August 2026 23:03">Wednesday 12 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
