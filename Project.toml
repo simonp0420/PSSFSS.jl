@@ -1,6 +1,6 @@
 name = "PSSFSS"
 uuid = "6b20a5d4-3c6c-44cd-883b-1480592d72be"
-version = "1.14.1"
+version = "1.14.2"
 authors = ["Peter Simon <psimon0420@gmail.com>"]
 
 [deps]
