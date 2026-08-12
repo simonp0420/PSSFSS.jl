@@ -448,11 +448,11 @@ function compute_next_freq(fghz, β⃗₀₀k1, steer, layers, sheets, usi, rwgd
         i2 = 1 + last(gbl.rng) # Index of layer to right of Gblock
         i_junc = gbl.j # junction where FSS is located, or 0 if no sheet
         i_sheet = i_junc == 0 ? 0 : junc[i_junc]
+        region = @view layers[i1:i2]
         if i_sheet ≠ 0
             if gbldup[ig] > 0
                 gsmb::GSM = deepcopy(gsm_save[gbldup[ig]]) # Use previously calculated GSM
             else
-                region = @view layers[i1:i2]
                 sheet = sheets[i_sheet]
                 s = gbl.j - i1 + 1 # sheet interface location within `region`
                 if sheet.class == 'J'
