@@ -49,6 +49,7 @@ include("GSMs.jl")
 include("Modes.jl")
 include("Outputs.jl")
 include("FastSweep.jl")
+include("AutoMeshRefine.jl")
 
 using .UnitVectors: ẑ
 using .Rings
@@ -69,6 +70,7 @@ using .Log: pssfss_logger, @logfile
 @reexport using .Outputs: @outputs, extract_result_file, extract_result, res2fresnel, res2tep
 using .Outputs: Result, append_result_data
 using .FastSweep: interpolate_band
+using .AutoMeshRefine: tricharge!, tricharge2!
 
 export analyze
 

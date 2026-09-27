@@ -56,6 +56,10 @@ end
     include("Translate_test.jl")
 end
 
+@safetestset "Auto Mesh Refinement Test" begin
+    include("AutoMeshRefine_test.jl")
+end
+
 if get(ENV, "BENCHMARK", "false") == "true"
     include("benchmark.jl")
 end
