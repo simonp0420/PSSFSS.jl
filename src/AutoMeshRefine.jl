@@ -147,7 +147,7 @@ function tricurrent!(
     # floquet_factor is indexed into using values in rwg.eci:
     floquet_factor = OffsetArray(SVector(1.0, 1.0, cis(-ψ₁), 1.0, cis(-ψ₂)), 0:4)
 
-    tricurrents .= zero(eltype(tricurrents))
+    fill!(tricurrents, zero(eltype(tricurrents)))
     for face in 1:ntri
         rs = vtxcrd(face, sheet) ./ units_per_meter # node coordinates [m]
         centroid = sum(rs) / 3
