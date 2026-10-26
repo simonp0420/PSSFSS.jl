@@ -5,10 +5,12 @@
 |:--------:|:---------------:|:-------:|
 |[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/stable/manual)  [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://simonp0420.github.io/PSSFSS.jl/dev/manual)| [![Build Status](https://github.com/simonp0420/PSSFSS.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/simonp0420/PSSFSS.jl/actions/workflows/CI.yml?query=branch%3Amain) | [![codecov.io](https://codecov.io/github/simonp0420/PSSFSS.jl/coverage.svg?branch=main)](https://codecov.io/github/simonp0420/PSSFSS.jl?branch=main) |
 
-`PSSFSS` is a Julia package (Python users should check out [pyPSSFSS](https://github.com/simonp0420/pypssfss)) for analyzing planar
+`PSSFSS` is a Julia package (Python users should check out [pyPSSFSS](https://github.com/simonp0420/pypssfss)) for analyzing or designing planar [metasurfaces](https://en.wikipedia.org/wiki/Electromagnetic_metasurface), 
 [polarization selective surfaces](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=polarization+selective+surface&btnG=) (PSSs), [frequency selective surfaces](https://en.wikipedia.org/wiki/Frequency_selective_surface) (FSSs),
 [reflectarray](https://en.wikipedia.org/wiki/Reflectarray_antennahttps://en.wikipedia.org/wiki/Reflectarray_antenna) elements,
-[radomes](https://en.wikipedia.org/wiki/Radome), and similar structures.  It is intended to be useful to antenna design engineers and others who work in applied electromagnetic engineering.
+[radomes](https://en.wikipedia.org/wiki/Radome), and similar structures.  Based on a rigorous periodic moment method (PMM) analysis method,
+it has been extensively validated against analytical, measured, and computed results from commercial electromagnetic solvers.
+It is intended to be useful to antenna design engineers and others who work in applied electromagnetic engineering.
 
 The user specifies the geometry to be analyzed as a `Vector` containing two or more dielectric `Layer`s
 and zero or more `Sheet` objects that define the PSS/FSS surfaces.  Due to the included plot recipes, the surfaces
@@ -23,6 +25,7 @@ the user then invokes the `analyze` function to perform the analysis.  Post-proc
 ## Features
 
 * Designed to be useful and accessible to working engineers.
+* Many example analysis scripts are provided in the extensive [user manual]((https://simonp0420.github.io/PSSFSS.jl/stable/manual). 
 * Accommodates planar FSS/PSS surfaces with no limits to number of dielectric layers or FSS/PSS sheets.
 * Automatically chooses number of modes needed for cascading multiple FSS/PSS sheets using
   generalized scattering matrices (GSMs).
