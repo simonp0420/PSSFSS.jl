@@ -1,5 +1,3 @@
-# Tests that μm functions as a unit
-
 using PSSFSS: PSSFSS
 using Test
 
