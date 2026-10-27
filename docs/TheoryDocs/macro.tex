@@ -27,6 +27,7 @@
 \newcommand{\phihat}{\boldsymbol{\hat{\phi}}}
 \newcommand{\hhat}{\rlap{$\boldsymbol{\hat{h}}$}\phantom{\boldsymbol{h}}}
 \newcommand{\vhat}{\rlap{$\boldsymbol{\hat{v}}$}\phantom{\boldsymbol{v}}}
+\newcommand{\R}{\boldsymbol{R}}
 \newcommand{\Rhat}{\boldsymbol{\hat{R}}}
 \newcommand{\Lhat}{\boldsymbol{\hat{L}}}
 \newcommand{\J}{\boldsymbol{J}}
@@ -50,7 +51,7 @@
 \newcommand{\bdot}{\boldsymbol{\cdot}}
 \newcommand{\curl}{\boldsymbol{\nabla} \cross}
 \newcommand{\divergence}{\boldsymbol{\nabla} \bdot}
-\newcommand{\laplace}{\nabla^2}  % Scalar Laplacian Operator
+\renewcommand{\laplace}{\nabla^2}  % Scalar Laplacian Operator
 \newcommand{\vlaplace}{\gradient^2}  % Vector Laplacian Operator
 \newcommand{\qe}{q_{\text{e}}}  % Electric charge density
 \newcommand{\qm}{q_{\text{m}}}  % Magnetic charge density
@@ -58,7 +59,7 @@
 \newcommand{\s}{\boldsymbol{s}}  % Direct lattice vector
 \newcommand{\vecbeta}{\boldsymbol{\beta}}  % Reciprocal lattice vector
 \newcommand{\betahat}{\boldsymbol{\hat{\beta}}}  % Reciprocal lattice unit vector
-\newcommand{\vecrho}{\boldsymbol{\rho}}  % Reciprocal lattice vector
+\newcommand{\vecrho}{\boldsymbol{\rho}}  % 2D position vector
 \newcommand{\colvec}[1]{\begin{bmatrix} #1 \end{bmatrix}}
 %\newcommand{\colvec}[1]{\left[\begin{array}{c} #1 \end{array}\right]}
 \newcommand{\TE}{^{\text{TE}}}
@@ -101,6 +102,10 @@
 \newcommand{\GPsi}{{G}^{\Psi}}
 \newcommand{\GrPsi}{\raisebox{0pt}[0pt][0pt]{$\vecr{G}$}\vphantom{G}^\Psi}
 \newcommand{\GlPsi}{\raisebox{0pt}[0pt][0pt]{$\vecl{G}$}\vphantom{G}^\Psi}
+\newcommand{\m}{\boldsymbol{m}} % edge center
+\newcommand{\dt}{\boldsymbol{d}} % testing vector
+\newcommand{\rc}{\r^{\text{c}}} % Centroid r vector.
+\newcommand{\rfree}{\r^{\text{f}}} % Free vertex vector
 \newcommand{\rcp}{\r^{\text{c}+}} % Positive centroid r vector.
 \newcommand{\rcm}{\r^{\text{c}-}} % Negative centroid r vector.
 \newcommand{\rcpm}{\r^{\text{c}\pm}} % Plus or Negative centroid r vector.

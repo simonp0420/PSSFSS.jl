@@ -1,0 +1,295 @@
+
+\chapter{Proposed Adaptive Mesh Refinement Formulation}
+\label{app:amr}
+
+\section{Scope and status}
+This appendix records the initial adaptive mesh refinement (AMR) design for
+PSSFSS as of October 8, 2026. Electric-current and magnetic-current sheets are
+both in scope. The objective is accurate generalized scattering matrices (GSMs)
+and accurate scattering parameters of the assembled periodic structure, with
+fewer unknowns than uniform refinement would require.  Note that AMR is probably
+most useful for elements that employ unstructured meshes.  For structured meshes,
+there are substantial efficiency gains obtained while filling the interaction
+matrix due to exploiting the translational invariance of triangle-triangle
+interactions.  These redundancies may be substantially reduced for meshes that
+are auto-refined.  
+
+
+
+
+\section{Source References}
+References \cite{kim2017error,kim2018adaptive,kim2018evaluation,kim2022adaptive,pete:22}
+motivate the design; periodic GSM aggregation and magnetic
+duality are adaptations for PSSFSS rather than reported validation in those papers.
+
+
+
+\subsection{Status terminology}
+\begin{description}
+\item[Implemented] Denotes existing reconstruction and tests.
+\item[Agreed] Denotes a mathematical interpretation selected for initial development.
+\item[Proposed] Denotes a candidate controller or integration strategy
+\item[Open] Denotes a choice still requiring resolution.
+\end{description}
+
+
+\section{Reconstruction and Units}
+
+\subsection{Modified RWG Normalization}
+Let triangle $i$ have area $A_i$, centroid $\rc_i$, and vertex coordinates
+$\r_{i1},\r_{i2},\r_{i3}$, all lengths expressed in meters.
+For basis function $b$, let $\r_b^+$ and $\r_b^-$ be its free
+vertices on its plus and minus triangles. For electric currents,
+its electric surface-current contributions are
+\begin{equation}
+  \J_b^+(\r)  = \frac{I_b}{2A_b^+}(\r - \r_b^+),
+  \qquad
+ \J_b^-(\r)  = -\frac{I_b}{2A_b^-}(\r - \r_b^-).
+ \label{eq:amr-rwg}
+\end{equation}
+Periodic half-bases additionally carry the phase factors described below.
+There is no conventional RWG edge-length multiplier in
+\eqref{eq:amr-rwg}: $I_b$ is the signed integrated current across the plus-side
+edge, in \unit{A} (amperes). Current density has units \unit{A/m} and the impedance matrix has
+units \unit{ohm} (ohms). For magnetic sources, replace $I_b$ by a coefficient $V_b$ in \unit{V} (volts)
+and $\J$ by $\M$ in \unit{V/m}; the admittance matrix has units \unit{S} (siemens).
+These expressions describe the effective basis used for reconstruction, including
+the coefficient scaling in the main theory's RWG expansion.
+
+\subsection{Continuity Equation}
+For the existing $\exp(j\omega t)$ convention,
+\begin{equation}
+  q_{e,i} = \frac{j}{\omega}\nabla_s \cdot \mathbf J_i,
+  \qquad
+  q_{m,i} = \frac{j}{\omega}\nabla_s\cdot\mathbf M_i.
+  \label{eq:amr-charge}
+\end{equation}
+The divergence is constant within a triangle. Thus each electric plus/minus
+half-basis contributes $\pm j I_b/(\omega A_i)$, including its phase factor.
+Electric charge density is in \unit{C/m^2}; magnetic charge density is in
+\unit{V.s/m^2} (or \unit{Wb/m^2}). Both reconstructions use the same geometric
+operations. 
+
+
+\section{Centroid Interpretation of CWCD}
+\subsection{Testing geometry}
+The \emph{agreed initial interpretation} uses triangle-centroid current values,
+not an exact line integral. For an interior edge shared by triangles $i$ and $n$,
+let $\m_{in}$ be the edge midpoint and orient the testing path from $i$
+to $n$. Define length-carrying testing vectors
+\begin{equation}
+  \dt_{i,in}= \m_{in} - \rc_i,
+  \qquad
+ \dt_{n,in} = \rc_n - \m_{in}.
+ \label{eq:amr-test-vectors}
+\end{equation}
+Their identification with the dissertation's \cite{kim2017error}
+testing vectors is a
+\emph{proposed explicit geometric convention} to review before coding.
+For the free vertex $\rfree_{i}$ opposite this edge,
+$\dt_{i,in} = (\rc_i - \rfree_{i})/2$; similarly,
+$\dt_{n,in} = (\rfree_{n} - \rc_n)/2$.
+These identities connect the geometry to the half-vector factors in PSSFSS's
+centroid testing expressions.
+
+For excitation $a$, define
+\begin{equation}
+ B_{e,in}^{(a)} =
+ \dt_{i,in} \cdot \J_i^{(a)}(\rc_i) + \dt_{n,in} \cdot \J_n^{(a)}(\rc_n),
+ \qquad
+ \Delta q_{e,in}^{(a)} = q_{e,i}^{(a)} - q_{e,n}^{(a)}.
+ \label{eq:amr-centroid-test}
+\end{equation}
+The dot products are ordinary geometric contractions as defined for real vectors; they do
+not conjugate the complex current. Define $B_m$ and $\Delta q_m$ analogously for magnetic quantities.
+Reversing the edge orientation changes both signs but not their magnitudes.
+RWG currents are affine within each triangle: centroid evaluation generally
+differs from exact integration along each half-path. This discrete interpretation
+must not be silently replaced by path integration.
+
+\subsection{Electric and Magnetic Interface Weights}
+The \emph{agreed interface policy} uses the material factors appearing in
+PSSFSS's source-plane potential Green functions. Let $\mu_s,\epsilon_s$ and
+$\mu_{s+1}, \epsilon_{s+1}$ be the absolute, possibly complex permeabilities and permittivities
+immediately to the left and right of the sheet. Define
+\begin{equation}
+  \tilde{\mu} = \frac{2 \mu_s \mu_{s+1}}{\mu_s + \mu_{s+1}},
+  \qquad
+  \bar{\epsilon} = \frac{\epsilon_s + \epsilon_{s+1}}{2}.
+ \label{eq:amr-interface-materials}
+\end{equation}
+These are the harmonic mean of permeability and arithmetic mean of permittivity.
+For electric sources, Chapter~\ref{chap:gfstratified}'s accelerated Green functions factor out
+$\tilde{\mu}$ from the vector potential and $1/\bar{\epsilon}$ from
+the scalar potential (see \eqref{eq:finalEGF}).
+Their local, large-spatial-frequency behavior motivates the same factors in
+CWCD; this is an estimator adaptation, not a replacement of the full layered
+Green functions.
+
+For positive lossless parameters, one may define
+\begin{equation}
+  k_{\text{eff}} = \omega\sqrt{\tilde{\mu}\,\bar{\epsilon}},\qquad
+  \eta_{\text{eff}}= \sqrt{\frac{\tilde{\mu}}{\bar{\epsilon}}},\qquad
+  k_{\text{eff}} \eta_{\text{eff}} = \omega\tilde{\mu},\quad
+ \frac{k_{\text{eff}}}{\eta_{\text{eff}}} = \omega \bar{\epsilon}.
+ \label{eq:amr-effective-k-eta}
+\end{equation}
+There is no need to compute either square root for the indicator. Use directly
+\begin{align}
+  s_{e,in}^{(a)} &=
+                   \left|\omega\tilde{\mu}\,B_{e,in}^{(a)}\right|
+                   + \left|\frac{\Delta q_{e,in}^{(a)}}{\bar{\epsilon}}\right|,
+                   \label{eq:amr-electric-score} \\
+  s_{m,in}^{(a)} &=
+                   \left|\omega\bar{\epsilon}\,B_{m,in}^{(a)}\right|
+                   +\left|\frac{\Delta q_{m,in}^{(a)}}{\tilde{\mu}}\right|.
+                   \label{eq:amr-magnetic-score}
+\end{align}
+The electric score defined above has units \unit{V/m}; the magnetic score has units \unit{A/m}.
+CWCD adds a current term to a charge jump, rather than multiplying the jump by
+current magnitude. Material coefficients remain inside each absolute value,
+so the scores are nonnegative for complex material parameters and no
+square-root branch selection is required.
+
+\subsection{Why magnetic permeability is harmonically averaged}
+The magnetic formulation adds independent left-looking and right-looking
+potential Green functions, as described in Chapter~\ref{chap:mom}'s magnetic-source
+formulation (see \eqref{eq:GFxxGpsileftright}). Each side sees
+its own one-sided structure. The leading current weights are proportional to
+$\omega\epsilon_s$ and $\omega\epsilon_{s+1}$, whereas the charge weights are
+proportional to $1/\mu_s$ and $1/\mu_{s+1}$. Consequently,
+\begin{equation}
+ \frac12 \left(\frac{1}{\mu_s}+\frac{1}{\mu_{s+1}}\right)
+  = \frac{1}{\tilde{\mu}},
+ \label{eq:amr-reciprocal-mu}
+\end{equation}
+rather than $1/\bar{\mu}$ with $\bar{\mu}=(\mu_s+\mu_{s+1})/2$. The accelerated
+magnetic Green functions in Chapter~\ref{chap:gfstratified} likewise contain $\bar{\epsilon}$ and
+$1/\tilde{\mu}$. Using averages rather than sums omits a common factor
+of two from the magnetic weights; this convention must be applied consistently
+to any solution-based normalization. An incident-field normalization would
+require an explicit choice of that overall scale.
+
+For equal materials, the scores reduce to the homogeneous electric and magnetic
+forms. For equal permeabilities, arithmetic and harmonic means of permeability
+coincide, including the common nonmagnetic dielectric case. Remote layers still
+affect the solved currents and charges, but are not included in these local
+material weights. The selected weights do not establish CWCD accuracy for every
+material contrast or loss level; validate them by mesh convergence.
+
+In implementation, \texttt{FillZY.jl} uses relative versions of these averages:
+multiply the harmonic relative permeability by $\mu_0$ and the arithmetic
+relative permittivity by $\epsilon_0$ before applying SI reconstruction outputs.
+Zero or singular effective parameters require explicit handling; do not silently
+regularize them or substitute magnitudes before averaging.
+
+For a triangle with three defined neighbour contributions, let
+\begin{equation}
+ E_i^{(a)}=\frac{1}{3}\sum_{m=1}^3 s_{i,n(i,m)}^{(a)},\qquad
+ \eta_i^{(a)}=\frac{E_i^{(a)}}{D^{(a)}}.
+ \label{eq:amr-local-indicator}
+\end{equation}
+A physical boundary cannot be inserted into this three-neighbour
+sum without a specified boundary convention.
+In \eqref{eq:amr-local-indicator} $D^{(a)}>0$ is a normalization constant with the same units as $E$.
+There are several possibilities for its definition. The dissertation \cite[Eq.~(5.7)]{kim2017error}
+normalizes by incident field magnitude; the published CWCD equation \cite[Eq.~(5)]{kim2018evaluation}
+uses a solution-based scale. We will follow \cite{kim2018evaluation} and choose
+\begin{equation}
+  \label{eq:Ddef}
+  D^{(a)} = \max_i E_i^{(a)}.
+\end{equation}
+In the remote possibility that $D^{(a)} = 0$ an error condition will be raised.
+
+
+\section{Periodic Neighbours and Physical Boundaries}
+For a translated periodic image displaced by
+$\R_{pq} = p \s_1 + q \s_2$, the existing convention is
+\begin{equation}
+ \J(\r + \R_{pq}) =  e^{-j(p\psi_1+q\psi_2)} \J(\r).
+ \label{eq:amr-periodic-phase}
+\end{equation}
+The same phase relation applies to charge and magnetic current. Translate the
+neighbor centroid and free vertex into the image adjacent to the chosen edge,
+and apply the associated phase to its reconstructed field quantities before
+forming \eqref{eq:amr-centroid-test}. Reversing the image translation reverses
+the phase exponent. Do not apply the reconstruction half-basis factor twice:
+reconstruction produces fields in the stored cell; image comparison is a
+separate operation. Verify this convention against RWG edge codes and tests.
+
+A physical metal or aperture boundary has no conducting or aperture neighbour
+across it. Its score treatment is \emph{open}; excluding the missing edge,
+constructing an exterior continuation, and using a boundary-specific score are
+not equivalent. A periodic seam is not a physical edge. Refinement must preserve
+paired boundary segmentation and prevent hanging nodes.
+
+\section{Excitations and marking}
+The \emph{proposed initial GSM objective} uses all retained incident TE and TM
+Floquet modes from both sides of each Gblock, including evanescent modes.
+The local system's factorization is shared across these right-hand sides.
+Separately normalized indicators can be accumulated without storing every
+solution:
+\begin{equation}
+ \eta_i^{\text{GSM}}=\max_{a\in\mathcal E}\eta_i^{(a)}.
+ \label{eq:amr-mode-maximum}
+\end{equation}
+This is very simple to implement, but gives weak and strongly excited responses comparable influence,
+which may not be the best choice.  Instead, a better choice might be to base AMR on the actual total current induced via a given external illumination.
+This would be more complicated to implement and is postponed for later examination.
+As a brief summary, this latter method would reconstruct the actual current
+$\J^{(b)}=\sum_a u_a^{(b)} \J^{(a)}$ for an external illumination
+$b$, using incident modal amplitudes recovered from cascading. Compute CWCD
+only once \emph{after} this coherent sum.
+This is an optional alternative objective, not a requirement for
+the initial GSM implementation.
+
+A proposed area-weighted marking score is
+\begin{equation}
+ M_i = A_i\eta_i^{\text{GSM}}, \qquad  \mathcal F = \{i: M_i> \zeta\max_j M_j\}, \quad 0 < \zeta < 1.
+ \label{eq:amr-marking}
+\end{equation}
+The papers use $\zeta=0.7$ in particular experiments; this is not a universal
+accuracy tolerance. Area weighting is a controller choice, distinct from CWCD.
+It reduces the dominance of shrinking cells near physical edge singularities.
+A zero maximum should produce no marks. A decreasing maximum charge jump is not
+a necessary condition for improved scattering accuracy near singular edges.
+
+The candidate refinement footprint adds edge midpoints to marked cells and
+centroids to neighbouring cells sharing a vertex, followed by mesh smoothing via
+constrained Laplace iteration, then constrained triangulation.  Periodic partners must be
+included consistently. Boundary geometry, holes, conformity, and triangle quality
+must be preserved; any smoothing must respect physical and periodic constraints.
+The specific mesher and footprint remain \emph{proposed}. 
+
+The adaptation sample selection and treatment of a changing mesh during a fast
+interpolated sweep remain \emph{open}.  However, the initial proposed sampling
+plan is the following heuristic: 
+Perform mesh refinement at only the highest requested analysis frequency, and
+at the most extreme requested scan angle (or incremental phasing, if phases
+rather than steering angles are specified by the user).  The most ``extreme''
+steering angle will mean that with maximum $|\theta|$  (if not unique, then
+select one of these with maximum $|\phi|$). For incremental phasings,
+the most ``extreme'' phasing will be any one maximizing $|\psi_1|^2 + |\psi_2|^2$.
+Eventually, the plan is to allow the user to specify one or more
+(scan condition, frequency) combinations at which to perform adaptive meshing,
+obtaining a single, common mesh that is then used for all requested sweeps.
+If none are specified, then the heuristic described above will be used.
+
+\section{Validation, Stopping Criteria}
+Use analytic reconstruction tests and periodic image tests before integration.
+Compare adaptive results against converged uniformly refined references at
+representative frequencies, scan conditions, and both source classes. Examine
+complex GSM entries and final scattering parameters; indicator reduction alone
+is not evidence of the required accuracy. Modal truncation error must be
+controlled separately from mesh discretization error.
+
+Stopping criteria will include
+\begin{itemize}
+\item S-parameter convergence,
+\item Maximum allowed number of triangles exceeded.
+\end{itemize}
+The AMR algorithm will terminate whenever either of these is criteria is met.
+Exact thresholds and comparison
+norms remain \emph{open}. A resource-limited stop must not be reported as
+convergence. 
+
