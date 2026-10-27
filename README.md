@@ -25,7 +25,7 @@ the user then invokes the `analyze` function to perform the analysis.  Post-proc
 ## Features
 
 * Designed to be useful and accessible to working engineers.
-* Many example analysis scripts are provided in the extensive [user manual]((https://simonp0420.github.io/PSSFSS.jl/stable/manual). 
+* Many example analysis scripts are provided in the extensive [user manual](https://simonp0420.github.io/PSSFSS.jl/stable/manual). 
 * Accommodates planar FSS/PSS surfaces with no limits to number of dielectric layers or FSS/PSS sheets.
 * Automatically chooses number of modes needed for cascading multiple FSS/PSS sheets using
   generalized scattering matrices (GSMs).
